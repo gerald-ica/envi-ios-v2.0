@@ -1,8 +1,8 @@
 # ENVI
 
-**The creator's intelligent content companion.**
+**Personalized AI Content Editor.**
 
-ENVI is an iOS app for content creators to manage, edit, analyze, and optimize their social media presence across platforms. Powered by AI, it provides smart insights, automated captions, optimal posting times, and engagement analytics — all in a monochromatic, editorial design language.
+Your next post is already filmed. ENVI is a personalized AI content editor for iOS that scans your camera roll, turns forgotten footage into polished, ready-to-post content, and helps you manage your social media presence across platforms. Powered by AI, it provides smart insights, automated captions, optimal posting times, and engagement analytics — all in a monochromatic, editorial design language.
 
 ## Screenshots
 
@@ -143,4 +143,4 @@ Fonts are registered at app launch via `ENVITypography.registerFonts()`.
 
 ## License
 
-Copyright © 2024 Informal. All rights reserved.
+Copyright © 2026 Informal. All rights reserved.
