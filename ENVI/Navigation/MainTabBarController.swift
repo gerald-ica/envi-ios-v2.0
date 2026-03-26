@@ -29,9 +29,9 @@ final class MainTabBarController: UIViewController {
         let libraryVC = UIHostingController(rootView: LibraryView())
         libraryVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
-        // Tab 3: Chat (SwiftUI)
-        let chatVC = UIHostingController(rootView: ChatView())
-        chatVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        // Tab 3: Chat + Explore (SwiftUI)
+        let chatExploreVC = UIHostingController(rootView: ChatExploreView())
+        chatExploreVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
         // Tab 4: Analytics (SwiftUI)
         let analyticsVC = UIHostingController(rootView: AnalyticsView())
@@ -44,7 +44,7 @@ final class MainTabBarController: UIViewController {
         let profileVC = UIHostingController(rootView: profileView)
         profileVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
-        viewControllers = [feedNav, libraryVC, chatVC, analyticsVC, profileVC]
+        viewControllers = [feedNav, libraryVC, chatExploreVC, analyticsVC, profileVC]
     }
 
     private func setupTabBar() {
