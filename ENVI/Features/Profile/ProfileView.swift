@@ -1,0 +1,110 @@
+import SwiftUI
+
+/// Profile screen with avatar, stats, platforms, settings, and appearance toggle.
+struct ProfileView: View {
+    @StateObject private var viewModel = ProfileViewModel()
+    @Environment(\.colorScheme) private var colorScheme
+
+    var onSignOut: (() -> Void)?
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: ENVISpacing.xxl) {
+                // Avatar
+                ZStack {
+                    Circle()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [ENVITheme.Dark.primary, ENVITheme.Dark.secondary],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 3
+                        )
+                        .frame(width: 88, height: 88)
+
+                    Text(viewModel.user.initials)
+                        .font(.interBold(28))
+                        .foregroundColor(.white)
+                }
+
+                // Name + Handle
+                VStack(spacing: 4) {
+                    Text(viewModel.user.fullName)
+                        .font(.interBold(22))
+                        .foregroundColor(ENVITheme.text(for: colorScheme))
+
+                    Text(viewModel.user.handle)
+                        .font(.interRegular(14))
+                        .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                }
+
+                // Stats
+                HStack(spacing: ENVISpacing.xxxl) {
+                    StatView(label: "Published", value: "\(viewModel.user.publishedCount)")
+                    StatView(label: "Drafts", value: "\(viewModel.user.draftsCount)")
+                    StatView(label: "Templates", value: "\(viewModel.user.templatesCount)")
+                }
+
+                Divider().background(ENVITheme.border(for: colorScheme))
+
+                // Connected Platforms
+                ConnectedPlatformsView(platforms: viewModel.user.connectedPlatforms)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                Divider().background(ENVITheme.border(for: colorScheme))
+
+                // Settings
+                SettingsSection(items: viewModel.settingsItems)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                Divider().background(ENVITheme.border(for: colorScheme))
+
+                // Appearance
+                AppearanceToggle(themeManager: viewModel.themeManager)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                // Sign Out
+                Button(action: {
+                    viewModel.signOut()
+                    onSignOut?()
+                }) {
+                    Text("Sign Out")
+                        .font(.interSemiBold(15))
+                        .foregroundColor(ENVITheme.error)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, ENVISpacing.lg)
+                        .background(ENVITheme.surfaceLow(for: colorScheme))
+                        .clipShape(Capsule())
+                }
+                .padding(.horizontal, ENVISpacing.xl)
+                .padding(.bottom, 100)
+            }
+            .padding(.top, ENVISpacing.xxl)
+        }
+        .background(ENVITheme.background(for: colorScheme))
+    }
+}
+
+private struct StatView: View {
+    let label: String
+    let value: String
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.interBold(20))
+                .foregroundColor(ENVITheme.text(for: colorScheme))
+            Text(label)
+                .font(.spaceMono(10))
+                .tracking(0.80)
+                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+        }
+    }
+}
+
+#Preview {
+    ProfileView()
+        .preferredColorScheme(.dark)
+}

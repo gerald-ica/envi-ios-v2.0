@@ -1,0 +1,225 @@
+import UIKit
+import SwiftUI
+
+/// UIKit-based video editor with preview, timeline, and toolbar.
+final class EditorViewController: UIViewController {
+
+    private let viewModel = EditorViewModel()
+
+    // MARK: - Top Toolbar
+    private let topBar: UIView = {
+        let v = UIView()
+        v.backgroundColor = ENVITheme.UIKit.backgroundDark
+        v.translatesAutoresizingMaskIntoConstraints = false
+        return v
+    }()
+
+    private let backButton: UIButton = {
+        let b = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
+        b.setImage(UIImage(systemName: "chevron.left", withConfiguration: config), for: .normal)
+        b.tintColor = .white
+        b.translatesAutoresizingMaskIntoConstraints = false
+        return b
+    }()
+
+    private let titleLabel: UILabel = {
+        let l = UILabel()
+        l.text = "Edit"
+        l.font = .interSemiBold(17)
+        l.textColor = .white
+        l.translatesAutoresizingMaskIntoConstraints = false
+        return l
+    }()
+
+    private let exportButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.title = "Export"
+        config.baseBackgroundColor = ENVITheme.UIKit.primaryDark
+        config.baseForegroundColor = .white
+        config.cornerStyle = .capsule
+        config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+        let b = UIButton(configuration: config)
+        b.translatesAutoresizingMaskIntoConstraints = false
+        return b
+    }()
+
+    // MARK: - Preview Area
+    private let previewView: UIView = {
+        let v = UIView()
+        v.backgroundColor = ENVITheme.UIKit.surfaceLowDark
+        v.layer.cornerRadius = ENVIRadius.lg
+        v.clipsToBounds = true
+        v.translatesAutoresizingMaskIntoConstraints = false
+        return v
+    }()
+
+    private let playButton: UIButton = {
+        let b = UIButton(type: .system)
+        let config = UIImage.SymbolConfiguration(pointSize: 36, weight: .medium)
+        b.setImage(UIImage(systemName: "play.circle.fill", withConfiguration: config), for: .normal)
+        b.tintColor = .white
+        b.translatesAutoresizingMaskIntoConstraints = false
+        return b
+    }()
+
+    // MARK: - Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        setupTopBar()
+        setupPreview()
+        setupTimeline()
+        setupToolbar()
+    }
+
+    private func setupTopBar() {
+        view.addSubview(topBar)
+        topBar.addSubview(backButton)
+        topBar.addSubview(titleLabel)
+        topBar.addSubview(exportButton)
+
+        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
+        exportButton.addTarget(self, action: #selector(showExport), for: .touchUpInside)
+
+        NSLayoutConstraint.activate([
+            topBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            topBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            topBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            topBar.heightAnchor.constraint(equalToConstant: 48),
+
+            backButton.leadingAnchor.constraint(equalTo: topBar.leadingAnchor, constant: 16),
+            backButton.centerYAnchor.constraint(equalTo: topBar.centerYAnchor),
+
+            titleLabel.centerXAnchor.constraint(equalTo: topBar.centerXAnchor),
+            titleLabel.centerYAnchor.constraint(equalTo: topBar.centerYAnchor),
+
+            exportButton.trailingAnchor.constraint(equalTo: topBar.trailingAnchor, constant: -16),
+            exportButton.centerYAnchor.constraint(equalTo: topBar.centerYAnchor),
+        ])
+    }
+
+    private func setupPreview() {
+        view.addSubview(previewView)
+        previewView.addSubview(playButton)
+
+        // Add a placeholder image
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: "runway") ?? UIImage(named: "studio-fashion")
+        imageView.contentMode = .scaleAspectFill
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        previewView.insertSubview(imageView, at: 0)
+
+        NSLayoutConstraint.activate([
+            previewView.topAnchor.constraint(equalTo: topBar.bottomAnchor, constant: 12),
+            previewView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            previewView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            previewView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.45),
+
+            imageView.topAnchor.constraint(equalTo: previewView.topAnchor),
+            imageView.bottomAnchor.constraint(equalTo: previewView.bottomAnchor),
+            imageView.leadingAnchor.constraint(equalTo: previewView.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: previewView.trailingAnchor),
+
+            playButton.centerXAnchor.constraint(equalTo: previewView.centerXAnchor),
+            playButton.centerYAnchor.constraint(equalTo: previewView.centerYAnchor),
+        ])
+    }
+
+    private func setupTimeline() {
+        // Simplified timeline placeholder
+        let timelineLabel = UILabel()
+        timelineLabel.text = "Timeline"
+        timelineLabel.font = .spaceMono(11)
+        timelineLabel.textColor = ENVITheme.UIKit.textLightDark
+        timelineLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(timelineLabel)
+
+        // Track lanes
+        let tracks = ["V1", "A1", "T1", "FX"]
+        var previousView: UIView = previewView
+        for (index, trackName) in tracks.enumerated() {
+            let track = createTrackView(name: trackName)
+            view.addSubview(track)
+            NSLayoutConstraint.activate([
+                track.topAnchor.constraint(equalTo: previousView.bottomAnchor, constant: index == 0 ? 32 : 4),
+                track.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 48),
+                track.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+                track.heightAnchor.constraint(equalToConstant: 28),
+            ])
+            previousView = track
+
+            // Label
+            let label = UILabel()
+            label.text = trackName
+            label.font = .spaceMonoBold(9)
+            label.textColor = ENVITheme.UIKit.textLightDark
+            label.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(label)
+            NSLayoutConstraint.activate([
+                label.centerYAnchor.constraint(equalTo: track.centerYAnchor),
+                label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            ])
+        }
+    }
+
+    private func createTrackView(name: String) -> UIView {
+        let v = UIView()
+        v.backgroundColor = ENVITheme.UIKit.surfaceLowDark
+        v.layer.cornerRadius = 4
+        v.translatesAutoresizingMaskIntoConstraints = false
+
+        // Clip indicator
+        let clip = UIView()
+        clip.backgroundColor = ENVITheme.UIKit.primaryDark.withAlphaComponent(0.6)
+        clip.layer.cornerRadius = 3
+        clip.translatesAutoresizingMaskIntoConstraints = false
+        v.addSubview(clip)
+
+        NSLayoutConstraint.activate([
+            clip.topAnchor.constraint(equalTo: v.topAnchor, constant: 2),
+            clip.bottomAnchor.constraint(equalTo: v.bottomAnchor, constant: -2),
+            clip.leadingAnchor.constraint(equalTo: v.leadingAnchor, constant: 4),
+            clip.widthAnchor.constraint(equalTo: v.widthAnchor, multiplier: 0.7),
+        ])
+
+        return v
+    }
+
+    private func setupToolbar() {
+        let toolStack = UIStackView()
+        toolStack.axis = .horizontal
+        toolStack.distribution = .fillEqually
+        toolStack.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(toolStack)
+
+        let tools = zip(viewModel.tools, viewModel.toolIcons)
+        for (title, icon) in tools {
+            let symConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
+            var btnConfig = UIButton.Configuration.plain()
+            btnConfig.image = UIImage(systemName: icon, withConfiguration: symConfig)
+            btnConfig.title = title
+            btnConfig.imagePlacement = .top
+            btnConfig.imagePadding = 4
+            btnConfig.baseForegroundColor = ENVITheme.UIKit.textLightDark
+
+            let button = UIButton(configuration: btnConfig)
+            toolStack.addArrangedSubview(button)
+        }
+
+        NSLayoutConstraint.activate([
+            toolStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -8),
+            toolStack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            toolStack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            toolStack.heightAnchor.constraint(equalToConstant: 60),
+        ])
+    }
+
+    @objc private func goBack() {
+        navigationController?.popViewController(animated: true)
+    }
+
+    @objc private func showExport() {
+        // Present export sheet as SwiftUI sheet would go here
+    }
+}
