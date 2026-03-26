@@ -1,4 +1,5 @@
 import XCTest
+import SwiftUI
 @testable import ENVI
 
 final class ENVITests: XCTestCase {

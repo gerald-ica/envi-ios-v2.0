@@ -48,11 +48,13 @@ enum ContentPlatform: String, CaseIterable, Codable {
 enum ContentSource: String, CaseIterable {
     case photoLibrary
     case contentLibrary
+    case predicted       // AI-generated future recommendation
 
     var label: String {
         switch self {
         case .photoLibrary:   return "Camera Roll"
         case .contentLibrary: return "Content Library"
+        case .predicted:      return "AI Predicted"
         }
     }
 
@@ -60,6 +62,7 @@ enum ContentSource: String, CaseIterable {
         switch self {
         case .photoLibrary:   return "From your Camera Roll"
         case .contentLibrary: return "From Content Library"
+        case .predicted:      return "AI Recommended"
         }
     }
 }
@@ -92,6 +95,31 @@ struct ContentPiece: Identifiable {
     let aiSuggestion: String?
     let imageName: String
     let source: ContentSource
+
+    // Future/predicted content fields
+    let predictedEngagement: String?
+    let confidenceScore: Int?          // 0–100, e.g. 87
+    let aiExplanation: String?         // "Why this recommendation"
+
+    var isFuture: Bool { source == .predicted }
+
+    init(
+        id: String, title: String, type: ContentType, platform: ContentPlatform,
+        description: String, aiScore: Int, createdAt: String, tags: [String],
+        metrics: ContentMetrics?, aiSuggestion: String?, imageName: String,
+        source: ContentSource,
+        predictedEngagement: String? = nil,
+        confidenceScore: Int? = nil,
+        aiExplanation: String? = nil
+    ) {
+        self.id = id; self.title = title; self.type = type; self.platform = platform
+        self.description = description; self.aiScore = aiScore; self.createdAt = createdAt
+        self.tags = tags; self.metrics = metrics; self.aiSuggestion = aiSuggestion
+        self.imageName = imageName; self.source = source
+        self.predictedEngagement = predictedEngagement
+        self.confidenceScore = confidenceScore
+        self.aiExplanation = aiExplanation
+    }
 
     // MARK: - Sample Library
     // Placeholder content — in production, assembled from user's camera roll.
@@ -294,5 +322,116 @@ struct ContentPiece: Identifiable {
             imageName: "industrial-girl",
             source: .photoLibrary
         ),
+
+        // MARK: - Future / AI-Predicted Content Pieces
+
+        ContentPiece(
+            id: "future-1",
+            title: "Recommended: Trend Video — Trending Audio Remix for TikTok",
+            type: .reel,
+            platform: .tiktok,
+            description: "AI recommends creating a trend remix video using the currently viral audio. Your audience engagement peaks with short-form trend content on TikTok.",
+            aiScore: 88,
+            createdAt: "2026-03-28",
+            tags: ["trend", "audio", "tiktok", "predicted"],
+            metrics: nil,
+            aiSuggestion: nil,
+            imageName: "industrial-girl",
+            source: .predicted,
+            predictedEngagement: "~15K views",
+            confidenceScore: 87,
+            aiExplanation: "Your last 3 TikTok trend remixes averaged 34K views. Current audio is trending upward with 12M uses this week. Posting within the next 48hrs maximizes reach."
+        ),
+        ContentPiece(
+            id: "future-2",
+            title: "Optimal: Carousel — Week Recap for LinkedIn",
+            type: .carousel,
+            platform: .linkedin,
+            description: "AI suggests a weekly recap carousel summarizing your top content moments. LinkedIn carousels from your account see 2.3x higher impressions than static posts.",
+            aiScore: 79,
+            createdAt: "2026-03-30",
+            tags: ["recap", "linkedin", "carousel", "predicted"],
+            metrics: nil,
+            aiSuggestion: nil,
+            imageName: "red-silhouette",
+            source: .predicted,
+            predictedEngagement: "~3K impressions",
+            confidenceScore: 82,
+            aiExplanation: "Your LinkedIn audience is most active on Sundays. Weekly recap carousels in your niche see 40% higher save rates than standalone posts."
+        ),
+        ContentPiece(
+            id: "future-3",
+            title: "National Coffee Day — Brand Moment Opportunity",
+            type: .photo,
+            platform: .instagram,
+            description: "April 1 is National Coffee Day — a high-engagement brand moment. AI recommends a lifestyle photo tying your brand to the cultural moment.",
+            aiScore: 91,
+            createdAt: "2026-04-01",
+            tags: ["coffee-day", "brand-moment", "instagram", "predicted"],
+            metrics: nil,
+            aiSuggestion: nil,
+            imageName: "culture-food",
+            source: .predicted,
+            predictedEngagement: "High opportunity — trending hashtag",
+            confidenceScore: 91,
+            aiExplanation: "National Coffee Day generated 2.1M Instagram posts last year. Brands in your category saw 3x engagement spikes. Early posting (7-9am) captures peak interest."
+        ),
+        ContentPiece(
+            id: "future-4",
+            title: "Predicted Peak Window — Your Audience Is Most Active",
+            type: .story,
+            platform: .instagram,
+            description: "AI detected your highest-engagement posting window. Schedule any content during this window for maximum reach.",
+            aiScore: 85,
+            createdAt: "2026-04-03",
+            tags: ["peak-window", "scheduling", "predicted"],
+            metrics: nil,
+            aiSuggestion: nil,
+            imageName: "Closer",
+            source: .predicted,
+            predictedEngagement: "Optimal posting window",
+            confidenceScore: 93,
+            aiExplanation: "Analysis of your last 90 days shows Thursday 2-4pm is your highest engagement window. Followers online: +47% vs. average."
+        ),
+        ContentPiece(
+            id: "future-5",
+            title: "Content Gap Alert — No Video Content in 14 Days",
+            type: .video,
+            platform: .tiktok,
+            description: "AI detected a content gap: you haven't published video content in 14 days. Your video posts drive 60% of total engagement — this gap may impact growth.",
+            aiScore: 77,
+            createdAt: "2026-04-05",
+            tags: ["content-gap", "video", "tiktok", "predicted"],
+            metrics: nil,
+            aiSuggestion: nil,
+            imageName: "fire-stunt",
+            source: .predicted,
+            predictedEngagement: "Gap risk — engagement may drop 20%",
+            confidenceScore: 85,
+            aiExplanation: "Your video content averages 4.2x more engagement than photo posts. Going 14+ days without video historically correlates with a 20% follower engagement drop."
+        ),
+        ContentPiece(
+            id: "future-6",
+            title: "Collaboration: Partner Content Cross-Post",
+            type: .carousel,
+            platform: .instagram,
+            description: "AI identified a collaboration opportunity. Cross-posting with partners in your niche drives mutual audience growth and 2x engagement on carousel format.",
+            aiScore: 84,
+            createdAt: "2026-04-07",
+            tags: ["collab", "cross-post", "multi-platform", "predicted"],
+            metrics: nil,
+            aiSuggestion: nil,
+            imageName: "fashion-group",
+            source: .predicted,
+            predictedEngagement: "~8K combined impressions",
+            confidenceScore: 78,
+            aiExplanation: "Your last collab post (Mar 8) drove 11.2K views and 201 comments — your highest engagement that week. Partner accounts with 5K-50K followers see the best cross-pollination."
+        ),
     ]
+
+    /// All future/predicted content pieces
+    static let futurePieces: [ContentPiece] = sampleLibrary.filter { $0.isFuture }
+
+    /// All past (real) content pieces
+    static let pastPieces: [ContentPiece] = sampleLibrary.filter { !$0.isFuture }
 }

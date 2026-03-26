@@ -25,6 +25,8 @@ enum ContentLibrary {
     ]
 
     static let pieces: [ContentPiece] = ContentPiece.sampleLibrary
+    static let futurePieces: [ContentPiece] = ContentPiece.futurePieces
+    static let pastPieces: [ContentPiece] = ContentPiece.pastPieces
 
     static func piece(for id: String) -> ContentPiece? {
         pieces.first { $0.id == id }
@@ -709,7 +711,7 @@ struct WorldExplorerView: View {
                                 .frame(width: 30, height: 30)
                                 .background(
                                     Circle()
-                                        .fill(Color.red.opacity(0.8))
+                                        .fill(Color(red: 220/255, green: 50/255, blue: 50/255).opacity(0.8))
                                 )
                                 .overlay(
                                     Circle()

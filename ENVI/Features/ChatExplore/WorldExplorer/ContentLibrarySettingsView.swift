@@ -10,7 +10,7 @@ struct ContentLibrarySettingsView: View {
 
     // MARK: - State
 
-    @State private var contentSource: ContentSource = .contentLibrary
+    @State private var contentSource: SourceOption = .contentLibrary
     @State private var autoCreateContent: Bool = true
     @State private var showPhotos: Bool = true
     @State private var showVideos: Bool = true
@@ -18,7 +18,8 @@ struct ContentLibrarySettingsView: View {
     @State private var showStories: Bool = true
     @State private var showReels: Bool = true
 
-    enum ContentSource: String, CaseIterable {
+    /// Local picker option — maps to ContentSource without shadowing it.
+    enum SourceOption: String, CaseIterable {
         case photoLibrary = "Photo Library"
         case contentLibrary = "Content Library"
 
@@ -41,7 +42,7 @@ struct ContentLibrarySettingsView: View {
                     sectionHeader("CONTENT SOURCE")
 
                     VStack(spacing: ENVISpacing.sm) {
-                        ForEach(ContentSource.allCases, id: \.rawValue) { source in
+                        ForEach(SourceOption.allCases, id: \.rawValue) { source in
                             Button {
                                 withAnimation(.easeOut(duration: 0.15)) {
                                     contentSource = source

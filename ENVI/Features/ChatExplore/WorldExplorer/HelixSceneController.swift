@@ -119,9 +119,10 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
     private var streamTs: [Float] = []          // [0,1] position along helix
     private var phases: [Float] = []            // random per-content-piece phase offset
     private var baseSizes: [Float] = []         // base scale
-    private var contentIndices: [Int] = []      // maps content piece → CONTENT_IDS index (0..<14)
+    private var contentIndices: [Int] = []      // maps content piece → CONTENT_IDS index (0..<14+6 future)
     private var contentPieceNodes: [SCNNode] = [] // the plane nodes
     private var positions: [SCNVector3] = []    // current world positions (updated each frame)
+    private var isFutureNode: [Bool] = []       // whether this node represents a future/predicted piece
 
     /// Starfield
     private var starNodes: [SCNNode] = []
@@ -477,6 +478,99 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             group.addChildNode(diamond)
         }
 
+        // "NOW" marker — vertical line at current date position
+        let nowDateStr = "2026-03-26"
+        if let nowDate = inputFmt.date(from: nowDateStr) {
+            let nowPct = Float(nowDate.timeIntervalSince(tlStartDate) / tlRange)
+            let nowX = -halfSL + nowPct * SL
+
+            // Vertical NOW line
+            let nowLineGeo = SCNBox(width: 0.08, height: 3.0, length: 0.08, chamferRadius: 0)
+            let nowLineMat = SCNMaterial()
+            nowLineMat.diffuse.contents = UIColor.white.withAlphaComponent(0.6)
+            nowLineMat.lightingModel = .constant
+            nowLineMat.writesToDepthBuffer = false
+            nowLineGeo.materials = [nowLineMat]
+            let nowLine = SCNNode(geometry: nowLineGeo)
+            nowLine.position = SCNVector3(nowX, 0, 0)
+            group.addChildNode(nowLine)
+
+            // "NOW" label
+            let nowLabel = createTextSprite(text: "NOW", fontSize: 14, color: UIColor.white.withAlphaComponent(0.8), bold: true)
+            nowLabel.position = SCNVector3(nowX, 2.0, 0)
+            nowLabel.scale = SCNVector3(4, 1.0, 1)
+            group.addChildNode(nowLabel)
+
+            // Pulsing glow on NOW marker
+            let glowSphere = SCNSphere(radius: 0.3)
+            let glowSphereMat = SCNMaterial()
+            glowSphereMat.diffuse.contents = UIColor.white.withAlphaComponent(0.3)
+            glowSphereMat.lightingModel = .constant
+            glowSphereMat.writesToDepthBuffer = false
+            glowSphere.materials = [glowSphereMat]
+            let glowNode = SCNNode(geometry: glowSphere)
+            glowNode.position = SCNVector3(nowX, 0, 0)
+            group.addChildNode(glowNode)
+
+            let glowPulse = CABasicAnimation(keyPath: "scale")
+            glowPulse.fromValue = NSValue(scnVector3: SCNVector3(1.0, 1.0, 1.0))
+            glowPulse.toValue = NSValue(scnVector3: SCNVector3(1.8, 1.8, 1.8))
+            glowPulse.duration = 2.0
+            glowPulse.autoreverses = true
+            glowPulse.repeatCount = .infinity
+            glowPulse.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            glowNode.addAnimation(glowPulse, forKey: "nowPulse")
+        }
+
+        // Future prediction diamond markers (pulsing glow)
+        let futurePredictionEvents: [(label: String, date: String)] = [
+            ("AI: TREND VIDEO", "2026-03-28"),
+            ("AI: CAROUSEL RECAP", "2026-03-30"),
+            ("AI: COFFEE DAY", "2026-04-01"),
+            ("AI: PEAK WINDOW", "2026-04-03"),
+            ("AI: CONTENT GAP", "2026-04-05"),
+            ("AI: COLLAB", "2026-04-07"),
+        ]
+
+        // Extend timeline end to cover future dates
+        let extendedEndStr = "2026-04-10"
+        let extendedEndDate = inputFmt.date(from: extendedEndStr) ?? tlEndDate
+        let extendedRange = extendedEndDate.timeIntervalSince(tlStartDate)
+
+        for evt in futurePredictionEvents {
+            guard let date = inputFmt.date(from: evt.date) else { continue }
+            let pct = Float(date.timeIntervalSince(tlStartDate) / extendedRange)
+            let x = -halfSL + pct * SL * Float(extendedRange / tlRange)
+
+            // Diamond marker with pulsing glow
+            let diamondGeo = SCNBox(width: 0.45, height: 0.45, length: 0.12, chamferRadius: 0)
+            let diamondMat = SCNMaterial()
+            diamondMat.diffuse.contents = UIColor(hex: "#30217C").withAlphaComponent(0.8)
+            diamondMat.lightingModel = .constant
+            diamondMat.writesToDepthBuffer = false
+            diamondGeo.materials = [diamondMat]
+            let diamond = SCNNode(geometry: diamondGeo)
+            diamond.position = SCNVector3(x, 0, 0)
+            diamond.eulerAngles = SCNVector3(0, 0, Float.pi / 4)
+            group.addChildNode(diamond)
+
+            // Pulsing animation on future diamonds
+            let diamondPulse = CABasicAnimation(keyPath: "scale")
+            diamondPulse.fromValue = NSValue(scnVector3: SCNVector3(1.0, 1.0, 1.0))
+            diamondPulse.toValue = NSValue(scnVector3: SCNVector3(1.3, 1.3, 1.3))
+            diamondPulse.duration = 1.5
+            diamondPulse.autoreverses = true
+            diamondPulse.repeatCount = .infinity
+            diamondPulse.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            diamond.addAnimation(diamondPulse, forKey: "futureDiamondPulse")
+
+            // Label (white/50 for future vs white/30 for past)
+            let label = createTextSprite(text: evt.label, fontSize: 11, color: UIColor.white.withAlphaComponent(0.5), bold: true)
+            label.position = SCNVector3(x, -1.5, 0)
+            label.scale = SCNVector3(5, 1.25, 1)
+            group.addChildNode(label)
+        }
+
         // Position timeline at y = -8 to sit below helix
         group.position = SCNVector3(0, -8, 0)
         scene.rootNode.addChildNode(group)
@@ -522,7 +616,21 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
     private func createContentPieces(in scene: SCNScene) {
         let count = Config.contentPieceCount
-        let contentCount = ContentLibrary.imageNames.count
+        let allPieces = ContentLibrary.pieces
+        let contentCount = allPieces.count  // 14 past + 6 future = 20
+        let imageNames = ContentLibrary.imageNames
+        let textureCount = imageNames.count  // 14 unique textures
+
+        // Build image name → texture index lookup
+        var imageNameToTexIndex: [String: Int] = [:]
+        for (idx, name) in imageNames.enumerated() {
+            imageNameToTexIndex[name] = idx
+        }
+
+        // Map each content piece to its texture index
+        let pieceTexIndices: [Int] = allPieces.map { piece in
+            imageNameToTexIndex[piece.imageName] ?? 0
+        }
 
         // Prepare rounded textures (matching React's 192x270 @ r=28)
         var roundedTextures: [UIImage] = []
@@ -536,21 +644,36 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
         baseSizes = (0..<count).map { _ in 0.3 + Float.random(in: 0...0.6) }
         contentIndices = (0..<count).map { $0 % contentCount }
         positions = Array(repeating: SCNVector3Zero, count: count)
+        isFutureNode = (0..<count).map { allPieces[$0 % contentCount].isFuture }
 
         // Shared geometry: vertical plane aspect ~1:1.4 (matching React)
         let planeGeometry = SCNPlane(width: 1.0, height: 1.4)
 
-        // Materials (one per content piece type for texture sharing)
+        // Materials (one per texture for normal and future variants)
         var materials: [SCNMaterial] = []
-        for i in 0..<contentCount {
+        var futureMaterials: [SCNMaterial] = []
+        for i in 0..<textureCount {
+            let roundedTex = roundedTextures[i]
+
             let mat = SCNMaterial()
-            mat.diffuse.contents = roundedTextures[i]
+            mat.diffuse.contents = roundedTex
             mat.isDoubleSided = true
             mat.lightingModel = .constant
             mat.transparencyMode = .aOne
             mat.writesToDepthBuffer = false
             mat.readsFromDepthBuffer = true
             materials.append(mat)
+
+            // Future material: same texture but 50% opacity base
+            let futMat = SCNMaterial()
+            futMat.diffuse.contents = roundedTex
+            futMat.isDoubleSided = true
+            futMat.lightingModel = .constant
+            futMat.transparencyMode = .aOne
+            futMat.writesToDepthBuffer = false
+            futMat.readsFromDepthBuffer = true
+            futMat.transparency = 0.5
+            futureMaterials.append(futMat)
         }
 
         // Container node
@@ -562,14 +685,20 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
         contentPieceNodes = []
         for i in 0..<count {
             let node = SCNNode(geometry: planeGeometry.copy() as? SCNGeometry)
-            node.geometry?.materials = [materials[contentIndices[i]]]
+            let ci = contentIndices[i]
+            let texIdx = pieceTexIndices[ci]
+            let isFuture = isFutureNode[i]
+
+            node.geometry?.materials = [isFuture ? futureMaterials[texIdx] : materials[texIdx]]
             node.name = "content_\(i)"
 
             let pos = helixPosition(t: streamTs[i], phase: phases[i], elapsed: 0)
             node.position = pos
             positions[i] = pos
 
-            let s = CGFloat(baseSizes[i] * Config.size)
+            // Future pieces are 0.8x normal size
+            let sizeMult: Float = isFuture ? 0.8 : 1.0
+            let s = CGFloat(baseSizes[i] * Config.size * sizeMult)
             node.scale = SCNVector3(s, s, s)
 
             let billboard = SCNBillboardConstraint()
@@ -577,6 +706,18 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             node.constraints = [billboard]
 
             node.opacity = CGFloat(fadeOpacity(t: streamTs[i]))
+
+            // Future pieces get a pulsing opacity animation
+            if isFuture {
+                let pulse = CABasicAnimation(keyPath: "opacity")
+                pulse.fromValue = 0.35
+                pulse.toValue = 0.55
+                pulse.duration = 2.0
+                pulse.autoreverses = true
+                pulse.repeatCount = .infinity
+                pulse.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                node.addAnimation(pulse, forKey: "futurePulse")
+            }
 
             helixRoot.addChildNode(node)
             contentPieceNodes.append(node)
@@ -804,11 +945,19 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
                 sizeMultiplier = matchesTypeFilter ? 1.4 : 0.15
             }
 
-            let s = CGFloat(baseSizes[i] * Config.size * (0.7 + depthScale * 0.3) * zoomSizeMult * sizeMultiplier)
+            // Future pieces render at 0.8x normal size
+            let futureSizeMult: Float = isFutureNode[i] ? 0.8 : 1.0
+
+            let s = CGFloat(baseSizes[i] * Config.size * (0.7 + depthScale * 0.3) * zoomSizeMult * sizeMultiplier * futureSizeMult)
             contentPieceNodes[i].scale = SCNVector3(s, s, s)
 
-            // Edge fade
-            contentPieceNodes[i].opacity = CGFloat(fadeOpacity(t: t))
+            // Edge fade (future pieces capped at 50% base opacity; pulse animation handles the rest)
+            let baseFade = fadeOpacity(t: t)
+            if isFutureNode[i] {
+                contentPieceNodes[i].opacity = CGFloat(baseFade * 0.5)
+            } else {
+                contentPieceNodes[i].opacity = CGFloat(baseFade)
+            }
         }
 
         // Spine rotation (matches React: spineMesh.rotation.x = elapsed * 0.015)

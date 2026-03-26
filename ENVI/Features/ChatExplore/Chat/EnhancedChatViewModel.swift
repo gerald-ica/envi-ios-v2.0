@@ -3,6 +3,14 @@ import Combine
 
 /// ViewModel powering the enhanced ENVI AI chat experience.
 /// Manages thread state, typing simulation, and mock data lookup.
+///
+/// ## ENVI Brain Integration
+///
+/// The ViewModel bridges user queries to the ENVI Brain (ENVIBrain.shared),
+/// which provides data-backed insights through its InsightGenerator subsystem.
+/// When the Brain has relevant insights for a query, they are used to build
+/// a richer ChatThread response. Mock data serves as fallback for queries
+/// the Brain doesn't yet handle or when running in preview mode.
 final class EnhancedChatViewModel: ObservableObject {
 
     // MARK: - Published State
@@ -21,6 +29,15 @@ final class EnhancedChatViewModel: ObservableObject {
         "Analyze my patterns",
         "What's my vibe today?",
     ]
+
+    // MARK: - ENVI Brain Reference
+    //
+    // The Brain provides AI-powered insights via its autoresearch loop.
+    // In production, ENVIBrain.shared.getChatResponse(query:) returns
+    // a ChatInsightResponse with structured insights and follow-up questions.
+    // Currently used via askBrain(_:) to augment the mock data pipeline.
+
+    private let brain = ENVIBrain.shared
 
     // MARK: - Private
 
@@ -191,9 +208,15 @@ final class EnhancedChatViewModel: ObservableObject {
         isHome = false
         isTyping = true
 
-        // Resolve thread data
+        // Resolve thread data:
+        // 1. Try ENVI Brain for content-strategy queries
+        // 2. Fall back to mock threads for exact-match quick actions
+        // 3. Use default thread as last resort
         let resolved: ChatThread
-        if let matched = mockThreads[query] {
+        if let brainThread = askBrain(query) {
+            // ENVI Brain produced a relevant insight-backed thread
+            resolved = brainThread
+        } else if let matched = mockThreads[query] {
             resolved = matched
         } else {
             // Use the default thread with the user's query as the question
@@ -224,5 +247,67 @@ final class EnhancedChatViewModel: ObservableObject {
         isTyping = false
         isHome = true
         inputText = ""
+    }
+
+    // MARK: - ENVI Brain Integration
+
+    /// Ask the ENVI Brain for an insight-backed ChatThread.
+    ///
+    /// Maps content-strategy queries to Brain insights. Returns nil for
+    /// queries the Brain doesn't handle (e.g. personal energy, social),
+    /// allowing the mock data fallback to take over.
+    ///
+    /// In production, this would be the primary path — the Brain's
+    /// InsightGenerator would handle all queries, and mock data would
+    /// only exist for offline/preview scenarios.
+    func askBrain(_ query: String) -> ChatThread? {
+        let lowered = query.lowercased()
+
+        // Content-strategy keywords that the ENVI Brain can answer
+        let brainKeywords = [
+            "content", "publish", "post", "engagement", "trend",
+            "optimize", "repurpose", "performance", "analytics",
+            "schedule", "platform", "carousel", "reel", "video",
+            "audience", "growth", "recommend", "predict", "gap",
+        ]
+
+        let isBrainQuery = brainKeywords.contains { lowered.contains($0) }
+        guard isBrainQuery else { return nil }
+
+        // Query the Brain's InsightGenerator via the chat response API
+        let response = brain.getChatResponse(query: query)
+
+        // Convert Brain insights into ThreadMetrics for the chat UI
+        let metrics: [ThreadMetric] = response.insights.prefix(4).map { insight in
+            let trend: MetricTrend
+            // Map insight confidence to a trend indicator
+            if insight.confidence >= 0.85 {
+                trend = .up
+            } else if insight.confidence >= 0.70 {
+                trend = .neutral
+            } else {
+                trend = .down
+            }
+
+            return ThreadMetric(
+                label: insight.title.components(separatedBy: " ").prefix(2).joined(separator: " "),
+                value: insight.dataPoints.first?.value ?? "\(Int(insight.confidence * 100))%",
+                change: insight.dataPoints.first.flatMap { $0.change } ?? "",
+                trend: trend
+            )
+        }
+
+        // Build paragraphs from the Brain's response message + insight bodies
+        var paragraphs = [response.message]
+        paragraphs += response.insights.prefix(2).map { $0.body }
+
+        return ChatThread(
+            question: query,
+            paragraphs: paragraphs,
+            metrics: metrics.isEmpty ? defaultThread.metrics : metrics,
+            relatedQuestions: response.suggestedFollowUps.isEmpty
+                ? defaultThread.relatedQuestions
+                : response.suggestedFollowUps
+        )
     }
 }

@@ -141,10 +141,12 @@ struct ContentNodeView: View {
                     .padding(.bottom, ENVISpacing.xxl)
 
                 // Content source context
-                Text("From your content library")
+                Text(content.isFuture ? "✦ AI RECOMMENDED" : "From your content library")
                     .font(.spaceMono(10))
                     .tracking(1.0)
-                    .foregroundColor(lightMode ? .black.opacity(0.25) : .white.opacity(0.25))
+                    .foregroundColor(content.isFuture
+                        ? Color(hex: "#3B82F6").opacity(0.8)
+                        : (lightMode ? .black.opacity(0.25) : .white.opacity(0.25)))
                     .padding(.bottom, ENVISpacing.md)
 
                 // Tags
@@ -153,8 +155,14 @@ struct ContentNodeView: View {
 
                 divider
 
-                // Metrics
-                if content.metrics != nil {
+                // Future content: predicted engagement + confidence + AI explanation
+                if content.isFuture {
+                    futurePredictionSection
+                        .padding(.bottom, ENVISpacing.xxl)
+                }
+
+                // Metrics (only for past content with real data)
+                if !content.isFuture, content.metrics != nil {
                     metricsSection
                         .padding(.bottom, ENVISpacing.xxl)
                 }
@@ -219,44 +227,94 @@ struct ContentNodeView: View {
     }
 
     private var typeBadge: some View {
-        Text(content.type.label)
-            .font(.spaceMonoBold(10))
-            .tracking(2.0)
-            .foregroundColor(.white.opacity(0.8))
-            .padding(.horizontal, ENVISpacing.sm)
-            .padding(.vertical, ENVISpacing.xs)
-            .background(
-                RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                    .fill(Color.black.opacity(0.7))
-                    .background(.ultraThinMaterial.opacity(0.5))
-                    .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                    .strokeBorder(Color.white.opacity(0.1), lineWidth: 0.5)
-            )
+        Group {
+            if content.isFuture {
+                // AI PREDICTION badge for future content
+                HStack(spacing: 4) {
+                    Text("✦")
+                        .font(.system(size: 9))
+                    Text("AI PREDICTION")
+                        .font(.spaceMonoBold(10))
+                        .tracking(2.0)
+                }
+                .foregroundColor(.white.opacity(0.9))
+                .padding(.horizontal, ENVISpacing.sm)
+                .padding(.vertical, ENVISpacing.xs)
+                .background(
+                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                        .fill(Color(hex: "#30217C").opacity(0.85))
+                        .background(.ultraThinMaterial.opacity(0.5))
+                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                        .strokeBorder(Color.white.opacity(0.2), lineWidth: 0.5)
+                )
+            } else {
+                Text(content.type.label)
+                    .font(.spaceMonoBold(10))
+                    .tracking(2.0)
+                    .foregroundColor(.white.opacity(0.8))
+                    .padding(.horizontal, ENVISpacing.sm)
+                    .padding(.vertical, ENVISpacing.xs)
+                    .background(
+                        RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                            .fill(Color.black.opacity(0.7))
+                            .background(.ultraThinMaterial.opacity(0.5))
+                            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                            .strokeBorder(Color.white.opacity(0.1), lineWidth: 0.5)
+                    )
+            }
+        }
     }
 
     private var scoreBadge: some View {
-        HStack(spacing: ENVISpacing.xs) {
-            Circle()
-                .fill(scoreColor(for: content.aiScore))
-                .frame(width: 6, height: 6)
-            Text("\(content.aiScore)")
-                .font(.spaceMonoBold(10))
-                .tracking(2.0)
-                .foregroundColor(.white.opacity(0.8))
+        Group {
+            if content.isFuture, let confidence = content.confidenceScore {
+                HStack(spacing: ENVISpacing.xs) {
+                    Circle()
+                        .fill(Color(hex: "#3B82F6"))
+                        .frame(width: 6, height: 6)
+                    Text("\(confidence)%")
+                        .font(.spaceMonoBold(10))
+                        .tracking(2.0)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                .padding(.horizontal, ENVISpacing.sm)
+                .padding(.vertical, ENVISpacing.xs)
+                .background(
+                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                        .fill(Color(hex: "#30217C").opacity(0.7))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                        .strokeBorder(Color.white.opacity(0.15), lineWidth: 0.5)
+                )
+            } else {
+                HStack(spacing: ENVISpacing.xs) {
+                    Circle()
+                        .fill(scoreColor(for: content.aiScore))
+                        .frame(width: 6, height: 6)
+                    Text("\(content.aiScore)")
+                        .font(.spaceMonoBold(10))
+                        .tracking(2.0)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                .padding(.horizontal, ENVISpacing.sm)
+                .padding(.vertical, ENVISpacing.xs)
+                .background(
+                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                        .fill(Color.black.opacity(0.7))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                        .strokeBorder(Color.white.opacity(0.1), lineWidth: 0.5)
+                )
+            }
         }
-        .padding(.horizontal, ENVISpacing.sm)
-        .padding(.vertical, ENVISpacing.xs)
-        .background(
-            RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                .fill(Color.black.opacity(0.7))
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                .strokeBorder(Color.white.opacity(0.1), lineWidth: 0.5)
-        )
     }
 
     private var platformRow: some View {
@@ -531,6 +589,89 @@ struct ContentNodeView: View {
         }
     }
 
+    // MARK: - Future Prediction Section
+
+    private var futurePredictionSection: some View {
+        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+            Text("AI PREDICTION")
+                .font(.spaceMonoBold(10))
+                .tracking(2.5)
+                .foregroundColor(Color(hex: "#3B82F6").opacity(0.8))
+
+            VStack(alignment: .leading, spacing: ENVISpacing.md) {
+                // Predicted engagement
+                if let predicted = content.predictedEngagement {
+                    HStack(spacing: ENVISpacing.sm) {
+                        Text("PREDICTED ENGAGEMENT")
+                            .font(.spaceMono(9))
+                            .tracking(1.5)
+                            .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.4))
+                        Spacer()
+                        Text(predicted)
+                            .font(.spaceMonoBold(11))
+                            .foregroundColor(lightMode ? .black.opacity(0.8) : .white.opacity(0.8))
+                    }
+                }
+
+                // Confidence score
+                if let confidence = content.confidenceScore {
+                    HStack(spacing: ENVISpacing.sm) {
+                        Text("CONFIDENCE")
+                            .font(.spaceMono(9))
+                            .tracking(1.5)
+                            .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.4))
+                        Spacer()
+                        HStack(spacing: 6) {
+                            Text("\(confidence)%")
+                                .font(.interBold(14))
+                                .foregroundColor(Color(hex: "#3B82F6"))
+                            Text("confidence based on your patterns")
+                                .font(.spaceMono(9))
+                                .foregroundColor(lightMode ? .black.opacity(0.35) : .white.opacity(0.35))
+                        }
+                    }
+
+                    // Confidence bar
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.1))
+                                .frame(height: 4)
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(Color(hex: "#3B82F6"))
+                                .frame(width: geo.size.width * CGFloat(confidence) / 100.0, height: 4)
+                        }
+                    }
+                    .frame(height: 4)
+                }
+
+                // AI explanation
+                if let explanation = content.aiExplanation {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("WHY THIS RECOMMENDATION")
+                            .font(.spaceMonoBold(9))
+                            .tracking(1.5)
+                            .foregroundColor(lightMode ? .black.opacity(0.5) : .white.opacity(0.5))
+                        Text(explanation)
+                            .font(.spaceMono(10))
+                            .foregroundColor(lightMode ? .black.opacity(0.45) : .white.opacity(0.45))
+                            .lineSpacing(3)
+                    }
+                    .padding(.top, ENVISpacing.xs)
+                }
+            }
+            .padding(ENVISpacing.lg)
+            .background(
+                RoundedRectangle(cornerRadius: ENVIRadius.lg)
+                    .fill(Color(hex: "#30217C").opacity(0.08))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: ENVIRadius.lg)
+                    .strokeBorder(Color(hex: "#30217C").opacity(0.2), lineWidth: 0.5)
+            )
+        }
+    }
+
     // MARK: - Edit CTA Button (type-specific, #30217C background)
 
     private var editCTAButton: some View {
@@ -562,7 +703,9 @@ struct ContentNodeView: View {
     // MARK: - Helpers
 
     /// Type-specific edit CTA label (matches React exactly)
+    /// Future pieces show "Create Now" instead.
     private var editLabel: String {
+        if content.isFuture { return "Create Now" }
         switch content.type {
         case .video, .reel:     return "Edit in Video Editor"
         case .carousel:         return "Edit Carousel"

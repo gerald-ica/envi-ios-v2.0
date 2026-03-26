@@ -1,4 +1,16 @@
 // swift-tools-version: 5.9
+//
+// ENVI iOS — Personalized AI Content Editor
+//
+// Dependency structure:
+//   ENVI (main target)
+//   ├── Core/AI/          — ENVI Brain: autoresearch-based AI engine (ENVIBrain, PredictionEngine,
+//   │                       ContentAnalyzer, TrendForecaster, InsightGenerator, ExperimentTracker,
+//   │                       ResearchLoop, ENVIBrainConfig) — no external dependencies, pure Swift
+//   ├── Models/            — ContentPiece, ContentPrediction, ContentInsight, ChatThread, etc.
+//   ├── SDWebImage         — Image loading & caching for content library thumbnails
+//   └── Lottie             — Animation playback for onboarding and transitions
+//
 import PackageDescription
 
 let package = Package(
