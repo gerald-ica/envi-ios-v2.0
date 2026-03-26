@@ -3,7 +3,8 @@ import UIKit
 import CoreText
 
 /// Typography tokens for the ENVI design system.
-/// Manages font registration and provides semantic text styles.
+/// Space Mono = headings, display, labels, nav, buttons, tags → ALL UPPERCASE
+/// Inter = body text, descriptions, placeholders → sentence case
 enum ENVITypography {
 
     // MARK: - Font Names
@@ -18,53 +19,60 @@ enum ENVITypography {
 
     // MARK: - Text Styles (SwiftUI)
     enum Style {
-        case displayLarge    // Inter Black 32
-        case displayMedium   // Inter ExtraBold 28
-        case heading         // Inter Bold 22
-        case subheading      // Inter SemiBold 17
-        case body            // Inter Regular 15
-        case caption         // Inter Medium 13
-        case label           // Space Mono 11, uppercased, tracking 0.08em
-        case badge           // Space Mono Bold 10, uppercased
+        case displayLarge    // SpaceMono-Bold 32, uppercase, tracking: -2px
+        case displayMedium   // SpaceMono-Bold 28, uppercase, tracking: -1.5px
+        case heading         // SpaceMono-Bold 22, uppercase, tracking: -1px
+        case subheading      // SpaceMono-Regular 17, uppercase, tracking: +0.5px
+        case body            // Inter-Regular 15, sentence case, tracking: +0.3px
+        case caption         // Inter-Medium 13, sentence case, tracking: +0.5px
+        case label           // SpaceMono-Bold 11, uppercase, tracking: +2.5px
+        case badge           // SpaceMono-Bold 10, uppercase, tracking: +2px
 
         var font: Font {
             switch self {
-            case .displayLarge:  return .interBlack(32)
-            case .displayMedium: return .interExtraBold(28)
-            case .heading:       return .interBold(22)
-            case .subheading:    return .interSemiBold(17)
+            case .displayLarge:  return .spaceMonoBold(32)
+            case .displayMedium: return .spaceMonoBold(28)
+            case .heading:       return .spaceMonoBold(22)
+            case .subheading:    return .spaceMono(17)
             case .body:          return .interRegular(15)
             case .caption:       return .interMedium(13)
-            case .label:         return .spaceMono(11)
+            case .label:         return .spaceMonoBold(11)
             case .badge:         return .spaceMonoBold(10)
             }
         }
 
         var uiFont: UIFont {
             switch self {
-            case .displayLarge:  return .interBlack(32)
-            case .displayMedium: return .interExtraBold(28)
-            case .heading:       return .interBold(22)
-            case .subheading:    return .interSemiBold(17)
+            case .displayLarge:  return .spaceMonoBold(32)
+            case .displayMedium: return .spaceMonoBold(28)
+            case .heading:       return .spaceMonoBold(22)
+            case .subheading:    return .spaceMono(17)
             case .body:          return .interRegular(15)
             case .caption:       return .interMedium(13)
-            case .label:         return .spaceMono(11)
+            case .label:         return .spaceMonoBold(11)
             case .badge:         return .spaceMonoBold(10)
             }
         }
 
-        var tracking: CGFloat? {
+        var tracking: CGFloat {
             switch self {
-            case .label: return 0.88  // 0.08em * 11pt
-            case .badge: return 0.80  // 0.08em * 10pt
-            default: return nil
+            case .displayLarge:  return -2.0
+            case .displayMedium: return -1.5
+            case .heading:       return -1.0
+            case .subheading:    return 0.5
+            case .body:          return 0.3
+            case .caption:       return 0.5
+            case .label:         return 2.5
+            case .badge:         return 2.0
             }
         }
 
         var isUppercased: Bool {
             switch self {
-            case .label, .badge: return true
-            default: return false
+            case .displayLarge, .displayMedium, .heading, .subheading, .label, .badge:
+                return true
+            case .body, .caption:
+                return false
             }
         }
     }
@@ -92,6 +100,6 @@ extension View {
     func enviTextStyle(_ style: ENVITypography.Style) -> some View {
         self
             .font(style.font)
-            .tracking(style.tracking ?? 0)
+            .tracking(style.tracking)
     }
 }

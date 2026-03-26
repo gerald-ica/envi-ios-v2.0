@@ -2,32 +2,34 @@ import SwiftUI
 import UIKit
 
 /// Central design token store for the ENVI design system.
-/// Contains all color definitions for light and dark modes,
-/// plus gradient and shadow presets.
+/// Monochromatic palette: black, white, and neutral grays.
+/// Accent #30217C used sparingly in subtle dark gradients only (max 20%).
 enum ENVITheme {
 
     // MARK: - Light Mode Colors
     enum Light {
-        static let background   = Color(hex: "#FAF9F6")
-        static let surfaceLow   = Color(hex: "#F4F3F0")
-        static let surfaceHigh  = Color(hex: "#E9E8E5")
-        static let text         = Color(hex: "#484551")
-        static let textLight    = Color(hex: "#7A7786")
-        static let primary      = Color(hex: "#30217C")
-        static let secondary    = Color(hex: "#4646D8")
-        static let border       = Color(hex: "#E0DFDc")
+        static let background   = Color(hex: "#FFFFFF")
+        static let surfaceLow   = Color(hex: "#F4F4F4")
+        static let surfaceHigh  = Color(hex: "#E8E8E8")
+        static let text         = Color(hex: "#000000")
+        static let textSecondary = Color.black.opacity(0.7)
+        static let primary      = Color(hex: "#000000")
+        static let secondary    = Color.black.opacity(0.7)
+        static let border       = Color.black.opacity(0.12)
+        static let accent       = Color(hex: "#30217C")
     }
 
     // MARK: - Dark Mode Colors
     enum Dark {
-        static let background   = Color(hex: "#0A0A0F")
-        static let surfaceLow   = Color(hex: "#1A1A2E")
-        static let surfaceHigh  = Color(hex: "#252540")
+        static let background   = Color(hex: "#000000")
+        static let surfaceLow   = Color(hex: "#1A1A1A")
+        static let surfaceHigh  = Color(hex: "#2A2A2A")
         static let text         = Color.white
-        static let textLight    = Color.white.opacity(0.55)
-        static let primary      = Color(hex: "#7B68EE")
-        static let secondary    = Color(hex: "#9B8AFB")
+        static let textSecondary = Color.white.opacity(0.7)
+        static let primary      = Color.white
+        static let secondary    = Color.white.opacity(0.7)
         static let border       = Color.white.opacity(0.12)
+        static let accent       = Color(hex: "#30217C")
     }
 
     // MARK: - Semantic Colors (adapt to current scheme)
@@ -47,8 +49,13 @@ enum ENVITheme {
         scheme == .dark ? Dark.text : Light.text
     }
 
+    static func textSecondary(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? Dark.textSecondary : Light.textSecondary
+    }
+
+    /// Kept for backward compat — maps to textSecondary
     static func textLight(for scheme: ColorScheme) -> Color {
-        scheme == .dark ? Dark.textLight : Light.textLight
+        textSecondary(for: scheme)
     }
 
     static func primary(for scheme: ColorScheme) -> Color {
@@ -63,21 +70,34 @@ enum ENVITheme {
         scheme == .dark ? Dark.border : Light.border
     }
 
-    // MARK: - Status Colors
+    static func accent(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? Dark.accent : Light.accent
+    }
+
+    // MARK: - Status Colors (data contexts only — charts, metrics)
     static let success  = Color(hex: "#22C55E")
     static let warning  = Color(hex: "#F59E0B")
     static let error    = Color(hex: "#EF4444")
     static let info     = Color(hex: "#3B82F6")
 
     // MARK: - Gradients
+    /// Primary gradient — monochromatic white for dark mode
     static let primaryGradient = LinearGradient(
-        colors: [Color(hex: "#7B68EE"), Color(hex: "#9B8AFB")],
+        colors: [Color.white, Color.white.opacity(0.8)],
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
 
+    /// Card overlay gradient — black overlay on images (fine as-is)
     static let cardOverlayGradient = LinearGradient(
         colors: [.clear, .black.opacity(0.7)],
+        startPoint: .top,
+        endPoint: .bottom
+    )
+
+    /// Accent gradient — only for specific dark sections, max 20% coverage
+    static let accentGradient = LinearGradient(
+        colors: [Color(hex: "#1A1A1A"), Color(hex: "#30217C").opacity(0.2)],
         startPoint: .top,
         endPoint: .bottom
     )
@@ -88,14 +108,14 @@ enum ENVITheme {
         static let elevated = (color: Color.black.opacity(0.2), radius: CGFloat(24), x: CGFloat(0), y: CGFloat(8))
     }
 
-    // MARK: - UIKit Colors
+    // MARK: - UIKit Colors (monochromatic, matching SwiftUI tokens)
     enum UIKit {
-        static let backgroundDark   = UIColor(hex: "#0A0A0F")
-        static let surfaceLowDark   = UIColor(hex: "#1A1A2E")
-        static let surfaceHighDark  = UIColor(hex: "#252540")
-        static let primaryDark      = UIColor(hex: "#7B68EE")
-        static let secondaryDark    = UIColor(hex: "#9B8AFB")
+        static let backgroundDark   = UIColor(hex: "#000000")
+        static let surfaceLowDark   = UIColor(hex: "#1A1A1A")
+        static let surfaceHighDark  = UIColor(hex: "#2A2A2A")
+        static let primaryDark      = UIColor.white
+        static let secondaryDark    = UIColor.white.withAlphaComponent(0.7)
         static let textDark         = UIColor.white
-        static let textLightDark    = UIColor.white.withAlphaComponent(0.55)
+        static let textLightDark    = UIColor.white.withAlphaComponent(0.7)
     }
 }

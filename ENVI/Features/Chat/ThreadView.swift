@@ -30,7 +30,8 @@ private struct UserMessageView: View {
 
     var body: some View {
         Text(message.content)
-            .font(.interBold(20))
+            .font(.spaceMonoBold(20))
+            .tracking(-0.5)
             .foregroundColor(ENVITheme.text(for: colorScheme))
             .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -62,7 +63,7 @@ private struct AssistantMessageView: View {
             }
         }
         .padding(ENVISpacing.lg)
-        .background(.ultraThinMaterial)
+        .background(ENVITheme.surfaceLow(for: colorScheme))
         .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
     }
 }

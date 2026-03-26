@@ -13,8 +13,9 @@ struct ChatHomeView: View {
             ENVIBadge(text: "ENVI AI", color: ENVITheme.primary(for: colorScheme))
 
             // Title
-            Text("How can I help\nyou create?")
-                .font(.interBlack(32))
+            Text("HOW CAN I HELP\nYOU CREATE?")
+                .font(.spaceMonoBold(32))
+                .tracking(-2.0)
                 .multilineTextAlignment(.center)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 

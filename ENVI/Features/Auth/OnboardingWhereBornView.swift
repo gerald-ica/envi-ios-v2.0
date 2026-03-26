@@ -7,8 +7,9 @@ struct OnboardingWhereBornView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
-            Text("Where were you born?")
-                .font(.interBlack(32))
+            Text("WHERE WERE YOU BORN?")
+                .font(.spaceMonoBold(32))
+                .tracking(-2.0)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
             Text("Your roots shape your perspective.")

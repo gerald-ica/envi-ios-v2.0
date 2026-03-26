@@ -14,24 +14,22 @@ struct ProfileView: View {
                 ZStack {
                     Circle()
                         .strokeBorder(
-                            LinearGradient(
-                                colors: [ENVITheme.Dark.primary, ENVITheme.Dark.secondary],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
+                            ENVITheme.text(for: colorScheme),
                             lineWidth: 3
                         )
                         .frame(width: 88, height: 88)
 
                     Text(viewModel.user.initials)
-                        .font(.interBold(28))
+                        .font(.spaceMonoBold(28))
+                        .tracking(-1.0)
                         .foregroundColor(.white)
                 }
 
                 // Name + Handle
                 VStack(spacing: 4) {
                     Text(viewModel.user.fullName)
-                        .font(.interBold(22))
+                        .font(.spaceMonoBold(22))
+                        .tracking(-1.0)
                         .foregroundColor(ENVITheme.text(for: colorScheme))
 
                     Text(viewModel.user.handle)
@@ -75,7 +73,7 @@ struct ProfileView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, ENVISpacing.lg)
                         .background(ENVITheme.surfaceLow(for: colorScheme))
-                        .clipShape(Capsule())
+                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
                 }
                 .padding(.horizontal, ENVISpacing.xl)
                 .padding(.bottom, 100)
@@ -94,10 +92,11 @@ private struct StatView: View {
     var body: some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.interBold(20))
+                .font(.spaceMonoBold(20))
+                .tracking(-0.5)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
-            Text(label)
-                .font(.spaceMono(10))
+            Text(label.uppercased())
+                .font(.spaceMonoBold(10))
                 .tracking(0.80)
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
         }

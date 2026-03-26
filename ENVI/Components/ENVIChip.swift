@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Filter or action chip for the ENVI design system.
+/// Monochromatic. Space Mono, UPPERCASE text. 8px radius.
 struct ENVIChip: View {
     let title: String
     let isSelected: Bool
@@ -10,26 +11,39 @@ struct ENVIChip: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.interMedium(13))
-                .foregroundColor(isSelected ? .white : ENVITheme.textLight(for: colorScheme))
+            Text(title.uppercased())
+                .font(.spaceMonoBold(11))
+                .tracking(1.5)
+                .foregroundColor(chipForeground)
                 .padding(.horizontal, ENVISpacing.lg)
                 .padding(.vertical, ENVISpacing.sm)
-                .background(
-                    isSelected
-                        ? ENVITheme.primary(for: colorScheme)
-                        : ENVITheme.surfaceLow(for: colorScheme)
-                )
-                .clipShape(Capsule())
+                .background(chipBackground)
+                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
                 .overlay(
-                    Capsule()
-                        .strokeBorder(
-                            isSelected ? .clear : ENVITheme.border(for: colorScheme),
-                            lineWidth: 1
-                        )
+                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                        .strokeBorder(chipBorder, lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)
+    }
+
+    private var chipForeground: Color {
+        if isSelected {
+            return colorScheme == .dark ? .black : .white
+        }
+        return ENVITheme.textLight(for: colorScheme)
+    }
+
+    private var chipBackground: Color {
+        if isSelected {
+            return colorScheme == .dark ? .white : .black
+        }
+        return .clear
+    }
+
+    private var chipBorder: Color {
+        if isSelected { return .clear }
+        return ENVITheme.border(for: colorScheme)
     }
 }
 

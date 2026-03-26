@@ -10,8 +10,9 @@ struct LibraryView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
                     // Title
-                    Text("Library")
-                        .font(.interBlack(28))
+                    Text("LIBRARY")
+                        .font(.spaceMonoBold(28))
+                        .tracking(-1.5)
                         .foregroundColor(ENVITheme.text(for: colorScheme))
                         .padding(.horizontal, ENVISpacing.xl)
 
@@ -45,9 +46,9 @@ struct LibraryView: View {
             Button(action: {}) {
                 Image(systemName: "plus")
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                     .frame(width: 56, height: 56)
-                    .background(ENVITheme.primary(for: colorScheme))
+                    .background(Color.white)
                     .clipShape(Circle())
                     .enviElevatedShadow()
             }

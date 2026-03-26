@@ -14,12 +14,12 @@ enum SocialPlatform: String, CaseIterable, Codable, Identifiable {
 
     var iconName: String {
         switch self {
-        case .instagram: return "camera.fill"
+        case .instagram: return "camera"
         case .tiktok:    return "music.note"
         case .x:         return "xmark"
         case .threads:   return "at"
         case .linkedin:  return "link"
-        case .youtube:   return "play.rectangle.fill"
+        case .youtube:   return "play.rectangle"
         }
     }
 

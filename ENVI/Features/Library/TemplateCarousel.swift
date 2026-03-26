@@ -39,10 +39,11 @@ private struct TemplateCardView: View {
                 .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
 
             Text(template.title)
-                .font(.interSemiBold(13))
+                .font(.spaceMonoBold(13))
+                .tracking(0.5)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
-            Text(template.category)
+            Text(template.category.uppercased())
                 .font(.spaceMono(10))
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
         }

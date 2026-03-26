@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Custom toggle switch for the ENVI design system.
+/// On state: white track + black thumb (dark mode). No purple.
 struct ENVIToggle: View {
     @Binding var isOn: Bool
     var label: String? = nil
@@ -18,12 +19,18 @@ struct ENVIToggle: View {
 
             Button(action: { withAnimation(.spring(response: 0.3)) { isOn.toggle() } }) {
                 ZStack(alignment: isOn ? .trailing : .leading) {
-                    Capsule()
-                        .fill(isOn ? ENVITheme.primary(for: colorScheme) : ENVITheme.surfaceHigh(for: colorScheme))
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(isOn
+                            ? (colorScheme == .dark ? Color.white : Color.black)
+                            : ENVITheme.surfaceHigh(for: colorScheme)
+                        )
                         .frame(width: 50, height: 30)
 
                     Circle()
-                        .fill(Color.white)
+                        .fill(isOn
+                            ? (colorScheme == .dark ? Color.black : Color.white)
+                            : Color.white
+                        )
                         .frame(width: 26, height: 26)
                         .padding(2)
                         .shadow(color: .black.opacity(0.15), radius: 2, y: 1)

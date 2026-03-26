@@ -13,7 +13,8 @@ struct KPICardView: View {
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
             Text(kpi.value)
-                .font(.interBold(22))
+                .font(.spaceMonoBold(22))
+                .tracking(-1.0)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
             Text(kpi.change)

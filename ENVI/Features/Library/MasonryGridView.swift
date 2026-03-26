@@ -56,8 +56,9 @@ private struct MasonryItemView: View {
                 endPoint: .bottom
             )
 
-            Text(item.title)
-                .font(.interSemiBold(13))
+            Text(item.title.uppercased())
+                .font(.spaceMonoBold(11))
+                .tracking(1.5)
                 .foregroundColor(.white)
                 .padding(ENVISpacing.md)
         }

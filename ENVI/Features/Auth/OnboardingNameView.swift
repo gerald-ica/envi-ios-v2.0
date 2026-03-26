@@ -7,8 +7,9 @@ struct OnboardingNameView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
-            Text("What's your name?")
-                .font(.interBlack(32))
+            Text("WHAT'S YOUR NAME?")
+                .font(.spaceMonoBold(32))
+                .tracking(-2.0)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
             Text("So we know how to greet you.")

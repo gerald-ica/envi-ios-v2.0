@@ -20,8 +20,9 @@ struct ProgressOverlayView: View {
                 ENVIProgressRing(progress: progress, lineWidth: 8, size: 120)
 
                 // Stage text
-                Text(stages[min(currentStage, stages.count - 1)])
-                    .font(.interSemiBold(17))
+                Text(stages[min(currentStage, stages.count - 1)].uppercased())
+                    .font(.spaceMonoBold(17))
+                    .tracking(-0.5)
                     .foregroundColor(.white)
 
                 // Stage pipeline
@@ -29,12 +30,12 @@ struct ProgressOverlayView: View {
                     ForEach(0..<stages.count, id: \.self) { index in
                         HStack(spacing: 4) {
                             Circle()
-                                .fill(index <= currentStage ? ENVITheme.Dark.primary : Color.white.opacity(0.3))
+                                .fill(index <= currentStage ? Color.white : Color.white.opacity(0.3))
                                 .frame(width: 8, height: 8)
 
                             if index < stages.count - 1 {
                                 Rectangle()
-                                    .fill(index < currentStage ? ENVITheme.Dark.primary : Color.white.opacity(0.3))
+                                    .fill(index < currentStage ? Color.white : Color.white.opacity(0.3))
                                     .frame(width: 24, height: 2)
                             }
                         }

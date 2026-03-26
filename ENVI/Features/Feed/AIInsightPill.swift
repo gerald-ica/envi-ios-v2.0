@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Small pill showing AI-generated insight (confidence %, best time, estimated reach).
+/// All pills: white/0.15 bg, white text. No green/blue/purple pill colors.
 struct AIInsightPill: View {
     enum InsightType {
         case confidence(Double)   // 0–1
@@ -15,22 +16,23 @@ struct AIInsightPill: View {
             Image(systemName: iconName)
                 .font(.system(size: 10, weight: .semibold))
 
-            Text(displayText)
+            Text(displayText.uppercased())
                 .font(.spaceMonoBold(10))
-                .tracking(0.80)
+                .tracking(2.0)
         }
         .foregroundColor(.white)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(pillColor.opacity(0.85))
-        .clipShape(Capsule())
+        .background(Color.white.opacity(0.15))
+        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
     }
 
+    // All icons use outline variants — no .fill
     private var iconName: String {
         switch type {
         case .confidence: return "brain.head.profile"
-        case .bestTime:   return "clock.fill"
-        case .reach:      return "eye.fill"
+        case .bestTime:   return "clock"
+        case .reach:      return "eye"
         }
     }
 
@@ -39,14 +41,6 @@ struct AIInsightPill: View {
         case .confidence(let value): return "\(Int(value * 100))%"
         case .bestTime(let time):    return time
         case .reach(let reach):      return reach
-        }
-    }
-
-    private var pillColor: Color {
-        switch type {
-        case .confidence: return Color(hex: "#22C55E") // green
-        case .bestTime:   return Color(hex: "#3B82F6") // blue
-        case .reach:      return Color(hex: "#8B5CF6") // purple
         }
     }
 }

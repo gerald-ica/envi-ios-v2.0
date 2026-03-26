@@ -7,8 +7,9 @@ struct OnboardingWhereFromView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
-            Text("Where are you from?")
-                .font(.interBlack(32))
+            Text("WHERE ARE YOU FROM?")
+                .font(.spaceMonoBold(32))
+                .tracking(-2.0)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
             Text("Helps us tailor content for your audience.")

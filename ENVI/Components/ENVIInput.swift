@@ -1,6 +1,8 @@
 import SwiftUI
 
-/// Text input field with label and optional validation for the ENVI design system.
+/// Text input field with label and optional validation.
+/// Label: Space Mono, UPPERCASE. Input text: Inter Regular, sentence case.
+/// Focus border: white (dark) / black (light) — not purple.
 struct ENVIInput: View {
     let label: String
     let placeholder: String
@@ -13,13 +15,13 @@ struct ENVIInput: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.sm) {
-            // Label
+            // Label — Space Mono, UPPERCASE
             Text(label.uppercased())
-                .font(.spaceMono(11))
-                .tracking(0.88)
+                .font(.spaceMonoBold(11))
+                .tracking(2.5)
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
-            // Field
+            // Field — Inter Regular, sentence case
             Group {
                 if isSecure {
                     SecureField(placeholder, text: $text)
@@ -53,7 +55,7 @@ struct ENVIInput: View {
             return ENVITheme.error
         }
         return isFocused
-            ? ENVITheme.primary(for: colorScheme)
+            ? ENVITheme.text(for: colorScheme)
             : ENVITheme.border(for: colorScheme)
     }
 }

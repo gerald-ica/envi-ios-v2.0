@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// ENVI design system button with primary, secondary, and ghost variants.
+/// Monochromatic palette. Space Mono Bold, UPPERCASE text.
 struct ENVIButton: View {
     enum Variant {
         case primary
@@ -32,16 +33,17 @@ struct ENVIButton: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .font(.interSemiBold(15))
+            Text(title.uppercased())
+                .font(.spaceMonoBold(15))
+                .tracking(1.0)
                 .frame(maxWidth: isFullWidth ? .infinity : nil)
                 .padding(.horizontal, ENVISpacing.xxl)
                 .padding(.vertical, ENVISpacing.lg)
                 .background(backgroundColor)
                 .foregroundColor(foregroundColor)
-                .clipShape(Capsule())
+                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
                 .overlay(
-                    Capsule()
+                    RoundedRectangle(cornerRadius: ENVIRadius.lg)
                         .strokeBorder(borderColor, lineWidth: variant == .secondary ? 1.5 : 0)
                 )
         }
@@ -52,7 +54,7 @@ struct ENVIButton: View {
     private var backgroundColor: Color {
         switch variant {
         case .primary:
-            return ENVITheme.primary(for: colorScheme)
+            return colorScheme == .dark ? .white : .black
         case .secondary:
             return .clear
         case .ghost:
@@ -63,9 +65,9 @@ struct ENVIButton: View {
     private var foregroundColor: Color {
         switch variant {
         case .primary:
-            return .white
+            return colorScheme == .dark ? .black : .white
         case .secondary:
-            return ENVITheme.primary(for: colorScheme)
+            return ENVITheme.text(for: colorScheme)
         case .ghost:
             return ENVITheme.textLight(for: colorScheme)
         }
@@ -76,7 +78,7 @@ struct ENVIButton: View {
         case .primary:
             return .clear
         case .secondary:
-            return ENVITheme.primary(for: colorScheme)
+            return ENVITheme.text(for: colorScheme)
         case .ghost:
             return .clear
         }

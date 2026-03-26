@@ -7,8 +7,9 @@ struct OnboardingSocialsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
-            Text("Connect your socials")
-                .font(.interBlack(32))
+            Text("CONNECT YOUR SOCIALS")
+                .font(.spaceMonoBold(32))
+                .tracking(-2.0)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
             Text("We'll sync your analytics and optimize posting.")
@@ -18,7 +19,7 @@ struct OnboardingSocialsView: View {
             VStack(spacing: ENVISpacing.lg) {
                 PlatformToggleRow(
                     platform: "Instagram",
-                    icon: "camera.fill",
+                    icon: "camera",
                     color: Color(hex: "#E4405F"),
                     isOn: $viewModel.instagramEnabled
                 )

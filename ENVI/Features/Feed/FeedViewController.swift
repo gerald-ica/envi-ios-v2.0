@@ -19,7 +19,7 @@ final class FeedViewController: UIViewController {
     private let logoLabel: UILabel = {
         let l = UILabel()
         l.text = "ENVI"
-        l.font = .interBlack(22)
+        l.font = .spaceMonoBold(22)
         l.textColor = .white
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
@@ -27,8 +27,8 @@ final class FeedViewController: UIViewController {
 
     private let forYouButton: UIButton = {
         let b = UIButton(type: .system)
-        b.setTitle("For You", for: .normal)
-        b.titleLabel?.font = .interSemiBold(15)
+        b.setTitle("FOR YOU", for: .normal)
+        b.titleLabel?.font = .spaceMonoBold(15)
         b.setTitleColor(.white, for: .normal)
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
@@ -36,9 +36,9 @@ final class FeedViewController: UIViewController {
 
     private let exploreButton: UIButton = {
         let b = UIButton(type: .system)
-        b.setTitle("Explore", for: .normal)
-        b.titleLabel?.font = .interRegular(15)
-        b.setTitleColor(UIColor.white.withAlphaComponent(0.55), for: .normal)
+        b.setTitle("EXPLORE", for: .normal)
+        b.titleLabel?.font = .spaceMonoBold(15)
+        b.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
     }()
@@ -64,7 +64,7 @@ final class FeedViewController: UIViewController {
     // Active tab indicator
     private let tabIndicator: UIView = {
         let v = UIView()
-        v.backgroundColor = ENVITheme.UIKit.primaryDark
+        v.backgroundColor = .white
         v.layer.cornerRadius = 1.5
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
@@ -176,10 +176,10 @@ final class FeedViewController: UIViewController {
     // MARK: - Tab Switching
     @objc private func forYouTapped() {
         viewModel.selectedTab = .forYou
-        forYouButton.titleLabel?.font = .interSemiBold(15)
+        forYouButton.titleLabel?.font = .spaceMonoBold(15)
         forYouButton.setTitleColor(.white, for: .normal)
-        exploreButton.titleLabel?.font = .interRegular(15)
-        exploreButton.setTitleColor(UIColor.white.withAlphaComponent(0.55), for: .normal)
+        exploreButton.titleLabel?.font = .spaceMonoBold(15)
+        exploreButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
 
         UIView.animate(withDuration: 0.25) {
             self.tabIndicatorCenterX?.isActive = false
@@ -191,10 +191,10 @@ final class FeedViewController: UIViewController {
 
     @objc private func exploreTapped() {
         viewModel.selectedTab = .explore
-        exploreButton.titleLabel?.font = .interSemiBold(15)
+        exploreButton.titleLabel?.font = .spaceMonoBold(15)
         exploreButton.setTitleColor(.white, for: .normal)
-        forYouButton.titleLabel?.font = .interRegular(15)
-        forYouButton.setTitleColor(UIColor.white.withAlphaComponent(0.55), for: .normal)
+        forYouButton.titleLabel?.font = .spaceMonoBold(15)
+        forYouButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
 
         UIView.animate(withDuration: 0.25) {
             self.tabIndicatorCenterX?.isActive = false

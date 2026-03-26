@@ -25,8 +25,8 @@ final class EditorViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let l = UILabel()
-        l.text = "Edit"
-        l.font = .interSemiBold(17)
+        l.text = "EDIT"
+        l.font = .spaceMonoBold(17)
         l.textColor = .white
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
@@ -34,10 +34,10 @@ final class EditorViewController: UIViewController {
 
     private let exportButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.title = "Export"
-        config.baseBackgroundColor = ENVITheme.UIKit.primaryDark
-        config.baseForegroundColor = .white
-        config.cornerStyle = .capsule
+        config.title = "EXPORT"
+        config.baseBackgroundColor = .white
+        config.baseForegroundColor = .black
+        config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
         let b = UIButton(configuration: config)
         b.translatesAutoresizingMaskIntoConstraints = false
@@ -57,7 +57,7 @@ final class EditorViewController: UIViewController {
     private let playButton: UIButton = {
         let b = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 36, weight: .medium)
-        b.setImage(UIImage(systemName: "play.circle.fill", withConfiguration: config), for: .normal)
+        b.setImage(UIImage(systemName: "play.circle", withConfiguration: config), for: .normal)
         b.tintColor = .white
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
@@ -171,7 +171,7 @@ final class EditorViewController: UIViewController {
 
         // Clip indicator
         let clip = UIView()
-        clip.backgroundColor = ENVITheme.UIKit.primaryDark.withAlphaComponent(0.6)
+        clip.backgroundColor = UIColor.white.withAlphaComponent(0.4)
         clip.layer.cornerRadius = 3
         clip.translatesAutoresizingMaskIntoConstraints = false
         v.addSubview(clip)

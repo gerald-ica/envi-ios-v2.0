@@ -9,8 +9,8 @@ final class SplashViewController: UIViewController {
     private let spiralView = SplashSpiralView()
     private let helloLabel: UILabel = {
         let label = UILabel()
-        label.text = "hello"
-        label.font = .interBlack(48)
+        label.text = "ENVI"
+        label.font = .spaceMonoBold(48)
         label.textColor = .white
         label.textAlignment = .center
         label.alpha = 0

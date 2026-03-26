@@ -36,7 +36,8 @@ struct OnboardingContainerView: View {
                 Button("Skip") {
                     viewModel.skip()
                 }
-                .font(.interMedium(15))
+                .font(.spaceMonoBold(13))
+                .tracking(1.5)
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
             }
             .padding(.horizontal, ENVISpacing.xl)

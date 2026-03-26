@@ -23,7 +23,7 @@ final class ContentCardView: UIView {
 
     private let creatorAvatarView: UIView = {
         let v = UIView()
-        v.backgroundColor = ENVITheme.UIKit.primaryDark
+        v.backgroundColor = ENVITheme.UIKit.surfaceHighDark
         v.layer.cornerRadius = 18
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
@@ -217,7 +217,7 @@ final class ContentCardView: UIView {
         }
 
         let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
-        let bookmarkIcon = item.isBookmarked ? "bookmark.fill" : "bookmark"
+        let bookmarkIcon = "bookmark"  // Always outline per brand guidelines
         bookmarkButton.setImage(UIImage(systemName: bookmarkIcon, withConfiguration: config), for: .normal)
 
         // AI insight pills

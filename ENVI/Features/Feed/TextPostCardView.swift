@@ -7,7 +7,7 @@ final class TextPostCardView: UIView {
     // MARK: - Subviews
     private let avatarView: UIView = {
         let v = UIView()
-        v.backgroundColor = ENVITheme.UIKit.primaryDark
+        v.backgroundColor = ENVITheme.UIKit.surfaceHighDark
         v.layer.cornerRadius = 24
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
@@ -33,7 +33,7 @@ final class TextPostCardView: UIView {
     private let handleLabel: UILabel = {
         let l = UILabel()
         l.font = .interRegular(13)
-        l.textColor = UIColor.white.withAlphaComponent(0.55)
+        l.textColor = UIColor.white.withAlphaComponent(0.7)
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
     }()
@@ -61,22 +61,22 @@ final class TextPostCardView: UIView {
 
     private let passButton: UIButton = {
         let b = UIButton(type: .system)
-        b.setTitle("Pass", for: .normal)
-        b.titleLabel?.font = .interSemiBold(15)
+        b.setTitle("PASS", for: .normal)
+        b.titleLabel?.font = .spaceMonoBold(13)
         b.setTitleColor(.white.withAlphaComponent(0.7), for: .normal)
         b.backgroundColor = ENVITheme.UIKit.surfaceHighDark
-        b.layer.cornerRadius = ENVIRadius.pill
+        b.layer.cornerRadius = ENVIRadius.lg
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
     }()
 
     private let approveButton: UIButton = {
         let b = UIButton(type: .system)
-        b.setTitle("Approve", for: .normal)
-        b.titleLabel?.font = .interSemiBold(15)
-        b.setTitleColor(.white, for: .normal)
-        b.backgroundColor = ENVITheme.UIKit.primaryDark
-        b.layer.cornerRadius = ENVIRadius.pill
+        b.setTitle("APPROVE", for: .normal)
+        b.titleLabel?.font = .spaceMonoBold(13)
+        b.setTitleColor(.black, for: .normal)
+        b.backgroundColor = .white
+        b.layer.cornerRadius = ENVIRadius.lg
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
     }()

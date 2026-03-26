@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Circular progress indicator for the ENVI design system.
+/// Stroke: white (dark mode). Track: white/0.12.
 struct ENVIProgressRing: View {
     let progress: Double     // 0.0–1.0
     var lineWidth: CGFloat = 6
@@ -13,15 +14,15 @@ struct ENVIProgressRing: View {
             // Background track
             Circle()
                 .stroke(
-                    ENVITheme.surfaceHigh(for: colorScheme),
+                    Color.white.opacity(0.12),
                     lineWidth: lineWidth
                 )
 
-            // Progress arc
+            // Progress arc — white stroke
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
-                    ENVITheme.primary(for: colorScheme),
+                    ENVITheme.text(for: colorScheme),
                     style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))

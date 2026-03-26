@@ -10,8 +10,9 @@ struct AnalyticsView: View {
             VStack(alignment: .leading, spacing: ENVISpacing.xl) {
                 // Title row
                 HStack {
-                    Text("Analytics")
-                        .font(.interBlack(28))
+                    Text("ANALYTICS")
+                        .font(.spaceMonoBold(28))
+                        .tracking(-1.5)
                         .foregroundColor(ENVITheme.text(for: colorScheme))
 
                     Spacer()

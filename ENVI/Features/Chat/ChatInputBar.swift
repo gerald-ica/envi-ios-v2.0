@@ -10,8 +10,8 @@ struct ChatInputBar: View {
             // Tool chips
             HStack(spacing: ENVISpacing.sm) {
                 ToolChip(icon: "paperclip", label: "Attach")
-                ToolChip(icon: "mic.fill", label: "Voice")
-                ToolChip(icon: "video.fill", label: "Edit Video")
+                ToolChip(icon: "mic", label: "Voice")
+                ToolChip(icon: "video", label: "Edit Video")
                 Spacer()
             }
             .padding(.horizontal, ENVISpacing.lg)
@@ -24,15 +24,15 @@ struct ChatInputBar: View {
                     .padding(.horizontal, ENVISpacing.lg)
                     .padding(.vertical, ENVISpacing.md)
                     .background(ENVITheme.surfaceLow(for: colorScheme))
-                    .clipShape(Capsule())
+                    .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
 
                 Button(action: { viewModel.sendMessage() }) {
-                    Image(systemName: "arrow.up.circle.fill")
+                    Image(systemName: "arrow.up.circle")
                         .font(.system(size: 32))
                         .foregroundColor(
                             viewModel.inputText.isEmpty
                                 ? ENVITheme.textLight(for: colorScheme)
-                                : ENVITheme.primary(for: colorScheme)
+                                : ENVITheme.text(for: colorScheme)
                         )
                 }
                 .disabled(viewModel.inputText.isEmpty)
@@ -60,6 +60,6 @@ private struct ToolChip: View {
         .padding(.horizontal, ENVISpacing.md)
         .padding(.vertical, ENVISpacing.sm)
         .background(ENVITheme.surfaceLow(for: colorScheme))
-        .clipShape(Capsule())
+        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
     }
 }

@@ -18,7 +18,7 @@ struct RelatedQuestionsView: View {
                     HStack(spacing: ENVISpacing.sm) {
                         Image(systemName: "arrow.turn.down.right")
                             .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(ENVITheme.primary(for: colorScheme))
+                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
                         Text(question)
                             .font(.interRegular(13))
@@ -28,7 +28,7 @@ struct RelatedQuestionsView: View {
                     .padding(.horizontal, ENVISpacing.md)
                     .padding(.vertical, ENVISpacing.sm)
                     .background(ENVITheme.surfaceLow(for: colorScheme))
-                    .clipShape(Capsule())
+                    .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
                 }
             }
         }

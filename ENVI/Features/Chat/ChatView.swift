@@ -55,14 +55,15 @@ private struct HeaderPill: View {
         HStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.system(size: 12, weight: .medium))
-            Text(title)
-                .font(.interMedium(13))
+            Text(title.uppercased())
+                .font(.spaceMonoBold(11))
+                .tracking(1.5)
         }
         .foregroundColor(ENVITheme.text(for: colorScheme))
         .padding(.horizontal, ENVISpacing.lg)
         .padding(.vertical, ENVISpacing.sm)
         .background(ENVITheme.surfaceLow(for: colorScheme))
-        .clipShape(Capsule())
+        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
     }
 }
 

@@ -21,7 +21,7 @@ struct DataCardView: View {
                     Spacer()
 
                     Text(metric.value)
-                        .font(.interSemiBold(14))
+                        .font(.spaceMonoBold(14))
                         .foregroundColor(ENVITheme.text(for: colorScheme))
 
                     if let change = metric.change {
@@ -39,7 +39,11 @@ struct DataCardView: View {
             }
         }
         .padding(ENVISpacing.lg)
-        .background(.ultraThinMaterial)
+        .background(ENVITheme.surfaceLow(for: colorScheme))
+        .overlay(
+            RoundedRectangle(cornerRadius: ENVIRadius.lg)
+                .strokeBorder(ENVITheme.border(for: colorScheme), lineWidth: 1)
+        )
         .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
     }
 }

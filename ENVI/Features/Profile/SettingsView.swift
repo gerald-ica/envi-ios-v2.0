@@ -70,7 +70,7 @@ struct AppearanceToggle: View {
                 }
             }
             .background(ENVITheme.surfaceLow(for: colorScheme))
-            .clipShape(Capsule())
+            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
         }
     }
 }

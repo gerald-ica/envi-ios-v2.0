@@ -16,8 +16,9 @@ struct SignInView: View {
             // Logo area
             VStack(spacing: ENVISpacing.lg) {
                 Text("ENVI")
-                    .font(.interBlack(40))
-                    .foregroundColor(ENVITheme.primary(for: colorScheme))
+                    .font(.spaceMonoBold(40))
+                    .tracking(-2.0)
+                    .foregroundColor(ENVITheme.text(for: colorScheme))
 
                 Text("Welcome back")
                     .font(.interRegular(15))
@@ -60,8 +61,9 @@ struct SignInView: View {
                 Button("Sign Up") {
                     onCreateAccount?()
                 }
-                .font(.interSemiBold(14))
-                .foregroundColor(ENVITheme.primary(for: colorScheme))
+                .font(.spaceMonoBold(14))
+                .tracking(1.0)
+                .foregroundColor(ENVITheme.text(for: colorScheme))
             }
             .padding(.bottom, ENVISpacing.xxxl)
         }

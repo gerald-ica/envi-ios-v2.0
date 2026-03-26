@@ -1,20 +1,21 @@
 import UIKit
 
-/// Custom pill-shaped tab bar for the ENVI app.
-/// Renders 5 icon-only tabs with a floating pill background.
+/// Custom tab bar for the ENVI app.
+/// All icons use SF Symbol outline variants (no .fill suffixes).
+/// Selected: white icon. Unselected: white/0.5 icon.
+/// Tab bar background: #1A1A1A.
 final class ENVITabBar: UIView {
 
     struct Tab {
-        let iconName: String       // SF Symbol name
-        let selectedIconName: String
+        let iconName: String       // SF Symbol name (outline only)
     }
 
     static let defaultTabs: [Tab] = [
-        Tab(iconName: "house", selectedIconName: "house.fill"),
-        Tab(iconName: "square.grid.2x2", selectedIconName: "square.grid.2x2.fill"),
-        Tab(iconName: "sparkles", selectedIconName: "sparkles"),
-        Tab(iconName: "chart.bar", selectedIconName: "chart.bar.fill"),
-        Tab(iconName: "person", selectedIconName: "person.fill"),
+        Tab(iconName: "house"),
+        Tab(iconName: "square.grid.2x2"),
+        Tab(iconName: "sparkles"),
+        Tab(iconName: "chart.bar"),
+        Tab(iconName: "person"),
     ]
 
     var selectedIndex: Int = 0 {
@@ -37,9 +38,9 @@ final class ENVITabBar: UIView {
     required init?(coder: NSCoder) { fatalError() }
 
     private func setupUI() {
-        // Pill background
+        // Pill background — #1A1A1A
         pillBackground.backgroundColor = ENVITheme.UIKit.surfaceLowDark
-        pillBackground.layer.cornerRadius = 32
+        pillBackground.layer.cornerRadius = ENVIRadius.xl
         pillBackground.translatesAutoresizingMaskIntoConstraints = false
         addSubview(pillBackground)
 
@@ -54,7 +55,7 @@ final class ENVITabBar: UIView {
             let button = UIButton(type: .system)
             let config = UIImage.SymbolConfiguration(pointSize: 22, weight: .medium)
             button.setImage(UIImage(systemName: tab.iconName, withConfiguration: config), for: .normal)
-            button.tintColor = ENVITheme.UIKit.textLightDark
+            button.tintColor = UIColor.white.withAlphaComponent(0.5)
             button.tag = index
             button.addTarget(self, action: #selector(tabTapped(_:)), for: .touchUpInside)
             buttons.append(button)
@@ -87,9 +88,9 @@ final class ENVITabBar: UIView {
             let tab = tabs[index]
             let isSelected = index == selectedIndex
             let config = UIImage.SymbolConfiguration(pointSize: 22, weight: isSelected ? .semibold : .medium)
-            let iconName = isSelected ? tab.selectedIconName : tab.iconName
-            button.setImage(UIImage(systemName: iconName, withConfiguration: config), for: .normal)
-            button.tintColor = isSelected ? ENVITheme.UIKit.primaryDark : ENVITheme.UIKit.textLightDark
+            // Always use outline icon — no .fill variants
+            button.setImage(UIImage(systemName: tab.iconName, withConfiguration: config), for: .normal)
+            button.tintColor = isSelected ? .white : UIColor.white.withAlphaComponent(0.5)
         }
     }
 

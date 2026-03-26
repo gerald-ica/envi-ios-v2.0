@@ -18,7 +18,7 @@ struct EngagementChartView: View {
                     x: .value("Day", metric.day),
                     y: .value("Engagement", metric.value)
                 )
-                .foregroundStyle(ENVITheme.primary(for: colorScheme).gradient)
+                .foregroundStyle(ENVITheme.text(for: colorScheme).gradient)
                 .cornerRadius(4)
             }
             .chartYAxis {

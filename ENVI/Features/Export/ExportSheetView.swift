@@ -26,10 +26,10 @@ struct ExportSheetView: View {
                             Spacer()
                             Button("Regenerate") {}
                                 .font(.interMedium(12))
-                                .foregroundColor(ENVITheme.primary(for: colorScheme))
+                                .foregroundColor(ENVITheme.text(for: colorScheme))
                             Button("Copy") {}
                                 .font(.interMedium(12))
-                                .foregroundColor(ENVITheme.primary(for: colorScheme))
+                                .foregroundColor(ENVITheme.text(for: colorScheme))
                         }
 
                         TextEditor(text: $caption)
@@ -45,11 +45,11 @@ struct ExportSheetView: View {
                         ForEach(hashtags, id: \.self) { tag in
                             Text(tag)
                                 .font(.interMedium(13))
-                                .foregroundColor(ENVITheme.primary(for: colorScheme))
+                                .foregroundColor(ENVITheme.text(for: colorScheme))
                                 .padding(.horizontal, ENVISpacing.md)
                                 .padding(.vertical, ENVISpacing.xs)
                                 .background(ENVITheme.surfaceLow(for: colorScheme))
-                                .clipShape(Capsule())
+                                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
                         }
                     }
 
@@ -102,7 +102,7 @@ struct ExportSheetView: View {
                             .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
                         Slider(value: $quality, in: 0.1...1.0)
-                            .tint(ENVITheme.primary(for: colorScheme))
+                            .tint(ENVITheme.text(for: colorScheme))
                     }
 
                     // Export button
@@ -118,7 +118,7 @@ struct ExportSheetView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
-                        .foregroundColor(ENVITheme.primary(for: colorScheme))
+                        .foregroundColor(ENVITheme.text(for: colorScheme))
                 }
             }
         }
