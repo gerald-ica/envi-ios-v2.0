@@ -1,23 +1,44 @@
-# ENVI
+# ENVI iOS v2.0
 
-**Personalized AI Content Editor.**
+**Content creation and management platform for iOS.**
 
-Your next post is already filmed. ENVI is a personalized AI content editor for iOS that scans your camera roll, turns forgotten footage into polished, ready-to-post content, and helps you manage your social media presence across platforms. Powered by AI, it provides smart insights, automated captions, optimal posting times, and engagement analytics — all in a monochromatic, editorial design language.
+ENVI assembles and edits content pieces from the user's camera roll — photos, videos, carousels, stories, and reels — and presents them in an interactive 3D content library. Powered by AI, it provides smart insights, automated editing suggestions, optimal posting times, and engagement analytics across social platforms.
 
-## Screenshots
+## Features
 
-<!-- TODO: Add screenshots before launch -->
-_Coming soon — app launches March 30th._
+- **World Explorer** — 3D content library rendered as a helix timeline using SceneKit, displaying the user's content pieces in an immersive, navigable space
+- **ENVI AI Chat** — Conversational AI for content insights, editing suggestions, and creative direction
+- **Content Analytics** — KPI cards, engagement charts, content calendar, and performance tracking
+- **Content Editor** — Video and photo editor with timeline, toolbar, and AI-assisted editing
+- **Social Platform Integration** — Connect and manage multiple social media platforms from one place
+
+## Chat/Explore Tab
+
+The Chat/Explore tab is a dual-mode view combining:
+
+- **World Explorer** — A 3D helix visualization of the user's content pieces, supporting touch-based camera rotation, content type filtering, time scrubbing, and click-to-zoom detail views
+- **AI Chat** — A conversational interface for asking ENVI to analyze, edit, or create content based on the user's library
+
+Toggle between modes or use them together. The tab uses the "sparkles" SF Symbol icon.
+
+## Content Pieces
+
+Content pieces are already-edited short-form media created from the user's camera roll. During onboarding, ENVI connects to the user's Photos app and automatically assembles content pieces — turning raw photos, videos, and other media into polished, ready-to-post formats. These content pieces populate the World Explorer's 3D helix timeline.
 
 ## Architecture
 
-ENVI uses a **MVVM + Coordinator** pattern with a **UIKit + SwiftUI hybrid** architecture targeting **iOS 17.0+**.
+ENVI uses a **SwiftUI + UIKit hybrid** architecture targeting **iOS 17.0+**.
+
+- **SwiftUI** — Library, Chat/Explore, Analytics, Profile, Export screens
+- **UIKit** — Feed, Editor, custom tab bar, navigation coordinators
+- **SceneKit** — 3D World Explorer helix rendering and interaction
+- **SPM Dependencies** — SDWebImage for image loading, Lottie for animations
 
 ### Navigation
 
 - **AppCoordinator** — Root coordinator managing auth flow (Splash → Onboarding → Sign In) and main app flow
 - **MainTabBarController** — Custom UIKit tab bar controller hosting 5 tabs with a floating pill-shaped tab bar
-- **OnboardingCoordinator** — Manages the 5-step onboarding flow (Name → DOB → Location → Birthplace → Socials)
+- **OnboardingCoordinator** — Manages onboarding flow including Photos permission request
 
 ### Layer Structure
 
@@ -27,10 +48,10 @@ ENVI/
 ├── Core/
 │   ├── Design/             # ENVITheme, ENVITypography, ENVISpacing, ThemeManager
 │   ├── Extensions/         # Color+ENVI, Font+ENVI, View+Extensions
-│   ├── Networking/         # APIClient
-│   └── Storage/            # UserDefaultsManager
+│   ├── Networking/         # APIClient, ContentPieceAssembler
+│   └── Storage/            # UserDefaultsManager, PhotoLibraryManager
 ├── Components/             # Reusable design system components
-│   ├── ENVIBadge           # Monochromatic status badges
+│   ├── ENVIBadge           # Status badges
 │   ├── ENVIBottomSheet     # UIKit bottom sheet presentation
 │   ├── ENVIButton          # Primary/secondary/ghost button variants
 │   ├── ENVICard            # Elevated card container
@@ -40,63 +61,17 @@ ENVI/
 │   ├── ENVITabBar          # Custom floating tab bar (UIKit)
 │   └── ENVIToggle          # Custom toggle switch
 ├── Features/
-│   ├── Auth/               # Splash, onboarding (5 steps), sign in
+│   ├── Auth/               # Splash, onboarding, sign in
 │   ├── Feed/               # Swipeable card stack, AI insight pills
 │   ├── Library/            # Masonry grid, template carousel
-│   ├── Chat/               # AI chat with data cards, related questions
+│   ├── ChatExplore/        # Dual-mode Chat + World Explorer
 │   ├── Analytics/          # KPI cards, engagement charts, content calendar
-│   ├── Profile/            # Stats, connected platforms, settings, appearance
+│   ├── Profile/            # Stats, connected platforms, settings
 │   ├── Editor/             # Video editor with timeline + toolbar (UIKit)
 │   └── Export/             # Export sheet with AI captions + progress overlay
 ├── Models/                 # User, ContentItem, ChatMessage, Platform, AnalyticsData
 └── Navigation/             # Coordinator protocol, MainTabBarController
 ```
-
-### Key Patterns
-
-- **UIKit screens** (Feed, Editor) use UIKit view controllers with SwiftUI hosted views where appropriate
-- **SwiftUI screens** (Library, Chat, Analytics, Profile, Export) use `@StateObject` ViewModels
-- **Design tokens** are centralized in `ENVITheme`, `ENVITypography`, and `ENVISpacing`
-- **ThemeManager** is a singleton `ObservableObject` managing light/dark/system appearance
-
-## Design System
-
-ENVI follows a **monochromatic** visual language — black, white, and neutral grays only.
-
-### Color Palette
-
-| Token | Dark Mode | Light Mode |
-|-------|-----------|------------|
-| Background | `#000000` (pure black) | `#FFFFFF` (pure white) |
-| Surface Low | `#1A1A1A` | `#F4F4F4` |
-| Surface High | `#2A2A2A` | `#E8E8E8` |
-| Primary | `#FFFFFF` (white) | `#000000` (black) |
-| Text | `#FFFFFF` | `#000000` |
-| Text Secondary | `rgba(255,255,255,0.7)` | `rgba(0,0,0,0.7)` |
-| Border | `rgba(255,255,255,0.12)` | `rgba(0,0,0,0.12)` |
-| Accent | `#30217C` (subtle gradients only, max 20%) | `#30217C` |
-
-### Typography
-
-| Style | Font | Size | Case | Tracking |
-|-------|------|------|------|----------|
-| Display Large | Space Mono Bold | 32 | UPPERCASE | -2px |
-| Display Medium | Space Mono Bold | 28 | UPPERCASE | -1.5px |
-| Heading | Space Mono Bold | 22 | UPPERCASE | -1px |
-| Subheading | Space Mono Regular | 17 | UPPERCASE | +0.5px |
-| Body | Inter Regular | 15 | Sentence | +0.3px |
-| Caption | Inter Medium | 13 | Sentence | +0.5px |
-| Label | Space Mono Bold | 11 | UPPERCASE | +2.5px |
-| Badge | Space Mono Bold | 10 | UPPERCASE | +2px |
-
-### Rules
-
-- **Headings, buttons, labels, chips, badges, navigation:** Space Mono, UPPERCASE
-- **Body text, descriptions, placeholders:** Inter, sentence case
-- **Icons:** SF Symbols outline variants only (no `.fill` suffixes)
-- **Border radius:** 8–14px rounded rectangles (no capsule shapes)
-- **No bold in body text** (Inter Regular or Medium only)
-- **No italic anywhere**
 
 ## Build Instructions
 
@@ -136,7 +111,7 @@ com.informal.envi
 
 The app uses two custom font families bundled in the app:
 
-- **Space Mono** (Regular, Bold) — headings, labels, navigation, buttons
+- **Space Mono** (Regular, Bold, Italic, Bold Italic) — headings, labels, navigation, buttons
 - **Inter** (Regular, Medium, SemiBold, Bold, ExtraBold, Black) — body text, descriptions
 
 Fonts are registered at app launch via `ENVITypography.registerFonts()`.

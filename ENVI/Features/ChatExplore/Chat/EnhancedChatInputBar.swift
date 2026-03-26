@@ -95,7 +95,7 @@ private struct InputToolChip: View {
 
                 Text(label.uppercased())
                     .font(.spaceMono(11))
-                    .tracking(1.0)
+                    .tracking(11 * 0.1) // 0.1em tracking
             }
             .foregroundColor(ENVITheme.text(for: colorScheme).opacity(0.7))
             .padding(.horizontal, ENVISpacing.md)

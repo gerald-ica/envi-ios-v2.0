@@ -20,17 +20,27 @@ struct ChatExploreView: View {
             segmentedControl
             divider
 
-            // Content area with crossfade
+            // Content area with crossfade + subtle slide
             ZStack {
                 if selectedMode == .explore {
                     WorldExplorerView()
-                        .transition(.opacity)
+                        .transition(
+                            .asymmetric(
+                                insertion: .opacity.combined(with: .offset(x: -20)),
+                                removal: .opacity.combined(with: .offset(x: -20))
+                            )
+                        )
                 } else {
                     EnhancedChatView()
-                        .transition(.opacity)
+                        .transition(
+                            .asymmetric(
+                                insertion: .opacity.combined(with: .offset(x: 20)),
+                                removal: .opacity.combined(with: .offset(x: 20))
+                            )
+                        )
                 }
             }
-            .animation(.easeInOut(duration: 0.25), value: selectedMode)
+            .animation(.easeInOut(duration: 0.3), value: selectedMode)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(ENVITheme.background(for: colorScheme))
@@ -54,7 +64,7 @@ struct ChatExploreView: View {
         let isSelected = selectedMode == mode
 
         return Button {
-            withAnimation(.easeInOut(duration: 0.25)) {
+            withAnimation(.easeInOut(duration: 0.3)) {
                 selectedMode = mode
             }
         } label: {
@@ -94,18 +104,38 @@ struct EnhancedChatView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if viewModel.isHome {
-                EnhancedChatHomeView(viewModel: viewModel)
-            } else {
-                if viewModel.isTyping {
-                    TypingDotsView()
+            // Main content area with transitions
+            ZStack {
+                if viewModel.isHome {
+                    EnhancedChatHomeView(viewModel: viewModel)
+                        .transition(.opacity.combined(with: .offset(y: 8)))
+                } else if viewModel.isTyping {
+                    VStack {
+                        Spacer()
+                        TypingDotsView()
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .transition(.opacity)
                 } else if let thread = viewModel.activeThread {
-                    EnhancedThreadView(thread: thread, onRelatedQuestion: { q in
-                        viewModel.startThread(q)
-                    })
+                    EnhancedThreadView(
+                        thread: thread,
+                        isTyping: false,
+                        onRelatedQuestion: { q in
+                            viewModel.startThread(q)
+                        },
+                        onBack: {
+                            viewModel.resetToHome()
+                        }
+                    )
+                    .transition(.opacity.combined(with: .offset(y: 8)))
                 }
             }
+            .animation(.easeInOut(duration: 0.25), value: viewModel.isHome)
+            .animation(.easeInOut(duration: 0.25), value: viewModel.isTyping)
+
             Spacer(minLength: 0)
+
             EnhancedChatInputBar(onSend: { text in
                 viewModel.inputText = text
                 viewModel.startThread(text)

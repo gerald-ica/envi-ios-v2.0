@@ -12,10 +12,10 @@ struct MetricCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            // Label
+            // Label — SpaceMono 10pt uppercase, 0.15em tracking
             Text(metric.label.uppercased())
                 .font(.spaceMono(10))
-                .tracking(1.5)
+                .tracking(10 * 0.15) // 0.15em tracking
                 .foregroundColor(ENVITheme.text(for: colorScheme).opacity(0.5))
 
             // Value

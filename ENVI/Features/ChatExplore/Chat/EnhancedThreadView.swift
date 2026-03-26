@@ -60,7 +60,7 @@ struct EnhancedThreadView: View {
 
                 Text("YOUR QUESTION")
                     .font(.spaceMonoBold(11))
-                    .tracking(1.5)
+                    .tracking(11 * 0.15) // 0.15em tracking
                     .foregroundColor(ENVITheme.text(for: colorScheme).opacity(0.5))
             }
 
@@ -82,7 +82,7 @@ struct EnhancedThreadView: View {
             // "✦ ENVI AI RESPONSE" label
             Text("✦  ENVI AI RESPONSE")
                 .font(.spaceMonoBold(11))
-                .tracking(1.5)
+                .tracking(11 * 0.15) // 0.15em tracking
                 .foregroundColor(ENVITheme.text(for: colorScheme).opacity(0.5))
                 .padding(.bottom, ENVISpacing.xl)
 
@@ -123,7 +123,7 @@ struct EnhancedThreadView: View {
             // MARK: - Explore more
             Text("EXPLORE MORE")
                 .font(.spaceMonoBold(11))
-                .tracking(1.5)
+                .tracking(11 * 0.15) // 0.15em tracking
                 .foregroundColor(ENVITheme.text(for: colorScheme).opacity(0.5))
                 .padding(.bottom, ENVISpacing.lg)
 

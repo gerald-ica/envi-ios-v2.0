@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - Content Type
 
-/// The format of a content piece.
+/// The format of a content piece (edited media from the user's camera roll).
 enum ContentType: String, CaseIterable, Codable {
     case photo, video, carousel, story, reel
 
@@ -42,6 +42,28 @@ enum ContentPlatform: String, CaseIterable, Codable {
     }
 }
 
+// MARK: - Content Source
+
+/// Where a content piece originates from.
+enum ContentSource: String, CaseIterable {
+    case photoLibrary
+    case contentLibrary
+
+    var label: String {
+        switch self {
+        case .photoLibrary:   return "Camera Roll"
+        case .contentLibrary: return "Content Library"
+        }
+    }
+
+    var displayLabel: String {
+        switch self {
+        case .photoLibrary:   return "From your Camera Roll"
+        case .contentLibrary: return "From Content Library"
+        }
+    }
+}
+
 // MARK: - Content Metrics
 
 /// Engagement metrics for a content piece.
@@ -54,7 +76,9 @@ struct ContentMetrics {
 
 // MARK: - Content Piece
 
-/// A social media content asset in the ENVI library.
+/// An edited media asset from the user's camera roll, surfaced in the ENVI content library.
+/// Content pieces represent photos, videos, carousels, reels, and stories that the user
+/// has already created or edited, imported via full Photos app access during onboarding.
 struct ContentPiece: Identifiable {
     let id: String
     let title: String
@@ -67,8 +91,11 @@ struct ContentPiece: Identifiable {
     let metrics: ContentMetrics?
     let aiSuggestion: String?
     let imageName: String
+    let source: ContentSource
 
-    // MARK: - Sample Library (all 14 pieces from WorldExplorer.tsx CONTENT_PIECES)
+    // MARK: - Sample Library
+    // Placeholder content — in production, assembled from user's camera roll.
+    // All 14 content pieces ported from WorldExplorer.tsx CONTENT_PIECES.
 
     static let sampleLibrary: [ContentPiece] = [
         ContentPiece(
@@ -82,7 +109,8 @@ struct ContentPiece: Identifiable {
             tags: ["branding", "product", "cinematic"],
             metrics: ContentMetrics(views: 12400, likes: 1830, shares: 245, comments: 89),
             aiSuggestion: "Add a text overlay at 0:03 with your tagline — posts with early text hooks see 23% more completions.",
-            imageName: "Closer"
+            imageName: "Closer",
+            source: .photoLibrary
         ),
         ContentPiece(
             id: "content-2",
@@ -95,7 +123,8 @@ struct ContentPiece: Identifiable {
             tags: ["campaign", "hero", "spring"],
             metrics: ContentMetrics(views: 8700, likes: 2100, shares: 312, comments: nil),
             aiSuggestion: "Crop to 4:5 for feed — this 1:1 ratio loses 18% engagement on Instagram grid.",
-            imageName: "studio-fashion"
+            imageName: "studio-fashion",
+            source: .photoLibrary
         ),
         ContentPiece(
             id: "content-3",
@@ -108,7 +137,8 @@ struct ContentPiece: Identifiable {
             tags: ["lifestyle", "wellness", "carousel"],
             metrics: ContentMetrics(views: 6200, likes: 980, shares: 156, comments: 67),
             aiSuggestion: "Slide 3 has low contrast text — increase font weight or add a subtle drop shadow for readability.",
-            imageName: "runway"
+            imageName: "runway",
+            source: .photoLibrary
         ),
         ContentPiece(
             id: "content-4",
@@ -121,7 +151,8 @@ struct ContentPiece: Identifiable {
             tags: ["bts", "studio", "authentic"],
             metrics: ContentMetrics(views: 34500, likes: 4200, shares: 890, comments: nil),
             aiSuggestion: "The first 2 seconds are static — start with the final shot as a hook, then rewind to the process.",
-            imageName: "fire-stunt"
+            imageName: "fire-stunt",
+            source: .photoLibrary
         ),
         ContentPiece(
             id: "content-5",
@@ -134,7 +165,8 @@ struct ContentPiece: Identifiable {
             tags: ["product", "flatlay", "catalog"],
             metrics: ContentMetrics(views: 4100, likes: 620, shares: 88, comments: nil),
             aiSuggestion: "Add lifestyle context — flat lays with a hand or prop in frame get 31% more saves.",
-            imageName: "jacket"
+            imageName: "jacket",
+            source: .contentLibrary
         ),
         ContentPiece(
             id: "content-6",
@@ -147,7 +179,8 @@ struct ContentPiece: Identifiable {
             tags: ["event", "gallery", "culture"],
             metrics: ContentMetrics(views: 15800, likes: 2400, shares: 567, comments: 134),
             aiSuggestion: "Strong piece. Consider a carousel companion post with hi-res stills from the same event for 2x content.",
-            imageName: "fashion-group"
+            imageName: "fashion-group",
+            source: .photoLibrary
         ),
         ContentPiece(
             id: "content-7",
@@ -160,7 +193,8 @@ struct ContentPiece: Identifiable {
             tags: ["process", "timelapse", "design"],
             metrics: ContentMetrics(views: 9300, likes: 1100, shares: 234, comments: nil),
             aiSuggestion: "YouTube Shorts version could reach 5x the audience — cut to the best 15s with a before/after hook.",
-            imageName: "cyclist"
+            imageName: "cyclist",
+            source: .photoLibrary
         ),
         ContentPiece(
             id: "content-8",
@@ -173,7 +207,8 @@ struct ContentPiece: Identifiable {
             tags: ["quote", "typography", "leadership"],
             metrics: ContentMetrics(views: 3200, likes: 410, shares: 190, comments: nil),
             aiSuggestion: "Quote cards without a personal story get 40% less engagement — add a 2-line personal take in the caption.",
-            imageName: "red-silhouette"
+            imageName: "red-silhouette",
+            source: .contentLibrary
         ),
         ContentPiece(
             id: "content-9",
@@ -186,7 +221,8 @@ struct ContentPiece: Identifiable {
             tags: ["collab", "partnership", "announcement"],
             metrics: ContentMetrics(views: 11200, likes: 1900, shares: 445, comments: 201),
             aiSuggestion: "Pin this to your grid — collab posts drive profile visits. Tag the partner account in every slide, not just the caption.",
-            imageName: "culture-food"
+            imageName: "culture-food",
+            source: .photoLibrary
         ),
         ContentPiece(
             id: "content-10",
@@ -199,7 +235,8 @@ struct ContentPiece: Identifiable {
             tags: ["tutorial", "editing", "education"],
             metrics: ContentMetrics(views: 22100, likes: 3400, shares: 678, comments: nil),
             aiSuggestion: "Add chapters and timestamps in description — tutorial videos with chapters get 28% more watch time.",
-            imageName: "subway"
+            imageName: "subway",
+            source: .photoLibrary
         ),
         ContentPiece(
             id: "content-11",
@@ -212,7 +249,8 @@ struct ContentPiece: Identifiable {
             tags: ["ai-art", "creative", "series"],
             metrics: ContentMetrics(views: 7600, likes: 890, shares: 234, comments: nil),
             aiSuggestion: "Thread format outperforms single tweets for art — add 3-4 process images showing how the prompt evolved.",
-            imageName: "desert-car"
+            imageName: "desert-car",
+            source: .contentLibrary
         ),
         ContentPiece(
             id: "content-12",
@@ -225,7 +263,8 @@ struct ContentPiece: Identifiable {
             tags: ["moodboard", "direction", "creative"],
             metrics: ContentMetrics(views: 5400, likes: 780, shares: 145, comments: nil),
             aiSuggestion: "Save this as a Guide on Instagram — mood boards in Guides get ongoing discovery vs. feed posts.",
-            imageName: "chopsticks"
+            imageName: "chopsticks",
+            source: .photoLibrary
         ),
         ContentPiece(
             id: "content-13",
@@ -238,7 +277,8 @@ struct ContentPiece: Identifiable {
             tags: ["testimonial", "social-proof", "client"],
             metrics: ContentMetrics(views: 4800, likes: 560, shares: 312, comments: 45),
             aiSuggestion: "Lead with the result, not the introduction — \"We grew 40%\" hooks better than \"Hi, I'm...\" openings.",
-            imageName: "parking-garage"
+            imageName: "parking-garage",
+            source: .contentLibrary
         ),
         ContentPiece(
             id: "content-14",
@@ -251,7 +291,8 @@ struct ContentPiece: Identifiable {
             tags: ["trend", "remix", "viral"],
             metrics: ContentMetrics(views: 89200, likes: 12300, shares: 3400, comments: 567),
             aiSuggestion: "This has viral momentum — cross-post to Reels within 24hrs. Trending sounds have a 3-5 day peak window.",
-            imageName: "industrial-girl"
+            imageName: "industrial-girl",
+            source: .photoLibrary
         ),
     ]
 }

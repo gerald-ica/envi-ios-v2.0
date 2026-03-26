@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Floating glass-morphic search bar for the World Explorer view.
-/// Filters visible nodes by title/tags via a callback — not coupled to SceneKit.
+/// Filters visible content pieces by title/tags via a callback — not coupled to SceneKit.
 struct ExplorerSearchBar: View {
     @Binding var searchText: String
     var onSearchChanged: ((String) -> Void)?
@@ -76,7 +76,7 @@ struct ExplorerSearchBar_Previews: PreviewProvider {
             Color.black.ignoresSafeArea()
             VStack {
                 ExplorerSearchBar(searchText: .constant(""))
-                ExplorerSearchBar(searchText: .constant("climate"))
+                ExplorerSearchBar(searchText: .constant("brand"))
             }
         }
         .preferredColorScheme(.dark)

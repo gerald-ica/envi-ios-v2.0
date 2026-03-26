@@ -1,100 +1,199 @@
 import SwiftUI
 
+// MARK: - Waterfall Suggestions
+// Uses WaterfallSuggestion from Models/WaterfallSuggestion.swift (canonical definition).
+// Suggestions are accessed via WaterfallSuggestion.suggestions(for:).
+
 // MARK: - Content Node View (Detail Overlay)
 
-/// Glass-morphic dark card that appears when a node is tapped.
-/// Shows content metadata, AI score, metrics, suggestion, and action buttons.
+/// Full-screen detail view when content is selected. Matches the React detail panel (lines 1336-1571)
+/// including waterfall suggestions, related content, video play overlay, type-specific CTA.
 struct ContentNodeView: View {
 
     let content: ContentPiece
+    var lightMode: Bool = false
     let onClose: () -> Void
+    var onNavigateToContent: ((ContentPiece) -> Void)?
 
     var body: some View {
         ZStack {
             // Full-screen backdrop
-            Color.black.opacity(0.85)
+            (lightMode ? Color.white.opacity(0.9) : Color.black.opacity(0.9))
                 .ignoresSafeArea()
+                .background(.ultraThinMaterial)
                 .onTapGesture { onClose() }
 
-            // Scrollable card
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 0) {
-                    // Close button
-                    HStack {
-                        Spacer()
-                        closeButton
+            // Two-column layout (stacked on narrow screens)
+            GeometryReader { geo in
+                let isWide = geo.size.width > 700
+
+                if isWide {
+                    HStack(spacing: 0) {
+                        previewArea
+                            .frame(maxWidth: .infinity)
+                        metadataPanel
+                            .frame(width: 420)
                     }
+                } else {
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 0) {
+                            previewArea
+                                .frame(height: geo.size.height * 0.45)
+                            metadataPanel
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Preview Area (Left side)
+
+    private var previewArea: some View {
+        VStack {
+            Spacer()
+            ZStack(alignment: .topLeading) {
+                // Content image
+                Group {
+                    if let uiImage = UIImage(named: content.imageName) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(4.0 / 5.0, contentMode: .fill)
+                    } else {
+                        Rectangle()
+                            .fill(ENVITheme.Dark.surfaceLow)
+                            .aspectRatio(4.0 / 5.0, contentMode: .fill)
+                    }
+                }
+                .frame(maxWidth: 560)
+                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
+                .overlay(
+                    RoundedRectangle(cornerRadius: ENVIRadius.lg)
+                        .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+                )
+
+                // Video play overlay for video/reel types
+                if content.type == .video || content.type == .reel {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                        Circle()
+                            .fill(Color.white.opacity(0.2))
+                            .frame(width: 64, height: 64)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle().strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
+                            )
+                            .overlay(
+                                Image(systemName: "play.fill")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(.white)
+                                    .offset(x: 2)
+                            )
+                    }
+                    .frame(maxWidth: 560)
+                    .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
+                }
+
+                // Type badge (top-left) + AI Score badge (top-right)
+                HStack(spacing: ENVISpacing.sm) {
+                    typeBadge
+                    Spacer()
+                    scoreBadge
+                }
+                .padding(ENVISpacing.md)
+            }
+            .frame(maxWidth: 560)
+            Spacer()
+        }
+        .padding(.horizontal, ENVISpacing.xxl)
+    }
+
+    // MARK: - Metadata Panel (Right side)
+
+    private var metadataPanel: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                // Close button
+                HStack {
+                    Spacer()
+                    closeButton
+                }
+                .padding(.bottom, ENVISpacing.xxl)
+
+                // Platform + date
+                platformRow
                     .padding(.bottom, ENVISpacing.lg)
 
-                    // Content image preview
-                    imagePreview
-                        .padding(.bottom, ENVISpacing.xl)
+                // Title (Inter Black 26px uppercase tracking-tight)
+                Text(content.title.uppercased())
+                    .font(.interBlack(26))
+                    .tracking(-0.5)
+                    .lineSpacing(0)
+                    .foregroundColor(lightMode ? .black : .white)
+                    .padding(.bottom, ENVISpacing.xl)
 
-                    // Platform + date
-                    platformRow
-                        .padding(.bottom, ENVISpacing.md)
+                // Description (SpaceMono 12px line-height 1.7)
+                Text(content.description)
+                    .font(.spaceMono(12))
+                    .foregroundColor(lightMode ? .black.opacity(0.55) : .white.opacity(0.6))
+                    .lineSpacing(4.5)
+                    .padding(.bottom, ENVISpacing.xxl)
 
-                    // Title
-                    Text(content.title.uppercased())
-                        .font(.interExtraBold(24))
-                        .tracking(-0.5)
-                        .foregroundColor(.white)
-                        .padding(.bottom, ENVISpacing.md)
+                // Content source context
+                Text("From your content library")
+                    .font(.spaceMono(10))
+                    .tracking(1.0)
+                    .foregroundColor(lightMode ? .black.opacity(0.25) : .white.opacity(0.25))
+                    .padding(.bottom, ENVISpacing.md)
 
-                    // Description
-                    Text(content.description)
-                        .font(.spaceMono(12))
-                        .foregroundColor(.white.opacity(0.6))
-                        .lineSpacing(4)
-                        .padding(.bottom, ENVISpacing.lg)
+                // Tags
+                tagsRow
+                    .padding(.bottom, ENVISpacing.xxl)
 
-                    // Tags
-                    tagsRow
-                        .padding(.bottom, ENVISpacing.lg)
+                divider
 
-                    divider
-
-                    // AI Score
-                    aiScoreSection
-                        .padding(.bottom, ENVISpacing.lg)
-
-                    divider
-
-                    // Metrics
-                    if content.metrics != nil {
-                        metricsGrid
-                            .padding(.bottom, ENVISpacing.lg)
-
-                        divider
-                    }
-
-                    // AI Suggestion
-                    if let suggestion = content.aiSuggestion {
-                        aiSuggestionCard(suggestion)
-                            .padding(.bottom, ENVISpacing.lg)
-
-                        divider
-                    }
-
-                    // Action buttons
-                    actionButtons
-                        .padding(.top, ENVISpacing.sm)
+                // Metrics
+                if content.metrics != nil {
+                    metricsSection
+                        .padding(.bottom, ENVISpacing.xxl)
                 }
-                .padding(.horizontal, ENVISpacing.xxl)
-                .padding(.vertical, ENVISpacing.xl)
+
+                // AI Score section
+                aiScoreSection
+                    .padding(.bottom, ENVISpacing.xxl)
+
+                divider
+
+                // Related content
+                relatedContentSection
+                    .padding(.bottom, ENVISpacing.xxl)
+
+                divider
+
+                // Waterfall — Repurpose suggestions
+                waterfallSection
+                    .padding(.bottom, ENVISpacing.xxl)
+
+                divider
+
+                // Edit CTA
+                editCTAButton
+                    .padding(.top, ENVISpacing.sm)
             }
-            .frame(maxWidth: 400)
-            .background(
-                RoundedRectangle(cornerRadius: ENVIRadius.xl)
-                    .fill(.ultraThinMaterial)
-                    .environment(\.colorScheme, .dark)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: ENVIRadius.xl)
-                    .strokeBorder(Color.white.opacity(0.08), lineWidth: 1)
-            )
-            .padding(.horizontal, ENVISpacing.lg)
-            .padding(.vertical, ENVISpacing.xxxxl)
+            .padding(.horizontal, ENVISpacing.xxl)
+            .padding(.vertical, ENVISpacing.xl)
+        }
+        .background(
+            (lightMode
+                ? Color.white.opacity(0.8)
+                : Color.black.opacity(0.6))
+                .background(.ultraThinMaterial)
+        )
+        .overlay(alignment: .leading) {
+            Rectangle()
+                .fill(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05))
+                .frame(width: 0.5)
         }
     }
 
@@ -104,66 +203,18 @@ struct ContentNodeView: View {
         Button(action: onClose) {
             ZStack {
                 Circle()
-                    .fill(Color.white.opacity(0.05))
+                    .fill(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05))
                     .frame(width: 36, height: 36)
                 Circle()
-                    .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
+                    .strokeBorder(
+                        lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.15),
+                        lineWidth: 1
+                    )
                     .frame(width: 36, height: 36)
                 Text("×")
-                    .font(.spaceMono(18))
-                    .foregroundColor(.white.opacity(0.5))
+                    .font(.spaceMono(16))
+                    .foregroundColor(lightMode ? .black.opacity(0.5) : .white.opacity(0.5))
             }
-        }
-    }
-
-    private var imagePreview: some View {
-        ZStack(alignment: .topLeading) {
-            // Content image
-            Group {
-                if let uiImage = UIImage(named: content.imageName) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(4.0 / 5.0, contentMode: .fill)
-                } else {
-                    Rectangle()
-                        .fill(ENVITheme.Dark.surfaceLow)
-                        .aspectRatio(4.0 / 5.0, contentMode: .fill)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
-            .overlay(
-                RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                    .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
-            )
-
-            // Video play button overlay
-            if content.type == .video || content.type == .reel {
-                ZStack {
-                    Color.black.opacity(0.3)
-                    Circle()
-                        .fill(Color.white.opacity(0.2))
-                        .frame(width: 56, height: 56)
-                        .overlay(
-                            Circle().strokeBorder(Color.white.opacity(0.3), lineWidth: 1)
-                        )
-                        .overlay(
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white)
-                                .offset(x: 2)
-                        )
-                }
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
-            }
-
-            // Type badge (top-left)
-            HStack(spacing: ENVISpacing.sm) {
-                typeBadge
-                Spacer()
-                scoreBadge
-            }
-            .padding(ENVISpacing.md)
         }
     }
 
@@ -217,12 +268,12 @@ struct ContentNodeView: View {
 
             Text("•")
                 .font(.spaceMonoBold(10))
-                .foregroundColor(.white.opacity(0.3))
+                .foregroundColor(lightMode ? .black.opacity(0.25) : .white.opacity(0.3))
 
             Text(formattedDate(content.createdAt).uppercased())
                 .font(.spaceMono(10))
                 .tracking(2.0)
-                .foregroundColor(.white.opacity(0.5))
+                .foregroundColor(lightMode ? .black.opacity(0.45) : .white.opacity(0.5))
         }
     }
 
@@ -232,91 +283,29 @@ struct ContentNodeView: View {
                 Text(tag.uppercased())
                     .font(.spaceMono(10))
                     .tracking(1.0)
-                    .foregroundColor(.white.opacity(0.5))
+                    .foregroundColor(lightMode ? .black.opacity(0.5) : .white.opacity(0.5))
                     .padding(.horizontal, ENVISpacing.sm)
                     .padding(.vertical, 3)
                     .background(
                         RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                            .fill(Color.white.opacity(0.05))
+                            .fill(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                            .strokeBorder(Color.white.opacity(0.1), lineWidth: 0.5)
+                            .strokeBorder(lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.1), lineWidth: 0.5)
                     )
             }
         }
     }
 
-    private var aiScoreSection: some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.md) {
-            Text("ENVI AI SCORE")
-                .font(.spaceMonoBold(10))
-                .tracking(2.5)
-                .foregroundColor(.white.opacity(0.35))
+    // MARK: - Metrics Grid (matches React exactly)
 
-            VStack(alignment: .leading, spacing: ENVISpacing.md) {
-                HStack(spacing: ENVISpacing.md) {
-                    // Score with progress ring
-                    ZStack {
-                        Circle()
-                            .stroke(Color.white.opacity(0.1), lineWidth: 3)
-                            .frame(width: 56, height: 56)
-                        Circle()
-                            .trim(from: 0, to: CGFloat(content.aiScore) / 100.0)
-                            .stroke(
-                                scoreColor(for: content.aiScore),
-                                style: StrokeStyle(lineWidth: 3, lineCap: .round)
-                            )
-                            .frame(width: 56, height: 56)
-                            .rotationEffect(.degrees(-90))
-
-                        Text("\(content.aiScore)")
-                            .font(.interExtraBold(20))
-                            .foregroundColor(scoreColor(for: content.aiScore))
-                    }
-
-                    // Progress bar
-                    VStack(alignment: .leading, spacing: ENVISpacing.xs) {
-                        Text(scoreLabel(for: content.aiScore).uppercased())
-                            .font(.spaceMonoBold(10))
-                            .tracking(2.0)
-                            .foregroundColor(.white.opacity(0.5))
-
-                        GeometryReader { geo in
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(height: 4)
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(scoreColor(for: content.aiScore))
-                                    .frame(
-                                        width: geo.size.width * CGFloat(content.aiScore) / 100.0,
-                                        height: 4
-                                    )
-                            }
-                        }
-                        .frame(height: 4)
-                    }
-                }
-            }
-            .padding(ENVISpacing.lg)
-            .background(
-                RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                    .fill(Color.white.opacity(0.05))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                    .strokeBorder(Color.white.opacity(0.05), lineWidth: 0.5)
-            )
-        }
-    }
-
-    private var metricsGrid: some View {
+    private var metricsSection: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.md) {
             Text("PERFORMANCE")
                 .font(.spaceMonoBold(10))
                 .tracking(2.5)
-                .foregroundColor(.white.opacity(0.35))
+                .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.35))
 
             LazyVGrid(columns: [
                 GridItem(.flexible(), spacing: ENVISpacing.md),
@@ -343,126 +332,242 @@ struct ContentNodeView: View {
             Text(label)
                 .font(.spaceMono(10))
                 .tracking(1.5)
-                .foregroundColor(.white.opacity(0.4))
+                .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.4))
             Text(value)
                 .font(.interBold(18))
-                .foregroundColor(.white)
+                .foregroundColor(lightMode ? .black : .white)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(ENVISpacing.md)
         .background(
             RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                .fill(Color.white.opacity(0.05))
+                .fill(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05))
         )
         .overlay(
             RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                .strokeBorder(Color.white.opacity(0.05), lineWidth: 0.5)
+                .strokeBorder(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05), lineWidth: 0.5)
         )
     }
 
-    private func aiSuggestionCard(_ suggestion: String) -> some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.md) {
-            HStack(spacing: ENVISpacing.sm) {
-                Image(systemName: "lightbulb.fill")
-                    .font(.system(size: 12))
-                    .foregroundColor(ENVITheme.Dark.accent)
-                Text("AI SUGGESTION")
-                    .font(.spaceMonoBold(10))
-                    .tracking(2.5)
-                    .foregroundColor(.white.opacity(0.35))
-            }
+    // MARK: - AI Score Section
 
-            VStack(alignment: .leading, spacing: ENVISpacing.sm) {
-                HStack(spacing: ENVISpacing.sm) {
-                    Text("AI TIP:")
-                        .font(.spaceMonoBold(11))
-                        .foregroundColor(.white.opacity(0.7))
-                    Spacer()
+    private var aiScoreSection: some View {
+        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+            Text("ENVI AI SCORE")
+                .font(.spaceMonoBold(10))
+                .tracking(2.5)
+                .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.35))
+
+            VStack(alignment: .leading, spacing: ENVISpacing.md) {
+                HStack(spacing: ENVISpacing.md) {
+                    // Score number (Inter 32px black)
+                    Text("\(content.aiScore)")
+                        .font(.interBlack(32))
+                        .foregroundColor(scoreColor(for: content.aiScore))
+
+                    // Progress bar
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.1))
+                                .frame(height: 6)
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(scoreColor(for: content.aiScore))
+                                .frame(
+                                    width: geo.size.width * CGFloat(content.aiScore) / 100.0,
+                                    height: 6
+                                )
+                        }
+                    }
+                    .frame(height: 6)
                 }
 
-                Text(suggestion)
-                    .font(.spaceMono(11))
-                    .foregroundColor(.white.opacity(0.5))
-                    .lineSpacing(3)
+                // AI Suggestion
+                if let suggestion = content.aiSuggestion {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 4) {
+                            Text("AI TIP:")
+                                .font(.spaceMonoBold(11))
+                                .foregroundColor(lightMode ? .black.opacity(0.7) : .white.opacity(0.7))
+                        }
+                        Text(suggestion)
+                            .font(.spaceMono(11))
+                            .foregroundColor(lightMode ? .black.opacity(0.5) : .white.opacity(0.5))
+                            .lineSpacing(3)
+                    }
+                }
             }
             .padding(ENVISpacing.lg)
             .background(
                 RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                    .fill(ENVITheme.Dark.accent.opacity(0.1))
+                    .fill(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                    .strokeBorder(ENVITheme.Dark.accent.opacity(0.2), lineWidth: 0.5)
+                    .strokeBorder(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05), lineWidth: 0.5)
             )
         }
     }
 
-    private var actionButtons: some View {
-        HStack(spacing: ENVISpacing.md) {
-            // Edit button
-            Button(action: {}) {
-                Text(editLabel.uppercased())
-                    .font(.interBold(13))
-                    .tracking(1.5)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, ENVISpacing.lg)
+    // MARK: - Related Content Section
+
+    private var relatedContentSection: some View {
+        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+            Text("RELATED CONTENT")
+                .font(.spaceMonoBold(10))
+                .tracking(2.5)
+                .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.35))
+
+            VStack(spacing: 0) {
+                let relatedLinks = kContentLinks.filter { $0.source == content.id || $0.target == content.id }
+
+                ForEach(Array(relatedLinks.enumerated()), id: \.offset) { _, link in
+                    let otherId = link.source == content.id ? link.target : link.source
+                    if let otherContent = ContentLibrary.piece(for: otherId) {
+                        Button {
+                            onNavigateToContent?(otherContent)
+                        } label: {
+                            HStack(spacing: ENVISpacing.md) {
+                                // Thumbnail
+                                Group {
+                                    if let uiImage = UIImage(named: otherContent.imageName) {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                    } else {
+                                        Rectangle().fill(ENVITheme.Dark.surfaceLow)
+                                    }
+                                }
+                                .frame(width: 32, height: 32)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(otherContent.title)
+                                        .font(.interRegular(12))
+                                        .foregroundColor(lightMode ? .black.opacity(0.6) : .white.opacity(0.6))
+                                        .lineLimit(1)
+
+                                    Text("\(otherContent.type.label) • \(otherContent.platform.label)")
+                                        .font(.spaceMono(9))
+                                        .tracking(1.0)
+                                        .foregroundColor(lightMode ? .black.opacity(0.3) : .white.opacity(0.3))
+                                }
+
+                                Spacer()
+
+                                // Similarity percentage
+                                Text("\(Int(link.strength * 100))%")
+                                    .font(.spaceMono(10))
+                                    .tracking(1.0)
+                                    .foregroundColor(lightMode ? .black.opacity(0.3) : .white.opacity(0.3))
+                            }
+                            .padding(.vertical, 10)
+                            .overlay(alignment: .bottom) {
+                                Rectangle()
+                                    .fill(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05))
+                                    .frame(height: 0.5)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Waterfall Section (Repurpose suggestions)
+
+    private var waterfallSection: some View {
+        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+            Text("WATERFALL")
+                .font(.spaceMonoBold(10))
+                .tracking(2.5)
+                .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.35))
+
+            Text("Ways to repurpose this piece across platforms")
+                .font(.spaceMono(10))
+                .lineSpacing(2)
+                .foregroundColor(lightMode ? .black.opacity(0.3) : .white.opacity(0.3))
+
+            VStack(spacing: ENVISpacing.sm) {
+                ForEach(WaterfallSuggestion.suggestions(for: content)) { suggestion in
+                    VStack(alignment: .leading, spacing: ENVISpacing.xs) {
+                        HStack {
+                            Text(suggestion.format)
+                                .font(.interSemiBold(12))
+                                .foregroundColor(lightMode ? .black.opacity(0.8) : .white.opacity(0.8))
+                            Spacer()
+                            Text(suggestion.platform.uppercased())
+                                .font(.spaceMono(9))
+                                .tracking(1.0)
+                                .foregroundColor(lightMode ? .black.opacity(0.3) : .white.opacity(0.3))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 3)
+                                        .fill(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05))
+                                )
+                        }
+
+                        Text(suggestion.description)
+                            .font(.spaceMono(10))
+                            .lineSpacing(2)
+                            .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.4))
+                    }
+                    .padding(ENVISpacing.md)
                     .background(
                         RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                            .fill(ENVITheme.Dark.accent)
+                            .fill(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                            .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
+                            .strokeBorder(
+                                lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05),
+                                lineWidth: 0.5
+                            )
                     )
-            }
-
-            // Share button
-            Button(action: {}) {
-                HStack(spacing: ENVISpacing.sm) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 14, weight: .semibold))
-                    Text("SHARE")
-                        .font(.interBold(13))
-                        .tracking(1.5)
                 }
-                .foregroundColor(.white.opacity(0.7))
+            }
+        }
+    }
+
+    // MARK: - Edit CTA Button (type-specific, #30217C background)
+
+    private var editCTAButton: some View {
+        Button(action: {}) {
+            Text(editLabel.uppercased())
+                .font(.interBold(13))
+                .tracking(2.0)
+                .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, ENVISpacing.lg)
+                .padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                        .fill(Color.white.opacity(0.05))
+                        .fill(Color(hex: "#30217C"))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: ENVIRadius.lg)
                         .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
                 )
-            }
         }
     }
 
     private var divider: some View {
         Rectangle()
-            .fill(Color.white.opacity(0.08))
+            .fill(lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.1))
             .frame(height: 0.5)
             .padding(.vertical, ENVISpacing.md)
     }
 
     // MARK: - Helpers
 
+    /// Type-specific edit CTA label (matches React exactly)
     private var editLabel: String {
         switch content.type {
         case .video, .reel:     return "Edit in Video Editor"
         case .carousel:         return "Edit Carousel"
         case .photo, .story:    return "Edit in Photo Editor"
         }
-    }
-
-    private func scoreLabel(for score: Int) -> String {
-        if score >= 90 { return "Excellent" }
-        if score >= 80 { return "Good" }
-        if score >= 70 { return "Average" }
-        return "Needs Work"
     }
 
     private func formattedDate(_ dateStr: String) -> String {
@@ -474,4 +579,3 @@ struct ContentNodeView: View {
         return displayFormatter.string(from: date)
     }
 }
-

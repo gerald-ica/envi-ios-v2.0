@@ -18,7 +18,7 @@ struct EnhancedChatHomeView: View {
 
                     Text("ENVI AI")
                         .font(.spaceMonoBold(11))
-                        .tracking(1.5)
+                        .tracking(11 * 0.15) // 0.15em tracking
                         .textCase(.uppercase)
                         .foregroundColor(ENVITheme.text(for: colorScheme))
                 }
@@ -47,7 +47,7 @@ struct EnhancedChatHomeView: View {
                         Button(action: { viewModel.selectQuickAction(action) }) {
                             Text(action.uppercased())
                                 .font(.spaceMono(11))
-                                .tracking(0.8)
+                                .tracking(11 * 0.08) // 0.08em tracking
                                 .foregroundColor(ENVITheme.text(for: colorScheme).opacity(0.7))
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, ENVISpacing.sm)
@@ -75,7 +75,7 @@ struct EnhancedChatHomeView: View {
                     VStack(alignment: .leading, spacing: ENVISpacing.sm) {
                         Text("MESSAGE")
                             .font(.spaceMonoBold(11))
-                            .tracking(1.5)
+                            .tracking(11 * 0.15) // 0.15em tracking
                             .foregroundColor(ENVITheme.text(for: colorScheme).opacity(0.5))
 
                         TextField("Type your question...", text: $viewModel.inputText)
@@ -97,7 +97,7 @@ struct EnhancedChatHomeView: View {
                     Button(action: { sendMessage() }) {
                         Text("SEND MESSAGE")
                             .font(.spaceMonoBold(12))
-                            .tracking(1.5)
+                            .tracking(12 * 0.15) // 0.15em tracking
                             .foregroundColor(
                                 colorScheme == .dark
                                     ? Color.black

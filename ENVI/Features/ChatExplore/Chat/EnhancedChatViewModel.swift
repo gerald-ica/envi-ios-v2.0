@@ -150,7 +150,7 @@ final class EnhancedChatViewModel: ObservableObject {
         question: "",
         paragraphs: [
             "I\u{2019}ve been observing your patterns over the past few weeks, and there are some interesting threads emerging. Your creative output tends to peak in the late afternoon, especially after social interactions earlier in the day.",
-            "Your engagement patterns suggest a preference for depth over breadth right now \u{2014} fewer but more meaningful interactions, longer content creation sessions, and more reflective moments.",
+            "Looking at your content pieces, your engagement patterns suggest a preference for depth over breadth right now \u{2014} fewer but more meaningful interactions, longer content creation sessions, and more reflective moments.",
             "This is a strong foundation. The consistency you\u{2019}ve been building compounds over time, and the signals are pointing in a positive direction.",
         ],
         metrics: [
