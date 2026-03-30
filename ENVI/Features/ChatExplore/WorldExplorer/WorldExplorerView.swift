@@ -6,25 +6,30 @@ import SceneKit
 /// Static content library matching the React original's CONTENT_PIECES and CONTENT_IMAGES.
 enum ContentLibrary {
 
-    /// Image names mapping to resources in ENVI/Resources/Images/
-    static let imageNames: [String] = [
-        "Closer",           // content-1
-        "studio-fashion",   // content-2
-        "runway",           // content-3
-        "fire-stunt",       // content-4
-        "jacket",           // content-5
-        "fashion-group",    // content-6
-        "cyclist",          // content-7
-        "red-silhouette",   // content-8
-        "culture-food",     // content-9
-        "subway",           // content-10
-        "desert-car",       // content-11
-        "chopsticks",       // content-12
-        "parking-garage",   // content-13
-        "industrial-girl",  // content-14
-    ]
+    /// Reuse the same placeholder image pool shown on the For You feed.
+    static let imageNames: [String] = FeedViewModel.imageNames
 
-    static let pieces: [ContentPiece] = ContentPiece.sampleLibrary
+    /// Force helix content to use the For You placeholder set.
+    static let pieces: [ContentPiece] = ContentPiece.sampleLibrary.enumerated().map { index, piece in
+        let replacementImage = imageNames[index % imageNames.count]
+        return ContentPiece(
+            id: piece.id,
+            title: piece.title,
+            type: piece.type,
+            platform: piece.platform,
+            description: piece.description,
+            aiScore: piece.aiScore,
+            createdAt: piece.createdAt,
+            tags: piece.tags,
+            metrics: piece.metrics,
+            aiSuggestion: piece.aiSuggestion,
+            imageName: replacementImage,
+            source: piece.source,
+            predictedEngagement: piece.predictedEngagement,
+            confidenceScore: piece.confidenceScore,
+            aiExplanation: piece.aiExplanation
+        )
+    }
     static let futurePieces: [ContentPiece] = ContentPiece.futurePieces
     static let pastPieces: [ContentPiece] = ContentPiece.pastPieces
 
