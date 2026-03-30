@@ -95,7 +95,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         label.font = .interSemiBold(14)
         label.textColor = UIColor.white.withAlphaComponent(0.72)
         label.numberOfLines = 0
-        label.text = "Tap photos, videos, and carousels to expand them. Text posts stay inline. Swipe right to save, left to pass."
+        label.text = "Fresh concepts across your connected platforms."
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

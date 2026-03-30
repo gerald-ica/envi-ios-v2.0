@@ -81,21 +81,62 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
     private let mediaFooterRow: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
+        stack.spacing = 12
+        stack.alignment = .bottom
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+
+    private let mediaInfoStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.alignment = .leading
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+
+    private let mediaPlatformRow: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
         stack.spacing = 8
         stack.alignment = .center
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
 
-    private let creatorHandleLabel: UILabel = {
+    private let mediaPlatformIconContainer: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = 14
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private let mediaPlatformIconView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.tintColor = .white
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
+    private let mediaPlatformLabel: UILabel = {
         let label = UILabel()
-        label.font = .interSemiBold(26)
-        label.textColor = .white
+        label.font = .spaceMonoBold(11)
+        label.textColor = UIColor.white.withAlphaComponent(0.88)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
-    private let mediaPlatformPill = FeedPillLabel()
+    private let mediaCaptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = .interSemiBold(22)
+        label.textColor = .white
+        label.numberOfLines = 3
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     private let mediaBookmarkButton: UIButton = {
         let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
@@ -172,30 +213,6 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     private let insightHostingController = UIHostingController(rootView: AIInsightRow(confidence: 0, bestTime: "", reach: ""))
 
-    private let footerRow = UIStackView()
-    private let footerPromptLabel: UILabel = {
-        let label = UILabel()
-        label.font = .spaceMonoBold(11)
-        label.textColor = UIColor.white.withAlphaComponent(0.55)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private let footerHintLabel: UILabel = {
-        let label = UILabel()
-        label.font = .spaceMonoBold(11)
-        label.textColor = UIColor.white.withAlphaComponent(0.78)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private let footerChevron: UIImageView = {
-        let imageView = UIImageView(image: UIImage(systemName: "chevron.down"))
-        imageView.tintColor = UIColor.white.withAlphaComponent(0.82)
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
-
     private let bookmarkButton: UIButton = {
         let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
@@ -253,8 +270,10 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         let platformName = item.platform.rawValue
         let bodyText = item.bodyText ?? item.caption
 
-        creatorHandleLabel.text = item.creatorHandle
-        mediaPlatformPill.text = shortPlatformLabel(for: item.platform)
+        mediaPlatformIconContainer.backgroundColor = platformColor.withAlphaComponent(0.28)
+        mediaPlatformIconView.image = UIImage(systemName: item.platform.iconName)
+        mediaPlatformLabel.text = "PLANNED FOR \(platformName.uppercased())"
+        mediaCaptionLabel.text = item.caption
         textPanelPlatformLabel.text = "PLANNED FOR \(platformName.uppercased())"
         textPanelTitleLabel.text = item.caption
         textPanelBodyLabel.text = bodyText
@@ -269,9 +288,6 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         confidencePill.setText("\(Int(item.confidenceScore * 100))%")
         bestTimePill.setText(item.bestTime.uppercased())
         reachPill.setText(item.estimatedReach.uppercased())
-
-        footerPromptLabel.text = expanded ? "FULL PLAN" : "OPEN POST PLAN"
-        footerHintLabel.text = expanded ? "TAP TO COLLAPSE" : "TAP FOR DETAILS"
 
         let bookmarkConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         let bookmarkName = item.isBookmarked ? "bookmark.fill" : "bookmark"
@@ -326,14 +342,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         detailContainer.isHidden = !shouldExpand
         destinationRow.isHidden = isCurrentItemExpandable ? !shouldExpand : false
         insightHostingController.view.isHidden = isCurrentItemExpandable ? !shouldExpand : false
-        footerRow.isHidden = !isCurrentItemExpandable
-        footerPromptLabel.text = shouldExpand ? "FULL PLAN" : "OPEN POST PLAN"
-        footerHintLabel.text = shouldExpand ? "TAP TO COLLAPSE" : "TAP FOR DETAILS"
-
-        let animations = {
-            self.footerChevron.transform = shouldExpand ? CGAffineTransform(rotationAngle: .pi) : .identity
-            self.layoutIfNeeded()
-        }
+        let animations = { self.layoutIfNeeded() }
 
         if animated {
             UIView.animate(
@@ -371,8 +380,13 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         mediaMetricsStack.addArrangedSubview(bestTimePill)
         mediaMetricsStack.addArrangedSubview(reachPill)
 
-        mediaFooterRow.addArrangedSubview(creatorHandleLabel)
-        mediaFooterRow.addArrangedSubview(mediaPlatformPill)
+        mediaPlatformIconContainer.addSubview(mediaPlatformIconView)
+        mediaPlatformRow.addArrangedSubview(mediaPlatformIconContainer)
+        mediaPlatformRow.addArrangedSubview(mediaPlatformLabel)
+        mediaInfoStack.addArrangedSubview(mediaPlatformRow)
+        mediaInfoStack.addArrangedSubview(mediaCaptionLabel)
+
+        mediaFooterRow.addArrangedSubview(mediaInfoStack)
         mediaFooterRow.addArrangedSubview(UIView())
         mediaFooterRow.addArrangedSubview(mediaBookmarkButton)
         mediaHeightConstraint = mediaContainer.heightAnchor.constraint(equalToConstant: 480)
@@ -397,15 +411,6 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         destinationRow.addArrangedSubview(UIView())
         destinationRow.addArrangedSubview(bookmarkButton)
 
-        footerRow.axis = .horizontal
-        footerRow.spacing = 8
-        footerRow.alignment = .center
-        footerRow.translatesAutoresizingMaskIntoConstraints = false
-        footerRow.addArrangedSubview(footerPromptLabel)
-        footerRow.addArrangedSubview(UIView())
-        footerRow.addArrangedSubview(footerHintLabel)
-        footerRow.addArrangedSubview(footerChevron)
-
         insightHostingController.view.backgroundColor = .clear
         insightHostingController.view.translatesAutoresizingMaskIntoConstraints = false
 
@@ -427,7 +432,6 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         contentStack.addArrangedSubview(textPanel)
         contentStack.addArrangedSubview(destinationRow)
         contentStack.addArrangedSubview(insightHostingController.view)
-        contentStack.addArrangedSubview(footerRow)
         contentStack.addArrangedSubview(detailContainer)
 
         NSLayoutConstraint.activate([
@@ -469,6 +473,13 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
             mediaFooterRow.trailingAnchor.constraint(equalTo: mediaOverlay.trailingAnchor, constant: -12),
             mediaFooterRow.bottomAnchor.constraint(equalTo: mediaOverlay.bottomAnchor, constant: -18),
 
+            mediaPlatformIconContainer.widthAnchor.constraint(equalToConstant: 28),
+            mediaPlatformIconContainer.heightAnchor.constraint(equalToConstant: 28),
+            mediaPlatformIconView.centerXAnchor.constraint(equalTo: mediaPlatformIconContainer.centerXAnchor),
+            mediaPlatformIconView.centerYAnchor.constraint(equalTo: mediaPlatformIconContainer.centerYAnchor),
+            mediaPlatformIconView.widthAnchor.constraint(equalToConstant: 14),
+            mediaPlatformIconView.heightAnchor.constraint(equalToConstant: 14),
+
             textPanelPlatformLabel.topAnchor.constraint(equalTo: textPanel.topAnchor, constant: 16),
             textPanelPlatformLabel.leadingAnchor.constraint(equalTo: textPanel.leadingAnchor, constant: 16),
             textPanelPlatformLabel.trailingAnchor.constraint(lessThanOrEqualTo: textPanel.trailingAnchor, constant: -16),
@@ -494,9 +505,6 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
             bookmarkButton.widthAnchor.constraint(equalToConstant: 36),
             bookmarkButton.heightAnchor.constraint(equalToConstant: 36),
-
-            footerChevron.widthAnchor.constraint(equalToConstant: 16),
-            footerChevron.heightAnchor.constraint(equalToConstant: 16),
 
             detailStack.topAnchor.constraint(equalTo: detailContainer.topAnchor),
             detailStack.leadingAnchor.constraint(equalTo: detailContainer.leadingAnchor),
@@ -595,23 +603,6 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
             return "Structure this like a story arc: a cover that hooks, supporting slides that build curiosity, and a final slide that drives the save or share."
         case .textPost:
             return "Treat this like a point-of-view post: a strong first line, one clear opinion, and enough detail to invite replies."
-        }
-    }
-
-    private func shortPlatformLabel(for platform: SocialPlatform) -> String {
-        switch platform {
-        case .instagram:
-            return "IG"
-        case .tiktok:
-            return "TT"
-        case .x:
-            return "X"
-        case .threads:
-            return "TH"
-        case .linkedin:
-            return "LI"
-        case .youtube:
-            return "YT"
         }
     }
 
@@ -746,21 +737,6 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         let velocity = panGesture.velocity(in: self)
         return abs(velocity.x) > abs(velocity.y)
     }
-}
-
-private final class FeedPillLabel: PaddingLabel {
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        font = .spaceMonoBold(10)
-        textColor = .white
-        backgroundColor = UIColor.white.withAlphaComponent(0.18)
-        layer.cornerRadius = 8
-        clipsToBounds = true
-        contentInsets = UIEdgeInsets(top: 4, left: 8, bottom: 4, right: 8)
-        translatesAutoresizingMaskIntoConstraints = false
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
 }
 
 private final class OverlayMetricPill: PaddingLabel {
