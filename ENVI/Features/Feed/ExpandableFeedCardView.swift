@@ -284,9 +284,18 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         destinationIconView.image = UIImage(systemName: item.platform.iconName)
         destinationIconView.tintColor = platformColor
 
-        confidencePill.setText("\(Int(item.confidenceScore * 100))%")
-        bestTimePill.setText(item.bestTime.uppercased())
-        reachPill.setText(item.estimatedReach.uppercased())
+        confidencePill.setContent(
+            text: "\(Int(item.confidenceScore * 100))%",
+            systemImageName: "sparkles"
+        )
+        bestTimePill.setContent(
+            text: item.bestTime.uppercased(),
+            systemImageName: "clock"
+        )
+        reachPill.setContent(
+            text: item.estimatedReach.uppercased(),
+            systemImageName: "eye"
+        )
 
         let bookmarkConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         let bookmarkName = item.isBookmarked ? "bookmark.fill" : "bookmark"
@@ -355,8 +364,13 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
             mediaHeightConstraint?.constant = shouldExpand ? 520 : 480
         }
         detailContainer.isHidden = !shouldExpand
-        destinationRow.isHidden = isCurrentItemExpandable ? !shouldExpand : false
-        insightHostingController.view.isHidden = isCurrentItemExpandable ? !shouldExpand : false
+        if isDetailPresentation {
+            destinationRow.isHidden = true
+            insightHostingController.view.isHidden = true
+        } else {
+            destinationRow.isHidden = isCurrentItemExpandable ? !shouldExpand : false
+            insightHostingController.view.isHidden = isCurrentItemExpandable ? !shouldExpand : false
+        }
         let animations = { self.layoutIfNeeded() }
 
         if animated {
@@ -762,21 +776,48 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 }
 
 private final class OverlayMetricPill: PaddingLabel {
+    private let iconView = UIImageView()
+    private let valueLabel = UILabel()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        font = .spaceMonoBold(11)
-        textColor = .white
         backgroundColor = UIColor.white.withAlphaComponent(0.18)
         layer.cornerRadius = 8
         clipsToBounds = true
-        contentInsets = UIEdgeInsets(top: 5, left: 10, bottom: 5, right: 10)
         translatesAutoresizingMaskIntoConstraints = false
+
+        iconView.tintColor = .white
+        iconView.contentMode = .scaleAspectFit
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+
+        valueLabel.font = .spaceMonoBold(11)
+        valueLabel.textColor = .white
+        valueLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let stack = UIStackView(arrangedSubviews: [iconView, valueLabel])
+        stack.axis = .horizontal
+        stack.spacing = 6
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: topAnchor, constant: 5),
+            stack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            stack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            stack.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+            iconView.widthAnchor.constraint(equalToConstant: 11),
+            iconView.heightAnchor.constraint(equalToConstant: 11),
+        ])
     }
 
     required init?(coder: NSCoder) { fatalError() }
 
-    func setText(_ text: String) {
-        self.text = text
+    func setContent(text: String, systemImageName: String) {
+        valueLabel.text = text
+        let config = UIImage.SymbolConfiguration(pointSize: 10, weight: .semibold)
+        iconView.image = UIImage(systemName: systemImageName, withConfiguration: config)
     }
 }
 
