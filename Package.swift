@@ -8,7 +8,6 @@
 //   │                       ContentAnalyzer, TrendForecaster, InsightGenerator, ExperimentTracker,
 //   │                       ResearchLoop, ENVIBrainConfig) — no external dependencies, pure Swift
 //   ├── Models/            — ContentPiece, ContentPrediction, ContentInsight, ChatThread, etc.
-//   ├── SDWebImage         — Image loading & caching for content library thumbnails
 //   └── Lottie             — Animation playback for onboarding and transitions
 //
 import PackageDescription
@@ -22,14 +21,12 @@ let package = Package(
         .executable(name: "ENVI", targets: ["ENVI"])
     ],
     dependencies: [
-        .package(url: "https://github.com/SDWebImage/SDWebImage.git", from: "5.19.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.4.0"),
     ],
     targets: [
         .executableTarget(
             name: "ENVI",
             dependencies: [
-                "SDWebImage",
                 .product(name: "Lottie", package: "lottie-spm"),
             ],
             path: "ENVI",
