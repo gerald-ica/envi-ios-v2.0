@@ -1,7 +1,7 @@
 import UIKit
 import SwiftUI
 
-/// Scrollable feed card that expands in place to reveal more context and actions.
+/// Feed card used both in the scrolling feed and in the full-screen detail view.
 final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     enum SwipeDecision: Equatable {
@@ -247,6 +247,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     private var mediaHeightConstraint: NSLayoutConstraint?
     private var isCurrentItemExpandable = false
+    private var isDetailPresentation = false
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -291,6 +292,12 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         let bookmarkName = item.isBookmarked ? "bookmark.fill" : "bookmark"
         bookmarkButton.setImage(UIImage(systemName: bookmarkName, withConfiguration: bookmarkConfig), for: .normal)
         mediaBookmarkButton.setImage(UIImage(systemName: bookmarkName, withConfiguration: bookmarkConfig), for: .normal)
+        let bookmarkLabel = item.isBookmarked ? "Remove bookmark" : "Save bookmark"
+        bookmarkButton.accessibilityLabel = bookmarkLabel
+        mediaBookmarkButton.accessibilityLabel = bookmarkLabel
+
+        let itemEditTitle = editTitle(for: item)
+        editButton.accessibilityLabel = itemEditTitle
 
         insightHostingController.rootView = AIInsightRow(
             confidence: item.confidenceScore,
@@ -312,7 +319,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         )
 
         rebuildStats(for: item)
-        editButton.configuration?.title = editTitle(for: item)
+        editButton.configuration?.title = itemEditTitle
 
         if item.type == .textPost {
             mediaContainer.isHidden = true
@@ -333,6 +340,13 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         }
 
         setExpanded(isCurrentItemExpandable ? expanded : false, animated: false)
+    }
+
+    func setPresentationMode(detail: Bool) {
+        isDetailPresentation = detail
+        mediaContainer.layer.cornerRadius = detail ? 0 : ENVIRadius.lg
+        mediaContainer.layer.cornerCurve = .continuous
+        shellView.clipsToBounds = detail
     }
 
     func setExpanded(_ expanded: Bool, animated: Bool) {
@@ -506,11 +520,11 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
             destinationIconView.widthAnchor.constraint(equalToConstant: 16),
             destinationIconView.heightAnchor.constraint(equalToConstant: 16),
 
-            mediaBookmarkButton.widthAnchor.constraint(equalToConstant: 32),
-            mediaBookmarkButton.heightAnchor.constraint(equalToConstant: 32),
+            mediaBookmarkButton.widthAnchor.constraint(equalToConstant: 44),
+            mediaBookmarkButton.heightAnchor.constraint(equalToConstant: 44),
 
-            bookmarkButton.widthAnchor.constraint(equalToConstant: 36),
-            bookmarkButton.heightAnchor.constraint(equalToConstant: 36),
+            bookmarkButton.widthAnchor.constraint(equalToConstant: 44),
+            bookmarkButton.heightAnchor.constraint(equalToConstant: 44),
 
             detailStack.topAnchor.constraint(equalTo: detailContainer.topAnchor),
             detailStack.leadingAnchor.constraint(equalTo: detailContainer.leadingAnchor),
@@ -659,11 +673,12 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
     }
 
     @objc private func handleCardTap() {
-        guard isCurrentItemExpandable else { return }
+        guard isCurrentItemExpandable, !isDetailPresentation else { return }
         onToggleExpanded?()
     }
 
     @objc private func handleCardPan(_ gestureRecognizer: UIPanGestureRecognizer) {
+        guard !isDetailPresentation else { return }
         let translation = gestureRecognizer.translation(in: self)
         let horizontalOffset = translation.x
 
@@ -740,6 +755,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         guard let panGesture = gestureRecognizer as? UIPanGestureRecognizer else { return true }
+        guard !isDetailPresentation else { return false }
         let velocity = panGesture.velocity(in: self)
         return abs(velocity.x) > abs(velocity.y)
     }

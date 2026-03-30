@@ -1,10 +1,11 @@
 import UIKit
 
-/// Main feed screen with a scrollable, expandable "For You" feed.
+/// Main feed screen with a tappable "For You" feed.
 final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
     private let viewModel = FeedViewModel()
     private var cardViews: [UUID: ExpandableFeedCardView] = [:]
+    private var hasAppliedDebugLaunchState = false
     private var mainTabBarController: MainTabBarController? {
         navigationController?.parent as? MainTabBarController
     }
@@ -122,8 +123,12 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let shouldShowTabBar = viewModel.expandedItemID == nil
-        mainTabBarController?.setTabBarVisible(shouldShowTabBar, animated: true)
+        mainTabBarController?.setTabBarVisible(true, animated: true)
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        applyDebugLaunchStateIfNeeded()
     }
 
     private func setupTopNav() {
@@ -140,6 +145,15 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         exploreButton.addTarget(self, action: #selector(exploreTapped), for: .touchUpInside)
         searchButton.addTarget(self, action: #selector(searchTapped), for: .touchUpInside)
         notificationButton.addTarget(self, action: #selector(notificationsTapped), for: .touchUpInside)
+
+        forYouButton.accessibilityLabel = "For You"
+        forYouButton.accessibilityHint = "Shows recommended content"
+        exploreButton.accessibilityLabel = "Explore"
+        exploreButton.accessibilityHint = "Shows explore content"
+        searchButton.accessibilityLabel = "Search"
+        searchButton.accessibilityHint = "Search content"
+        notificationButton.accessibilityLabel = "Notifications"
+        notificationButton.accessibilityHint = "Open notifications center"
 
         let tabIndicatorCenterX = tabIndicator.centerXAnchor.constraint(equalTo: forYouButton.centerXAnchor)
         self.tabIndicatorCenterX = tabIndicatorCenterX
@@ -166,13 +180,13 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
             notificationButton.trailingAnchor.constraint(equalTo: topNavBar.trailingAnchor, constant: -20),
             notificationButton.centerYAnchor.constraint(equalTo: topNavBar.centerYAnchor),
-            notificationButton.widthAnchor.constraint(equalToConstant: 36),
-            notificationButton.heightAnchor.constraint(equalToConstant: 36),
+            notificationButton.widthAnchor.constraint(equalToConstant: 44),
+            notificationButton.heightAnchor.constraint(equalToConstant: 44),
 
             searchButton.trailingAnchor.constraint(equalTo: notificationButton.leadingAnchor, constant: -8),
             searchButton.centerYAnchor.constraint(equalTo: topNavBar.centerYAnchor),
-            searchButton.widthAnchor.constraint(equalToConstant: 36),
-            searchButton.heightAnchor.constraint(equalToConstant: 36),
+            searchButton.widthAnchor.constraint(equalToConstant: 44),
+            searchButton.heightAnchor.constraint(equalToConstant: 44),
         ])
     }
 
@@ -210,9 +224,10 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
             for item in viewModel.visibleItems {
                 let cardView = ExpandableFeedCardView()
-                cardView.configure(with: item, expanded: viewModel.expandedItemID == item.id)
+                cardView.setPresentationMode(detail: false)
+                cardView.configure(with: item, expanded: false)
                 cardView.onToggleExpanded = { [weak self] in
-                    self?.toggleCardExpansion(for: item.id)
+                    self?.openDetail(for: item)
                 }
                 cardView.onEdit = { [weak self] in
                     self?.openEditor(for: item)
@@ -231,23 +246,35 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         }
     }
 
-    private func toggleCardExpansion(for id: UUID) {
-        viewModel.toggleExpanded(id: id)
-        for (cardID, cardView) in cardViews {
-            cardView.setExpanded(viewModel.expandedItemID == cardID, animated: true)
-        }
-
-        let isAnyCardExpanded = viewModel.expandedItemID != nil
-        mainTabBarController?.setTabBarVisible(!isAnyCardExpanded, animated: true)
-    }
-
     private func toggleBookmark(for id: UUID) {
         viewModel.bookmarkCard(id: id)
+        refreshCard(for: id)
+    }
+
+    private func refreshCard(for id: UUID) {
         guard
             let item = viewModel.visibleItems.first(where: { $0.id == id }),
             let cardView = cardViews[id]
         else { return }
-        cardView.configure(with: item, expanded: viewModel.expandedItemID == id)
+        cardView.setPresentationMode(detail: false)
+        cardView.configure(with: item, expanded: false)
+    }
+
+    private func openDetail(for item: ContentItem) {
+        guard item.type != .textPost else { return }
+        let detail = FeedDetailViewController(
+            item: item,
+            onBookmarkToggle: { [weak self] id in
+                self?.viewModel.bookmarkCard(id: id)
+                self?.refreshCard(for: id)
+                return self?.viewModel.visibleItems.first(where: { $0.id == id })
+            }
+        )
+        let detailNavigationController = UINavigationController(rootViewController: detail)
+        detailNavigationController.setNavigationBarHidden(true, animated: false)
+        detailNavigationController.modalPresentationStyle = .fullScreen
+        detailNavigationController.modalTransitionStyle = .crossDissolve
+        present(detailNavigationController, animated: true)
     }
 
     private func openEditor(for item: ContentItem) {
@@ -265,7 +292,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
         viewModel.removeCard(id: id)
         renderFeed()
-        mainTabBarController?.setTabBarVisible(viewModel.expandedItemID == nil, animated: true)
+        mainTabBarController?.setTabBarVisible(true, animated: true)
     }
 
     @objc private func forYouTapped() {
@@ -315,5 +342,15 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         } else {
             updates()
         }
+    }
+
+    private func applyDebugLaunchStateIfNeeded() {
+        #if DEBUG
+        guard !hasAppliedDebugLaunchState else { return }
+        guard ProcessInfo.processInfo.arguments.contains("UITestOpenFeedDetail") else { return }
+        guard let firstMediaItem = viewModel.visibleItems.first(where: { $0.type != .textPost }) else { return }
+        hasAppliedDebugLaunchState = true
+        openDetail(for: firstMediaItem)
+        #endif
     }
 }
