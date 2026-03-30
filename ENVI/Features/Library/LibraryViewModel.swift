@@ -14,6 +14,16 @@ final class LibraryViewModel: ObservableObject {
     @Published var selectedFilter: FilterType = .all
     @Published var items: [LibraryItem] = LibraryItem.mockItems
     @Published var templates: [TemplateItem] = TemplateItem.mockTemplates
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        ApprovedMediaLibraryStore.shared.$approvedItems
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] approvedItems in
+                self?.items = approvedItems + LibraryItem.mockItems
+            }
+            .store(in: &cancellables)
+    }
 
     var filteredItems: [LibraryItem] {
         guard selectedFilter != .all else { return items }
@@ -22,7 +32,7 @@ final class LibraryViewModel: ObservableObject {
 }
 
 struct LibraryItem: Identifiable {
-    let id = UUID()
+    let id: String
     let title: String
     let imageName: String
     let type: ItemType
@@ -33,6 +43,43 @@ struct LibraryItem: Identifiable {
         case videos = "Videos"
         case templates = "Templates"
         case drafts = "Drafts"
+    }
+
+    init(id: String = UUID().uuidString, title: String, imageName: String, type: ItemType, height: CGFloat) {
+        self.id = id
+        self.title = title
+        self.imageName = imageName
+        self.type = type
+        self.height = height
+    }
+
+    init(contentItem: ContentItem) {
+        id = contentItem.id.uuidString
+        title = contentItem.caption
+        imageName = contentItem.imageName ?? LibraryItem.fallbackImageName(for: contentItem.platform)
+
+        switch contentItem.type {
+        case .photo:
+            type = .photos
+            height = 240
+        case .video:
+            type = .videos
+            height = 240
+        case .textPost:
+            type = .drafts
+            height = 220
+        }
+    }
+
+    private static func fallbackImageName(for platform: SocialPlatform) -> String {
+        switch platform {
+        case .instagram: return "studio-fashion"
+        case .tiktok: return "industrial-girl"
+        case .x: return "red-silhouette"
+        case .threads: return "fashion-group"
+        case .linkedin: return "office-girl"
+        case .youtube: return "fire-stunt"
+        }
     }
 
     static let mockItems: [LibraryItem] = [

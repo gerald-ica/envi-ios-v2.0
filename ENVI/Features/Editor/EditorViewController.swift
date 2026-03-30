@@ -5,6 +5,7 @@ import SwiftUI
 final class EditorViewController: UIViewController {
 
     private let viewModel = EditorViewModel()
+    private let contentItem: ContentItem?
 
     // MARK: - Top Toolbar
     private let topBar: UIView = {
@@ -54,6 +55,16 @@ final class EditorViewController: UIViewController {
         return v
     }()
 
+    private let textPreviewLabel: UILabel = {
+        let label = UILabel()
+        label.font = .interRegular(18)
+        label.textColor = .white
+        label.numberOfLines = 0
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     private let playButton: UIButton = {
         let b = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 36, weight: .medium)
@@ -63,10 +74,18 @@ final class EditorViewController: UIViewController {
         return b
     }()
 
+    init(contentItem: ContentItem? = nil) {
+        self.contentItem = contentItem
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        titleLabel.text = editorTitle
         setupTopBar()
         setupPreview()
         setupTimeline()
@@ -102,13 +121,24 @@ final class EditorViewController: UIViewController {
     private func setupPreview() {
         view.addSubview(previewView)
         previewView.addSubview(playButton)
+        previewView.addSubview(textPreviewLabel)
 
         // Add a placeholder image
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "runway") ?? UIImage(named: "studio-fashion")
+        imageView.image = previewImage()
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
         previewView.insertSubview(imageView, at: 0)
+
+        if contentItem?.type == .textPost {
+            imageView.isHidden = true
+            playButton.isHidden = true
+            textPreviewLabel.isHidden = false
+            textPreviewLabel.text = contentItem?.bodyText ?? contentItem?.caption
+        } else {
+            textPreviewLabel.isHidden = true
+            playButton.isHidden = false
+        }
 
         NSLayoutConstraint.activate([
             previewView.topAnchor.constraint(equalTo: topBar.bottomAnchor, constant: 12),
@@ -123,6 +153,10 @@ final class EditorViewController: UIViewController {
 
             playButton.centerXAnchor.constraint(equalTo: previewView.centerXAnchor),
             playButton.centerYAnchor.constraint(equalTo: previewView.centerYAnchor),
+
+            textPreviewLabel.leadingAnchor.constraint(equalTo: previewView.leadingAnchor, constant: 20),
+            textPreviewLabel.trailingAnchor.constraint(equalTo: previewView.trailingAnchor, constant: -20),
+            textPreviewLabel.centerYAnchor.constraint(equalTo: previewView.centerYAnchor),
         ])
     }
 
@@ -221,5 +255,48 @@ final class EditorViewController: UIViewController {
 
     @objc private func showExport() {
         // Present export sheet as SwiftUI sheet would go here
+    }
+
+    private func previewImage() -> UIImage? {
+        guard let imageName = contentItem?.imageName else {
+            return loadImage(named: "runway") ?? loadImage(named: "studio-fashion")
+        }
+
+        return loadImage(named: imageName)
+    }
+
+    private var editorTitle: String {
+        guard let contentItem else { return "EDIT" }
+        switch contentItem.platform {
+        case .x:
+            return "EDIT TWEET"
+        case .threads:
+            return "EDIT THREAD"
+        default:
+            return "EDIT"
+        }
+    }
+
+    private func loadImage(named imageName: String) -> UIImage? {
+        if let image = UIImage(named: imageName) {
+            return image
+        }
+
+        if let resourceBundle = Bundle.main.url(forResource: "ENVI_ENVI", withExtension: "bundle").flatMap(Bundle.init(url:)) {
+            if let image = UIImage(named: imageName, in: resourceBundle, compatibleWith: nil) {
+                return image
+            }
+
+            let bundledPath = resourceBundle.path(forResource: imageName, ofType: "jpg")
+                ?? resourceBundle.path(forResource: imageName, ofType: "png")
+            if let bundledPath {
+                return UIImage(contentsOfFile: bundledPath)
+            }
+        }
+
+        let resourcePath = Bundle.main.path(forResource: imageName, ofType: "jpg")
+            ?? Bundle.main.path(forResource: imageName, ofType: "png")
+        guard let resourcePath else { return nil }
+        return UIImage(contentsOfFile: resourcePath)
     }
 }

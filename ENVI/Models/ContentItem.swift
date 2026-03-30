@@ -90,6 +90,17 @@ struct ContentItem: Identifiable {
             likes: 4500, comments: 678, shares: 1890
         ),
         ContentItem(
+            id: UUID(), type: .textPost,
+            creatorName: "Maya Chen", creatorHandle: "@mayacreates",
+            creatorAvatar: nil, platform: .threads,
+            imageName: nil,
+            caption: "Creative process thread",
+            bodyText: "Thread idea: 1) The original raw footage. 2) Why the first cut did not work. 3) The pacing changes that lifted completion rate. 4) The final export and what I would still refine next time.",
+            timestamp: Date().addingTimeInterval(-19800),
+            confidenceScore: 0.9, bestTime: "7:30 PM", estimatedReach: "34.8K",
+            likes: 5900, comments: 402, shares: 1280
+        ),
+        ContentItem(
             id: UUID(), type: .photo,
             creatorName: "Kai Nakamura", creatorHandle: "@kainakamura",
             creatorAvatar: nil, platform: .instagram,

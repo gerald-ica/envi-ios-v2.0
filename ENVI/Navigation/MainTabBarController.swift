@@ -9,6 +9,7 @@ final class MainTabBarController: UIViewController {
     private let customTabBar = ENVITabBar()
     private var viewControllers: [UIViewController] = []
     private var currentIndex = 0
+    private var trackedScrollViews: [UIScrollView] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -89,5 +90,71 @@ final class MainTabBarController: UIViewController {
 
         currentIndex = index
         customTabBar.selectedIndex = index
+        setTabBarVisible(true, animated: false)
+        configureTabBarVisibilityHandling(for: newVC)
+    }
+
+    func setTabBarVisible(_ visible: Bool, animated: Bool = true) {
+        customTabBar.setVisible(visible, animated: animated)
+    }
+
+    private func configureTabBarVisibilityHandling(for viewController: UIViewController) {
+        clearTrackedScrollViews()
+
+        let attachHandlers = { [weak self, weak viewController] in
+            guard let self, let viewController else { return }
+            let scrollViews = self.findScrollViews(in: viewController.view)
+                .filter { $0.contentSize.height > $0.bounds.height + 40 }
+
+            self.trackedScrollViews = scrollViews
+            for scrollView in scrollViews {
+                scrollView.panGestureRecognizer.removeTarget(self, action: #selector(self.handleTrackedScrollPan(_:)))
+                scrollView.panGestureRecognizer.addTarget(self, action: #selector(self.handleTrackedScrollPan(_:)))
+            }
+        }
+
+        DispatchQueue.main.async(execute: attachHandlers)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: attachHandlers)
+    }
+
+    private func clearTrackedScrollViews() {
+        for scrollView in trackedScrollViews {
+            scrollView.panGestureRecognizer.removeTarget(self, action: #selector(handleTrackedScrollPan(_:)))
+        }
+        trackedScrollViews.removeAll()
+    }
+
+    private func findScrollViews(in rootView: UIView) -> [UIScrollView] {
+        var scrollViews: [UIScrollView] = []
+
+        if let scrollView = rootView as? UIScrollView {
+            scrollViews.append(scrollView)
+        }
+
+        for subview in rootView.subviews {
+            scrollViews.append(contentsOf: findScrollViews(in: subview))
+        }
+
+        return scrollViews
+    }
+
+    @objc private func handleTrackedScrollPan(_ gestureRecognizer: UIPanGestureRecognizer) {
+        guard
+            gestureRecognizer.state == .changed,
+            let scrollView = gestureRecognizer.view as? UIScrollView
+        else { return }
+
+        let translation = gestureRecognizer.translation(in: scrollView)
+        let isPrimarilyVertical = abs(translation.y) > abs(translation.x)
+        guard isPrimarilyVertical else { return }
+
+        let topOffset = -scrollView.adjustedContentInset.top
+        let nearTop = scrollView.contentOffset.y <= topOffset + 20
+
+        if nearTop || translation.y > 6 {
+            setTabBarVisible(true, animated: true)
+        } else if translation.y < -6 {
+            setTabBarVisible(false, animated: true)
+        }
     }
 }

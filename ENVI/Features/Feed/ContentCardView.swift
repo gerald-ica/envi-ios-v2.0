@@ -207,11 +207,22 @@ final class ContentCardView: UIView {
             if let image = UIImage(named: imageName) {
                 imageView.image = image
             } else {
-                // Try loading from bundle directly
-                let resourcePath = Bundle.main.path(forResource: imageName, ofType: "jpg")
-                    ?? Bundle.main.path(forResource: imageName, ofType: "png")
-                if let path = resourcePath {
-                    imageView.image = UIImage(contentsOfFile: path)
+                if let resourceBundle = Bundle.main.url(forResource: "ENVI_ENVI", withExtension: "bundle").flatMap(Bundle.init(url:)) {
+                    if let image = UIImage(named: imageName, in: resourceBundle, compatibleWith: nil) {
+                        imageView.image = image
+                    } else {
+                        let bundledPath = resourceBundle.path(forResource: imageName, ofType: "jpg")
+                            ?? resourceBundle.path(forResource: imageName, ofType: "png")
+                        if let bundledPath {
+                            imageView.image = UIImage(contentsOfFile: bundledPath)
+                        }
+                    }
+                } else {
+                    let resourcePath = Bundle.main.path(forResource: imageName, ofType: "jpg")
+                        ?? Bundle.main.path(forResource: imageName, ofType: "png")
+                    if let path = resourcePath {
+                        imageView.image = UIImage(contentsOfFile: path)
+                    }
                 }
             }
         }

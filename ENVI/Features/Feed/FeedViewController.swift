@@ -1,92 +1,132 @@
 import UIKit
-import SwiftUI
-import Combine
 
-/// Main feed screen (UIKit) with top navigation bar and swipeable card stack.
-final class FeedViewController: UIViewController {
+/// Main feed screen with a scrollable, expandable "For You" feed.
+final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
     private let viewModel = FeedViewModel()
-    private var cancellables = Set<AnyCancellable>()
+    private var cardViews: [UUID: ExpandableFeedCardView] = [:]
+    private var lastContentOffsetY: CGFloat = 0
+    private var mainTabBarController: MainTabBarController? {
+        navigationController?.parent as? MainTabBarController
+    }
 
     // MARK: - Top Nav
     private let topNavBar: UIView = {
-        let v = UIView()
-        v.backgroundColor = ENVITheme.UIKit.backgroundDark
-        v.translatesAutoresizingMaskIntoConstraints = false
-        return v
+        let view = UIView()
+        view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
 
     private let logoLabel: UILabel = {
-        let l = UILabel()
-        l.text = "ENVI"
-        l.font = .spaceMonoBold(22)
-        l.textColor = .white
-        l.translatesAutoresizingMaskIntoConstraints = false
-        return l
+        let label = UILabel()
+        label.text = "ENVI"
+        label.font = .spaceMonoBold(22)
+        label.textColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
 
     private let forYouButton: UIButton = {
-        let b = UIButton(type: .system)
-        b.setTitle("FOR YOU", for: .normal)
-        b.titleLabel?.font = .spaceMonoBold(15)
-        b.setTitleColor(.white, for: .normal)
-        b.translatesAutoresizingMaskIntoConstraints = false
-        return b
+        let button = UIButton(type: .system)
+        button.setTitle("FOR YOU", for: .normal)
+        button.titleLabel?.font = .spaceMonoBold(15)
+        button.setTitleColor(.white, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
 
     private let exploreButton: UIButton = {
-        let b = UIButton(type: .system)
-        b.setTitle("EXPLORE", for: .normal)
-        b.titleLabel?.font = .spaceMonoBold(15)
-        b.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
-        b.translatesAutoresizingMaskIntoConstraints = false
-        return b
+        let button = UIButton(type: .system)
+        button.setTitle("EXPLORE", for: .normal)
+        button.titleLabel?.font = .spaceMonoBold(15)
+        button.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
 
     private let searchButton: UIButton = {
-        let b = UIButton(type: .system)
+        let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
-        b.setImage(UIImage(systemName: "magnifyingglass", withConfiguration: config), for: .normal)
-        b.tintColor = .white
-        b.translatesAutoresizingMaskIntoConstraints = false
-        return b
+        button.setImage(UIImage(systemName: "magnifyingglass", withConfiguration: config), for: .normal)
+        button.tintColor = .white
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
 
     private let notificationButton: UIButton = {
-        let b = UIButton(type: .system)
+        let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
-        b.setImage(UIImage(systemName: "bell", withConfiguration: config), for: .normal)
-        b.tintColor = .white
-        b.translatesAutoresizingMaskIntoConstraints = false
-        return b
+        button.setImage(UIImage(systemName: "bell", withConfiguration: config), for: .normal)
+        button.tintColor = .white
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
 
-    // Active tab indicator
     private let tabIndicator: UIView = {
-        let v = UIView()
-        v.backgroundColor = .white
-        v.layer.cornerRadius = 1.5
-        v.translatesAutoresizingMaskIntoConstraints = false
-        return v
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 1.5
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
 
     private var tabIndicatorCenterX: NSLayoutConstraint?
 
-    // MARK: - Card Stack
-    private let cardStack = SwipeableCardStack()
+    // MARK: - Feed
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = true
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
 
-    // MARK: - Lifecycle
+    private let contentStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 16
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+
+    private let sectionHeaderLabel: UILabel = {
+        let label = UILabel()
+        label.font = .interSemiBold(14)
+        label.textColor = UIColor.white.withAlphaComponent(0.72)
+        label.numberOfLines = 0
+        label.text = "Tap any piece to expand it, see more details, and jump into the editor."
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let explorePlaceholderLabel: UILabel = {
+        let label = UILabel()
+        label.font = .interRegular(15)
+        label.textColor = UIColor.white.withAlphaComponent(0.72)
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.text = "Explore is coming next. For now, your For You feed is fully interactive."
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = ENVITheme.UIKit.backgroundDark
         navigationController?.setNavigationBarHidden(true, animated: false)
 
         setupTopNav()
-        setupCardStack()
-        loadCards()
+        setupFeed()
+        renderFeed()
     }
 
-    // MARK: - Setup Top Nav
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let shouldShowTabBar = viewModel.expandedItemID == nil
+        mainTabBarController?.setTabBarVisible(shouldShowTabBar, animated: true)
+    }
+
     private func setupTopNav() {
         view.addSubview(topNavBar)
 
@@ -135,72 +175,147 @@ final class FeedViewController: UIViewController {
         ])
     }
 
-    // MARK: - Setup Card Stack
-    private func setupCardStack() {
-        cardStack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(cardStack)
+    private func setupFeed() {
+        scrollView.delegate = self
+        scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 120, right: 0)
+        scrollView.verticalScrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 100, right: 0)
+
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentStack)
 
         NSLayoutConstraint.activate([
-            cardStack.topAnchor.constraint(equalTo: topNavBar.bottomAnchor, constant: 12),
-            cardStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            cardStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            cardStack.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -80),
+            scrollView.topAnchor.constraint(equalTo: topNavBar.bottomAnchor, constant: 8),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            contentStack.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 12),
+            contentStack.leadingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.leadingAnchor, constant: 16),
+            contentStack.trailingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.trailingAnchor, constant: -16),
+            contentStack.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -24),
         ])
-
-        cardStack.onSwipeLeft = { [weak self] index in
-            self?.viewModel.passCard()
-        }
-        cardStack.onSwipeRight = { [weak self] index in
-            self?.viewModel.approveCard()
-        }
     }
 
-    // MARK: - Load Cards
-    private func loadCards() {
-        let cards: [UIView] = viewModel.remainingCards.prefix(3).map { item in
-            if item.type == .textPost {
-                let card = TextPostCardView()
-                card.configure(with: item)
-                card.onPass = { [weak self] in self?.viewModel.passCard() }
-                card.onApprove = { [weak self] in self?.viewModel.approveCard() }
-                return card
-            } else {
-                let card = ContentCardView()
-                card.configure(with: item)
-                return card
+    private func renderFeed() {
+        contentStack.arrangedSubviews.forEach {
+            contentStack.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        }
+        cardViews.removeAll()
+
+        switch viewModel.selectedTab {
+        case .forYou:
+            contentStack.addArrangedSubview(sectionHeaderLabel)
+
+            for item in viewModel.visibleItems {
+                let cardView = ExpandableFeedCardView()
+                cardView.configure(with: item, expanded: viewModel.expandedItemID == item.id)
+                cardView.onToggleExpanded = { [weak self] in
+                    self?.toggleCardExpansion(for: item.id)
+                }
+                cardView.onEdit = { [weak self] in
+                    self?.openEditor(for: item)
+                }
+                cardView.onBookmark = { [weak self] in
+                    self?.toggleBookmark(for: item.id)
+                }
+                cardView.onSwipeDecision = { [weak self] decision in
+                    self?.handleSwipe(decision, for: item.id)
+                }
+                cardViews[item.id] = cardView
+                contentStack.addArrangedSubview(cardView)
             }
+        case .explore:
+            contentStack.addArrangedSubview(explorePlaceholderLabel)
         }
-        cardStack.loadCards(cards)
     }
 
-    // MARK: - Tab Switching
-    @objc private func forYouTapped() {
-        viewModel.selectedTab = .forYou
-        forYouButton.titleLabel?.font = .spaceMonoBold(15)
-        forYouButton.setTitleColor(.white, for: .normal)
-        exploreButton.titleLabel?.font = .spaceMonoBold(15)
-        exploreButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
-
-        UIView.animate(withDuration: 0.25) {
-            self.tabIndicatorCenterX?.isActive = false
-            self.tabIndicatorCenterX = self.tabIndicator.centerXAnchor.constraint(equalTo: self.forYouButton.centerXAnchor)
-            self.tabIndicatorCenterX?.isActive = true
-            self.view.layoutIfNeeded()
+    private func toggleCardExpansion(for id: UUID) {
+        viewModel.toggleExpanded(id: id)
+        for (cardID, cardView) in cardViews {
+            cardView.setExpanded(viewModel.expandedItemID == cardID, animated: true)
         }
+
+        let isAnyCardExpanded = viewModel.expandedItemID != nil
+        mainTabBarController?.setTabBarVisible(!isAnyCardExpanded, animated: true)
+    }
+
+    private func toggleBookmark(for id: UUID) {
+        viewModel.bookmarkCard(id: id)
+        guard
+            let item = viewModel.visibleItems.first(where: { $0.id == id }),
+            let cardView = cardViews[id]
+        else { return }
+        cardView.configure(with: item, expanded: viewModel.expandedItemID == id)
+    }
+
+    private func openEditor(for item: ContentItem) {
+        mainTabBarController?.setTabBarVisible(false, animated: true)
+        let editor = EditorViewController(contentItem: item)
+        navigationController?.pushViewController(editor, animated: true)
+    }
+
+    private func handleSwipe(_ decision: ExpandableFeedCardView.SwipeDecision, for id: UUID) {
+        guard let item = viewModel.visibleItems.first(where: { $0.id == id }) else { return }
+
+        if decision == .approve {
+            ApprovedMediaLibraryStore.shared.approve(item)
+        }
+
+        viewModel.removeCard(id: id)
+        renderFeed()
+        mainTabBarController?.setTabBarVisible(viewModel.expandedItemID == nil, animated: true)
+    }
+
+    @objc private func forYouTapped() {
+        guard viewModel.selectedTab != .forYou else { return }
+        viewModel.selectedTab = .forYou
+        updateTabSelection(animated: true)
+        renderFeed()
     }
 
     @objc private func exploreTapped() {
+        guard viewModel.selectedTab != .explore else { return }
         viewModel.selectedTab = .explore
-        exploreButton.titleLabel?.font = .spaceMonoBold(15)
-        exploreButton.setTitleColor(.white, for: .normal)
-        forYouButton.titleLabel?.font = .spaceMonoBold(15)
-        forYouButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
+        updateTabSelection(animated: true)
+        renderFeed()
+    }
 
-        UIView.animate(withDuration: 0.25) {
+    private func updateTabSelection(animated: Bool) {
+        let selectedButton = viewModel.selectedTab == .forYou ? forYouButton : exploreButton
+        let deselectedButton = viewModel.selectedTab == .forYou ? exploreButton : forYouButton
+
+        selectedButton.setTitleColor(.white, for: .normal)
+        deselectedButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
+
+        let updates = {
             self.tabIndicatorCenterX?.isActive = false
-            self.tabIndicatorCenterX = self.tabIndicator.centerXAnchor.constraint(equalTo: self.exploreButton.centerXAnchor)
+            self.tabIndicatorCenterX = self.tabIndicator.centerXAnchor.constraint(equalTo: selectedButton.centerXAnchor)
             self.tabIndicatorCenterX?.isActive = true
             self.view.layoutIfNeeded()
         }
+
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: updates)
+        } else {
+            updates()
+        }
+    }
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let scrollingDown = offsetY > lastContentOffsetY + 6
+        let scrollingUp = offsetY < lastContentOffsetY - 6
+        let nearTop = offsetY <= 20
+
+        if viewModel.expandedItemID == nil {
+            if nearTop || scrollingUp {
+                mainTabBarController?.setTabBarVisible(true, animated: true)
+            } else if scrollingDown {
+                mainTabBarController?.setTabBarVisible(false, animated: true)
+            }
+        }
+
+        lastContentOffsetY = offsetY
     }
 }
