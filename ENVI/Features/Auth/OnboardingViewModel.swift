@@ -200,7 +200,8 @@ final class OnboardingViewModel: ObservableObject {
     // MARK: - Actions
     func goToNextStep() {
         guard let nextIndex = Step(rawValue: currentStep.rawValue + 1) else {
-            completeOnboarding()
+            // Last step (socials) — request notification permission, then finish
+            requestNotificationsAndComplete()
             return
         }
         withAnimation(.easeInOut(duration: 0.3)) {
@@ -219,6 +220,14 @@ final class OnboardingViewModel: ObservableObject {
         guard canSkipCurrentStep else { return }
         hasEditedBirthTime = false
         goToNextStep()
+    }
+
+    /// Request notification permissions after the socials step, then complete onboarding.
+    func requestNotificationsAndComplete() {
+        Task { @MainActor in
+            _ = await NotificationManager.shared.requestAuthorization()
+            completeOnboarding()
+        }
     }
 
     private func completeOnboarding() {

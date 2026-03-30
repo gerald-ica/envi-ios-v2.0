@@ -134,7 +134,7 @@ final class OnboardingCoordinator {
             self?.onComplete?()
         })
         let hostingController = UIHostingController(rootView: onboardingView)
-        hostingController.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        hostingController.view.backgroundColor = ENVITheme.UIKit.background
         navigationController?.setViewControllers([hostingController], animated: true)
     }
 }

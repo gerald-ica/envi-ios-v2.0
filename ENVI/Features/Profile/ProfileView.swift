@@ -99,7 +99,7 @@ struct ProfileView: View {
 
                 // Sign Out
                 Button(action: {
-                    viewModel.signOut()
+                    Task { await viewModel.signOut() }
                     onSignOut?()
                 }) {
                     Text("Sign Out")

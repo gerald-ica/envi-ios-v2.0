@@ -19,6 +19,7 @@ final class EnhancedChatViewModel: ObservableObject {
     @Published var isTyping: Bool = false
     @Published var isHome: Bool = true
     @Published var inputText: String = ""
+    @Published var error: String?
 
     // MARK: - Quick Actions
 
@@ -277,6 +278,12 @@ final class EnhancedChatViewModel: ObservableObject {
         // Query the Brain's InsightGenerator via the chat response API
         let response = brain.getChatResponse(query: query)
 
+        // Validate the response has usable content
+        guard !response.message.isEmpty else {
+            self.error = "Brain returned an empty response"
+            return nil
+        }
+
         // Convert Brain insights into ThreadMetrics for the chat UI
         let metrics: [ThreadMetric] = response.insights.prefix(4).map { insight in
             let trend: MetricTrend
@@ -300,6 +307,9 @@ final class EnhancedChatViewModel: ObservableObject {
         // Build paragraphs from the Brain's response message + insight bodies
         var paragraphs = [response.message]
         paragraphs += response.insights.prefix(2).map { $0.body }
+
+        // Clear any previous error on success
+        self.error = nil
 
         return ChatThread(
             question: query,

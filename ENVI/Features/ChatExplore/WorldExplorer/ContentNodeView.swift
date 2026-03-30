@@ -62,7 +62,7 @@ struct ContentNodeView: View {
                             .aspectRatio(4.0 / 5.0, contentMode: .fill)
                     } else {
                         Rectangle()
-                            .fill(ENVITheme.Dark.surfaceLow)
+                            .fill(lightMode ? Color.black.opacity(0.08) : ENVITheme.Dark.surfaceLow)
                             .aspectRatio(4.0 / 5.0, contentMode: .fill)
                     }
                 }
@@ -495,7 +495,7 @@ struct ContentNodeView: View {
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                     } else {
-                                        Rectangle().fill(ENVITheme.Dark.surfaceLow)
+                                        Rectangle().fill(lightMode ? Color.black.opacity(0.08) : ENVITheme.Dark.surfaceLow)
                                     }
                                 }
                                 .frame(width: 32, height: 32)

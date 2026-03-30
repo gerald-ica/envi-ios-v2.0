@@ -13,7 +13,7 @@ final class MainTabBarController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        view.backgroundColor = ENVITheme.UIKit.background
 
         setupViewControllers()
         setupTabBar()
@@ -28,22 +28,22 @@ final class MainTabBarController: UIViewController {
 
         // Tab 2: Library (SwiftUI)
         let libraryVC = UIHostingController(rootView: LibraryView())
-        libraryVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        libraryVC.view.backgroundColor = ENVITheme.UIKit.background
 
         // Tab 3: Chat + Explore (SwiftUI)
         let chatExploreVC = UIHostingController(rootView: ChatExploreView())
-        chatExploreVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        chatExploreVC.view.backgroundColor = ENVITheme.UIKit.background
 
         // Tab 4: Analytics (SwiftUI)
         let analyticsVC = UIHostingController(rootView: AnalyticsView())
-        analyticsVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        analyticsVC.view.backgroundColor = ENVITheme.UIKit.background
 
         // Tab 5: Profile (SwiftUI)
         let profileView = ProfileView(onSignOut: { [weak self] in
             self?.onSignOut?()
         })
         let profileVC = UIHostingController(rootView: profileView)
-        profileVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        profileVC.view.backgroundColor = ENVITheme.UIKit.background
 
         viewControllers = [feedNav, libraryVC, chatExploreVC, analyticsVC, profileVC]
     }

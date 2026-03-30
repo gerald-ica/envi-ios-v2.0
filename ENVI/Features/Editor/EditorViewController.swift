@@ -285,10 +285,114 @@ final class EditorViewController: UIViewController {
 
     @objc private func toolTapped(_ sender: UIButton) {
         guard sender.tag < viewModel.tools.count else { return }
-        presentPlaceholderAlert(
-            title: viewModel.tools[sender.tag],
-            message: "This editing tool is still placeholder UI. The next pass should wire it into the real editor stack."
+        let toolName = viewModel.tools[sender.tag]
+
+        switch toolName {
+        case "Text":
+            presentTextOverlayTool()
+        case "Crop":
+            presentCropTool()
+        default:
+            // Trim, Adjust, Audio, Filters still need AVFoundation / Core Image integration
+            presentPlaceholderAlert(
+                title: toolName,
+                message: "\(toolName) requires AVFoundation or Core Image integration and is not yet implemented."
+            )
+        }
+    }
+
+    // MARK: - Text Overlay Tool
+
+    private func presentTextOverlayTool() {
+        let textTool = TextOverlayTool(
+            onApply: { [weak self] config in
+                self?.applyTextOverlay(config)
+                self?.dismiss(animated: true)
+            },
+            onCancel: { [weak self] in
+                self?.dismiss(animated: true)
+            }
         )
+        let hostingController = UIHostingController(rootView: textTool)
+        hostingController.modalPresentationStyle = .pageSheet
+        if let sheet = hostingController.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(hostingController, animated: true)
+    }
+
+    private func applyTextOverlay(_ config: TextOverlayConfig) {
+        // Add a text label to the preview as a visible overlay
+        let label = UILabel()
+        label.text = config.text
+        label.textColor = UIColor(config.color)
+        label.font = fontForOverlay(config.font, size: config.fontSize)
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        previewView.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(
+                equalTo: previewView.leadingAnchor,
+                constant: previewView.bounds.width * config.position.x
+            ),
+            label.centerYAnchor.constraint(
+                equalTo: previewView.topAnchor,
+                constant: previewView.bounds.height * config.position.y
+            ),
+        ])
+    }
+
+    private func fontForOverlay(_ font: TextOverlayTool.TextFont, size: CGFloat) -> UIFont {
+        switch font {
+        case .spaceMono:
+            return .spaceMono(size)
+        case .inter:
+            return .interRegular(size)
+        case .system:
+            return .systemFont(ofSize: size)
+        }
+    }
+
+    // MARK: - Crop Tool
+
+    private func presentCropTool() {
+        let cropTool = CropTool(
+            onApply: { [weak self] ratio in
+                self?.applyCropRatio(ratio)
+                self?.dismiss(animated: true)
+            },
+            onCancel: { [weak self] in
+                self?.dismiss(animated: true)
+            }
+        )
+        let hostingController = UIHostingController(rootView: cropTool)
+        hostingController.modalPresentationStyle = .pageSheet
+        if let sheet = hostingController.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(hostingController, animated: true)
+    }
+
+    private func applyCropRatio(_ ratio: CropTool.AspectRatio) {
+        guard let aspectValue = ratio.ratio else { return } // free = no constraint change
+
+        // Update the preview aspect ratio by adjusting its height constraint
+        previewView.constraints
+            .filter { $0.firstAttribute == .height && $0.relation == .equal && $0.secondItem is UIView }
+            .forEach { $0.isActive = false }
+
+        let width = previewView.bounds.width
+        let newHeight = width / aspectValue
+        let heightConstraint = previewView.heightAnchor.constraint(equalToConstant: newHeight)
+        heightConstraint.isActive = true
+
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+        }
     }
 
     private func presentPlaceholderAlert(title: String, message: String) {

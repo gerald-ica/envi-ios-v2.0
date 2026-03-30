@@ -9,6 +9,9 @@ struct ENVIInput: View {
     @Binding var text: String
     var errorMessage: String? = nil
     var isSecure: Bool = false
+    var maxLength: Int? = nil
+    var autocapitalization: TextInputAutocapitalization = .sentences
+    var keyboardType: UIKeyboardType = .default
 
     @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isFocused: Bool
@@ -27,6 +30,13 @@ struct ENVIInput: View {
                     SecureField(placeholder, text: $text)
                 } else {
                     TextField(placeholder, text: $text)
+                        .textInputAutocapitalization(autocapitalization)
+                        .keyboardType(keyboardType)
+                        .onChange(of: text) { _, newValue in
+                            if let maxLength, newValue.count > maxLength {
+                                text = String(newValue.prefix(maxLength))
+                            }
+                        }
                 }
             }
             .font(.interRegular(15))
@@ -42,11 +52,19 @@ struct ENVIInput: View {
             .focused($isFocused)
             .accessibilityHint(placeholder)
 
-            // Error
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(.interMedium(12))
-                    .foregroundColor(ENVITheme.error)
+            // Error / Character count row
+            HStack {
+                if let errorMessage {
+                    Text(errorMessage)
+                        .font(.interMedium(12))
+                        .foregroundColor(ENVITheme.error)
+                }
+                Spacer()
+                if let maxLength {
+                    Text("\(text.count)/\(maxLength)")
+                        .font(.interRegular(11))
+                        .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                }
             }
         }
     }
@@ -66,6 +84,8 @@ struct ENVIInput: View {
         ENVIInput(label: "Email", placeholder: "you@email.com", text: .constant(""))
         ENVIInput(label: "Password", placeholder: "••••••••", text: .constant(""), isSecure: true)
         ENVIInput(label: "Name", placeholder: "Enter name", text: .constant(""), errorMessage: "Name is required")
+        ENVIInput(label: "Bio", placeholder: "Tell us about yourself", text: .constant("Hello"), maxLength: 150)
+        ENVIInput(label: "Website", placeholder: "https://...", text: .constant(""), keyboardType: .URL)
     }
     .padding()
     .preferredColorScheme(.dark)

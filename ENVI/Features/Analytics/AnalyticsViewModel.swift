@@ -53,15 +53,23 @@ final class AnalyticsViewModel: ObservableObject {
         platform?.rawValue ?? "All"
     }
 
-    /// Refresh analytics data from the server.
+    /// Refresh analytics data from the server, falling back to mock data.
     func refresh() async {
-        await MainActor.run { isLoading = true }
-        // TODO: Replace with real network call
-        try? await Task.sleep(nanoseconds: 500_000_000)
         await MainActor.run {
-            data = AnalyticsData.mock
-            isLoading = false
+            isLoading = true
             error = nil
+        }
+        defer { Task { @MainActor in isLoading = false } }
+
+        do {
+            let analyticsData: AnalyticsData = try await APIClient.shared.get("/analytics")
+            await MainActor.run { self.data = analyticsData }
+        } catch {
+            // Fall back to mock data while backend is unavailable
+            await MainActor.run {
+                self.data = AnalyticsData.mock
+                // Don't surface error for mock fallback during development
+            }
         }
     }
 }

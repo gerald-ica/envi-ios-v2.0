@@ -46,6 +46,46 @@ final class ENVIBottomSheetController: UIPresentationController {
         presentedView?.layer.cornerRadius = ENVIRadius.xl
         presentedView?.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         presentedView?.clipsToBounds = true
+
+        // Drag-to-dismiss gesture
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        presentedView?.addGestureRecognizer(pan)
+    }
+
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard let presentedView, let containerView else { return }
+
+        let translation = gesture.translation(in: containerView)
+        let velocity = gesture.velocity(in: containerView)
+        let sheetOriginY = containerView.bounds.height - sheetHeight
+
+        switch gesture.state {
+        case .changed:
+            // Only allow dragging downward (positive Y translation)
+            let newY = max(sheetOriginY, sheetOriginY + translation.y)
+            presentedView.frame.origin.y = newY
+
+            // Fade dimming view proportionally
+            let progress = translation.y / sheetHeight
+            dimmingView.alpha = 1 - min(max(progress, 0), 1)
+
+        case .ended, .cancelled:
+            let dismissThreshold = sheetHeight * 0.3
+            let shouldDismiss = translation.y > dismissThreshold || velocity.y > 1000
+
+            if shouldDismiss {
+                presentedViewController.dismiss(animated: true)
+            } else {
+                // Snap back to original position
+                UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseOut) {
+                    presentedView.frame.origin.y = sheetOriginY
+                    self.dimmingView.alpha = 1
+                }
+            }
+
+        default:
+            break
+        }
     }
 
     override func dismissalTransitionWillBegin() {

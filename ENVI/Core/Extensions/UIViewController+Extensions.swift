@@ -17,8 +17,8 @@ extension UIViewController {
         hostingController.didMove(toParent: self)
     }
 
-    /// Set the background color to ENVI dark theme
+    /// Set the background color to the ENVI dynamic theme (adapts to light/dark mode)
     func setENVIDarkBackground() {
-        view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        view.backgroundColor = ENVITheme.UIKit.background
     }
 }

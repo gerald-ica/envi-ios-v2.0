@@ -66,7 +66,7 @@ final class AppCoordinator: ParentCoordinator {
             }
         )
         let hostingController = UIHostingController(rootView: signInView)
-        hostingController.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        hostingController.view.backgroundColor = ENVITheme.UIKit.background
         navigationController.setViewControllers([hostingController], animated: true)
     }
 
@@ -79,4 +79,31 @@ final class AppCoordinator: ParentCoordinator {
         }
         navigationController.setViewControllers([tabBar], animated: true)
     }
+
+    // MARK: - Scene Lifecycle Helpers
+
+    /// The currently selected tab index, if the main tab bar is visible.
+    var selectedTabIndex: Int? {
+        guard let tabBar = navigationController.viewControllers.first as? MainTabBarController else {
+            return nil
+        }
+        return tabBar.selectedIndex
+    }
+
+    /// Called when the scene enters the foreground — refresh visible data.
+    func refreshData() {
+        NotificationCenter.default.post(name: .enviAppDidEnterForeground, object: nil)
+    }
+
+    /// Called when the scene becomes active — resume any paused work.
+    func resumeActiveWork() {
+        NotificationCenter.default.post(name: .enviAppDidBecomeActive, object: nil)
+    }
+}
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    static let enviAppDidEnterForeground = Notification.Name("enviAppDidEnterForeground")
+    static let enviAppDidBecomeActive = Notification.Name("enviAppDidBecomeActive")
 }

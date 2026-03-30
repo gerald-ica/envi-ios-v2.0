@@ -9,6 +9,7 @@ struct SuggestionPillView: View {
     var onTap: () -> Void
     var onDismiss: () -> Void
 
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isExpanded: Bool = false
     @State private var isPulsing: Bool = false
 
@@ -40,7 +41,7 @@ struct SuggestionPillView: View {
                 // Sparkle icon
                 Text("✦")
                     .font(.system(size: 14))
-                    .foregroundColor(ENVITheme.Dark.accent)
+                    .foregroundColor(ENVITheme.accent(for: colorScheme))
 
                 Text("AI HAS A SUGGESTION")
                     .font(.spaceMonoBold(11))
@@ -65,7 +66,7 @@ struct SuggestionPillView: View {
                         value: isPulsing
                     )
             )
-            .shadow(color: ENVITheme.Dark.accent.opacity(0.2), radius: 16, y: 4)
+            .shadow(color: ENVITheme.accent(for: colorScheme).opacity(0.2), radius: 16, y: 4)
         }
         .onAppear {
             isPulsing = true
@@ -81,7 +82,7 @@ struct SuggestionPillView: View {
                 HStack(spacing: ENVISpacing.sm) {
                     Image(systemName: "lightbulb.fill")
                         .font(.system(size: 12))
-                        .foregroundColor(ENVITheme.Dark.accent)
+                        .foregroundColor(ENVITheme.accent(for: colorScheme))
                     Text("AI SUGGESTION")
                         .font(.spaceMonoBold(10))
                         .tracking(2.5)
@@ -123,7 +124,7 @@ struct SuggestionPillView: View {
                     .padding(.vertical, ENVISpacing.md)
                     .background(
                         RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                            .fill(ENVITheme.Dark.accent)
+                            .fill(ENVITheme.accent(for: colorScheme))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: ENVIRadius.lg)

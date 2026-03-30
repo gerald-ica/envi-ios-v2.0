@@ -15,6 +15,7 @@ final class LibraryViewModel: ObservableObject {
     @Published var items: [LibraryItem] = LibraryItem.mockItems
     @Published var templates: [TemplateItem] = TemplateItem.mockTemplates
     @Published var isLoading = false
+    @Published var error: String?
     private var cancellables = Set<AnyCancellable>()
 
     init() {
@@ -33,5 +34,34 @@ final class LibraryViewModel: ObservableObject {
 
     var isEmpty: Bool {
         items.isEmpty
+    }
+
+    // MARK: - Async Loading
+
+    /// Load library items from the API, falling back to local store data.
+    func loadLibrary() async {
+        await MainActor.run { isLoading = true }
+        defer { Task { @MainActor in isLoading = false } }
+
+        do {
+            let libraryItems: [LibraryItem] = try await APIClient.shared.get("/library")
+            let templateItems: [TemplateItem] = try await APIClient.shared.get("/library/templates")
+            await MainActor.run {
+                self.items = libraryItems
+                self.templates = templateItems
+            }
+        } catch {
+            // Fall back to local ApprovedMediaLibraryStore data
+            await MainActor.run {
+                self.items = ApprovedMediaLibraryStore.shared.approvedItems
+                self.templates = TemplateItem.mockTemplates
+                // Don't surface error for mock fallback during development
+            }
+        }
+    }
+
+    /// Pull-to-refresh handler.
+    func refresh() async {
+        await loadLibrary()
     }
 }

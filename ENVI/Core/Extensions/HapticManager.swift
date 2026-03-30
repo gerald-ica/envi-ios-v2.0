@@ -4,7 +4,19 @@ import UIKit
 /// Centralises all haptic triggers so callers stay decoupled from UIKit generators.
 final class HapticManager {
     static let shared = HapticManager()
-    private init() {}
+
+    private init() {
+        prepare()
+    }
+
+    /// Pre-warms all Taptic Engine generators so the first haptic fires without latency.
+    func prepare() {
+        lightGenerator.prepare()
+        mediumGenerator.prepare()
+        heavyGenerator.prepare()
+        selectionGenerator.prepare()
+        notificationGenerator.prepare()
+    }
 
     // MARK: - Impact
 

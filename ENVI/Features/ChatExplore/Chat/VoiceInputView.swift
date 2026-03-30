@@ -54,11 +54,13 @@ struct VoiceInputView: View {
 
                         Text("ENVI listening…")
                             .font(.interMedium(12))
+                            // Intentionally dark-only: this pill always renders on a dark glass overlay
                             .foregroundColor(ENVITheme.Dark.text)
                             .tracking(-0.12) // -0.01em
 
                         Text(timerLabel)
                             .font(.spaceMono(10))
+                            // Intentionally dark-only: this pill always renders on a dark glass overlay
                             .foregroundColor(ENVITheme.Dark.textSecondary)
                             .monospacedDigit()
                     }
@@ -76,6 +78,7 @@ struct VoiceInputView: View {
 
                             Image(systemName: "xmark")
                                 .font(.system(size: 10, weight: .bold))
+                                // Intentionally dark-only: this pill always renders on a dark glass overlay
                                 .foregroundColor(ENVITheme.Dark.text)
                         }
                     }
@@ -166,6 +169,7 @@ struct VoiceInputView: View {
                     HStack(spacing: 2.5) {
                         ForEach(0..<4, id: \.self) { _ in
                             RoundedRectangle(cornerRadius: 1)
+                                // Intentionally dark-only: orb dot grid always on dark glass overlay
                                 .fill(ENVITheme.Dark.text.opacity(0.88))
                                 .frame(width: 3.5, height: 3.5)
                         }
@@ -182,6 +186,7 @@ struct VoiceInputView: View {
         HStack(alignment: .bottom, spacing: 2) {
             ForEach(Array([5, 10, 14, 8, 5].enumerated()), id: \.offset) { index, height in
                 RoundedRectangle(cornerRadius: 1.5)
+                    // Intentionally dark-only: waveform bars always on dark glass overlay
                     .fill(ENVITheme.Dark.text.opacity(0.75))
                     .frame(width: 2.5, height: isAnimating ? CGFloat(height) : CGFloat(height) * 0.4)
                     .animation(
