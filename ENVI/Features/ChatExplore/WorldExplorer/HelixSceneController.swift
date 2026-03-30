@@ -80,15 +80,15 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
     private struct Config {
         /// Placeholder count for user's content library — each represents an edited piece.
-        static let contentPieceCount: Int = 2000
+        static let contentPieceCount: Int = 2600
         static let streamLength: Float = 140
-        static let streamRadius: Float = 10
-        static let size: Float = 0.95
+        static let streamRadius: Float = 7.2
+        static let size: Float = 1.18
         static let speed: Float = 1.0
-        static let fadeLen: Float = 0.345
-        static let sizeDepthBias: Float = 0.89
-        static let cameraFov: CGFloat = 97
-        static let cameraPos = SCNVector3(-4, 4, 34)
+        static let fadeLen: Float = 0.2
+        static let sizeDepthBias: Float = 0.42
+        static let cameraFov: CGFloat = 92
+        static let cameraPos = SCNVector3(-4, 3, 30)
 
         // Starfield
         static let starCount: Int = 250
@@ -241,10 +241,27 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
     private func loadTextures() {
         textures = ContentLibrary.imageNames.compactMap { name in
             if let image = UIImage(named: name) { return image }
+            if let resourceBundle = Bundle.main.url(forResource: "ENVI_ENVI", withExtension: "bundle").flatMap(Bundle.init(url:)) {
+                if let image = UIImage(named: name, in: resourceBundle, compatibleWith: nil) {
+                    return image
+                }
+
+                let bundledPath = resourceBundle.path(forResource: name, ofType: "jpg")
+                    ?? resourceBundle.path(forResource: name, ofType: "png")
+                if let bundledPath {
+                    return UIImage(contentsOfFile: bundledPath)
+                }
+            }
             if let path = Bundle.main.path(forResource: name, ofType: "jpg", inDirectory: "Images") {
                 return UIImage(contentsOfFile: path)
             }
+            if let path = Bundle.main.path(forResource: name, ofType: "png", inDirectory: "Images") {
+                return UIImage(contentsOfFile: path)
+            }
             if let path = Bundle.main.path(forResource: name, ofType: "jpg") {
+                return UIImage(contentsOfFile: path)
+            }
+            if let path = Bundle.main.path(forResource: name, ofType: "png") {
                 return UIImage(contentsOfFile: path)
             }
             return generatePlaceholderImage()
@@ -264,7 +281,7 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
         }
     }
 
-    private func createRoundedTexture(from image: UIImage, size: CGSize = CGSize(width: 192, height: 270), cornerRadius: CGFloat = 28) -> UIImage {
+    private func createRoundedTexture(from image: UIImage, size: CGSize = CGSize(width: 220, height: 308), cornerRadius: CGFloat = 24) -> UIImage {
         let renderer = UIGraphicsImageRenderer(size: size)
         return renderer.image { _ in
             let rect = CGRect(origin: .zero, size: size)
@@ -641,13 +658,13 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
         // Per-content-piece arrays
         streamTs = (0..<count).map { _ in Float.random(in: 0...1) }
         phases = (0..<count).map { _ in Float.random(in: 0...(Float.pi * 2)) }
-        baseSizes = (0..<count).map { _ in 0.3 + Float.random(in: 0...0.6) }
+        baseSizes = (0..<count).map { _ in 0.56 + Float.random(in: 0...0.74) }
         contentIndices = (0..<count).map { $0 % contentCount }
         positions = Array(repeating: SCNVector3Zero, count: count)
         isFutureNode = (0..<count).map { allPieces[$0 % contentCount].isFuture }
 
         // Shared geometry: vertical plane aspect ~1:1.4 (matching React)
-        let planeGeometry = SCNPlane(width: 1.0, height: 1.4)
+        let planeGeometry = SCNPlane(width: 1.08, height: 1.52)
 
         // Materials (one per texture for normal and future variants)
         var materials: [SCNMaterial] = []
@@ -672,7 +689,7 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             futMat.transparencyMode = .aOne
             futMat.writesToDepthBuffer = false
             futMat.readsFromDepthBuffer = true
-            futMat.transparency = 0.5
+            futMat.transparency = 0.72
             futureMaterials.append(futMat)
         }
 
@@ -710,8 +727,8 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             // Future pieces get a pulsing opacity animation
             if isFuture {
                 let pulse = CABasicAnimation(keyPath: "opacity")
-                pulse.fromValue = 0.35
-                pulse.toValue = 0.55
+                pulse.fromValue = 0.55
+                pulse.toValue = 0.78
                 pulse.duration = 2.0
                 pulse.autoreverses = true
                 pulse.repeatCount = .infinity
@@ -839,12 +856,12 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
         let x = (t - 0.5) * SL
         let angle = t * Float.pi * 11 + phase + elapsed * 0.15
-        let rBase = SR * (0.6 + 0.4 * sin(t * Float.pi))
+        let rBase = SR * (0.72 + 0.28 * sin(t * Float.pi))
         let rMod = 0.7 + 0.3 * sin(phase)
         let r = rBase * rMod
 
-        let y = cos(angle) * r * 0.5 + sin(phase * 2 + elapsed * 0.1) * 0.6
-        let z = sin(angle) * r * 0.45
+        let y = cos(angle) * r * 0.34 + sin(phase * 2 + elapsed * 0.1) * 0.35
+        let z = sin(angle) * r * 0.28
 
         return SCNVector3(x, y, z)
     }
@@ -948,15 +965,16 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             // Future pieces render at 0.8x normal size
             let futureSizeMult: Float = isFutureNode[i] ? 0.8 : 1.0
 
-            let s = CGFloat(baseSizes[i] * Config.size * (0.7 + depthScale * 0.3) * zoomSizeMult * sizeMultiplier * futureSizeMult)
+            let depthMix = 0.88 + depthScale * 0.52
+            let s = CGFloat(baseSizes[i] * Config.size * depthMix * zoomSizeMult * sizeMultiplier * futureSizeMult)
             contentPieceNodes[i].scale = SCNVector3(s, s, s)
 
             // Edge fade (future pieces capped at 50% base opacity; pulse animation handles the rest)
             let baseFade = fadeOpacity(t: t)
             if isFutureNode[i] {
-                contentPieceNodes[i].opacity = CGFloat(baseFade * 0.5)
+                contentPieceNodes[i].opacity = CGFloat(0.42 + baseFade * 0.38)
             } else {
-                contentPieceNodes[i].opacity = CGFloat(baseFade)
+                contentPieceNodes[i].opacity = CGFloat(0.58 + baseFade * 0.42)
             }
         }
 
