@@ -8,12 +8,25 @@ struct ContentCalendarView: View {
     private let columns = Array(repeating: GridItem(.flexible()), count: 7)
     private let dayLabels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 
+    /// Formatted month/year header derived from the calendar days.
+    private var monthYearHeader: String {
+        guard let firstDate = days.first?.date else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: firstDate)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.md) {
             Text("CONTENT CALENDAR")
                 .font(.spaceMono(11))
                 .tracking(0.88)
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
+
+            // Month/year header
+            Text(monthYearHeader)
+                .font(.interRegular(15))
+                .foregroundColor(ENVITheme.text(for: colorScheme))
 
             // Day of week headers
             LazyVGrid(columns: columns, spacing: 8) {

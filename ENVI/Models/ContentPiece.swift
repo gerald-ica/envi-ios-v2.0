@@ -45,7 +45,7 @@ enum ContentPlatform: String, CaseIterable, Codable {
 // MARK: - Content Source
 
 /// Where a content piece originates from.
-enum ContentSource: String, CaseIterable {
+enum ContentSource: String, CaseIterable, Codable {
     case photoLibrary
     case contentLibrary
     case predicted       // AI-generated future recommendation
@@ -70,7 +70,7 @@ enum ContentSource: String, CaseIterable {
 // MARK: - Content Metrics
 
 /// Engagement metrics for a content piece.
-struct ContentMetrics {
+struct ContentMetrics: Codable {
     var views: Int?
     var likes: Int?
     var shares: Int?
@@ -82,14 +82,14 @@ struct ContentMetrics {
 /// An edited media asset from the user's camera roll, surfaced in the ENVI content library.
 /// Content pieces represent photos, videos, carousels, reels, and stories that the user
 /// has already created or edited, imported via full Photos app access during onboarding.
-struct ContentPiece: Identifiable {
+struct ContentPiece: Identifiable, Codable {
     let id: String
     let title: String
     let type: ContentType
     let platform: ContentPlatform
     let description: String
     let aiScore: Int           // 0–100
-    let createdAt: String      // ISO date
+    let createdAt: Date
     let tags: [String]
     let metrics: ContentMetrics?
     let aiSuggestion: String?
@@ -103,9 +103,18 @@ struct ContentPiece: Identifiable {
 
     var isFuture: Bool { source == .predicted }
 
+    /// Date formatter for "yyyy-MM-dd" date strings used in sample data.
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+
+    /// Convenience init accepting a "yyyy-MM-dd" date string (for sample data compatibility).
     init(
         id: String, title: String, type: ContentType, platform: ContentPlatform,
-        description: String, aiScore: Int, createdAt: String, tags: [String],
+        description: String, aiScore: Int, createdAt dateString: String, tags: [String],
         metrics: ContentMetrics?, aiSuggestion: String?, imageName: String,
         source: ContentSource,
         predictedEngagement: String? = nil,
@@ -113,7 +122,30 @@ struct ContentPiece: Identifiable {
         aiExplanation: String? = nil
     ) {
         self.id = id; self.title = title; self.type = type; self.platform = platform
-        self.description = description; self.aiScore = aiScore; self.createdAt = createdAt
+        self.description = description
+        self.aiScore = min(max(aiScore, 0), 100)
+        self.createdAt = Self.dateFormatter.date(from: dateString) ?? Date()
+        self.tags = tags; self.metrics = metrics; self.aiSuggestion = aiSuggestion
+        self.imageName = imageName; self.source = source
+        self.predictedEngagement = predictedEngagement
+        self.confidenceScore = confidenceScore
+        self.aiExplanation = aiExplanation
+    }
+
+    /// Primary init accepting a Date directly.
+    init(
+        id: String, title: String, type: ContentType, platform: ContentPlatform,
+        description: String, aiScore: Int, createdAt: Date, tags: [String],
+        metrics: ContentMetrics?, aiSuggestion: String?, imageName: String,
+        source: ContentSource,
+        predictedEngagement: String? = nil,
+        confidenceScore: Int? = nil,
+        aiExplanation: String? = nil
+    ) {
+        self.id = id; self.title = title; self.type = type; self.platform = platform
+        self.description = description
+        self.aiScore = min(max(aiScore, 0), 100)
+        self.createdAt = createdAt
         self.tags = tags; self.metrics = metrics; self.aiSuggestion = aiSuggestion
         self.imageName = imageName; self.source = source
         self.predictedEngagement = predictedEngagement

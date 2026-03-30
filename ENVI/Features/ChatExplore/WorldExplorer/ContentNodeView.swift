@@ -330,6 +330,7 @@ struct ContentNodeView: View {
                 .foregroundColor(lightMode ? .black.opacity(0.25) : .white.opacity(0.3))
 
             Text(formattedDate(content.createdAt).uppercased())
+
                 .font(.spaceMono(10))
                 .tracking(2.0)
                 .foregroundColor(lightMode ? .black.opacity(0.45) : .white.opacity(0.5))
@@ -556,7 +557,7 @@ struct ContentNodeView: View {
                                 .font(.interSemiBold(12))
                                 .foregroundColor(lightMode ? .black.opacity(0.8) : .white.opacity(0.8))
                             Spacer()
-                            Text(suggestion.platform.uppercased())
+                            Text(suggestion.platform.rawValue.uppercased())
                                 .font(.spaceMono(9))
                                 .tracking(1.0)
                                 .foregroundColor(lightMode ? .black.opacity(0.3) : .white.opacity(0.3))
@@ -716,10 +717,7 @@ struct ContentNodeView: View {
         }
     }
 
-    private func formattedDate(_ dateStr: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        guard let date = formatter.date(from: dateStr) else { return dateStr }
+    private func formattedDate(_ date: Date) -> String {
         let displayFormatter = DateFormatter()
         displayFormatter.dateFormat = "MMM d"
         return displayFormatter.string(from: date)

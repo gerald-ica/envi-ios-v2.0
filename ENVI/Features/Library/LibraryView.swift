@@ -4,7 +4,14 @@ import SwiftUI
 struct LibraryView: View {
     @StateObject private var viewModel = LibraryViewModel()
     @State private var showAddFlowAlert = false
+    @State private var searchText = ""
     @Environment(\.colorScheme) private var colorScheme
+
+    private var searchFilteredItems: [LibraryItem] {
+        let items = viewModel.filteredItems
+        guard !searchText.isEmpty else { return items }
+        return items.filter { $0.title.localizedCaseInsensitiveContains(searchText) }
+    }
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -16,6 +23,26 @@ struct LibraryView: View {
                         .tracking(-1.5)
                         .foregroundColor(ENVITheme.text(for: colorScheme))
                         .padding(.horizontal, ENVISpacing.xl)
+
+                    // Search bar
+                    HStack(spacing: ENVISpacing.sm) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                        TextField("Search library...", text: $searchText)
+                            .font(.interRegular(15))
+                            .foregroundColor(ENVITheme.text(for: colorScheme))
+                        if !searchText.isEmpty {
+                            Button { searchText = "" } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                            }
+                        }
+                    }
+                    .padding(.horizontal, ENVISpacing.lg)
+                    .padding(.vertical, ENVISpacing.md)
+                    .background(ENVITheme.surfaceLow(for: colorScheme))
+                    .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+                    .padding(.horizontal, ENVISpacing.xl)
 
                     // Filter chips
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -32,15 +59,27 @@ struct LibraryView: View {
                         .padding(.horizontal, ENVISpacing.xl)
                     }
 
-                    // Templates
-                    TemplateCarousel(templates: viewModel.templates)
+                    if searchFilteredItems.isEmpty {
+                        ENVIEmptyState(
+                            icon: "photo.on.rectangle",
+                            title: "No Content Yet",
+                            subtitle: "Import photos and videos to build your content library"
+                        )
+                    } else {
+                        // Templates
+                        TemplateCarousel(templates: viewModel.templates)
 
-                    // Masonry grid
-                    MasonryGridView(items: viewModel.filteredItems)
-                        .padding(.horizontal, ENVISpacing.xl)
+                        // Masonry grid
+                        MasonryGridView(items: searchFilteredItems)
+                            .padding(.horizontal, ENVISpacing.xl)
+                    }
                 }
                 .padding(.top, ENVISpacing.lg)
                 .padding(.bottom, 100) // space for tab bar
+            }
+            .refreshable {
+                // Trigger a refresh of library items
+                await Task.yield()
             }
 
             // FAB

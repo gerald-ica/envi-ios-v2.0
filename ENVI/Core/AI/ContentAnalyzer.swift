@@ -129,10 +129,10 @@ final class ContentAnalyzer: ObservableObject {
         let bestPlatform = platformEngagement.max(by: { $0.value < $1.value })?.key ?? "unknown"
 
         // Average posting frequency
-        let dates = realPieces.compactMap { parseDateString($0.createdAt) }.sorted()
+        let dates = realPieces.map { $0.createdAt }.sorted()
         let avgFrequency: TimeInterval
-        if dates.count >= 2, let first = dates.first, let last = dates.last {
-            let totalSpan = last.timeIntervalSince(first)
+        if dates.count >= 2 {
+            let totalSpan = dates.last!.timeIntervalSince(dates.first!)
             avgFrequency = totalSpan / Double(dates.count - 1)
         } else {
             avgFrequency = 86400 * 3 // Default: every 3 days
@@ -206,7 +206,7 @@ final class ContentAnalyzer: ObservableObject {
 
         for type in ContentType.allCases {
             let typePieces = byType[type] ?? []
-            let latestDate = typePieces.compactMap { parseDateString($0.createdAt) }.max()
+            let latestDate = typePieces.map { $0.createdAt }.max()
             let daysSince = latestDate.map { Calendar.current.dateComponents([.day], from: $0, to: Date()).day ?? 0 } ?? 999
 
             guard daysSince > ENVIBrainConfig.contentGapAlertDays else { continue }
@@ -285,15 +285,4 @@ final class ContentAnalyzer: ObservableObject {
         return Double(likes + shares + comments) / Double(views)
     }
 
-    /// Parse a date string in "yyyy-MM-dd" format.
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        return formatter
-    }()
-
-    private func parseDateString(_ dateString: String) -> Date? {
-        Self.dateFormatter.date(from: dateString)
-    }
 }

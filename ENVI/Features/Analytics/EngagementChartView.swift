@@ -30,6 +30,7 @@ struct EngagementChartView: View {
                         .foregroundStyle(ENVITheme.textLight(for: colorScheme))
                 }
             }
+            .chartYAxisLabel("Engagement", position: .leading, alignment: .center)
             .chartXAxis {
                 AxisMarks { _ in
                     AxisValueLabel()
@@ -37,6 +38,7 @@ struct EngagementChartView: View {
                         .foregroundStyle(ENVITheme.textLight(for: colorScheme))
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: data.map(\.value))
             .frame(height: 200)
         }
         .padding(ENVISpacing.lg)

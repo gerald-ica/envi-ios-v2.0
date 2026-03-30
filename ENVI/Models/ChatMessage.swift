@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a message in the ENVI AI chat.
-struct ChatMessage: Identifiable {
+struct ChatMessage: Identifiable, Codable {
     let id: UUID
     let role: Role
     let content: String
@@ -9,22 +9,36 @@ struct ChatMessage: Identifiable {
     var dataCard: DataCard?
     var relatedQuestions: [String]?
 
-    enum Role {
+    enum Role: String, Codable {
         case user
         case assistant
     }
 
-    struct DataCard: Identifiable {
-        let id = UUID()
+    struct DataCard: Identifiable, Codable {
+        let id: UUID
         let title: String
         let metrics: [Metric]
 
-        struct Metric: Identifiable {
-            let id = UUID()
+        init(id: UUID = UUID(), title: String, metrics: [Metric]) {
+            self.id = id
+            self.title = title
+            self.metrics = metrics
+        }
+
+        struct Metric: Identifiable, Codable {
+            let id: UUID
             let label: String
             let value: String
             let change: String?
             let isPositive: Bool
+
+            init(id: UUID = UUID(), label: String, value: String, change: String?, isPositive: Bool) {
+                self.id = id
+                self.label = label
+                self.value = value
+                self.change = change
+                self.isPositive = isPositive
+            }
         }
     }
 

@@ -163,7 +163,7 @@ final class PredictionEngine: ObservableObject {
         let contentTypes = Dictionary(grouping: library.filter { !$0.isFuture }, by: { $0.type })
         for type in ContentType.allCases {
             let pieces = contentTypes[type] ?? []
-            let latestDate = pieces.compactMap { ISO8601DateFormatter().date(from: $0.createdAt + "T00:00:00Z") }.max()
+            let latestDate = pieces.map { $0.createdAt }.max()
             let daysSince = latestDate.map { Calendar.current.dateComponents([.day], from: $0, to: Date()).day ?? 0 } ?? 999
 
             if daysSince > ENVIBrainConfig.contentGapAlertDays {

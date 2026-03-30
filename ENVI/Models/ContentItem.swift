@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a content card in the feed.
-struct ContentItem: Identifiable {
+struct ContentItem: Identifiable, Codable {
     let id: UUID
     let type: ContentType
     let creatorName: String
@@ -25,7 +25,7 @@ struct ContentItem: Identifiable {
 
     var isBookmarked: Bool = false
 
-    enum ContentType: String {
+    enum ContentType: String, Codable {
         case photo
         case video
         case carousel
@@ -35,7 +35,7 @@ struct ContentItem: Identifiable {
     // MARK: - Mock Data
     static let mockFeed: [ContentItem] = [
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-000000000001")!, type: .photo,
+            id: UUID(), type: .photo,
             creatorName: "Sarah Chen", creatorHandle: "@sarahcreates",
             creatorAvatar: nil, platform: .instagram,
             imageName: "Closer", caption: "Golden hour hits different in the desert",
@@ -44,7 +44,7 @@ struct ContentItem: Identifiable {
             likes: 12400, comments: 342, shares: 891
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-000000000002")!, type: .photo,
+            id: UUID(), type: .photo,
             creatorName: "Marcus Cole", creatorHandle: "@marcuseats",
             creatorAvatar: nil, platform: .tiktok,
             imageName: "culture-food", caption: "Street food series — Episode 12: Bangkok",
@@ -53,7 +53,7 @@ struct ContentItem: Identifiable {
             likes: 8900, comments: 567, shares: 1200
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-000000000003")!, type: .photo,
+            id: UUID(), type: .photo,
             creatorName: "Mia Torres", creatorHandle: "@miatorres",
             creatorAvatar: nil, platform: .instagram,
             imageName: "cyclist", caption: "Morning ride through the city",
@@ -62,7 +62,7 @@ struct ContentItem: Identifiable {
             likes: 15600, comments: 890, shares: 2100
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-000000000004")!, type: .photo,
+            id: UUID(), type: .photo,
             creatorName: "Jordan Lee", creatorHandle: "@jordanlee",
             creatorAvatar: nil, platform: .youtube,
             imageName: "desert-car", caption: "Road trip vibes — Nevada to Arizona",
@@ -71,7 +71,7 @@ struct ContentItem: Identifiable {
             likes: 5600, comments: 234, shares: 567
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-000000000005")!, type: .photo,
+            id: UUID(), type: .photo,
             creatorName: "Nina Park", creatorHandle: "@ninapark",
             creatorAvatar: nil, platform: .instagram,
             imageName: "fashion-group", caption: "Squad goals at NYFW",
@@ -80,7 +80,7 @@ struct ContentItem: Identifiable {
             likes: 18900, comments: 1200, shares: 3400
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-000000000006")!, type: .textPost,
+            id: UUID(), type: .textPost,
             creatorName: "Dev Patel", creatorHandle: "@devbuilds",
             creatorAvatar: nil, platform: .x,
             imageName: nil,
@@ -91,7 +91,7 @@ struct ContentItem: Identifiable {
             likes: 4500, comments: 678, shares: 1890
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-000000000007")!, type: .textPost,
+            id: UUID(), type: .textPost,
             creatorName: "Maya Chen", creatorHandle: "@mayacreates",
             creatorAvatar: nil, platform: .threads,
             imageName: nil,
@@ -102,7 +102,7 @@ struct ContentItem: Identifiable {
             likes: 5900, comments: 402, shares: 1280
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-000000000008")!, type: .photo,
+            id: UUID(), type: .photo,
             creatorName: "Kai Nakamura", creatorHandle: "@kainakamura",
             creatorAvatar: nil, platform: .instagram,
             imageName: "fire-stunt", caption: "Behind the scenes of our latest shoot",
@@ -111,7 +111,7 @@ struct ContentItem: Identifiable {
             likes: 9800, comments: 456, shares: 1100
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-000000000009")!, type: .photo,
+            id: UUID(), type: .photo,
             creatorName: "Ava Williams", creatorHandle: "@avawilliams",
             creatorAvatar: nil, platform: .tiktok,
             imageName: "industrial-girl", caption: "Industrial aesthetics",
@@ -120,7 +120,7 @@ struct ContentItem: Identifiable {
             likes: 22300, comments: 1500, shares: 4200
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-00000000000A")!, type: .photo,
+            id: UUID(), type: .photo,
             creatorName: "Liam O'Brien", creatorHandle: "@liamobrien",
             creatorAvatar: nil, platform: .instagram,
             imageName: "runway", caption: "Milan Fashion Week highlights",
@@ -129,7 +129,7 @@ struct ContentItem: Identifiable {
             likes: 11200, comments: 780, shares: 1900
         ),
         ContentItem(
-            id: UUID(uuidString: "00000000-0001-0000-0000-00000000000B")!, type: .photo,
+            id: UUID(), type: .photo,
             creatorName: "Zara Ahmed", creatorHandle: "@zaraahmed",
             creatorAvatar: nil, platform: .instagram,
             imageName: "studio-fashion", caption: "Studio session with the team",

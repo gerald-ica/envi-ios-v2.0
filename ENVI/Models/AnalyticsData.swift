@@ -1,32 +1,53 @@
 import Foundation
 
 /// Holds analytics data for the dashboard.
-struct AnalyticsData {
+struct AnalyticsData: Codable {
     let reach: KPI
     let engagement: KPI
     let engagementRate: KPI
     let dailyEngagement: [DailyMetric]
     let calendarDays: [CalendarDay]
 
-    struct KPI: Identifiable {
-        let id = UUID()
+    struct KPI: Identifiable, Codable {
+        let id: UUID
         let label: String
         let value: String
         let change: String
         let isPositive: Bool
+
+        init(id: UUID = UUID(), label: String, value: String, change: String, isPositive: Bool) {
+            self.id = id
+            self.label = label
+            self.value = value
+            self.change = change
+            self.isPositive = isPositive
+        }
     }
 
-    struct DailyMetric: Identifiable {
-        let id = UUID()
+    struct DailyMetric: Identifiable, Codable {
+        let id: UUID
         let day: String      // Mon, Tue, etc.
         let value: Double
+
+        init(id: UUID = UUID(), day: String, value: Double) {
+            self.id = id
+            self.day = day
+            self.value = value
+        }
     }
 
-    struct CalendarDay: Identifiable {
-        let id = UUID()
+    struct CalendarDay: Identifiable, Codable {
+        let id: UUID
         let date: Date
         let hasContent: Bool
         let platform: SocialPlatform?
+
+        init(id: UUID = UUID(), date: Date, hasContent: Bool, platform: SocialPlatform?) {
+            self.id = id
+            self.date = date
+            self.hasContent = hasContent
+            self.platform = platform
+        }
     }
 
     static let mock = AnalyticsData(
@@ -43,21 +64,13 @@ struct AnalyticsData {
             DailyMetric(day: "Sun", value: 2100),
         ],
         calendarDays: {
-            let platformCycle: [SocialPlatform] = [.instagram, .tiktok, .youtube]
             var days: [CalendarDay] = []
             let cal = Calendar.current
             let now = Date()
-            var platformIndex = 0
             for i in 0..<30 {
                 if let date = cal.date(byAdding: .day, value: -i, to: now) {
                     let hasContent = [0, 2, 3, 5, 7, 10, 12, 15, 18, 21, 24, 27].contains(i)
-                    let platform: SocialPlatform?
-                    if hasContent {
-                        platform = platformCycle[platformIndex % platformCycle.count]
-                        platformIndex += 1
-                    } else {
-                        platform = nil
-                    }
+                    let platform: SocialPlatform? = hasContent ? [.instagram, .tiktok, .youtube].randomElement() : nil
                     days.append(CalendarDay(date: date, hasContent: hasContent, platform: platform))
                 }
             }
