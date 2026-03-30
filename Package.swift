@@ -19,14 +19,14 @@ let package = Package(
         .iOS(.v17)
     ],
     products: [
-        .library(name: "ENVI", targets: ["ENVI"])
+        .executable(name: "ENVI", targets: ["ENVI"])
     ],
     dependencies: [
         .package(url: "https://github.com/SDWebImage/SDWebImage.git", from: "5.19.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.4.0"),
     ],
     targets: [
-        .target(
+        .executableTarget(
             name: "ENVI",
             dependencies: [
                 "SDWebImage",

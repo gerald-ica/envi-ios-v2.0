@@ -19,7 +19,7 @@ final class PhotoLibraryManager: ObservableObject {
     // MARK: - Authorization Status
 
     /// Represents the current photo library authorization state.
-    enum AuthorizationStatus {
+    enum AuthorizationStatus: Equatable {
         case notDetermined
         case authorized
         case limited
@@ -43,6 +43,14 @@ final class PhotoLibraryManager: ObservableObject {
                 self = .denied
             }
         }
+
+        var isAuthorized: Bool {
+            self == .authorized || self == .limited
+        }
+
+        var isFullyAuthorized: Bool {
+            self == .authorized
+        }
     }
 
     // MARK: - Published Properties
@@ -58,8 +66,7 @@ final class PhotoLibraryManager: ObservableObject {
     static let shared = PhotoLibraryManager()
 
     private init() {
-        let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
-        authorizationStatus = AuthorizationStatus(phStatus: currentStatus)
+        refreshAuthorizationStatus()
     }
 
     // MARK: - Authorization
@@ -73,6 +80,11 @@ final class PhotoLibraryManager: ObservableObject {
         let mapped = AuthorizationStatus(phStatus: status)
         PhotoLibraryManager.shared.authorizationStatus = mapped
         return mapped
+    }
+
+    func refreshAuthorizationStatus() {
+        let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        authorizationStatus = AuthorizationStatus(phStatus: currentStatus)
     }
 
     // MARK: - Fetching Media
@@ -91,7 +103,7 @@ final class PhotoLibraryManager: ObservableObject {
         limit: Int = 100,
         mediaTypes: [PHAssetMediaType] = [.image, .video]
     ) -> [PHAsset] {
-        guard authorizationStatus == .authorized || authorizationStatus == .limited else {
+        guard authorizationStatus.isAuthorized else {
             return []
         }
 
@@ -118,7 +130,7 @@ final class PhotoLibraryManager: ObservableObject {
     /// Fetches a count of all media in the user's library.
     /// Useful for displaying stats in the profile or onboarding flow.
     func totalMediaCount() -> Int {
-        guard authorizationStatus == .authorized || authorizationStatus == .limited else {
+        guard authorizationStatus.isAuthorized else {
             return 0
         }
 

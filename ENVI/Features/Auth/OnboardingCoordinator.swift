@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Container view that manages the 5-step onboarding navigation flow.
+/// Container view that manages the onboarding navigation flow.
 struct OnboardingContainerView: View {
     @StateObject private var viewModel = OnboardingViewModel()
     @Environment(\.colorScheme) private var colorScheme
@@ -53,8 +53,16 @@ struct OnboardingContainerView: View {
                     .tag(OnboardingViewModel.Step.dateOfBirth)
                     .padding(.horizontal, ENVISpacing.xl)
 
+                OnboardingBirthTimeView(viewModel: viewModel)
+                    .tag(OnboardingViewModel.Step.birthTime)
+                    .padding(.horizontal, ENVISpacing.xl)
+
                 OnboardingWhereFromView(viewModel: viewModel)
                     .tag(OnboardingViewModel.Step.whereFrom)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                OnboardingPhotosAccessView(viewModel: viewModel)
+                    .tag(OnboardingViewModel.Step.photosAccess)
                     .padding(.horizontal, ENVISpacing.xl)
 
                 OnboardingWhereBornView(viewModel: viewModel)

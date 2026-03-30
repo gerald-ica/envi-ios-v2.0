@@ -52,7 +52,7 @@ final class SwipeableCardStack: UIView {
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
         guard let card = gesture.view else { return }
-        let translation = gesture.point(in: self).x - bounds.midX
+        let translation = gesture.translation(in: self).x
 
         switch gesture.state {
         case .changed:
@@ -63,11 +63,11 @@ final class SwipeableCardStack: UIView {
 
             // Show pass/approve overlay
             if let contentCard = card as? ContentCardView {
-                contentCard.passOverlay.alpha = max(0, -translation / swipeThreshold) * 0.8
-                contentCard.approveOverlay.alpha = max(0, translation / swipeThreshold) * 0.8
+                contentCard.passOverlay.alpha = Swift.max(CGFloat.zero, -translation / swipeThreshold) * 0.8
+                contentCard.approveOverlay.alpha = Swift.max(CGFloat.zero, translation / swipeThreshold) * 0.8
             } else if let textCard = card as? TextPostCardView {
-                textCard.passOverlay.alpha = max(0, -translation / swipeThreshold) * 0.8
-                textCard.approveOverlay.alpha = max(0, translation / swipeThreshold) * 0.8
+                textCard.passOverlay.alpha = Swift.max(CGFloat.zero, -translation / swipeThreshold) * 0.8
+                textCard.approveOverlay.alpha = Swift.max(CGFloat.zero, translation / swipeThreshold) * 0.8
             }
 
         case .ended:

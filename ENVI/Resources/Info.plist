@@ -68,5 +68,7 @@
     <string>ENVI uses the microphone for voice commands and audio recording.</string>
     <key>NSCameraUsageDescription</key>
     <string>ENVI uses the camera to capture new content.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>ENVI uses your location to personalize content recommendations and local insights.</string>
 </dict>
 </plist>

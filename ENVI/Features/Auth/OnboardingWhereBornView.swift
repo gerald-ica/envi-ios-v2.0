@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Step 4: Where were you born? + city chip selection.
+/// Step 6: Where were you born? + city chip selection.
 struct OnboardingWhereBornView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     @Environment(\.colorScheme) private var colorScheme

@@ -1,7 +1,6 @@
 import UIKit
 
-/// Full-screen splash screen with animated spiral and "hello" text.
-/// Auto-transitions to onboarding after 5 seconds.
+/// Full-screen splash screen with animated spiral and ENVI wordmark.
 final class SplashViewController: UIViewController {
 
     var onComplete: (() -> Void)?
@@ -41,21 +40,19 @@ final class SplashViewController: UIViewController {
     }
 
     private func setupUI() {
-        // Spiral
         spiralView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(spiralView)
 
-        // Hello label
         view.addSubview(helloLabel)
 
         NSLayoutConstraint.activate([
-            spiralView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            spiralView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
-            spiralView.widthAnchor.constraint(equalToConstant: 300),
-            spiralView.heightAnchor.constraint(equalToConstant: 300),
+            spiralView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            spiralView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            spiralView.topAnchor.constraint(equalTo: view.topAnchor),
+            spiralView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             helloLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            helloLabel.topAnchor.constraint(equalTo: spiralView.bottomAnchor, constant: 24),
+            helloLabel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -72),
         ])
     }
 

@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Step 2: Date of birth with MM/DD/YYYY segmented fields.
+/// Step 2: Date of birth with wheel pickers.
 struct OnboardingDOBView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     @Environment(\.colorScheme) private var colorScheme
@@ -12,14 +12,21 @@ struct OnboardingDOBView: View {
                 .tracking(-2.0)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
-            Text("This helps personalize your experience.")
+            Text("Pick your birth date on the wheel below.")
                 .font(.interRegular(15))
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
-            HStack(spacing: ENVISpacing.md) {
-                DOBField(label: "MM", placeholder: "01", text: $viewModel.dobMonth, maxLength: 2)
-                DOBField(label: "DD", placeholder: "15", text: $viewModel.dobDay, maxLength: 2)
-                DOBField(label: "YYYY", placeholder: "1998", text: $viewModel.dobYear, maxLength: 4)
+            WheelPickerCard(title: "BIRTH DATE") {
+                DatePicker(
+                    "",
+                    selection: $viewModel.dateOfBirth,
+                    in: viewModel.birthDateRange,
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.wheel)
+                .labelsHidden()
+                .frame(maxWidth: .infinity)
+                .clipped()
             }
 
             Spacer()
@@ -27,40 +34,28 @@ struct OnboardingDOBView: View {
     }
 }
 
-// MARK: - DOB Field
-private struct DOBField: View {
-    let label: String
-    let placeholder: String
-    @Binding var text: String
-    let maxLength: Int
+struct WheelPickerCard<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: Content
 
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.sm) {
-            Text(label)
+        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+            Text(title)
                 .font(.spaceMono(11))
                 .tracking(0.88)
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
-            TextField(placeholder, text: $text)
-                .font(.interRegular(17))
-                .keyboardType(.numberPad)
-                .multilineTextAlignment(.center)
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-                .padding(.horizontal, ENVISpacing.md)
-                .padding(.vertical, ENVISpacing.md)
+            content
+                .frame(maxWidth: .infinity)
+                .frame(height: 180)
                 .background(ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
                 .overlay(
-                    RoundedRectangle(cornerRadius: ENVIRadius.md)
+                    RoundedRectangle(cornerRadius: ENVIRadius.lg)
                         .strokeBorder(ENVITheme.border(for: colorScheme), lineWidth: 1.5)
                 )
-                .onChange(of: text) { _, newValue in
-                    if newValue.count > maxLength {
-                        text = String(newValue.prefix(maxLength))
-                    }
-                }
         }
     }
 }

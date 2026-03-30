@@ -1,20 +1,21 @@
 import SwiftUI
 import UIKit
 
-/// Step 4: Request the user's phone location.
-struct OnboardingWhereFromView: View {
+/// Request full photo library access during onboarding.
+struct OnboardingPhotosAccessView: View {
     @ObservedObject var viewModel: OnboardingViewModel
-    @ObservedObject private var locationManager = LocationPermissionManager.shared
+    @ObservedObject private var photoLibraryManager = PhotoLibraryManager.shared
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
-            Text("TURN ON YOUR LOCATION")
+            Text("TURN ON FULL PHOTO ACCESS")
                 .font(.spaceMonoBold(32))
                 .tracking(-2.0)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
-            Text("We use your phone location to tailor content and recommendations to where you are.")
+            Text("We use your full photo library to help assemble and manage your content during onboarding.")
                 .font(.interRegular(15))
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
@@ -25,7 +26,7 @@ struct OnboardingWhereFromView: View {
                     handlePrimaryAction()
                 }
 
-                if locationManager.authorizationStatus == .denied {
+                if needsSettingsAction {
                     ENVIButton("Open Settings", variant: .secondary) {
                         openSettings()
                     }
@@ -35,37 +36,49 @@ struct OnboardingWhereFromView: View {
             Spacer()
         }
         .onAppear {
-            if locationManager.authorizationStatus.isAuthorized {
-                locationManager.requestCurrentLocation()
+            photoLibraryManager.refreshAuthorizationStatus()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                photoLibraryManager.refreshAuthorizationStatus()
             }
         }
     }
 
     private var primaryActionTitle: String {
-        switch locationManager.authorizationStatus {
+        switch photoLibraryManager.authorizationStatus {
         case .notDetermined:
-            return "Allow Location"
-        case .authorizedWhenInUse, .authorizedAlways:
-            return "Refresh Location"
-        case .denied:
-            return "Try Again"
+            return "Allow Full Access"
+        case .authorized:
+            return "Refresh Photo Access"
+        case .limited, .denied:
+            return "Open Settings"
         case .restricted:
-            return "Location Restricted"
+            return "Photos Restricted"
+        }
+    }
+
+    private var needsSettingsAction: Bool {
+        switch photoLibraryManager.authorizationStatus {
+        case .limited, .denied:
+            return true
+        case .notDetermined, .authorized, .restricted:
+            return false
         }
     }
 
     private var statusCard: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.sm) {
-            Text("LOCATION")
+            Text("PHOTOS")
                 .font(.spaceMono(11))
                 .tracking(0.88)
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
-            Text(viewModel.locationStatusTitle)
+            Text(viewModel.photoStatusTitle)
                 .font(.interSemiBold(17))
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
-            Text(viewModel.locationStatusDetail)
+            Text(viewModel.photoStatusDetail)
                 .font(.interRegular(15))
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
         }
@@ -81,12 +94,14 @@ struct OnboardingWhereFromView: View {
     }
 
     private func handlePrimaryAction() {
-        switch locationManager.authorizationStatus {
+        switch photoLibraryManager.authorizationStatus {
         case .notDetermined:
-            locationManager.requestAuthorization()
-        case .authorizedWhenInUse, .authorizedAlways:
-            locationManager.requestCurrentLocation()
-        case .denied:
+            Task {
+                _ = await PhotoLibraryManager.requestAuthorization()
+            }
+        case .authorized:
+            photoLibraryManager.refreshAuthorizationStatus()
+        case .limited, .denied:
             openSettings()
         case .restricted:
             break

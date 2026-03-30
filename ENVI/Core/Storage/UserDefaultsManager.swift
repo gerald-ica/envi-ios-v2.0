@@ -12,6 +12,7 @@ final class UserDefaultsManager {
         case hasCompletedOnboarding
         case userName
         case userDOB
+        case userBirthTime
         case userLocation
         case userBirthplace
         case connectedPlatforms
@@ -27,6 +28,31 @@ final class UserDefaultsManager {
     var userName: String? {
         get { defaults.string(forKey: Key.userName.rawValue) }
         set { defaults.set(newValue, forKey: Key.userName.rawValue) }
+    }
+
+    var userDOB: String? {
+        get { defaults.string(forKey: Key.userDOB.rawValue) }
+        set { defaults.set(newValue, forKey: Key.userDOB.rawValue) }
+    }
+
+    var userBirthTime: String? {
+        get { defaults.string(forKey: Key.userBirthTime.rawValue) }
+        set { defaults.set(newValue, forKey: Key.userBirthTime.rawValue) }
+    }
+
+    var userLocation: String? {
+        get { defaults.string(forKey: Key.userLocation.rawValue) }
+        set { defaults.set(newValue, forKey: Key.userLocation.rawValue) }
+    }
+
+    var userBirthplace: String? {
+        get { defaults.string(forKey: Key.userBirthplace.rawValue) }
+        set { defaults.set(newValue, forKey: Key.userBirthplace.rawValue) }
+    }
+
+    var connectedPlatforms: [String] {
+        get { defaults.stringArray(forKey: Key.connectedPlatforms.rawValue) ?? [] }
+        set { defaults.set(newValue, forKey: Key.connectedPlatforms.rawValue) }
     }
 
     // MARK: - Reset (for testing)

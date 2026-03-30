@@ -9,6 +9,7 @@ final class AppCoordinator: ParentCoordinator {
     var childCoordinators: [Coordinator] = []
 
     private var window: UIWindow?
+    private var onboardingCoordinator: OnboardingCoordinator?
 
     init(window: UIWindow?) {
         self.window = window
@@ -44,7 +45,11 @@ final class AppCoordinator: ParentCoordinator {
     // MARK: - Onboarding
     private func showOnboarding() {
         let coordinator = OnboardingCoordinator(navigationController: navigationController)
-        coordinator.onComplete = { [weak self] in
+        onboardingCoordinator = coordinator
+        coordinator.onComplete = { [weak self, weak coordinator] in
+            if self?.onboardingCoordinator === coordinator {
+                self?.onboardingCoordinator = nil
+            }
             self?.showMainApp()
         }
         coordinator.start()
