@@ -83,12 +83,12 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
         static let contentPieceCount: Int = 2600
         static let streamLength: Float = 140
         static let streamRadius: Float = 7.2
-        static let size: Float = 1.18
+        static let size: Float = 0.95
         static let speed: Float = 1.0
         static let fadeLen: Float = 0.2
-        static let sizeDepthBias: Float = 0.42
-        static let cameraFov: CGFloat = 92
-        static let cameraPos = SCNVector3(-4, 3, 30)
+        static let sizeDepthBias: Float = 0.89
+        static let cameraFov: CGFloat = 97
+        static let cameraPos = SCNVector3(-4, 4, 34)
 
         // Starfield
         static let starCount: Int = 250
@@ -658,13 +658,13 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
         // Per-content-piece arrays
         streamTs = (0..<count).map { _ in Float.random(in: 0...1) }
         phases = (0..<count).map { _ in Float.random(in: 0...(Float.pi * 2)) }
-        baseSizes = (0..<count).map { _ in 0.56 + Float.random(in: 0...0.74) }
+        baseSizes = (0..<count).map { _ in 0.3 + Float.random(in: 0...0.6) }
         contentIndices = (0..<count).map { $0 % contentCount }
         positions = Array(repeating: SCNVector3Zero, count: count)
         isFutureNode = (0..<count).map { allPieces[$0 % contentCount].isFuture }
 
         // Shared geometry: vertical plane aspect ~1:1.4 (matching React)
-        let planeGeometry = SCNPlane(width: 1.08, height: 1.52)
+        let planeGeometry = SCNPlane(width: 1.0, height: 1.4)
 
         // Materials (one per texture for normal and future variants)
         var materials: [SCNMaterial] = []
@@ -965,8 +965,7 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             // Future pieces render at 0.8x normal size
             let futureSizeMult: Float = isFutureNode[i] ? 0.8 : 1.0
 
-            let depthMix = 0.88 + depthScale * 0.52
-            let s = CGFloat(baseSizes[i] * Config.size * depthMix * zoomSizeMult * sizeMultiplier * futureSizeMult)
+            let s = CGFloat(baseSizes[i] * Config.size * (0.7 + depthScale * 0.3) * zoomSizeMult * sizeMultiplier * futureSizeMult)
             contentPieceNodes[i].scale = SCNVector3(s, s, s)
 
             // Edge fade (future pieces capped at 50% base opacity; pulse animation handles the rest)
