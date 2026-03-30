@@ -65,6 +65,9 @@ struct LibraryItem: Identifiable {
         case .video:
             type = .videos
             height = 240
+        case .carousel:
+            type = .photos
+            height = 260
         case .textPost:
             type = .drafts
             height = 220

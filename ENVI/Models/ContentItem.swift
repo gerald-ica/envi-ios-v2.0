@@ -28,6 +28,7 @@ struct ContentItem: Identifiable {
     enum ContentType: String {
         case photo
         case video
+        case carousel
         case textPost
     }
 
