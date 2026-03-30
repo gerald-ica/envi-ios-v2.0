@@ -103,10 +103,16 @@ struct ENVIBrainConfig {
     /// Analogous to autoresearch's results.tsv — but on-device storage is limited.
     static let maxExperimentLogSize = 200
 
-    /// Date formatter for experiment timestamps.
-    static let dateFormatter: DateFormatter = {
+    /// Create a date formatter for experiment timestamps.
+    ///
+    /// Returns a new instance each call to avoid thread-safety issues —
+    /// `DateFormatter` is not `Sendable` and sharing a single static
+    /// mutable instance across threads can produce corrupted output or
+    /// crashes.  The cost of allocation is negligible compared to the
+    /// formatting work itself.
+    static func makeDateFormatter() -> DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         return formatter
-    }()
+    }
 }

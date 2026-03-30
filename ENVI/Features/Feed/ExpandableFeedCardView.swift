@@ -624,6 +624,33 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         bookmarkButton.addTarget(self, action: #selector(handleBookmarkTap), for: .touchUpInside)
         mediaBookmarkButton.addTarget(self, action: #selector(handleBookmarkTap), for: .touchUpInside)
         editButton.addTarget(self, action: #selector(handleEditTap), for: .touchUpInside)
+
+        // MARK: - Accessibility
+        isAccessibilityElement = false
+        accessibilityContainerType = .semanticGroup
+
+        // VoiceOver custom actions as swipe alternatives
+        let approveAction = UIAccessibilityCustomAction(
+            name: "Approve",
+            target: self,
+            selector: #selector(accessibilityApprove)
+        )
+        let passAction = UIAccessibilityCustomAction(
+            name: "Pass",
+            target: self,
+            selector: #selector(accessibilityReject)
+        )
+        accessibilityCustomActions = [approveAction, passAction]
+    }
+
+    @objc private func accessibilityApprove() -> Bool {
+        onSwipeDecision?(.approve)
+        return true
+    }
+
+    @objc private func accessibilityReject() -> Bool {
+        onSwipeDecision?(.reject)
+        return true
     }
 
     private func rebuildStats(for item: ContentItem) {

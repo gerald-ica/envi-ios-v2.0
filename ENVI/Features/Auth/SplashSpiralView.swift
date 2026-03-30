@@ -24,9 +24,14 @@ final class SplashSpiralView: UIView {
     private let cameraTravelDistance: CGFloat = 3400
     private let startDotYOffset: CGFloat = 28
     private let viewZoom: CGFloat = 100
-    private let numberOfStars = 3000
     private let trailLength = 80
     private let animDuration: CGFloat = 15
+
+    private var numberOfStars: Int {
+        if UIAccessibility.isReduceMotionEnabled { return 0 }
+        if ProcessInfo.processInfo.isLowPowerModeEnabled { return 800 }
+        return 3000
+    }
 
     // MARK: - State
     private var stars: [Star] = []
@@ -241,8 +246,28 @@ final class SplashSpiralView: UIView {
         context.restoreGState()
     }
 
+    // MARK: - Static gradient fallback for Reduce Motion
+    private lazy var staticGradientLayer: CAGradientLayer = {
+        let layer = CAGradientLayer()
+        layer.colors = [
+            UIColor(white: 0.06, alpha: 1).cgColor,
+            UIColor.black.cgColor,
+            UIColor(white: 0.04, alpha: 1).cgColor
+        ]
+        layer.startPoint = CGPoint(x: 0, y: 0)
+        layer.endPoint = CGPoint(x: 1, y: 1)
+        return layer
+    }()
+
     // MARK: - Animation control
     func startAnimation() {
+        // Respect Reduce Motion: show static gradient instead of particles
+        if UIAccessibility.isReduceMotionEnabled {
+            staticGradientLayer.frame = bounds
+            layer.insertSublayer(staticGradientLayer, at: 0)
+            return
+        }
+
         guard displayLink == nil else { return }
         lastTimestamp = 0
         animTime = 0

@@ -40,6 +40,7 @@ struct ENVIInput: View {
                     .strokeBorder(borderColor, lineWidth: 1.5)
             )
             .focused($isFocused)
+            .accessibilityHint(placeholder)
 
             // Error
             if let errorMessage {

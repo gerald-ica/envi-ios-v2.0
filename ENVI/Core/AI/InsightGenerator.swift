@@ -127,10 +127,22 @@ final class InsightGenerator: ObservableObject {
             let dayName = dayNames[bestDay.key] ?? "Unknown"
 
             if let bestHour = patterns.engagementByHour.max(by: { $0.value < $1.value }) {
-                let hourStr = bestHour.key < 12 ? "\(bestHour.key)am" : "\(bestHour.key - 12)pm"
+                let hourStr: String = {
+                    let h = bestHour.key
+                    switch h {
+                    case 0: return "12am"
+                    case 1..<12: return "\(h)am"
+                    case 12: return "12pm"
+                    default: return "\(h - 12)pm"
+                    }
+                }()
+                let liftPct: String = {
+                    guard patterns.averageEngagementRate > 0 else { return "N/A" }
+                    return String(format: "%.0f", bestDay.value / patterns.averageEngagementRate * 100 - 100)
+                }()
                 insights.append(ContentInsight(
                     title: "Your Peak Engagement Window",
-                    body: "\(dayName) at \(hourStr) is your golden hour. Posts during this window see \(String(format: "%.0f", bestDay.value / patterns.averageEngagementRate * 100 - 100))% higher engagement than your average. Schedule your most important content here.",
+                    body: "\(dayName) at \(hourStr) is your golden hour. Posts during this window see \(liftPct)% higher engagement than your average. Schedule your most important content here.",
                     category: .recommendation,
                     actionable: true,
                     action: "Schedule next post for \(dayName) \(hourStr)",

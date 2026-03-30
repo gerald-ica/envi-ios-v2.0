@@ -3,6 +3,7 @@ import SwiftUI
 /// Waterfall/masonry grid layout with 2 columns.
 struct MasonryGridView: View {
     let items: [LibraryItem]
+    var onTap: ((LibraryItem) -> Void)?
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -30,6 +31,7 @@ struct MasonryGridView: View {
                 LazyVStack(spacing: ENVISpacing.md) {
                     ForEach(columns[colIndex]) { item in
                         MasonryItemView(item: item)
+                            .onTapGesture { onTap?(item) }
                     }
                 }
             }
@@ -49,12 +51,22 @@ private struct MasonryItemView: View {
                 .frame(height: item.height)
                 .clipped()
 
-            // Gradient + title
+            // Bottom-only gradient overlay
             LinearGradient(
-                colors: [.clear, .black.opacity(0.6)],
+                colors: [.clear, .clear, .black.opacity(0.55)],
                 startPoint: .top,
                 endPoint: .bottom
             )
+            .frame(height: item.height)
+
+            // Video play indicator
+            if item.type == .videos {
+                Image(systemName: "play.circle.fill")
+                    .font(.system(size: 32))
+                    .foregroundColor(.white.opacity(0.9))
+                    .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
 
             Text(item.title.uppercased())
                 .font(.spaceMonoBold(11))
@@ -63,5 +75,8 @@ private struct MasonryItemView: View {
                 .padding(ENVISpacing.md)
         }
         .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(item.title), \(item.type.rawValue.lowercased())")
+        .accessibilityAddTraits(item.type == .videos ? [.isButton, .startsMediaSession] : .isButton)
     }
 }

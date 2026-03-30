@@ -127,6 +127,13 @@ final class ResearchLoop: ObservableObject {
             .assign(to: &$keepRate)
     }
 
+    // MARK: - Lifecycle
+
+    deinit {
+        iterationTimer?.invalidate()
+        iterationTimer = nil
+    }
+
     // MARK: - Loop Control
 
     /// Start the research loop.
@@ -135,19 +142,21 @@ final class ResearchLoop: ObservableObject {
     ///
     /// On iOS, this sets up the loop to run on a schedule and triggers
     /// the first iteration immediately.
+    @MainActor
     func startLoop() {
         guard !isRunning else { return }
         isRunning = true
 
         // Run first iteration immediately
-        advanceLoop()
+        Task { await advanceLoop() }
 
         // Schedule periodic iterations
         iterationTimer = Timer.scheduledTimer(
             withTimeInterval: ENVIBrainConfig.backgroundLoopIntervalSeconds,
             repeats: true
         ) { [weak self] _ in
-            self?.advanceLoop()
+            guard let self else { return }
+            Task { await self.advanceLoop() }
         }
     }
 
@@ -155,6 +164,7 @@ final class ResearchLoop: ObservableObject {
     ///
     /// Unlike autoresearch ("NEVER STOP"), the ENVI loop can be paused
     /// by the user or by the system (battery saver, background limits).
+    @MainActor
     func pauseLoop() {
         isRunning = false
         iterationTimer?.invalidate()
@@ -167,27 +177,30 @@ final class ResearchLoop: ObservableObject {
     /// This is the core of the autoresearch pattern adapted for ENVI:
     /// one complete cycle of observe → hypothesize → evaluate → learn.
     ///
+    /// Runs async to avoid blocking the main thread during analysis.
+    ///
     /// From autoresearch:
     /// > The idea is that you are a completely autonomous researcher trying
     /// > things out. If they work, keep. If they don't, discard. And you're
     /// > advancing so that you can iterate.
-    func advanceLoop() {
-        guard state == .idle || state == .waiting else { return }
+    func advanceLoop() async {
+        let currentState = await MainActor.run { state }
+        guard currentState == .idle || currentState == .waiting else { return }
 
         // STEP 1: OBSERVE
         // autoresearch: "Look at the git state: the current branch/commit we're on"
-        state = .observing
+        await MainActor.run { state = .observing }
         let contentLibrary = ContentPiece.sampleLibrary
         let patterns = contentAnalyzer.analyzeLibrary(contentLibrary)
 
         // STEP 2: EVALUATE PENDING EXPERIMENTS
         // autoresearch: "Read out the results: grep '^val_bpb:' run.log"
-        state = .evaluating
+        await MainActor.run { state = .evaluating }
         evaluatePendingExperiments(contentLibrary: contentLibrary)
 
         // STEP 3: HYPOTHESIZE
         // autoresearch: "Tune train.py with an experimental idea"
-        state = .hypothesizing
+        await MainActor.run { state = .hypothesizing }
         let predictions = predictionEngine.generatePredictions(
             for: contentLibrary,
             history: experimentTracker.experiments
@@ -204,25 +217,28 @@ final class ResearchLoop: ObservableObject {
                 contentType: topPrediction.suggestedContentType
             )
             experimentTracker.recordExperiment(experiment)
-            currentExperiment = experiment
+            await MainActor.run { currentExperiment = experiment }
         }
 
         // STEP 5: GENERATE INSIGHTS
         // (No direct autoresearch equivalent — this is ENVI's user communication layer)
-        state = .learning
+        await MainActor.run { state = .learning }
         let _ = insightGenerator.generateWeeklyInsights(from: patterns)
         let _ = trendForecaster.getUpcomingEvents(count: 5)
         let _ = trendForecaster.detectTrendingOpportunities()
 
         // STEP 6: RECORD AND ITERATE
         // autoresearch: "Record the results in the tsv"
-        loopCount += 1
-        lastIterationDate = Date()
-        keepRate = experimentTracker.getKeepRate()
-
-        // Back to idle, waiting for next trigger
-        // autoresearch: loop back to step 1
-        state = isRunning ? .waiting : .idle
+        let newKeepRate = experimentTracker.getKeepRate()
+        let running = await MainActor.run { isRunning }
+        await MainActor.run {
+            loopCount += 1
+            lastIterationDate = Date()
+            keepRate = newKeepRate
+            // Back to idle, waiting for next trigger
+            // autoresearch: loop back to step 1
+            state = running ? .waiting : .idle
+        }
     }
 
     /// Get the current status of the research loop.
@@ -303,7 +319,7 @@ final class ResearchLoop: ObservableObject {
 
         // Trigger a loop iteration if not already running
         if state == .idle || state == .waiting {
-            advanceLoop()
+            Task { await advanceLoop() }
         }
     }
 
@@ -311,12 +327,12 @@ final class ResearchLoop: ObservableObject {
     /// This is like autoresearch's "grep val_bpb run.log" — results are in.
     func onMetricsUpdated(for pieceId: String, metrics: ContentMetrics) {
         if state == .idle || state == .waiting {
-            advanceLoop()
+            Task { await advanceLoop() }
         }
     }
 
     /// Trigger the loop on app launch.
     func onAppLaunch() {
-        advanceLoop()
+        Task { await advanceLoop() }
     }
 }

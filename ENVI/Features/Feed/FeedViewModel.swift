@@ -5,8 +5,7 @@ import Combine
 final class FeedViewModel: ObservableObject {
     @Published var items: [ContentItem] = ContentItem.mockFeed
     @Published var selectedTab: FeedTab = .forYou
-    @Published var expandedItemID: UUID?
-    @Published var showSearch = false
+    @Published var isLoading = false
 
     enum FeedTab: String, CaseIterable {
         case forYou = "For You"
@@ -14,7 +13,12 @@ final class FeedViewModel: ObservableObject {
     }
 
     var visibleItems: [ContentItem] {
-        items
+        switch selectedTab {
+        case .forYou:
+            return items
+        case .explore:
+            return [] // Explore feed not yet populated
+        }
     }
 
     func bookmarkCard(id: UUID) {
@@ -23,19 +27,8 @@ final class FeedViewModel: ObservableObject {
         }
     }
 
-    func toggleExpanded(id: UUID) {
-        expandedItemID = expandedItemID == id ? nil : id
-    }
-
     func removeCard(id: UUID) {
         items.removeAll { $0.id == id }
-        if expandedItemID == id {
-            expandedItemID = nil
-        }
-    }
-
-    func resetFeed() {
-        expandedItemID = nil
     }
 
     // Available bundled image names for feed cards

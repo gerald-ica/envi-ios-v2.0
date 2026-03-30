@@ -185,10 +185,19 @@ final class TrendForecaster: ObservableObject {
         ]
 
         for (name, month, day, suggestion, impact) in holidays {
+            // Build a candidate date for this year; if already past, try next year.
             var components = calendar.dateComponents([.year], from: now)
             components.month = month
             components.day = day
-            guard let date = calendar.date(from: components),
+            var date = calendar.date(from: components)
+
+            // If the date is in the past this year, roll forward to next year
+            if let d = date, d <= now {
+                components.year = (components.year ?? calendar.component(.year, from: now)) + 1
+                date = calendar.date(from: components)
+            }
+
+            guard let date,
                   date > now,
                   date < calendar.date(byAdding: .day, value: 30, to: now) ?? now
             else { continue }

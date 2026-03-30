@@ -14,13 +14,14 @@ final class LibraryViewModel: ObservableObject {
     @Published var selectedFilter: FilterType = .all
     @Published var items: [LibraryItem] = LibraryItem.mockItems
     @Published var templates: [TemplateItem] = TemplateItem.mockTemplates
+    @Published var isLoading = false
     private var cancellables = Set<AnyCancellable>()
 
     init() {
         ApprovedMediaLibraryStore.shared.$approvedItems
             .receive(on: DispatchQueue.main)
             .sink { [weak self] approvedItems in
-                self?.items = approvedItems + LibraryItem.mockItems
+                self?.items = approvedItems
             }
             .store(in: &cancellables)
     }
@@ -28,5 +29,9 @@ final class LibraryViewModel: ObservableObject {
     var filteredItems: [LibraryItem] {
         guard selectedFilter != .all else { return items }
         return items.filter { $0.type.rawValue == selectedFilter.rawValue }
+    }
+
+    var isEmpty: Bool {
+        items.isEmpty
     }
 }

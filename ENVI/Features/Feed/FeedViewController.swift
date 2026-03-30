@@ -100,15 +100,124 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         return label
     }()
 
-    private let explorePlaceholderLabel: UILabel = {
+    private let explorePlaceholderView: UIView = {
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+
+        let iconConfig = UIImage.SymbolConfiguration(pointSize: 40, weight: .light)
+        let iconView = UIImageView(image: UIImage(systemName: "compass", withConfiguration: iconConfig))
+        iconView.tintColor = ENVITheme.UIKit.textSecondary
+        iconView.contentMode = .scaleAspectFit
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+
+        let titleLabel = UILabel()
+        titleLabel.text = "COMING SOON"
+        titleLabel.font = .spaceMonoBold(18)
+        titleLabel.textColor = ENVITheme.UIKit.text
+        titleLabel.textAlignment = .center
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.text = "Discover trending content and creators.\nWe're building something special."
+        subtitleLabel.font = .interRegular(14)
+        subtitleLabel.textColor = ENVITheme.UIKit.textSecondary
+        subtitleLabel.numberOfLines = 0
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let stack = UIStackView(arrangedSubviews: [iconView, titleLabel, subtitleLabel])
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        container.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            stack.topAnchor.constraint(equalTo: container.topAnchor, constant: 80),
+            stack.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: 32),
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -32),
+            container.heightAnchor.constraint(greaterThanOrEqualToConstant: 300),
+        ])
+
+        return container
+    }()
+
+    private let searchBarView: UIView = {
+        let container = UIView()
+        container.backgroundColor = ENVITheme.UIKit.surfaceLow
+        container.layer.cornerRadius = 12
+        container.clipsToBounds = true
+        container.translatesAutoresizingMaskIntoConstraints = false
+
+        let iconConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .medium)
+        let iconView = UIImageView(image: UIImage(systemName: "magnifyingglass", withConfiguration: iconConfig))
+        iconView.tintColor = ENVITheme.UIKit.textSecondary
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+
+        let placeholderLabel = UILabel()
+        placeholderLabel.text = "Search content, creators, tags..."
+        placeholderLabel.font = .interRegular(15)
+        placeholderLabel.textColor = ENVITheme.UIKit.textSecondary
+        placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        container.addSubview(iconView)
+        container.addSubview(placeholderLabel)
+
+        NSLayoutConstraint.activate([
+            container.heightAnchor.constraint(equalToConstant: 44),
+            iconView.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 14),
+            iconView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            placeholderLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 10),
+            placeholderLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            placeholderLabel.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -14),
+        ])
+
+        return container
+    }()
+
+    private let notificationsEmptyView: UIView = {
+        let container = UIView()
+        container.backgroundColor = ENVITheme.UIKit.surfaceLow
+        container.layer.cornerRadius = 16
+        container.translatesAutoresizingMaskIntoConstraints = false
+
+        let iconConfig = UIImage.SymbolConfiguration(pointSize: 32, weight: .light)
+        let bellIcon = UIImageView(image: UIImage(systemName: "bell.slash", withConfiguration: iconConfig))
+        bellIcon.tintColor = ENVITheme.UIKit.textSecondary
+        bellIcon.contentMode = .scaleAspectFit
+        bellIcon.translatesAutoresizingMaskIntoConstraints = false
+
         let label = UILabel()
-        label.font = .interRegular(15)
+        label.text = "No notifications yet"
+        label.font = .interSemiBold(15)
         label.textColor = ENVITheme.UIKit.textSecondary
-        label.numberOfLines = 0
         label.textAlignment = .center
-        label.text = "Explore is coming next. For now, your For You feed is fully interactive."
         label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+
+        let subtitleLabel = UILabel()
+        subtitleLabel.text = "We'll let you know when something happens."
+        subtitleLabel.font = .interRegular(13)
+        subtitleLabel.textColor = ENVITheme.UIKit.textSecondary
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        let stack = UIStackView(arrangedSubviews: [bellIcon, label, subtitleLabel])
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+
+        container.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+            stack.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            stack.leadingAnchor.constraint(greaterThanOrEqualTo: container.leadingAnchor, constant: 24),
+            stack.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -24),
+            container.heightAnchor.constraint(equalToConstant: 200),
+        ])
+
+        return container
     }()
 
     override func viewDidLoad() {
@@ -242,8 +351,12 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
                 contentStack.addArrangedSubview(cardView)
             }
         case .explore:
-            contentStack.addArrangedSubview(explorePlaceholderLabel)
+            contentStack.addArrangedSubview(explorePlaceholderView)
         }
+        // TODO: Optimize renderFeed for incremental updates — currently removes
+        // and re-creates all card views on every call. Switch to diffable data
+        // source or UICollectionView with DiffableDataSource to only insert/remove
+        // changed items and avoid unnecessary view recycling.
     }
 
     private func toggleBookmark(for id: UUID) {
@@ -309,17 +422,63 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
     }
 
     @objc private func searchTapped() {
-        presentPlaceholderAlert(title: "Search", message: "Global search is the next feed flow to wire up.")
+        let searchVC = UIViewController()
+        searchVC.view.backgroundColor = ENVITheme.UIKit.background
+
+        let closeButton = UIButton(type: .system)
+        closeButton.setImage(UIImage(systemName: "xmark"), for: .normal)
+        closeButton.tintColor = ENVITheme.UIKit.text
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.addAction(UIAction { _ in searchVC.dismiss(animated: true) }, for: .touchUpInside)
+
+        searchVC.view.addSubview(searchBarView)
+        searchVC.view.addSubview(closeButton)
+
+        NSLayoutConstraint.activate([
+            searchBarView.topAnchor.constraint(equalTo: searchVC.view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            searchBarView.leadingAnchor.constraint(equalTo: searchVC.view.leadingAnchor, constant: 16),
+            searchBarView.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor, constant: -12),
+            closeButton.centerYAnchor.constraint(equalTo: searchBarView.centerYAnchor),
+            closeButton.trailingAnchor.constraint(equalTo: searchVC.view.trailingAnchor, constant: -16),
+            closeButton.widthAnchor.constraint(equalToConstant: 44),
+            closeButton.heightAnchor.constraint(equalToConstant: 44),
+        ])
+
+        searchVC.modalPresentationStyle = .pageSheet
+        if let sheet = searchVC.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(searchVC, animated: true)
     }
 
     @objc private func notificationsTapped() {
-        presentPlaceholderAlert(title: "Notifications", message: "Notifications center is not wired yet.")
-    }
+        let notifVC = UIViewController()
+        notifVC.view.backgroundColor = ENVITheme.UIKit.background
 
-    private func presentPlaceholderAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+        let titleLabel = UILabel()
+        titleLabel.text = "NOTIFICATIONS"
+        titleLabel.font = .spaceMonoBold(18)
+        titleLabel.textColor = ENVITheme.UIKit.text
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        notifVC.view.addSubview(titleLabel)
+        notifVC.view.addSubview(notificationsEmptyView)
+
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: notifVC.view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            titleLabel.centerXAnchor.constraint(equalTo: notifVC.view.centerXAnchor),
+            notificationsEmptyView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 40),
+            notificationsEmptyView.leadingAnchor.constraint(equalTo: notifVC.view.leadingAnchor, constant: 24),
+            notificationsEmptyView.trailingAnchor.constraint(equalTo: notifVC.view.trailingAnchor, constant: -24),
+        ])
+
+        notifVC.modalPresentationStyle = .pageSheet
+        if let sheet = notifVC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(notifVC, animated: true)
     }
 
     private func updateTabSelection(animated: Bool) {

@@ -18,6 +18,7 @@ struct OnboardingContainerView: View {
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(ENVITheme.text(for: colorScheme))
                     }
+                    .accessibilityLabel("Go back")
                 } else {
                     Spacer().frame(width: 24)
                 }
@@ -29,6 +30,8 @@ struct OnboardingContainerView: View {
                     totalSteps: OnboardingViewModel.Step.allCases.count,
                     currentStep: viewModel.currentStep.rawValue
                 )
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Step \(viewModel.currentStep.rawValue + 1) of \(OnboardingViewModel.Step.allCases.count)")
 
                 Spacer()
 
@@ -40,6 +43,7 @@ struct OnboardingContainerView: View {
                     .font(.spaceMonoBold(13))
                     .tracking(1.5)
                     .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                    .accessibilityHint("Skips this optional step")
                 } else {
                     Spacer().frame(width: 88)
                 }

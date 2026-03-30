@@ -3,7 +3,7 @@ import SwiftUI
 /// Main library screen with filter chips, template carousel, and masonry grid.
 struct LibraryView: View {
     @StateObject private var viewModel = LibraryViewModel()
-    @State private var showAddFlowAlert = false
+    @State private var showAddSheet = false
     @State private var searchText = ""
     @Environment(\.colorScheme) private var colorScheme
 
@@ -44,7 +44,7 @@ struct LibraryView: View {
                     .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
                     .padding(.horizontal, ENVISpacing.xl)
 
-                    // Filter chips
+                    // Filter chips (animated on selection change)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: ENVISpacing.sm) {
                             ForEach(LibraryViewModel.FilterType.allCases, id: \.self) { filter in
@@ -58,6 +58,7 @@ struct LibraryView: View {
                         }
                         .padding(.horizontal, ENVISpacing.xl)
                     }
+                    .animation(.easeInOut, value: viewModel.selectedFilter)
 
                     if searchFilteredItems.isEmpty {
                         ENVIEmptyState(
@@ -83,7 +84,7 @@ struct LibraryView: View {
             }
 
             // FAB
-            Button(action: { showAddFlowAlert = true }) {
+            Button(action: { showAddSheet = true }) {
                 Image(systemName: "plus")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.black)
@@ -96,10 +97,28 @@ struct LibraryView: View {
             .padding(.bottom, 90)
         }
         .background(ENVITheme.background(for: colorScheme))
-        .alert("Add to Library", isPresented: $showAddFlowAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("Import and create flows are not wired yet. This should open a real add/import sheet in the next pass.")
+        .confirmationDialog("Add to Library", isPresented: $showAddSheet, titleVisibility: .visible) {
+            Button {
+                // TODO: Wire up photo picker
+            } label: {
+                Label("Photos", systemImage: "photo.on.rectangle")
+            }
+            Button {
+                // TODO: Wire up camera capture
+            } label: {
+                Label("Camera", systemImage: "camera")
+            }
+            Button {
+                // TODO: Wire up file import
+            } label: {
+                Label("Files", systemImage: "folder")
+            }
+            Button {
+                // TODO: Wire up template browser
+            } label: {
+                Label("Templates", systemImage: "doc.text")
+            }
+            Button("Cancel", role: .cancel) { }
         }
     }
 }

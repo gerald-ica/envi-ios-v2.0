@@ -25,6 +25,9 @@ struct ENVIChip: View {
                 )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     private var chipForeground: Color {

@@ -255,16 +255,28 @@ final class ExperimentTracker: ObservableObject {
 
     // MARK: - Persistence Helpers
 
+    // MIGRATION NOTE: If the Experiment struct changes (fields added/removed/renamed),
+    // bump a version constant here and add migration logic in loadExperiments()
+    // to decode the old format and re-encode in the new format, or clear stale data.
+    // Current schema version: 1
+
     private func saveExperiments() {
-        guard let data = try? JSONEncoder().encode(experiments) else { return }
-        UserDefaults.standard.set(data, forKey: storageKey)
+        do {
+            let data = try JSONEncoder().encode(experiments)
+            UserDefaults.standard.set(data, forKey: storageKey)
+        } catch {
+            print("[ExperimentTracker] Failed to encode experiments: \(error.localizedDescription)")
+        }
     }
 
     private func loadExperiments() {
-        guard let data = UserDefaults.standard.data(forKey: storageKey),
-              let loaded = try? JSONDecoder().decode([Experiment].self, from: data)
-        else { return }
-        experiments = loaded
+        guard let data = UserDefaults.standard.data(forKey: storageKey) else { return }
+        do {
+            experiments = try JSONDecoder().decode([Experiment].self, from: data)
+        } catch {
+            print("[ExperimentTracker] Failed to decode experiments (possible schema migration needed): \(error.localizedDescription)")
+            // Don't lose data — leave the raw data in UserDefaults for manual recovery
+        }
     }
 
     private func trimLogIfNeeded() {

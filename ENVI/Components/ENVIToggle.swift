@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Custom toggle switch for the ENVI design system.
 /// On state: white track + black thumb (dark mode). No purple.
@@ -37,6 +38,13 @@ struct ENVIToggle: View {
                 }
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(label ?? "Toggle")
+            .accessibilityValue(isOn ? "On" : "Off")
+            .accessibilityAddTraits(.isButton)
+        }
+        .onChange(of: isOn) { _, _ in
+            let generator = UIImpactFeedbackGenerator(style: .light)
+            generator.impactOccurred()
         }
     }
 }
