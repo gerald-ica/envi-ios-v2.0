@@ -80,7 +80,8 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
     private struct Config {
         /// Placeholder count for user's content library — each represents an edited piece.
-        static let contentPieceCount: Int = 2600
+        /// Keep this below the previous 2600-node spike so launch stays responsive on simulator.
+        static let contentPieceCount: Int = 1600
         static let streamLength: Float = 140
         static let streamRadius: Float = 7.2
         static let size: Float = 0.95

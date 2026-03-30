@@ -870,6 +870,9 @@ struct HelixSceneRepresentable: UIViewRepresentable {
         scnView.defaultCameraController.interactionMode = .orbitTurntable
         scnView.defaultCameraController.minimumVerticalAngle = -60
         scnView.defaultCameraController.maximumVerticalAngle = 60
+        scnView.isAccessibilityElement = false
+        scnView.accessibilityElementsHidden = true
+        scnView.shouldGroupAccessibilityChildren = false
 
         context.coordinator.setupScene(in: scnView)
 
