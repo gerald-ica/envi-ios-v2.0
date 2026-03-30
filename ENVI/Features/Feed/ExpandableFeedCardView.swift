@@ -269,6 +269,32 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     required init?(coder: NSCoder) { fatalError() }
 
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window != nil {
+            if let parentVC = findParentViewController() {
+                if insightHostingController.parent != parentVC {
+                    parentVC.addChild(insightHostingController)
+                    insightHostingController.didMove(toParent: parentVC)
+                }
+            }
+        } else {
+            if insightHostingController.parent != nil {
+                insightHostingController.willMove(toParent: nil)
+                insightHostingController.removeFromParent()
+            }
+        }
+    }
+
+    private func findParentViewController() -> UIViewController? {
+        var responder: UIResponder? = self
+        while let next = responder?.next {
+            if let vc = next as? UIViewController { return vc }
+            responder = next
+        }
+        return nil
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         imageGradientLayer.frame = mediaContainer.bounds
@@ -512,7 +538,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
             contentStack.trailingAnchor.constraint(equalTo: shellView.trailingAnchor),
             contentStack.bottomAnchor.constraint(equalTo: shellView.bottomAnchor),
 
-            mediaHeightConstraint!,
+            mediaHeightConstraint ?? mediaContainer.heightAnchor.constraint(equalToConstant: 480),
             imageView.topAnchor.constraint(equalTo: mediaContainer.topAnchor),
             imageView.leadingAnchor.constraint(equalTo: mediaContainer.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: mediaContainer.trailingAnchor),

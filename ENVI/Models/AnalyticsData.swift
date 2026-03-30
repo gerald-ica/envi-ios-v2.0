@@ -43,13 +43,21 @@ struct AnalyticsData {
             DailyMetric(day: "Sun", value: 2100),
         ],
         calendarDays: {
+            let platformCycle: [SocialPlatform] = [.instagram, .tiktok, .youtube]
             var days: [CalendarDay] = []
             let cal = Calendar.current
             let now = Date()
+            var platformIndex = 0
             for i in 0..<30 {
                 if let date = cal.date(byAdding: .day, value: -i, to: now) {
                     let hasContent = [0, 2, 3, 5, 7, 10, 12, 15, 18, 21, 24, 27].contains(i)
-                    let platform: SocialPlatform? = hasContent ? [.instagram, .tiktok, .youtube].randomElement() : nil
+                    let platform: SocialPlatform?
+                    if hasContent {
+                        platform = platformCycle[platformIndex % platformCycle.count]
+                        platformIndex += 1
+                    } else {
+                        platform = nil
+                    }
                     days.append(CalendarDay(date: date, hasContent: hasContent, platform: platform))
                 }
             }

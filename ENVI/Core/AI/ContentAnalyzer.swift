@@ -131,8 +131,8 @@ final class ContentAnalyzer: ObservableObject {
         // Average posting frequency
         let dates = realPieces.compactMap { parseDateString($0.createdAt) }.sorted()
         let avgFrequency: TimeInterval
-        if dates.count >= 2 {
-            let totalSpan = dates.last!.timeIntervalSince(dates.first!)
+        if dates.count >= 2, let first = dates.first, let last = dates.last {
+            let totalSpan = last.timeIntervalSince(first)
             avgFrequency = totalSpan / Double(dates.count - 1)
         } else {
             avgFrequency = 86400 * 3 // Default: every 3 days
@@ -286,9 +286,14 @@ final class ContentAnalyzer: ObservableObject {
     }
 
     /// Parse a date string in "yyyy-MM-dd" format.
-    private func parseDateString(_ dateString: String) -> Date? {
+    private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: dateString)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
+
+    private func parseDateString(_ dateString: String) -> Date? {
+        Self.dateFormatter.date(from: dateString)
     }
 }

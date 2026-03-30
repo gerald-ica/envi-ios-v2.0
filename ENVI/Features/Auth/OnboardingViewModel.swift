@@ -22,7 +22,8 @@ final class OnboardingViewModel: ObservableObject {
     @Published var lastName = ""
 
     // MARK: - Step 2: Date of Birth
-    @Published var dateOfBirth = OnboardingViewModel.makeDate(year: 1998, month: 1, day: 15)
+    @Published var hasEditedDOB = false
+    @Published var dateOfBirth = Date()
 
     // MARK: - Step 3: Birth Time
     @Published var hasEditedBirthTime = false
@@ -76,15 +77,18 @@ final class OnboardingViewModel: ObservableObject {
 
     // MARK: - Validation
     var isNameValid: Bool {
-        !firstName.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !lastName.trimmingCharacters(in: .whitespaces).isEmpty
+        let trimmedFirst = firstName.trimmingCharacters(in: .whitespaces)
+        let trimmedLast = lastName.trimmingCharacters(in: .whitespaces)
+        return !trimmedFirst.isEmpty && trimmedFirst.count <= 50 &&
+               !trimmedLast.isEmpty && trimmedLast.count <= 50
     }
 
     var isDOBValid: Bool {
-        birthDateRange.contains(dateOfBirth)
+        hasEditedDOB && birthDateRange.contains(dateOfBirth)
     }
 
     var isBirthTimeValid: Bool {
+        // Birth time is optional — always valid (user can skip this step)
         true
     }
 

@@ -165,6 +165,10 @@ struct WorldExplorerView: View {
                 bottomBar
             }
         }
+        .onDisappear {
+            voiceTimer?.invalidate()
+            voiceTimer = nil
+        }
         .preferredColorScheme(lightMode ? .light : .dark)
         .sheet(isPresented: $showSettings) {
             ContentLibrarySettingsView()
@@ -172,6 +176,10 @@ struct WorldExplorerView: View {
         .fullScreenCover(item: $editingContent) { piece in
             EditorContainerView(contentPiece: piece)
                 .preferredColorScheme(.dark)
+        }
+        .onDisappear {
+            voiceTimer?.invalidate()
+            voiceTimer = nil
         }
         .alert(item: $explorerNotice) { notice in
             Alert(

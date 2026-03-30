@@ -48,36 +48,26 @@ struct OnboardingContainerView: View {
             .padding(.vertical, ENVISpacing.md)
 
             // MARK: - Step Content
-            TabView(selection: $viewModel.currentStep) {
-                OnboardingNameView(viewModel: viewModel)
-                    .tag(OnboardingViewModel.Step.name)
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                OnboardingDOBView(viewModel: viewModel)
-                    .tag(OnboardingViewModel.Step.dateOfBirth)
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                OnboardingBirthTimeView(viewModel: viewModel)
-                    .tag(OnboardingViewModel.Step.birthTime)
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                OnboardingWhereFromView(viewModel: viewModel)
-                    .tag(OnboardingViewModel.Step.whereFrom)
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                OnboardingPhotosAccessView(viewModel: viewModel)
-                    .tag(OnboardingViewModel.Step.photosAccess)
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                OnboardingWhereBornView(viewModel: viewModel)
-                    .tag(OnboardingViewModel.Step.whereBorn)
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                OnboardingSocialsView(viewModel: viewModel)
-                    .tag(OnboardingViewModel.Step.socials)
-                    .padding(.horizontal, ENVISpacing.xl)
+            Group {
+                switch viewModel.currentStep {
+                case .name:
+                    OnboardingNameView(viewModel: viewModel)
+                case .dateOfBirth:
+                    OnboardingDOBView(viewModel: viewModel)
+                case .birthTime:
+                    OnboardingBirthTimeView(viewModel: viewModel)
+                case .whereFrom:
+                    OnboardingWhereFromView(viewModel: viewModel)
+                case .photosAccess:
+                    OnboardingPhotosAccessView(viewModel: viewModel)
+                case .whereBorn:
+                    OnboardingWhereBornView(viewModel: viewModel)
+                case .socials:
+                    OnboardingSocialsView(viewModel: viewModel)
+                }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
+            .padding(.horizontal, ENVISpacing.xl)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .animation(.easeInOut, value: viewModel.currentStep)
 
             // MARK: - Continue Button
@@ -117,7 +107,7 @@ private struct ProgressBarView: View {
 
     private func segmentColor(for index: Int) -> Color {
         if index < currentStep {
-            return ENVITheme.primary(for: colorScheme)
+            return ENVITheme.primary(for: colorScheme).opacity(0.4)
         } else if index == currentStep {
             return ENVITheme.primary(for: colorScheme)
         } else {

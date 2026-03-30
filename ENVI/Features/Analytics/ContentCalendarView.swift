@@ -6,7 +6,7 @@ struct ContentCalendarView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     private let columns = Array(repeating: GridItem(.flexible()), count: 7)
-    private let dayLabels = ["S", "M", "T", "W", "T", "F", "S"]
+    private let dayLabels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.md) {

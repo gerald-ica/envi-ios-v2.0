@@ -4,6 +4,7 @@ import SwiftUI
 struct ProgressOverlayView: View {
     @State private var progress: Double = 0
     @State private var currentStage = 0
+    @State private var progressTimer: Timer?
     var onDismiss: (() -> Void)?
 
     let stages = ["Analyzing", "Editing", "Rendering", "Done"]
@@ -51,18 +52,25 @@ struct ProgressOverlayView: View {
             }
         }
         .onAppear { startProgress() }
+        .onDisappear { stopProgress() }
     }
 
     private func startProgress() {
-        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+        progressTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
             if progress >= 1.0 {
                 timer.invalidate()
+                progressTimer = nil
                 currentStage = stages.count - 1
                 return
             }
             progress += 0.01
             currentStage = Int(progress * Double(stages.count - 1))
         }
+    }
+
+    private func stopProgress() {
+        progressTimer?.invalidate()
+        progressTimer = nil
     }
 }
 

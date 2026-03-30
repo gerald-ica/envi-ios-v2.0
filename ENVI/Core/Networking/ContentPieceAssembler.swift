@@ -131,10 +131,19 @@ final class ContentPieceAssembler: ObservableObject {
 
     /// Cancels all pending assembly operations.
     func cancelAll() {
+        let cancelled = completionHandlers
         completionHandlers.removeAll()
         queueCount = 0
         state = .idle
         delegate?.assembler(self, queueCountDidChange: 0)
+
+        // Call all pending completion handlers with a cancellation error so callers are not left waiting.
+        let error = NSError(domain: "com.envi.assembler", code: -999, userInfo: [
+            NSLocalizedDescriptionKey: "Assembly cancelled"
+        ])
+        for (_, handler) in cancelled {
+            handler(.failure(error))
+        }
     }
 
     /// Returns the assembly progress as a value between 0.0 and 1.0.

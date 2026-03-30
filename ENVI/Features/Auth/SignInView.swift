@@ -71,8 +71,11 @@ struct SignInView: View {
     }
 
     private var isValid: Bool {
-        !email.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !password.isEmpty
+        let trimmedEmail = email.trimmingCharacters(in: .whitespaces)
+        return !trimmedEmail.isEmpty &&
+               trimmedEmail.contains("@") &&
+               trimmedEmail.contains(".") &&
+               !password.isEmpty
     }
 }
 

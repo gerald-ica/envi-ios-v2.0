@@ -57,7 +57,7 @@ final class UserDefaultsManager {
 
     // MARK: - Reset (for testing)
     func resetAll() {
-        let domain = Bundle.main.bundleIdentifier!
+        guard let domain = Bundle.main.bundleIdentifier else { return }
         defaults.removePersistentDomain(forName: domain)
     }
 }

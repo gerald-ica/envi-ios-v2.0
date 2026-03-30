@@ -5,7 +5,7 @@ final class APIClient {
     static let shared = APIClient()
     private init() {}
 
-    let baseURL = URL(string: "https://api.envi.app/v1")!
+    let baseURL: URL = URL(string: "https://api.envi.app/v1") ?? URL(fileURLWithPath: "/")
 
     enum APIError: Error {
         case networkError

@@ -27,6 +27,9 @@ struct OnboardingDOBView: View {
                 .labelsHidden()
                 .frame(maxWidth: .infinity)
                 .clipped()
+                .onChange(of: viewModel.dateOfBirth) { _, _ in
+                    viewModel.hasEditedDOB = true
+                }
             }
 
             Spacer()
