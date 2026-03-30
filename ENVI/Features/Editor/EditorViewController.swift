@@ -6,6 +6,7 @@ final class EditorViewController: UIViewController {
 
     private let viewModel = EditorViewModel()
     private let contentItem: ContentItem?
+    private let contentPiece: ContentPiece?
     private var isPreviewPlaying = false
 
     // MARK: - Top Toolbar
@@ -75,8 +76,9 @@ final class EditorViewController: UIViewController {
         return b
     }()
 
-    init(contentItem: ContentItem? = nil) {
+    init(contentItem: ContentItem? = nil, contentPiece: ContentPiece? = nil) {
         self.contentItem = contentItem
+        self.contentPiece = contentPiece
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -131,11 +133,11 @@ final class EditorViewController: UIViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         previewView.insertSubview(imageView, at: 0)
 
-        if contentItem?.type == .textPost {
+        if isTextEditingContext {
             imageView.isHidden = true
             playButton.isHidden = true
             textPreviewLabel.isHidden = false
-            textPreviewLabel.text = contentItem?.bodyText ?? contentItem?.caption
+            textPreviewLabel.text = contentItem?.bodyText ?? contentItem?.caption ?? contentPiece?.description
         } else {
             textPreviewLabel.isHidden = true
             playButton.isHidden = false
@@ -261,11 +263,19 @@ final class EditorViewController: UIViewController {
     }
 
     @objc private func goBack() {
-        navigationController?.popViewController(animated: true)
+        if let navigationController, navigationController.viewControllers.count > 1 {
+            navigationController.popViewController(animated: true)
+            return
+        }
+
+        dismiss(animated: true)
     }
 
     @objc private func showExport() {
-        let exportView = ExportSheetView()
+        let exportView = ExportSheetView(
+            initialCaption: initialExportCaption,
+            preferredPlatform: preferredExportPlatform
+        )
         let hostingController = UIHostingController(rootView: exportView)
         hostingController.modalPresentationStyle = .pageSheet
         if let sheet = hostingController.sheetPresentationController {
@@ -290,7 +300,7 @@ final class EditorViewController: UIViewController {
     }
 
     private func previewImage() -> UIImage? {
-        guard let imageName = contentItem?.imageName else {
+        guard let imageName = contentItem?.imageName ?? contentPiece?.imageName else {
             return loadImage(named: "runway") ?? loadImage(named: "studio-fashion")
         }
 
@@ -298,14 +308,65 @@ final class EditorViewController: UIViewController {
     }
 
     private var editorTitle: String {
-        guard let contentItem else { return "EDIT" }
-        switch contentItem.platform {
-        case .x:
-            return "EDIT TWEET"
-        case .threads:
-            return "EDIT THREAD"
-        default:
-            return "EDIT"
+        if let contentItem {
+            switch contentItem.platform {
+            case .x:
+                return "EDIT TWEET"
+            case .threads:
+                return "EDIT THREAD"
+            default:
+                return "EDIT"
+            }
+        }
+
+        guard let contentPiece else { return "EDIT" }
+        switch contentPiece.type {
+        case .carousel:
+            return "EDIT CAROUSEL"
+        case .photo, .story:
+            return "EDIT PHOTO"
+        case .video, .reel:
+            return "EDIT VIDEO"
+        }
+    }
+
+    private var isTextEditingContext: Bool {
+        contentItem?.type == .textPost
+    }
+
+    private var initialExportCaption: String {
+        if let bodyText = contentItem?.bodyText, !bodyText.isEmpty {
+            return bodyText
+        }
+
+        if let caption = contentItem?.caption, !caption.isEmpty {
+            return caption
+        }
+
+        guard let contentPiece else {
+            return "Built in ENVI. Ready for your next post."
+        }
+
+        return "\(contentPiece.title) \(contentPiece.tags.prefix(2).map { "#\($0.replacingOccurrences(of: " ", with: ""))" }.joined(separator: " "))"
+    }
+
+    private var preferredExportPlatform: SocialPlatform? {
+        if let platform = contentItem?.platform {
+            return platform
+        }
+
+        guard let contentPiece else { return nil }
+        switch contentPiece.platform {
+        case .instagram:
+            return .instagram
+        case .tiktok:
+            return .tiktok
+        case .youtube:
+            return .youtube
+        case .twitter:
+            return .x
+        case .linkedin:
+            return .linkedin
         }
     }
 

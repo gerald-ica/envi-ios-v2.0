@@ -59,6 +59,7 @@ struct WorldExplorerView: View {
     @State private var timePosition: CGFloat = 0.5
     @State private var zoomLevel: ExplorerZoomLevel = .month
     @State private var showSettings: Bool = false
+    @State private var editingContent: ContentPiece?
 
     /// Reference to the scene controller for state sync
     @State private var sceneController: HelixSceneController?
@@ -139,6 +140,9 @@ struct WorldExplorerView: View {
                             selectedContentId = newContent.id
                         }
                         onNodeClick?(newContent.id)
+                    },
+                    onEdit: { piece in
+                        editingContent = piece
                     }
                 )
                 .transition(.opacity.combined(with: .scale(scale: 0.95)))
@@ -157,6 +161,10 @@ struct WorldExplorerView: View {
         .preferredColorScheme(lightMode ? .light : .dark)
         .sheet(isPresented: $showSettings) {
             ContentLibrarySettingsView()
+        }
+        .fullScreenCover(item: $editingContent) { piece in
+            EditorContainerView(contentPiece: piece)
+                .preferredColorScheme(.dark)
         }
     }
 
@@ -198,7 +206,7 @@ struct WorldExplorerView: View {
                 .textCase(.uppercase)
                 .padding(.bottom, ENVISpacing.md)
 
-            Text("Browse your content assets across time. Click any piece to preview, review AI suggestions, and edit.")
+            Text("Browse your content assets across time. Tap any piece to preview, review AI suggestions, and edit.")
                 .font(.spaceMono(11))
                 .lineSpacing(4)
                 .foregroundColor(lightMode ? .black.opacity(0.45) : .white.opacity(0.4))

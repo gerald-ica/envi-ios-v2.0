@@ -14,6 +14,7 @@ struct ContentNodeView: View {
     var lightMode: Bool = false
     let onClose: () -> Void
     var onNavigateToContent: ((ContentPiece) -> Void)?
+    var onEdit: ((ContentPiece) -> Void)?
 
     var body: some View {
         ZStack {
@@ -141,7 +142,7 @@ struct ContentNodeView: View {
                     .padding(.bottom, ENVISpacing.xxl)
 
                 // Content source context
-                Text(content.isFuture ? "✦ AI RECOMMENDED" : "From your content library")
+                Text(content.isFuture ? "✦ AI RECOMMENDED" : content.source.displayLabel.uppercased())
                     .font(.spaceMono(10))
                     .tracking(1.0)
                     .foregroundColor(content.isFuture
@@ -675,7 +676,9 @@ struct ContentNodeView: View {
     // MARK: - Edit CTA Button (type-specific, #30217C background)
 
     private var editCTAButton: some View {
-        Button(action: {}) {
+        Button {
+            onEdit?(content)
+        } label: {
             Text(editLabel.uppercased())
                 .font(.interBold(13))
                 .tracking(2.0)
