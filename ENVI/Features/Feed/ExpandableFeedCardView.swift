@@ -152,6 +152,19 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         return view
     }()
 
+    private let textMetricsStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.alignment = .trailing
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+
+    private let textConfidencePill = OverlayMetricPill()
+    private let textBestTimePill = OverlayMetricPill()
+    private let textReachPill = OverlayMetricPill()
+
     private let textPanelPlatformLabel: UILabel = {
         let label = UILabel()
         label.font = .spaceMonoBold(10)
@@ -296,6 +309,18 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
             text: item.estimatedReach.uppercased(),
             systemImageName: "eye"
         )
+        textConfidencePill.setContent(
+            text: "\(Int(item.confidenceScore * 100))%",
+            systemImageName: "sparkles"
+        )
+        textBestTimePill.setContent(
+            text: item.bestTime.uppercased(),
+            systemImageName: "clock"
+        )
+        textReachPill.setContent(
+            text: item.estimatedReach.uppercased(),
+            systemImageName: "eye"
+        )
 
         let bookmarkConfig = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         let bookmarkName = item.isBookmarked ? "bookmark.fill" : "bookmark"
@@ -367,6 +392,9 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         if isDetailPresentation {
             destinationRow.isHidden = true
             insightHostingController.view.isHidden = true
+        } else if item?.type == .textPost {
+            destinationRow.isHidden = false
+            insightHostingController.view.isHidden = true
         } else {
             destinationRow.isHidden = isCurrentItemExpandable ? !shouldExpand : false
             insightHostingController.view.isHidden = isCurrentItemExpandable ? !shouldExpand : false
@@ -420,9 +448,14 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         mediaFooterRow.addArrangedSubview(mediaBookmarkButton)
         mediaHeightConstraint = mediaContainer.heightAnchor.constraint(equalToConstant: 480)
 
+        textPanel.addSubview(textMetricsStack)
         textPanel.addSubview(textPanelPlatformLabel)
         textPanel.addSubview(textPanelTitleLabel)
         textPanel.addSubview(textPanelBodyLabel)
+
+        textMetricsStack.addArrangedSubview(textConfidencePill)
+        textMetricsStack.addArrangedSubview(textBestTimePill)
+        textMetricsStack.addArrangedSubview(textReachPill)
 
         destinationRow.axis = .horizontal
         destinationRow.spacing = 10
@@ -514,9 +547,12 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
             mediaPlatformIconView.widthAnchor.constraint(equalToConstant: 14),
             mediaPlatformIconView.heightAnchor.constraint(equalToConstant: 14),
 
+            textMetricsStack.topAnchor.constraint(equalTo: textPanel.topAnchor, constant: 16),
+            textMetricsStack.trailingAnchor.constraint(equalTo: textPanel.trailingAnchor, constant: -16),
+
             textPanelPlatformLabel.topAnchor.constraint(equalTo: textPanel.topAnchor, constant: 16),
             textPanelPlatformLabel.leadingAnchor.constraint(equalTo: textPanel.leadingAnchor, constant: 16),
-            textPanelPlatformLabel.trailingAnchor.constraint(lessThanOrEqualTo: textPanel.trailingAnchor, constant: -16),
+            textPanelPlatformLabel.trailingAnchor.constraint(lessThanOrEqualTo: textMetricsStack.leadingAnchor, constant: -12),
 
             textPanelTitleLabel.topAnchor.constraint(equalTo: textPanelPlatformLabel.bottomAnchor, constant: 12),
             textPanelTitleLabel.leadingAnchor.constraint(equalTo: textPanel.leadingAnchor, constant: 16),
