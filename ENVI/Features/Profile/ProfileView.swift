@@ -22,7 +22,7 @@ struct ProfileView: View {
                     Text(viewModel.user.initials)
                         .font(.spaceMonoBold(28))
                         .tracking(-1.0)
-                        .foregroundColor(.white)
+                        .foregroundColor(ENVITheme.text(for: colorScheme))
                 }
 
                 // Name + Handle

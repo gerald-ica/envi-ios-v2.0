@@ -13,7 +13,7 @@ final class EditorViewController: UIViewController {
     // MARK: - Top Toolbar
     private let topBar: UIView = {
         let v = UIView()
-        v.backgroundColor = ENVITheme.UIKit.backgroundDark
+        v.backgroundColor = ENVITheme.UIKit.background
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
     }()
@@ -22,7 +22,7 @@ final class EditorViewController: UIViewController {
         let b = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         b.setImage(UIImage(systemName: "chevron.left", withConfiguration: config), for: .normal)
-        b.tintColor = .white
+        b.tintColor = ENVITheme.UIKit.text
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
     }()
@@ -31,7 +31,7 @@ final class EditorViewController: UIViewController {
         let l = UILabel()
         l.text = "EDIT"
         l.font = .spaceMonoBold(17)
-        l.textColor = .white
+        l.textColor = ENVITheme.UIKit.text
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
     }()
@@ -39,8 +39,8 @@ final class EditorViewController: UIViewController {
     private let exportButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.title = "EXPORT"
-        config.baseBackgroundColor = .white
-        config.baseForegroundColor = .black
+        config.baseBackgroundColor = ENVITheme.UIKit.text
+        config.baseForegroundColor = ENVITheme.UIKit.background
         config.cornerStyle = .medium
         config.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
         let b = UIButton(configuration: config)
@@ -51,7 +51,7 @@ final class EditorViewController: UIViewController {
     // MARK: - Preview Area
     private let previewView: UIView = {
         let v = UIView()
-        v.backgroundColor = ENVITheme.UIKit.surfaceLowDark
+        v.backgroundColor = ENVITheme.UIKit.surfaceLow
         v.layer.cornerRadius = ENVIRadius.lg
         v.clipsToBounds = true
         v.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +61,7 @@ final class EditorViewController: UIViewController {
     private let textPreviewLabel: UILabel = {
         let label = UILabel()
         label.font = .interRegular(18)
-        label.textColor = .white
+        label.textColor = ENVITheme.UIKit.text
         label.numberOfLines = 0
         label.isHidden = true
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -72,7 +72,7 @@ final class EditorViewController: UIViewController {
         let b = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 36, weight: .medium)
         b.setImage(UIImage(systemName: "play.circle", withConfiguration: config), for: .normal)
-        b.tintColor = .white
+        b.tintColor = ENVITheme.UIKit.text
         b.translatesAutoresizingMaskIntoConstraints = false
         return b
     }()
@@ -88,7 +88,7 @@ final class EditorViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        view.backgroundColor = ENVITheme.UIKit.background
         titleLabel.text = editorTitle
         setupTopBar()
         setupPreview()
@@ -170,7 +170,7 @@ final class EditorViewController: UIViewController {
         let timelineLabel = UILabel()
         timelineLabel.text = "Timeline"
         timelineLabel.font = .spaceMono(11)
-        timelineLabel.textColor = ENVITheme.UIKit.textLightDark
+        timelineLabel.textColor = ENVITheme.UIKit.textSecondary
         timelineLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(timelineLabel)
 
@@ -192,7 +192,7 @@ final class EditorViewController: UIViewController {
             let label = UILabel()
             label.text = trackName
             label.font = .spaceMonoBold(9)
-            label.textColor = ENVITheme.UIKit.textLightDark
+            label.textColor = ENVITheme.UIKit.textSecondary
             label.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(label)
             NSLayoutConstraint.activate([
@@ -204,13 +204,13 @@ final class EditorViewController: UIViewController {
 
     private func createTrackView(name: String) -> UIView {
         let v = UIView()
-        v.backgroundColor = ENVITheme.UIKit.surfaceLowDark
+        v.backgroundColor = ENVITheme.UIKit.surfaceLow
         v.layer.cornerRadius = 4
         v.translatesAutoresizingMaskIntoConstraints = false
 
         // Clip indicator
         let clip = UIView()
-        clip.backgroundColor = UIColor.white.withAlphaComponent(0.4)
+        clip.backgroundColor = ENVITheme.UIKit.textSecondary
         clip.layer.cornerRadius = 3
         clip.translatesAutoresizingMaskIntoConstraints = false
         v.addSubview(clip)
@@ -240,7 +240,7 @@ final class EditorViewController: UIViewController {
             btnConfig.title = title
             btnConfig.imagePlacement = .top
             btnConfig.imagePadding = 4
-            btnConfig.baseForegroundColor = ENVITheme.UIKit.textLightDark
+            btnConfig.baseForegroundColor = ENVITheme.UIKit.textSecondary
 
             let button = UIButton(configuration: btnConfig)
             button.tag = index

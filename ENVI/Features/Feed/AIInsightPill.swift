@@ -10,6 +10,7 @@ struct AIInsightPill: View {
     }
 
     let type: InsightType
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         HStack(spacing: 4) {
@@ -20,10 +21,10 @@ struct AIInsightPill: View {
                 .font(.spaceMonoBold(10))
                 .tracking(2.0)
         }
-        .foregroundColor(.white)
+        .foregroundColor(ENVITheme.text(for: colorScheme))
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(Color.white.opacity(0.15))
+        .background(ENVITheme.text(for: colorScheme).opacity(0.15))
         .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
     }
 

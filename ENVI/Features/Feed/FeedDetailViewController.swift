@@ -22,7 +22,7 @@ final class FeedDetailViewController: UIViewController {
     private let backButton: UIButton = {
         var config = UIButton.Configuration.plain()
         config.image = UIImage(systemName: "chevron.left")
-        config.baseForegroundColor = .white
+        config.baseForegroundColor = ENVITheme.UIKit.text
         config.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10)
         let button = UIButton(configuration: config)
         button.backgroundColor = UIColor.black.withAlphaComponent(0.42)
@@ -44,7 +44,7 @@ final class FeedDetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        view.backgroundColor = ENVITheme.UIKit.background
         navigationController?.setNavigationBarHidden(true, animated: false)
 
         setupLayout()

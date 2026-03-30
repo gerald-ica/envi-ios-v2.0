@@ -39,7 +39,7 @@ struct ConnectedPlatformsView: View {
                     // Status badge
                     ENVIBadge(
                         text: connection.isConnected ? "Connected" : "Connect",
-                        color: connection.isConnected ? ENVITheme.success : ENVITheme.Dark.surfaceHigh
+                        color: connection.isConnected ? ENVITheme.success : ENVITheme.surfaceHigh(for: colorScheme)
                     )
                 }
                 .padding(.vertical, ENVISpacing.xs)

@@ -146,7 +146,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     private let textPanel: UIView = {
         let view = UIView()
-        view.backgroundColor = ENVITheme.UIKit.surfaceHighDark
+        view.backgroundColor = ENVITheme.UIKit.surfaceHigh
         view.layer.cornerRadius = ENVIRadius.lg
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -168,7 +168,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
     private let textPanelPlatformLabel: UILabel = {
         let label = UILabel()
         label.font = .spaceMonoBold(10)
-        label.textColor = .white
+        label.textColor = ENVITheme.UIKit.text
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -176,7 +176,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
     private let textPanelTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .interSemiBold(20)
-        label.textColor = .white
+        label.textColor = ENVITheme.UIKit.text
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -185,7 +185,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
     private let textPanelBodyLabel: UILabel = {
         let label = UILabel()
         label.font = .interRegular(16)
-        label.textColor = UIColor.white.withAlphaComponent(0.88)
+        label.textColor = ENVITheme.UIKit.textSecondary
         label.numberOfLines = 5
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -209,7 +209,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
     private let destinationTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .interSemiBold(15)
-        label.textColor = .white
+        label.textColor = ENVITheme.UIKit.text
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -217,7 +217,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
     private let destinationSubtitleLabel: UILabel = {
         let label = UILabel()
         label.font = .interRegular(13)
-        label.textColor = UIColor.white.withAlphaComponent(0.62)
+        label.textColor = ENVITheme.UIKit.textSecondary
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -228,7 +228,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         button.setImage(UIImage(systemName: "bookmark", withConfiguration: config), for: .normal)
-        button.tintColor = .white
+        button.tintColor = ENVITheme.UIKit.text
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -249,8 +249,8 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     private let editButton: UIButton = {
         var config = UIButton.Configuration.filled()
-        config.baseBackgroundColor = .white
-        config.baseForegroundColor = .black
+        config.baseBackgroundColor = ENVITheme.UIKit.text
+        config.baseForegroundColor = ENVITheme.UIKit.background
         config.cornerStyle = .large
         config.contentInsets = NSDirectionalEdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16)
         let button = UIButton(configuration: config)
@@ -860,19 +860,19 @@ private final class OverlayMetricPill: PaddingLabel {
 private final class FeedStatChip: UIView {
     init(title: String, value: String) {
         super.init(frame: .zero)
-        backgroundColor = ENVITheme.UIKit.surfaceHighDark
+        backgroundColor = ENVITheme.UIKit.surfaceHigh
         layer.cornerRadius = ENVIRadius.md
         translatesAutoresizingMaskIntoConstraints = false
 
         let titleLabel = UILabel()
         titleLabel.font = .spaceMonoBold(10)
-        titleLabel.textColor = UIColor.white.withAlphaComponent(0.58)
+        titleLabel.textColor = ENVITheme.UIKit.textSecondary
         titleLabel.text = title
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let valueLabel = UILabel()
         valueLabel.font = .interSemiBold(13)
-        valueLabel.textColor = .white
+        valueLabel.textColor = ENVITheme.UIKit.text
         valueLabel.numberOfLines = 0
         valueLabel.text = value
         valueLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -899,7 +899,7 @@ private final class FeedDetailSectionCard: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .spaceMonoBold(10)
-        label.textColor = UIColor.white.withAlphaComponent(0.56)
+        label.textColor = ENVITheme.UIKit.textSecondary
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -907,7 +907,7 @@ private final class FeedDetailSectionCard: UIView {
     private let bodyLabel: UILabel = {
         let label = UILabel()
         label.font = .interRegular(14)
-        label.textColor = UIColor.white.withAlphaComponent(0.86)
+        label.textColor = ENVITheme.UIKit.text
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -915,7 +915,7 @@ private final class FeedDetailSectionCard: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = ENVITheme.UIKit.surfaceHighDark
+        backgroundColor = ENVITheme.UIKit.surfaceHigh
         layer.cornerRadius = ENVIRadius.md
         translatesAutoresizingMaskIntoConstraints = false
 

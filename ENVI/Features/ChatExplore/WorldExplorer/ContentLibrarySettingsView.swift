@@ -7,6 +7,7 @@ import SwiftUI
 struct ContentLibrarySettingsView: View {
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
 
     // MARK: - State
 
@@ -51,18 +52,18 @@ struct ContentLibrarySettingsView: View {
                                 HStack(spacing: ENVISpacing.md) {
                                     Image(systemName: source == .photoLibrary ? "photo.on.rectangle" : "square.stack.3d.up")
                                         .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(contentSource == source ? .white : .white.opacity(0.4))
+                                        .foregroundColor(contentSource == source ? ENVITheme.text(for: colorScheme) : ENVITheme.textSecondary(for: colorScheme))
                                         .frame(width: 24)
 
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(source.rawValue.uppercased())
                                             .font(.spaceMonoBold(11))
                                             .tracking(2.0)
-                                            .foregroundColor(contentSource == source ? .white : .white.opacity(0.5))
+                                            .foregroundColor(contentSource == source ? ENVITheme.text(for: colorScheme) : ENVITheme.textSecondary(for: colorScheme))
 
                                         Text(source.description)
                                             .font(.spaceMono(10))
-                                            .foregroundColor(.white.opacity(0.3))
+                                            .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                                             .lineSpacing(2)
                                     }
 
@@ -71,14 +72,14 @@ struct ContentLibrarySettingsView: View {
                                     if contentSource == source {
                                         Image(systemName: "checkmark.circle.fill")
                                             .font(.system(size: 18))
-                                            .foregroundColor(ENVITheme.Dark.accent)
+                                            .foregroundColor(ENVITheme.accent(for: colorScheme))
                                     }
                                 }
                                 .padding(ENVISpacing.lg)
                                 .background(
                                     RoundedRectangle(cornerRadius: ENVIRadius.lg)
                                         .fill(contentSource == source
-                                            ? Color.white.opacity(0.05)
+                                            ? ENVITheme.border(for: colorScheme)
                                             : Color.clear
                                         )
                                 )
@@ -86,8 +87,8 @@ struct ContentLibrarySettingsView: View {
                                     RoundedRectangle(cornerRadius: ENVIRadius.lg)
                                         .strokeBorder(
                                             contentSource == source
-                                                ? Color.white.opacity(0.15)
-                                                : Color.white.opacity(0.05),
+                                                ? ENVITheme.border(for: colorScheme)
+                                                : ENVITheme.border(for: colorScheme),
                                             lineWidth: 0.5
                                         )
                                 )
@@ -100,7 +101,7 @@ struct ContentLibrarySettingsView: View {
                     // Info text
                     Text("Content pieces are assembled from your camera roll. ENVI automatically edits and creates short-form media from your photos and videos.")
                         .font(.spaceMono(10))
-                        .foregroundColor(.white.opacity(0.3))
+                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                         .lineSpacing(3)
                         .padding(.bottom, ENVISpacing.xxxl)
 
@@ -114,25 +115,25 @@ struct ContentLibrarySettingsView: View {
                             Text("AUTO-CREATE CONTENT")
                                 .font(.spaceMonoBold(11))
                                 .tracking(2.0)
-                                .foregroundColor(.white.opacity(0.7))
+                                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                             Text("ENVI will automatically generate short-form content from new camera roll items")
                                 .font(.spaceMono(10))
-                                .foregroundColor(.white.opacity(0.3))
+                                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                                 .lineSpacing(2)
                         }
                         Spacer()
                         Toggle("", isOn: $autoCreateContent)
                             .labelsHidden()
-                            .tint(ENVITheme.Dark.accent)
+                            .tint(ENVITheme.accent(for: colorScheme))
                     }
                     .padding(ENVISpacing.lg)
                     .background(
                         RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                            .fill(Color.white.opacity(0.03))
+                            .fill(ENVITheme.surfaceLow(for: colorScheme).opacity(0.5))
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                            .strokeBorder(Color.white.opacity(0.05), lineWidth: 0.5)
+                            .strokeBorder(ENVITheme.border(for: colorScheme), lineWidth: 0.5)
                     )
                     .padding(.bottom, ENVISpacing.xxxl)
 
@@ -157,7 +158,7 @@ struct ContentLibrarySettingsView: View {
 
                     Text("Choose which content types to display in the explorer")
                         .font(.spaceMono(10))
-                        .foregroundColor(.white.opacity(0.3))
+                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                         .padding(.bottom, ENVISpacing.md)
 
                     VStack(spacing: ENVISpacing.sm) {
@@ -172,7 +173,7 @@ struct ContentLibrarySettingsView: View {
                 .padding(.horizontal, ENVISpacing.xxl)
                 .padding(.vertical, ENVISpacing.xl)
             }
-            .background(Color.black.ignoresSafeArea())
+            .background(ENVITheme.background(for: colorScheme).ignoresSafeArea())
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -180,7 +181,7 @@ struct ContentLibrarySettingsView: View {
                     Text("SETTINGS")
                         .font(.spaceMonoBold(12))
                         .tracking(2.5)
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -189,12 +190,11 @@ struct ContentLibrarySettingsView: View {
                         Text("DONE")
                             .font(.spaceMonoBold(11))
                             .tracking(2.0)
-                            .foregroundColor(.white.opacity(0.6))
+                            .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                     }
                 }
             }
         }
-        .preferredColorScheme(.dark)
     }
 
     // MARK: - Subviews
@@ -204,9 +204,9 @@ struct ContentLibrarySettingsView: View {
             Text(title)
                 .font(.spaceMonoBold(10))
                 .tracking(2.5)
-                .foregroundColor(.white.opacity(0.35))
+                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
             Rectangle()
-                .fill(Color.white.opacity(0.05))
+                .fill(ENVITheme.border(for: colorScheme))
                 .frame(height: 0.5)
         }
         .padding(.bottom, ENVISpacing.lg)
@@ -214,7 +214,7 @@ struct ContentLibrarySettingsView: View {
 
     private var divider: some View {
         Rectangle()
-            .fill(Color.white.opacity(0.06))
+            .fill(ENVITheme.border(for: colorScheme))
             .frame(height: 0.5)
             .padding(.bottom, ENVISpacing.xxl)
     }
@@ -223,13 +223,13 @@ struct ContentLibrarySettingsView: View {
         HStack(spacing: ENVISpacing.md) {
             Image(systemName: icon)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(connected ? .white.opacity(0.7) : .white.opacity(0.3))
+                .foregroundColor(connected ? ENVITheme.textSecondary(for: colorScheme) : ENVITheme.textSecondary(for: colorScheme).opacity(0.5))
                 .frame(width: 20)
 
             Text(platform.uppercased())
                 .font(.spaceMonoBold(11))
                 .tracking(2.0)
-                .foregroundColor(connected ? .white.opacity(0.7) : .white.opacity(0.4))
+                .foregroundColor(connected ? ENVITheme.textSecondary(for: colorScheme) : ENVITheme.textSecondary(for: colorScheme).opacity(0.5))
 
             Spacer()
 
@@ -248,12 +248,12 @@ struct ContentLibrarySettingsView: View {
                     Text("CONNECT")
                         .font(.spaceMonoBold(9))
                         .tracking(1.5)
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                         .padding(.horizontal, ENVISpacing.sm)
                         .padding(.vertical, ENVISpacing.xs)
                         .overlay(
                             RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                                .strokeBorder(Color.white.opacity(0.15), lineWidth: 0.5)
+                                .strokeBorder(ENVITheme.border(for: colorScheme), lineWidth: 0.5)
                         )
                 }
             }
@@ -262,11 +262,11 @@ struct ContentLibrarySettingsView: View {
         .padding(.horizontal, ENVISpacing.lg)
         .background(
             RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                .fill(Color.white.opacity(0.03))
+                .fill(ENVITheme.surfaceLow(for: colorScheme).opacity(0.5))
         )
         .overlay(
             RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                .strokeBorder(Color.white.opacity(0.05), lineWidth: 0.5)
+                .strokeBorder(ENVITheme.border(for: colorScheme), lineWidth: 0.5)
         )
     }
 
@@ -275,23 +275,23 @@ struct ContentLibrarySettingsView: View {
             Text(label)
                 .font(.spaceMonoBold(11))
                 .tracking(2.0)
-                .foregroundColor(isOn.wrappedValue ? .white.opacity(0.7) : .white.opacity(0.3))
+                .foregroundColor(isOn.wrappedValue ? ENVITheme.textSecondary(for: colorScheme) : ENVITheme.textSecondary(for: colorScheme).opacity(0.5))
 
             Spacer()
 
             Toggle("", isOn: isOn)
                 .labelsHidden()
-                .tint(ENVITheme.Dark.accent)
+                .tint(ENVITheme.accent(for: colorScheme))
         }
         .padding(.vertical, ENVISpacing.sm)
         .padding(.horizontal, ENVISpacing.lg)
         .background(
             RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                .fill(Color.white.opacity(0.03))
+                .fill(ENVITheme.surfaceLow(for: colorScheme).opacity(0.5))
         )
         .overlay(
             RoundedRectangle(cornerRadius: ENVIRadius.lg)
-                .strokeBorder(Color.white.opacity(0.05), lineWidth: 0.5)
+                .strokeBorder(ENVITheme.border(for: colorScheme), lineWidth: 0.5)
         )
     }
 }

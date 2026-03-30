@@ -54,12 +54,12 @@ struct VoiceInputView: View {
 
                         Text("ENVI listening…")
                             .font(.interMedium(12))
-                            .foregroundColor(.white)
+                            .foregroundColor(ENVITheme.Dark.text)
                             .tracking(-0.12) // -0.01em
 
                         Text(timerLabel)
                             .font(.spaceMono(10))
-                            .foregroundColor(.white.opacity(0.4))
+                            .foregroundColor(ENVITheme.Dark.textSecondary)
                             .monospacedDigit()
                     }
 
@@ -76,7 +76,7 @@ struct VoiceInputView: View {
 
                             Image(systemName: "xmark")
                                 .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(.white)
+                                .foregroundColor(ENVITheme.Dark.text)
                         }
                     }
                     .buttonStyle(.plain)
@@ -166,7 +166,7 @@ struct VoiceInputView: View {
                     HStack(spacing: 2.5) {
                         ForEach(0..<4, id: \.self) { _ in
                             RoundedRectangle(cornerRadius: 1)
-                                .fill(Color.white.opacity(0.88))
+                                .fill(ENVITheme.Dark.text.opacity(0.88))
                                 .frame(width: 3.5, height: 3.5)
                         }
                     }
@@ -182,7 +182,7 @@ struct VoiceInputView: View {
         HStack(alignment: .bottom, spacing: 2) {
             ForEach(Array([5, 10, 14, 8, 5].enumerated()), id: \.offset) { index, height in
                 RoundedRectangle(cornerRadius: 1.5)
-                    .fill(Color.white.opacity(0.75))
+                    .fill(ENVITheme.Dark.text.opacity(0.75))
                     .frame(width: 2.5, height: isAnimating ? CGFloat(height) : CGFloat(height) * 0.4)
                     .animation(
                         .easeInOut(duration: 1.0)

@@ -50,7 +50,6 @@ struct ChatExploreView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(ENVITheme.background(for: colorScheme))
-        .preferredColorScheme(.dark)
     }
 
     // MARK: - Segmented Control
@@ -77,14 +76,14 @@ struct ChatExploreView: View {
             Text(mode.rawValue)
                 .font(.custom("SpaceMono-Regular", size: 11))
                 .tracking(11 * 0.15) // 0.15em relative to font size
-                .foregroundColor(isSelected ? .white : .white.opacity(0.5))
+                .foregroundColor(isSelected ? ENVITheme.text(for: colorScheme) : ENVITheme.textSecondary(for: colorScheme))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, ENVISpacing.sm)
                 .background(
                     Group {
                         if isSelected {
                             RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                                .fill(ENVITheme.Dark.surfaceHigh)
+                                .fill(ENVITheme.surfaceHigh(for: colorScheme))
                         }
                     }
                 )
@@ -97,7 +96,7 @@ struct ChatExploreView: View {
 
     private var divider: some View {
         Rectangle()
-            .fill(Color.white.opacity(0.08))
+            .fill(ENVITheme.border(for: colorScheme))
             .frame(height: 0.5)
     }
 }

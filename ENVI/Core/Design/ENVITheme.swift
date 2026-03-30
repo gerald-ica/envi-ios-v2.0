@@ -110,6 +110,7 @@ enum ENVITheme {
 
     // MARK: - UIKit Colors (monochromatic, matching SwiftUI tokens)
     enum UIKit {
+        // Legacy dark-only tokens (kept for backward compat)
         static let backgroundDark   = UIColor(hex: "#000000")
         static let surfaceLowDark   = UIColor(hex: "#1A1A1A")
         static let surfaceHighDark  = UIColor(hex: "#2A2A2A")
@@ -117,5 +118,34 @@ enum ENVITheme {
         static let secondaryDark    = UIColor.white.withAlphaComponent(0.7)
         static let textDark         = UIColor.white
         static let textLightDark    = UIColor.white.withAlphaComponent(0.7)
+
+        // Dynamic colors that adapt to light/dark mode
+        static let background = UIColor { traits in
+            traits.userInterfaceStyle == .dark ? UIColor(hex: "#000000") : UIColor(hex: "#FFFFFF")
+        }
+
+        static let surfaceLow = UIColor { traits in
+            traits.userInterfaceStyle == .dark ? UIColor(hex: "#1A1A1A") : UIColor(hex: "#F4F4F4")
+        }
+
+        static let surfaceHigh = UIColor { traits in
+            traits.userInterfaceStyle == .dark ? UIColor(hex: "#2A2A2A") : UIColor(hex: "#E8E8E8")
+        }
+
+        static let text = UIColor { traits in
+            traits.userInterfaceStyle == .dark ? UIColor.white : UIColor.black
+        }
+
+        static let textSecondary = UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor.white.withAlphaComponent(0.7)
+                : UIColor.black.withAlphaComponent(0.7)
+        }
+
+        static let border = UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor.white.withAlphaComponent(0.12)
+                : UIColor.black.withAlphaComponent(0.12)
+        }
     }
 }

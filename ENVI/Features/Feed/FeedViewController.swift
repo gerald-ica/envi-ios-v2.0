@@ -13,7 +13,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
     // MARK: - Top Nav
     private let topNavBar: UIView = {
         let view = UIView()
-        view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        view.backgroundColor = ENVITheme.UIKit.background
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -22,7 +22,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         let label = UILabel()
         label.text = "ENVI"
         label.font = .spaceMonoBold(22)
-        label.textColor = .white
+        label.textColor = ENVITheme.UIKit.text
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -31,7 +31,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         let button = UIButton(type: .system)
         button.setTitle("FOR YOU", for: .normal)
         button.titleLabel?.font = .spaceMonoBold(15)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(ENVITheme.UIKit.text, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -40,7 +40,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         let button = UIButton(type: .system)
         button.setTitle("EXPLORE", for: .normal)
         button.titleLabel?.font = .spaceMonoBold(15)
-        button.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
+        button.setTitleColor(ENVITheme.UIKit.textSecondary, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -49,7 +49,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         button.setImage(UIImage(systemName: "magnifyingglass", withConfiguration: config), for: .normal)
-        button.tintColor = .white
+        button.tintColor = ENVITheme.UIKit.text
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -58,14 +58,14 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .medium)
         button.setImage(UIImage(systemName: "bell", withConfiguration: config), for: .normal)
-        button.tintColor = .white
+        button.tintColor = ENVITheme.UIKit.text
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     private let tabIndicator: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
+        view.backgroundColor = ENVITheme.UIKit.text
         view.layer.cornerRadius = 1.5
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -93,7 +93,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
     private let sectionHeaderLabel: UILabel = {
         let label = UILabel()
         label.font = .interSemiBold(14)
-        label.textColor = UIColor.white.withAlphaComponent(0.72)
+        label.textColor = ENVITheme.UIKit.textSecondary
         label.numberOfLines = 0
         label.text = "Fresh concepts across your connected platforms."
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -103,7 +103,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
     private let explorePlaceholderLabel: UILabel = {
         let label = UILabel()
         label.font = .interRegular(15)
-        label.textColor = UIColor.white.withAlphaComponent(0.72)
+        label.textColor = ENVITheme.UIKit.textSecondary
         label.numberOfLines = 0
         label.textAlignment = .center
         label.text = "Explore is coming next. For now, your For You feed is fully interactive."
@@ -113,7 +113,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        view.backgroundColor = ENVITheme.UIKit.background
         navigationController?.setNavigationBarHidden(true, animated: false)
 
         setupTopNav()
@@ -326,8 +326,8 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         let selectedButton = viewModel.selectedTab == .forYou ? forYouButton : exploreButton
         let deselectedButton = viewModel.selectedTab == .forYou ? exploreButton : forYouButton
 
-        selectedButton.setTitleColor(.white, for: .normal)
-        deselectedButton.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
+        selectedButton.setTitleColor(ENVITheme.UIKit.text, for: .normal)
+        deselectedButton.setTitleColor(ENVITheme.UIKit.textSecondary, for: .normal)
 
         let updates = {
             self.tabIndicatorCenterX?.isActive = false
