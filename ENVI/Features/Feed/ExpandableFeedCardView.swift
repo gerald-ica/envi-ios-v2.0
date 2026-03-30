@@ -19,9 +19,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     private let shellView: UIView = {
         let view = UIView()
-        view.backgroundColor = ENVITheme.UIKit.surfaceLowDark
-        view.layer.cornerRadius = ENVIRadius.xl
-        view.clipsToBounds = true
+        view.backgroundColor = .clear
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -29,7 +27,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
     private let contentStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 14
+        stack.spacing = 0
         stack.translatesAutoresizingMaskIntoConstraints = false
         return stack
     }()
@@ -434,16 +432,21 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
         contentStack.addArrangedSubview(insightHostingController.view)
         contentStack.addArrangedSubview(detailContainer)
 
+        contentStack.setCustomSpacing(14, after: mediaContainer)
+        contentStack.setCustomSpacing(14, after: textPanel)
+        contentStack.setCustomSpacing(14, after: destinationRow)
+        contentStack.setCustomSpacing(14, after: insightHostingController.view)
+
         NSLayoutConstraint.activate([
             shellView.topAnchor.constraint(equalTo: topAnchor),
             shellView.leadingAnchor.constraint(equalTo: leadingAnchor),
             shellView.trailingAnchor.constraint(equalTo: trailingAnchor),
             shellView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            contentStack.topAnchor.constraint(equalTo: shellView.topAnchor, constant: 16),
-            contentStack.leadingAnchor.constraint(equalTo: shellView.leadingAnchor, constant: 16),
-            contentStack.trailingAnchor.constraint(equalTo: shellView.trailingAnchor, constant: -16),
-            contentStack.bottomAnchor.constraint(equalTo: shellView.bottomAnchor, constant: -16),
+            contentStack.topAnchor.constraint(equalTo: shellView.topAnchor),
+            contentStack.leadingAnchor.constraint(equalTo: shellView.leadingAnchor),
+            contentStack.trailingAnchor.constraint(equalTo: shellView.trailingAnchor),
+            contentStack.bottomAnchor.constraint(equalTo: shellView.bottomAnchor),
 
             mediaHeightConstraint!,
             imageView.topAnchor.constraint(equalTo: mediaContainer.topAnchor),
