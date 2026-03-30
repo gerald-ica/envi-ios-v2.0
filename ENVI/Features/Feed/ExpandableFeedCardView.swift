@@ -337,6 +337,9 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     func setExpanded(_ expanded: Bool, animated: Bool) {
         let shouldExpand = isCurrentItemExpandable && expanded
+        if isCurrentItemExpandable {
+            mediaHeightConstraint?.constant = shouldExpand ? 520 : 480
+        }
         detailContainer.isHidden = !shouldExpand
         destinationRow.isHidden = isCurrentItemExpandable ? !shouldExpand : false
         insightHostingController.view.isHidden = isCurrentItemExpandable ? !shouldExpand : false

@@ -53,7 +53,7 @@ enum ContentSource: String, CaseIterable {
     var label: String {
         switch self {
         case .photoLibrary:   return "Camera Roll"
-        case .contentLibrary: return "Content Library"
+        case .contentLibrary: return "Content Timeline"
         case .predicted:      return "AI Predicted"
         }
     }
@@ -61,7 +61,7 @@ enum ContentSource: String, CaseIterable {
     var displayLabel: String {
         switch self {
         case .photoLibrary:   return "From your Camera Roll"
-        case .contentLibrary: return "From Content Library"
+        case .contentLibrary: return "From Content Timeline"
         case .predicted:      return "AI Recommended"
         }
     }

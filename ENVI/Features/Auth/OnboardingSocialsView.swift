@@ -12,7 +12,7 @@ struct OnboardingSocialsView: View {
                 .tracking(-2.0)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
 
-            Text("We'll sync your analytics and optimize posting.")
+            Text("Pick the platforms you want ENVI to prioritize first. You can connect accounts and sync analytics later.")
                 .font(.interRegular(15))
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
 

@@ -168,7 +168,7 @@ struct WorldExplorerView: View {
                 .fill(lightMode ? Color.black.opacity(0.4) : Color.white.opacity(0.6))
                 .frame(width: 6, height: 6)
                 .modifier(PulseModifier())
-            Text("LOADING CONTENT LIBRARY")
+            Text("LOADING CONTENT TIMELINE")
                 .font(.spaceMonoBold(11))
                 .tracking(2.5)
                 .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.4))
@@ -190,7 +190,7 @@ struct WorldExplorerView: View {
             }
             .padding(.bottom, ENVISpacing.xl)
 
-            Text("YOUR CONTENT\nLIBRARY")
+            Text("YOUR CONTENT\nTIMELINE")
                 .font(.interBlack(28))
                 .tracking(-0.5)
                 .lineSpacing(0)
@@ -198,7 +198,7 @@ struct WorldExplorerView: View {
                 .textCase(.uppercase)
                 .padding(.bottom, ENVISpacing.md)
 
-            Text("Browse your content assets. Click any piece to preview, review AI suggestions, and edit.")
+            Text("Browse your content assets across time. Click any piece to preview, review AI suggestions, and edit.")
                 .font(.spaceMono(11))
                 .lineSpacing(4)
                 .foregroundColor(lightMode ? .black.opacity(0.45) : .white.opacity(0.4))

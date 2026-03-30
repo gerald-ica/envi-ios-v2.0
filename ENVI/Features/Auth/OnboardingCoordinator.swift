@@ -33,12 +33,16 @@ struct OnboardingContainerView: View {
                 Spacer()
 
                 // Skip
-                Button("Skip") {
-                    viewModel.skip()
+                if viewModel.canSkipCurrentStep {
+                    Button("Skip for now") {
+                        viewModel.skip()
+                    }
+                    .font(.spaceMonoBold(13))
+                    .tracking(1.5)
+                    .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                } else {
+                    Spacer().frame(width: 88)
                 }
-                .font(.spaceMonoBold(13))
-                .tracking(1.5)
-                .foregroundColor(ENVITheme.textLight(for: colorScheme))
             }
             .padding(.horizontal, ENVISpacing.xl)
             .padding(.vertical, ENVISpacing.md)

@@ -4,10 +4,6 @@ import SwiftUI
 struct OnboardingBirthTimeView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     @Environment(\.colorScheme) private var colorScheme
-    private let defaultBirthTime = Calendar(identifier: .gregorian).date(
-        from: DateComponents(year: 2000, month: 1, day: 1, hour: 12, minute: 0)
-    ) ?? Date()
-
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
             Text("WHAT TIME WERE YOU BORN?")
@@ -33,8 +29,8 @@ struct OnboardingBirthTimeView: View {
                 .labelsHidden()
                 .frame(maxWidth: .infinity)
                 .clipped()
-                .onChange(of: viewModel.birthTime) { _, newValue in
-                    viewModel.includeBirthTime = newValue != defaultBirthTime
+                .onChange(of: viewModel.birthTime) { _, _ in
+                    viewModel.hasEditedBirthTime = true
                 }
             }
 

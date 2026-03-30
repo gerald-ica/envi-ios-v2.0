@@ -2,8 +2,8 @@ import UIKit
 import SwiftUI
 
 /// Root coordinator that manages the app's navigation flow.
-/// Auth flow: Splash → Onboarding → Sign In
-/// Main flow: MainTabBarController with 5 tabs
+/// First-run flow: Splash → Onboarding → Main app
+/// Signed-out flow: Splash → Sign In → Main app
 final class AppCoordinator: ParentCoordinator {
     var navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
@@ -75,7 +75,7 @@ final class AppCoordinator: ParentCoordinator {
         let tabBar = MainTabBarController()
         tabBar.onSignOut = { [weak self] in
             UserDefaultsManager.shared.resetAll()
-            self?.showSplash()
+            self?.showSignIn()
         }
         navigationController.setViewControllers([tabBar], animated: true)
     }

@@ -5,7 +5,6 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
     private let viewModel = FeedViewModel()
     private var cardViews: [UUID: ExpandableFeedCardView] = [:]
-    private var lastContentOffsetY: CGFloat = 0
     private var mainTabBarController: MainTabBarController? {
         navigationController?.parent as? MainTabBarController
     }
@@ -139,6 +138,8 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
         forYouButton.addTarget(self, action: #selector(forYouTapped), for: .touchUpInside)
         exploreButton.addTarget(self, action: #selector(exploreTapped), for: .touchUpInside)
+        searchButton.addTarget(self, action: #selector(searchTapped), for: .touchUpInside)
+        notificationButton.addTarget(self, action: #selector(notificationsTapped), for: .touchUpInside)
 
         let tabIndicatorCenterX = tabIndicator.centerXAnchor.constraint(equalTo: forYouButton.centerXAnchor)
         self.tabIndicatorCenterX = tabIndicatorCenterX
@@ -281,6 +282,20 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         renderFeed()
     }
 
+    @objc private func searchTapped() {
+        presentPlaceholderAlert(title: "Search", message: "Global search is the next feed flow to wire up.")
+    }
+
+    @objc private func notificationsTapped() {
+        presentPlaceholderAlert(title: "Notifications", message: "Notifications center is not wired yet.")
+    }
+
+    private func presentPlaceholderAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
     private func updateTabSelection(animated: Bool) {
         let selectedButton = viewModel.selectedTab == .forYou ? forYouButton : exploreButton
         let deselectedButton = viewModel.selectedTab == .forYou ? exploreButton : forYouButton
@@ -300,22 +315,5 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         } else {
             updates()
         }
-    }
-
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        let scrollingDown = offsetY > lastContentOffsetY + 6
-        let scrollingUp = offsetY < lastContentOffsetY - 6
-        let nearTop = offsetY <= 20
-
-        if viewModel.expandedItemID == nil {
-            if nearTop || scrollingUp {
-                mainTabBarController?.setTabBarVisible(true, animated: true)
-            } else if scrollingDown {
-                mainTabBarController?.setTabBarVisible(false, animated: true)
-            }
-        }
-
-        lastContentOffsetY = offsetY
     }
 }

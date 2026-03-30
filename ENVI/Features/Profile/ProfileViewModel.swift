@@ -20,6 +20,6 @@ final class ProfileViewModel: ObservableObject {
     ]
 
     func signOut() {
-        UserDefaultsManager.shared.hasCompletedOnboarding = false
+        UserDefaultsManager.shared.resetAll()
     }
 }

@@ -25,7 +25,7 @@ final class OnboardingViewModel: ObservableObject {
     @Published var dateOfBirth = OnboardingViewModel.makeDate(year: 1998, month: 1, day: 15)
 
     // MARK: - Step 3: Birth Time
-    @Published var includeBirthTime = false
+    @Published var hasEditedBirthTime = false
     @Published var birthTime = OnboardingViewModel.makeDate(year: 2000, month: 1, day: 1, hour: 12, minute: 0)
 
     // MARK: - Step 4: Where From
@@ -112,6 +112,10 @@ final class OnboardingViewModel: ObservableObject {
         }
     }
 
+    var canSkipCurrentStep: Bool {
+        currentStep == .birthTime
+    }
+
     var progress: Double {
         Double(currentStep.rawValue + 1) / Double(Step.allCases.count)
     }
@@ -129,7 +133,7 @@ final class OnboardingViewModel: ObservableObject {
     }
 
     var formattedBirthTime: String? {
-        guard includeBirthTime else { return nil }
+        guard hasEditedBirthTime else { return nil }
         return Self.timeFormatter.string(from: birthTime)
     }
 
@@ -208,7 +212,9 @@ final class OnboardingViewModel: ObservableObject {
     }
 
     func skip() {
-        completeOnboarding()
+        guard canSkipCurrentStep else { return }
+        hasEditedBirthTime = false
+        goToNextStep()
     }
 
     private func completeOnboarding() {

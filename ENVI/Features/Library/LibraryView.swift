@@ -3,6 +3,7 @@ import SwiftUI
 /// Main library screen with filter chips, template carousel, and masonry grid.
 struct LibraryView: View {
     @StateObject private var viewModel = LibraryViewModel()
+    @State private var showAddFlowAlert = false
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -43,7 +44,7 @@ struct LibraryView: View {
             }
 
             // FAB
-            Button(action: {}) {
+            Button(action: { showAddFlowAlert = true }) {
                 Image(systemName: "plus")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.black)
@@ -56,6 +57,11 @@ struct LibraryView: View {
             .padding(.bottom, 90)
         }
         .background(ENVITheme.background(for: colorScheme))
+        .alert("Add to Library", isPresented: $showAddFlowAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Import and create flows are not wired yet. This should open a real add/import sheet in the next pass.")
+        }
     }
 }
 

@@ -6,6 +6,7 @@ final class EditorViewController: UIViewController {
 
     private let viewModel = EditorViewModel()
     private let contentItem: ContentItem?
+    private var isPreviewPlaying = false
 
     // MARK: - Top Toolbar
     private let topBar: UIView = {
@@ -138,6 +139,7 @@ final class EditorViewController: UIViewController {
         } else {
             textPreviewLabel.isHidden = true
             playButton.isHidden = false
+            playButton.addTarget(self, action: #selector(togglePreviewPlayback), for: .touchUpInside)
         }
 
         NSLayoutConstraint.activate([
@@ -228,7 +230,7 @@ final class EditorViewController: UIViewController {
         view.addSubview(toolStack)
 
         let tools = zip(viewModel.tools, viewModel.toolIcons)
-        for (title, icon) in tools {
+        for (index, (title, icon)) in tools.enumerated() {
             let symConfig = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
             var btnConfig = UIButton.Configuration.plain()
             btnConfig.image = UIImage(systemName: icon, withConfiguration: symConfig)
@@ -238,6 +240,8 @@ final class EditorViewController: UIViewController {
             btnConfig.baseForegroundColor = ENVITheme.UIKit.textLightDark
 
             let button = UIButton(configuration: btnConfig)
+            button.tag = index
+            button.addTarget(self, action: #selector(toolTapped(_:)), for: .touchUpInside)
             toolStack.addArrangedSubview(button)
         }
 
@@ -249,12 +253,40 @@ final class EditorViewController: UIViewController {
         ])
     }
 
+    @objc private func togglePreviewPlayback() {
+        isPreviewPlaying.toggle()
+        let symbolName = isPreviewPlaying ? "pause.circle" : "play.circle"
+        let config = UIImage.SymbolConfiguration(pointSize: 36, weight: .medium)
+        playButton.setImage(UIImage(systemName: symbolName, withConfiguration: config), for: .normal)
+    }
+
     @objc private func goBack() {
         navigationController?.popViewController(animated: true)
     }
 
     @objc private func showExport() {
-        // Present export sheet as SwiftUI sheet would go here
+        let exportView = ExportSheetView()
+        let hostingController = UIHostingController(rootView: exportView)
+        hostingController.modalPresentationStyle = .pageSheet
+        if let sheet = hostingController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(hostingController, animated: true)
+    }
+
+    @objc private func toolTapped(_ sender: UIButton) {
+        guard sender.tag < viewModel.tools.count else { return }
+        presentPlaceholderAlert(
+            title: viewModel.tools[sender.tag],
+            message: "This editing tool is still placeholder UI. The next pass should wire it into the real editor stack."
+        )
+    }
+
+    private func presentPlaceholderAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     private func previewImage() -> UIImage? {

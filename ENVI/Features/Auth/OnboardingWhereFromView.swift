@@ -24,12 +24,6 @@ struct OnboardingWhereFromView: View {
                 ENVIButton(primaryActionTitle) {
                     handlePrimaryAction()
                 }
-
-                if locationManager.authorizationStatus == .denied {
-                    ENVIButton("Open Settings", variant: .secondary) {
-                        openSettings()
-                    }
-                }
             }
 
             Spacer()
@@ -48,7 +42,7 @@ struct OnboardingWhereFromView: View {
         case .authorizedWhenInUse, .authorizedAlways:
             return "Refresh Location"
         case .denied:
-            return "Try Again"
+            return "Open Settings"
         case .restricted:
             return "Location Restricted"
         }

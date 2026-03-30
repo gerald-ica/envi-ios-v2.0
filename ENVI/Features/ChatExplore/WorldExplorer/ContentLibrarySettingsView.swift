@@ -21,14 +21,14 @@ struct ContentLibrarySettingsView: View {
     /// Local picker option — maps to ContentSource without shadowing it.
     enum SourceOption: String, CaseIterable {
         case photoLibrary = "Photo Library"
-        case contentLibrary = "Content Library"
+        case contentLibrary = "Content Timeline"
 
         var description: String {
             switch self {
             case .photoLibrary:
                 return "Access your camera roll directly. ENVI will scan and organize your photos and videos."
             case .contentLibrary:
-                return "ENVI's curated library of already-edited content pieces assembled from your camera roll."
+                return "ENVI's curated timeline of already-edited content pieces assembled from your camera roll."
             }
         }
     }

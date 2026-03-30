@@ -25,12 +25,6 @@ struct OnboardingPhotosAccessView: View {
                 ENVIButton(primaryActionTitle) {
                     handlePrimaryAction()
                 }
-
-                if needsSettingsAction {
-                    ENVIButton("Open Settings", variant: .secondary) {
-                        openSettings()
-                    }
-                }
             }
 
             Spacer()
@@ -55,15 +49,6 @@ struct OnboardingPhotosAccessView: View {
             return "Open Settings"
         case .restricted:
             return "Photos Restricted"
-        }
-    }
-
-    private var needsSettingsAction: Bool {
-        switch photoLibraryManager.authorizationStatus {
-        case .limited, .denied:
-            return true
-        case .notDetermined, .authorized, .restricted:
-            return false
         }
     }
 
