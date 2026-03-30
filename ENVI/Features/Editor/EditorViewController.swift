@@ -7,6 +7,7 @@ final class EditorViewController: UIViewController {
     private let viewModel = EditorViewModel()
     private let contentItem: ContentItem?
     private let contentPiece: ContentPiece?
+    private lazy var exportComposer = ExportComposerFactory.make(contentItem: contentItem, contentPiece: contentPiece)
     private var isPreviewPlaying = false
 
     // MARK: - Top Toolbar
@@ -272,10 +273,7 @@ final class EditorViewController: UIViewController {
     }
 
     @objc private func showExport() {
-        let exportView = ExportSheetView(
-            initialCaption: initialExportCaption,
-            preferredPlatform: preferredExportPlatform
-        )
+        let exportView = ExportSheetView(composer: exportComposer)
         let hostingController = UIHostingController(rootView: exportView)
         hostingController.modalPresentationStyle = .pageSheet
         if let sheet = hostingController.sheetPresentationController {
@@ -332,42 +330,6 @@ final class EditorViewController: UIViewController {
 
     private var isTextEditingContext: Bool {
         contentItem?.type == .textPost
-    }
-
-    private var initialExportCaption: String {
-        if let bodyText = contentItem?.bodyText, !bodyText.isEmpty {
-            return bodyText
-        }
-
-        if let caption = contentItem?.caption, !caption.isEmpty {
-            return caption
-        }
-
-        guard let contentPiece else {
-            return "Built in ENVI. Ready for your next post."
-        }
-
-        return "\(contentPiece.title) \(contentPiece.tags.prefix(2).map { "#\($0.replacingOccurrences(of: " ", with: ""))" }.joined(separator: " "))"
-    }
-
-    private var preferredExportPlatform: SocialPlatform? {
-        if let platform = contentItem?.platform {
-            return platform
-        }
-
-        guard let contentPiece else { return nil }
-        switch contentPiece.platform {
-        case .instagram:
-            return .instagram
-        case .tiktok:
-            return .tiktok
-        case .youtube:
-            return .youtube
-        case .twitter:
-            return .x
-        case .linkedin:
-            return .linkedin
-        }
     }
 
     private func loadImage(named imageName: String) -> UIImage? {

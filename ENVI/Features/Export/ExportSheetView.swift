@@ -5,25 +5,24 @@ import UIKit
 struct ExportSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    let composer: ExportComposer
     @State private var caption: String
-    @State private var selectedRatio = "9:16"
-    @State private var quality: Double = 0.8
+    @State private var selectedRatio: String
+    @State private var quality: Double
     @State private var selectedPlatforms: Set<SocialPlatform>
     @State private var isExporting = false
     @State private var showShareSheet = false
     @State private var copyFeedback = "Copy"
     @State private var captionOptionIndex = 0
 
-    let ratios = ["9:16", "1:1", "16:9", "4:5"]
-    let platforms: [SocialPlatform] = [.instagram, .tiktok, .youtube, .x, .threads, .linkedin]
-    let initialCaption: String
-    let preferredPlatform: SocialPlatform?
+    private let ratios = ["9:16", "1:1", "16:9", "4:5"]
 
-    init(initialCaption: String = "Capturing the perfect moment ✨ #lifestyle #content", preferredPlatform: SocialPlatform? = .instagram) {
-        self.initialCaption = initialCaption
-        self.preferredPlatform = preferredPlatform
-        _caption = State(initialValue: initialCaption)
-        _selectedPlatforms = State(initialValue: preferredPlatform.map { [$0] } ?? [.instagram])
+    init(composer: ExportComposer = .preview) {
+        self.composer = composer
+        _caption = State(initialValue: composer.initialCaption)
+        _selectedRatio = State(initialValue: composer.initialRatio)
+        _quality = State(initialValue: composer.initialQuality)
+        _selectedPlatforms = State(initialValue: Set(composer.preferredPlatforms))
     }
 
     var body: some View {
@@ -79,7 +78,7 @@ struct ExportSheetView: View {
                             .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: ENVISpacing.md) {
-                            ForEach(platforms) { platform in
+                            ForEach(composer.availablePlatforms) { platform in
                                 Button {
                                     togglePlatform(platform)
                                 } label: {
@@ -133,7 +132,7 @@ struct ExportSheetView: View {
                     }
 
                     // Export button
-                    ENVIButton("Export Video") {
+                    ENVIButton(composer.exportButtonTitle) {
                         isExporting = true
                     }
                 }
@@ -171,21 +170,21 @@ struct ExportSheetView: View {
     }
 
     private var captionOptions: [String] {
-        let cleanedCaption = initialCaption.trimmingCharacters(in: .whitespacesAndNewlines)
-        let baseCaption = cleanedCaption.isEmpty ? "Fresh export from ENVI." : cleanedCaption
-        let platformLine = selectedPlatforms.isEmpty ? "Built for your next post." : "Planned for \(selectedPlatforms.map(\.rawValue).sorted().joined(separator: ", "))."
-        return [
-            baseCaption,
-            "\(baseCaption)\n\n\(platformLine)",
-            "\(baseCaption)\n\nSave this one for the perfect window and post when the audience is hottest.",
-            "\(baseCaption)\n\nExported in \(selectedRatio) at \(Int(quality * 100))% quality."
-        ]
+        composer.captionOptions(
+            selectedPlatforms: Array(selectedPlatforms),
+            ratio: selectedRatio,
+            quality: quality
+        )
     }
 
     private var exportSummary: String {
-        let platformList = selectedPlatforms.isEmpty ? "Instagram" : selectedPlatforms.map(\.rawValue).sorted().joined(separator: ", ")
+        let fallbackPlatforms = selectedPlatforms.isEmpty ? Set(composer.preferredPlatforms) : selectedPlatforms
+        let platformList = fallbackPlatforms.map(\.rawValue).sorted().joined(separator: ", ")
         return """
         ENVI Export Ready
+
+        Title:
+        \(composer.context.title)
 
         Caption:
         \(caption)
@@ -221,7 +220,7 @@ struct ExportSheetView: View {
 }
 
 #Preview {
-    ExportSheetView()
+    ExportSheetView(composer: .preview)
         .preferredColorScheme(.dark)
 }
 

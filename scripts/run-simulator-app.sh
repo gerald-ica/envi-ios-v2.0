@@ -48,6 +48,7 @@ fi
 /usr/libexec/PlistBuddy -c "Set :CFBundleExecutable ENVI" "$INFO_PLIST"
 /usr/libexec/PlistBuddy -c "Set :UIApplicationSceneManifest:UISceneConfigurations:UIWindowSceneSessionRoleApplication:0:UISceneDelegateClassName ENVI.SceneDelegate" "$INFO_PLIST"
 
+xattr -cr "$APP_DIR"
 codesign --force --sign - --timestamp=none --deep "$APP_DIR"
 
 BUNDLE_ID="$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$INFO_PLIST")"
