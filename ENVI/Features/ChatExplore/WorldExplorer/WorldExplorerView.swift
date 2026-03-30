@@ -42,7 +42,7 @@ enum ContentLibrary {
 struct WorldExplorerView: View {
 
     var onNodeClick: ((String) -> Void)?
-    var onSuggestionClick: (() -> Void)?
+    var onSuggestionClick: ((String) -> Void)?
 
     // MARK: - State (matches React's full state set)
 
@@ -60,6 +60,8 @@ struct WorldExplorerView: View {
     @State private var zoomLevel: ExplorerZoomLevel = .month
     @State private var showSettings: Bool = false
     @State private var editingContent: ContentPiece?
+    @State private var explorerPrompt = ""
+    @State private var explorerNotice: ExplorerNotice?
 
     /// Reference to the scene controller for state sync
     @State private var sceneController: HelixSceneController?
@@ -165,6 +167,13 @@ struct WorldExplorerView: View {
         .fullScreenCover(item: $editingContent) { piece in
             EditorContainerView(contentPiece: piece)
                 .preferredColorScheme(.dark)
+        }
+        .alert(item: $explorerNotice) { notice in
+            Alert(
+                title: Text(notice.title),
+                message: Text(notice.message),
+                dismissButton: .default(Text("OK"))
+            )
         }
     }
 
@@ -386,7 +395,8 @@ struct WorldExplorerView: View {
                             "Analyze engagement trends",
                         ], id: \.self) { chip in
                             Button {
-                                onSuggestionClick?()
+                                explorerPrompt = chip
+                                submitExplorerPrompt()
                             } label: {
                                 Text(chip.uppercased())
                                     .font(.spaceMono(11))
@@ -445,7 +455,7 @@ struct WorldExplorerView: View {
 
                     // Text input
                     HStack(spacing: 0) {
-                        TextField("", text: .constant(""), prompt:
+                        TextField("", text: $explorerPrompt, prompt:
                             Text("Ask ENVI to edit, analyze, or create...")
                                 .font(.spaceMono(12))
                                 .foregroundColor(lightMode ? .black.opacity(0.25) : .white.opacity(0.25))
@@ -453,9 +463,14 @@ struct WorldExplorerView: View {
                         .font(.spaceMono(12))
                         .foregroundColor(lightMode ? .black.opacity(0.8) : .white.opacity(0.8))
                         .onTapGesture { plusMenuOpen = false }
+                        .onSubmit {
+                            submitExplorerPrompt()
+                        }
 
                         // Send arrow
-                        Button {} label: {
+                        Button {
+                            submitExplorerPrompt()
+                        } label: {
                             Image(systemName: "arrow.up")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.4))
@@ -529,8 +544,20 @@ struct WorldExplorerView: View {
 
     private var plusMenu: some View {
         VStack(alignment: .leading, spacing: 2) {
-            plusMenuItem(icon: "paperclip", label: "ATTACH") {}
-            plusMenuItem(icon: "clock", label: "TIMELINE") {}
+            plusMenuItem(icon: "paperclip", label: "ATTACH") {
+                explorerNotice = ExplorerNotice(
+                    title: "Attach Is Next",
+                    message: "Direct media attach from Photos is the next Explore workflow to wire into ENVI."
+                )
+                plusMenuOpen = false
+            }
+            plusMenuItem(icon: "clock", label: "TIMELINE") {
+                explorerNotice = ExplorerNotice(
+                    title: "Content Timeline",
+                    message: "You are already in your Content Timeline. Tap a piece or ask ENVI what to repurpose next."
+                )
+                plusMenuOpen = false
+            }
             plusMenuItem(
                 icon: viewMode == .stream ? "line.3.horizontal" : "tornado",
                 label: viewMode == .stream ? "SPIRAL VIEW" : "STREAM VIEW"
@@ -789,6 +816,20 @@ struct WorldExplorerView: View {
         sceneController?.resetCamera()
         sceneController?.timePosition = 0.5
     }
+
+    private func submitExplorerPrompt() {
+        let trimmed = explorerPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        onSuggestionClick?(trimmed)
+        plusMenuOpen = false
+        explorerPrompt = ""
+    }
+}
+
+private struct ExplorerNotice: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
 }
 
 // MARK: - SCNView UIViewRepresentable

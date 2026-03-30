@@ -16,9 +16,15 @@ struct EnhancedChatInputBar: View {
 
             // MARK: - Tool chips row
             HStack(spacing: ENVISpacing.sm) {
-                InputToolChip(icon: "paperclip", label: "Attach")
-                InputToolChip(icon: "mic", label: "Voice")
-                InputToolChip(icon: "clock", label: "Timeline")
+                InputToolChip(icon: "paperclip", label: "Attach") {
+                    text = "Review the asset I attach and tell me how to edit it for my next post."
+                }
+                InputToolChip(icon: "mic", label: "Voice") {
+                    text = "Turn this idea into a voiceover-first post concept."
+                }
+                InputToolChip(icon: "clock", label: "Timeline") {
+                    text = "Use my content timeline to find the strongest post to repurpose next."
+                }
                 Spacer()
             }
 
@@ -85,10 +91,11 @@ struct EnhancedChatInputBar: View {
 private struct InputToolChip: View {
     let icon: String
     let label: String
+    let action: () -> Void
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        Button(action: {}) {
+        Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: icon)
                     .font(.system(size: 12, weight: .medium))

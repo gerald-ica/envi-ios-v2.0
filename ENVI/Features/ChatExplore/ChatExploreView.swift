@@ -13,6 +13,7 @@ enum ExploreMode: String, CaseIterable {
 /// WorldExplorerView (.explore) and EnhancedChatView (.chat).
 struct ChatExploreView: View {
     @State private var selectedMode: ExploreMode = .explore
+    @State private var seededChatPrompt: String?
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -23,7 +24,12 @@ struct ChatExploreView: View {
             // Content area with crossfade + subtle slide
             ZStack {
                 if selectedMode == .explore {
-                    WorldExplorerView()
+                    WorldExplorerView(onSuggestionClick: { prompt in
+                        seededChatPrompt = prompt
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            selectedMode = .chat
+                        }
+                    })
                         .transition(
                             .asymmetric(
                                 insertion: .opacity.combined(with: .offset(x: -20)),
@@ -31,7 +37,7 @@ struct ChatExploreView: View {
                             )
                         )
                 } else {
-                    EnhancedChatView()
+                    EnhancedChatView(seedPrompt: $seededChatPrompt)
                         .transition(
                             .asymmetric(
                                 insertion: .opacity.combined(with: .offset(x: 20)),
@@ -100,6 +106,7 @@ struct ChatExploreView: View {
 
 struct EnhancedChatView: View {
     @StateObject private var viewModel = EnhancedChatViewModel()
+    @Binding var seedPrompt: String?
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -142,6 +149,11 @@ struct EnhancedChatView: View {
             })
         }
         .background(ENVITheme.background(for: colorScheme))
+        .onChange(of: seedPrompt) { _, prompt in
+            guard let prompt, !prompt.isEmpty else { return }
+            viewModel.startThread(prompt)
+            seedPrompt = nil
+        }
     }
 }
 

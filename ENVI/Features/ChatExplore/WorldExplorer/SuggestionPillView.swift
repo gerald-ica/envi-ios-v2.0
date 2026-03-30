@@ -3,7 +3,7 @@ import SwiftUI
 // MARK: - Suggestion Pill View
 
 /// Floating pill at the bottom of the explorer that pulses and shows an AI suggestion
-/// about the user's content library. Tap to expand into a suggestion card; dismiss via close button.
+/// about the user's content timeline. Tap to expand into a suggestion card; dismiss via close button.
 struct SuggestionPillView: View {
 
     var onTap: () -> Void
@@ -107,7 +107,7 @@ struct SuggestionPillView: View {
                 }
             }
 
-            // Suggestion text — about the user's content library
+            // Suggestion text — about the user's content timeline
             Text("Your top-performing content this week is video format. Consider converting your \"Product Flat Lay\" photo into a 15-second showcase reel — similar transitions have seen 2.4x more reach.")
                 .font(.interRegular(13))
                 .foregroundColor(.white.opacity(0.6))
