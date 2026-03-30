@@ -8,7 +8,7 @@ final class MainTabBarController: UIViewController {
 
     private let customTabBar = ENVITabBar()
     private var viewControllers: [UIViewController] = []
-    private var currentIndex = 0
+    private(set) var currentIndex = 0
     private var trackedScrollViews: [UIScrollView] = []
 
     override func viewDidLoad() {

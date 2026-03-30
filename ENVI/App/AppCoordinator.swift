@@ -87,7 +87,7 @@ final class AppCoordinator: ParentCoordinator {
         guard let tabBar = navigationController.viewControllers.first as? MainTabBarController else {
             return nil
         }
-        return tabBar.selectedIndex
+        return tabBar.currentIndex
     }
 
     /// Called when the scene enters the foreground — refresh visible data.

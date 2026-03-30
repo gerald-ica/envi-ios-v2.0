@@ -1,13 +1,13 @@
 import SwiftUI
 
-struct LibraryItem: Identifiable {
+struct LibraryItem: Identifiable, Codable {
     let id: String
     let title: String
     let imageName: String
     let type: ItemType
     let height: CGFloat // For masonry layout
 
-    enum ItemType: String {
+    enum ItemType: String, Codable {
         case photos = "Photos"
         case videos = "Videos"
         case templates = "Templates"
@@ -66,11 +66,18 @@ struct LibraryItem: Identifiable {
     ]
 }
 
-struct TemplateItem: Identifiable {
-    let id = UUID()
+struct TemplateItem: Identifiable, Codable {
+    let id: UUID
     let title: String
     let imageName: String
     let category: String
+
+    init(id: UUID = UUID(), title: String, imageName: String, category: String) {
+        self.id = id
+        self.title = title
+        self.imageName = imageName
+        self.category = category
+    }
 
     static let mockTemplates: [TemplateItem] = [
         TemplateItem(title: "Minimal Story", imageName: "jacket", category: "Instagram"),

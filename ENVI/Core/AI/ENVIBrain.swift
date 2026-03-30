@@ -182,11 +182,13 @@ final class ENVIBrain: ObservableObject {
     /// Call this on app launch to begin the continuous improvement cycle.
     /// The loop runs on a schedule, triggering iterations on app events,
     /// content updates, and periodic background refresh.
+    @MainActor
     func startResearchLoop() {
         researchLoop.startLoop()
     }
 
     /// Pause the research loop.
+    @MainActor
     func pauseResearchLoop() {
         researchLoop.pauseLoop()
     }
