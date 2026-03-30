@@ -276,7 +276,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
 
     func configure(with item: ContentItem, expanded: Bool) {
         self.item = item
-        isCurrentItemExpandable = item.type != .textPost
+        isCurrentItemExpandable = true
 
         let platformColor = color(for: item.platform)
         let platformName = item.platform.rawValue
@@ -373,7 +373,7 @@ final class ExpandableFeedCardView: UIView, UIGestureRecognizerDelegate {
             mediaHeightConstraint?.constant = expanded ? 520 : 480
         }
 
-        setExpanded(isCurrentItemExpandable ? expanded : false, animated: false)
+        setExpanded(expanded, animated: false)
     }
 
     func setPresentationMode(detail: Bool) {

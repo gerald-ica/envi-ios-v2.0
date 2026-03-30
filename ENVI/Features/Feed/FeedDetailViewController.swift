@@ -80,7 +80,7 @@ final class FeedDetailViewController: UIViewController {
 
     private func configureCard() {
         cardView.setPresentationMode(detail: true)
-        cardView.configure(with: item, expanded: item.type != .textPost)
+        cardView.configure(with: item, expanded: true)
         cardView.onEdit = { [weak self] in
             self?.openEditor()
         }

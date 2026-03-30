@@ -261,7 +261,6 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
     }
 
     private func openDetail(for item: ContentItem) {
-        guard item.type != .textPost else { return }
         let detail = FeedDetailViewController(
             item: item,
             onBookmarkToggle: { [weak self] id in
