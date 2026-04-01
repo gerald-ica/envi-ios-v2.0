@@ -16,6 +16,8 @@ struct ContentNodeView: View {
     var onNavigateToContent: ((ContentPiece) -> Void)?
     var onEdit: ((ContentPiece) -> Void)?
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack {
             // Full-screen backdrop
@@ -62,7 +64,7 @@ struct ContentNodeView: View {
                             .aspectRatio(4.0 / 5.0, contentMode: .fill)
                     } else {
                         Rectangle()
-                            .fill(lightMode ? Color.black.opacity(0.08) : ENVITheme.Dark.surfaceLow)
+                            .fill(ENVITheme.surfaceLow(for: colorScheme))
                             .aspectRatio(4.0 / 5.0, contentMode: .fill)
                     }
                 }
@@ -495,7 +497,7 @@ struct ContentNodeView: View {
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                     } else {
-                                        Rectangle().fill(lightMode ? Color.black.opacity(0.08) : ENVITheme.Dark.surfaceLow)
+                                        Rectangle().fill(ENVITheme.surfaceLow(for: colorScheme))
                                     }
                                 }
                                 .frame(width: 32, height: 32)

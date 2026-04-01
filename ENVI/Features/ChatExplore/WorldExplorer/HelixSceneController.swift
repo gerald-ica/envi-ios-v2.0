@@ -66,6 +66,25 @@ enum ExplorerViewMode: String {
     case spiral
 }
 
+// MARK: - Helix Time Mode
+
+enum HelixTimeMode: String, CaseIterable {
+    case flowing = "Flow"
+    case byHour = "Hour"
+    case byDayOfMonth = "Day"
+    case byDayOfWeek = "Week"
+    case byMonth = "Month"
+}
+
+// MARK: - Helix Data Source
+
+enum HelixDataSource: String, CaseIterable {
+    case cameraRoll = "Camera Roll"
+    case posted = "Posted"
+    case scheduled = "Scheduled"
+    case merged = "All"
+}
+
 // MARK: - Helix Scene Controller
 
 /// Manages the SceneKit scene: 2000 content piece nodes arranged in a horizontal helix,
@@ -174,6 +193,17 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
     }
     var timePosition: Float = 0.5
     var zoomLevel: ExplorerZoomLevel = .month
+
+    /// Time mode: flowing (animated) or fixed (grouped by time component)
+    var timeMode: HelixTimeMode = .flowing {
+        didSet { applyTimeMode() }
+    }
+
+    /// Data source filter
+    var dataSource: HelixDataSource = .merged
+
+    /// Guide line nodes for fixed time modes (removed when switching)
+    private var guideNodes: [SCNNode] = []
 
     /// Cached star material for light mode toggling
     private var starMaterial: SCNMaterial?
@@ -919,27 +949,39 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
         let zoomSizeMult = zoomLevel.sizeMultiplier
 
+        // In fixed time modes, positions are set by applyTimeMode — skip flowing update
+        let isFixedMode = timeMode != .flowing
+
         // Update content piece positions
         for i in 0..<count {
-            var t = streamTs[i] + elapsed * 0.008
-            t = t.truncatingRemainder(dividingBy: 1.0)
-            if t < 0 { t += 1.0 }
+            let pos: SCNVector3
+            var t: Float = streamTs[i]
 
-            // Stream position (horizontal coil)
-            let streamPos = helixPosition(t: t, phase: phases[i], elapsed: elapsed)
+            if isFixedMode {
+                // Use the already-set fixed position (from applyTimeMode)
+                pos = positions[i]
+                // t stays at the base value for fade calculation
+            } else {
+                t = streamTs[i] + elapsed * 0.008
+                t = t.truncatingRemainder(dividingBy: 1.0)
+                if t < 0 { t += 1.0 }
 
-            // Spiral position (vertical coil)
-            let rMod = 0.7 + 0.3 * sin(phases[i])
-            let spiralPos = spiralPosition(t: t, phase: phases[i], rMod: rMod)
+                // Stream position (horizontal coil)
+                let streamPos = helixPosition(t: t, phase: phases[i], elapsed: elapsed)
 
-            // Lerp between modes
-            let pos = SCNVector3(
-                streamPos.x + (spiralPos.x - streamPos.x) * vl,
-                streamPos.y + (spiralPos.y - streamPos.y) * vl,
-                streamPos.z + (spiralPos.z - streamPos.z) * vl
-            )
-            contentPieceNodes[i].position = pos
-            positions[i] = pos
+                // Spiral position (vertical coil)
+                let rMod = 0.7 + 0.3 * sin(phases[i])
+                let spiralPos = spiralPosition(t: t, phase: phases[i], rMod: rMod)
+
+                // Lerp between modes
+                pos = SCNVector3(
+                    streamPos.x + (spiralPos.x - streamPos.x) * vl,
+                    streamPos.y + (spiralPos.y - streamPos.y) * vl,
+                    streamPos.z + (spiralPos.z - streamPos.z) * vl
+                )
+                contentPieceNodes[i].position = pos
+                positions[i] = pos
+            }
 
             // Depth-based scale
             let dx = cameraPos.x - pos.x
@@ -970,7 +1012,8 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             contentPieceNodes[i].scale = SCNVector3(s, s, s)
 
             // Edge fade (future pieces capped at 50% base opacity; pulse animation handles the rest)
-            let baseFade = fadeOpacity(t: t)
+            // In fixed mode, skip edge fade since pieces aren't on a linear stream
+            let baseFade: Float = isFixedMode ? 1.0 : fadeOpacity(t: t)
             if isFutureNode[i] {
                 contentPieceNodes[i].opacity = CGFloat(0.42 + baseFade * 0.38)
             } else {
@@ -1072,6 +1115,247 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             let lookY = streamOffset * 0.3 * vl
             camera.look(at: SCNVector3(lookX, lookY, 0))
         }
+    }
+
+    // MARK: - Time Mode
+
+    /// Applies the current time mode: flowing resumes animation, fixed modes reposition nodes.
+    func applyTimeMode() {
+        // Remove previous guide lines
+        for node in guideNodes { node.removeFromParentNode() }
+        guideNodes.removeAll()
+
+        switch timeMode {
+        case .flowing:
+            // Resume normal animation
+            isPaused = false
+        case .byHour, .byDayOfMonth, .byDayOfWeek, .byMonth:
+            // Pause the flowing animation
+            isPaused = true
+
+            // Reposition all content piece nodes based on their date
+            let allPieces = ContentLibrary.pieces
+            let count = Config.contentPieceCount
+            for i in 0..<count {
+                let ci = contentIndices[i]
+                let piece = allPieces[ci]
+                let pos = fixedPosition(for: piece, mode: timeMode, instanceIndex: i)
+                contentPieceNodes[i].position = pos
+                positions[i] = pos
+            }
+
+            // Add guide lines and labels for the fixed mode
+            addGuideLines(for: timeMode)
+        }
+    }
+
+    /// Computes a fixed 3D position for a content piece based on the time mode.
+    /// The angular position is determined by the relevant time component,
+    /// and the Y position stacks pieces by a higher-order time component.
+    private func fixedPosition(for piece: ContentPiece, mode: HelixTimeMode, instanceIndex: Int) -> SCNVector3 {
+        let calendar = Calendar.current
+        let date = piece.createdAt
+        let radius: Float = 8.0
+        let verticalSpacing: Float = 3.0
+
+        let angle: Float
+        let yComponent: Float
+
+        switch mode {
+        case .flowing:
+            // Should not be called for flowing mode
+            return helixPosition(t: streamTs[instanceIndex], phase: phases[instanceIndex], elapsed: pausedElapsed)
+
+        case .byHour:
+            let hour = Float(calendar.component(.hour, from: date))
+            angle = hour / 24.0 * Float.pi * 2.0
+            // Stack by day of month
+            let day = Float(calendar.component(.day, from: date))
+            yComponent = (day - 15.0) * verticalSpacing * 0.3
+
+        case .byDayOfMonth:
+            let day = Float(calendar.component(.day, from: date))
+            angle = (day - 1.0) / 31.0 * Float.pi * 2.0
+            // Stack by month
+            let month = Float(calendar.component(.month, from: date))
+            yComponent = (month - 6.0) * verticalSpacing
+
+        case .byDayOfWeek:
+            let weekday = Float(calendar.component(.weekday, from: date))
+            angle = (weekday - 1.0) / 7.0 * Float.pi * 2.0
+            // Stack by week of year
+            let weekOfYear = Float(calendar.component(.weekOfYear, from: date))
+            yComponent = (weekOfYear - 10.0) * verticalSpacing * 0.4
+
+        case .byMonth:
+            let month = Float(calendar.component(.month, from: date))
+            angle = (month - 1.0) / 12.0 * Float.pi * 2.0
+            // Stack by year
+            let year = Float(calendar.component(.year, from: date))
+            yComponent = (year - 2026.0) * verticalSpacing * 2.0
+        }
+
+        // Add a small per-instance jitter so overlapping pieces scatter slightly
+        let jitterX = sin(Float(instanceIndex) * 0.73) * 0.6
+        let jitterY = cos(Float(instanceIndex) * 1.17) * 0.4
+        let jitterZ = sin(Float(instanceIndex) * 0.31) * 0.5
+
+        let x = cos(angle) * radius + jitterX
+        let z = sin(angle) * radius + jitterZ
+        let y = yComponent + jitterY
+
+        return SCNVector3(x, y, z)
+    }
+
+    /// Adds guide lines and labels around the circle for the current fixed time mode.
+    private func addGuideLines(for mode: HelixTimeMode) {
+        guard let scene = scene else { return }
+
+        let guideRoot = SCNNode()
+        guideRoot.name = "timeGuides"
+
+        let radius: Float = 8.0
+        let accentColor = UIColor(hex: "#30217C")
+        let labelColor = lightMode ? UIColor.black.withAlphaComponent(0.5) : UIColor.white.withAlphaComponent(0.5)
+        let lineColor = lightMode ? UIColor.black.withAlphaComponent(0.08) : UIColor.white.withAlphaComponent(0.08)
+
+        let calendar = Calendar.current
+        let nowHour = calendar.component(.hour, from: Date())
+        let nowDay = calendar.component(.day, from: Date())
+        let nowWeekday = calendar.component(.weekday, from: Date())
+        let nowMonth = calendar.component(.month, from: Date())
+
+        let divisions: Int
+        let labels: [String]
+        let nowIndex: Int
+
+        switch mode {
+        case .flowing: return
+
+        case .byHour:
+            divisions = 24
+            labels = (0..<24).map { h in
+                let ampm = h < 12 ? "AM" : "PM"
+                let displayH = h == 0 ? 12 : (h > 12 ? h - 12 : h)
+                return "\(displayH) \(ampm)"
+            }
+            nowIndex = nowHour
+
+        case .byDayOfMonth:
+            divisions = 31
+            labels = (1...31).map { "\($0)" }
+            nowIndex = nowDay - 1
+
+        case .byDayOfWeek:
+            divisions = 7
+            labels = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+            nowIndex = nowWeekday - 1
+
+        case .byMonth:
+            divisions = 12
+            labels = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                       "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+            nowIndex = nowMonth - 1
+        }
+
+        for i in 0..<divisions {
+            let angle = Float(i) / Float(divisions) * Float.pi * 2.0
+            let isNow = i == nowIndex
+
+            let x = cos(angle) * radius
+            let z = sin(angle) * radius
+
+            // Guide line (thin vertical bar at each angular position)
+            let lineHeight: CGFloat = isNow ? 6.0 : 3.0
+            let lineGeo = SCNBox(width: 0.03, height: lineHeight, length: 0.03, chamferRadius: 0)
+            let lineMat = SCNMaterial()
+            lineMat.diffuse.contents = isNow ? accentColor.withAlphaComponent(0.7) : lineColor
+            lineMat.lightingModel = .constant
+            lineMat.writesToDepthBuffer = false
+            lineGeo.materials = [lineMat]
+            let lineNode = SCNNode(geometry: lineGeo)
+            lineNode.position = SCNVector3(x, 0, z)
+            guideRoot.addChildNode(lineNode)
+
+            // Label (show every Nth label to avoid clutter for 24/31 divisions)
+            let showLabel: Bool
+            switch mode {
+            case .byHour:       showLabel = i % 3 == 0 || isNow
+            case .byDayOfMonth: showLabel = i % 5 == 0 || isNow
+            default:            showLabel = true
+            }
+
+            if showLabel && i < labels.count {
+                let color = isNow ? accentColor : labelColor
+                let labelNode = createTextSprite(
+                    text: labels[i],
+                    fontSize: isNow ? 14 : 11,
+                    color: color,
+                    bold: isNow
+                )
+                let labelRadius = radius + 1.8
+                labelNode.position = SCNVector3(
+                    cos(angle) * labelRadius,
+                    isNow ? -1.2 : -1.0,
+                    sin(angle) * labelRadius
+                )
+                labelNode.scale = SCNVector3(4, 1.0, 1)
+                guideRoot.addChildNode(labelNode)
+            }
+
+            // Accent glow dot on the "now" position
+            if isNow {
+                let glowGeo = SCNSphere(radius: 0.25)
+                let glowMat = SCNMaterial()
+                glowMat.diffuse.contents = accentColor.withAlphaComponent(0.6)
+                glowMat.lightingModel = .constant
+                glowMat.writesToDepthBuffer = false
+                glowGeo.materials = [glowMat]
+                let glowNode = SCNNode(geometry: glowGeo)
+                glowNode.position = SCNVector3(x, 0, z)
+                guideRoot.addChildNode(glowNode)
+
+                let pulse = CABasicAnimation(keyPath: "scale")
+                pulse.fromValue = NSValue(scnVector3: SCNVector3(1.0, 1.0, 1.0))
+                pulse.toValue = NSValue(scnVector3: SCNVector3(1.6, 1.6, 1.6))
+                pulse.duration = 1.5
+                pulse.autoreverses = true
+                pulse.repeatCount = .infinity
+                pulse.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                glowNode.addAnimation(pulse, forKey: "nowGuidePulse")
+            }
+        }
+
+        // Draw a faint circle on the ground plane connecting the guide positions
+        let circleSegments = divisions * 4
+        let circleMat = SCNMaterial()
+        circleMat.diffuse.contents = lineColor
+        circleMat.lightingModel = .constant
+        circleMat.writesToDepthBuffer = false
+        for i in 0..<circleSegments {
+            let a1 = Float(i) / Float(circleSegments) * Float.pi * 2.0
+            let a2 = Float(i + 1) / Float(circleSegments) * Float.pi * 2.0
+            let ax = cos(a1) * radius, az = sin(a1) * radius
+            let bx = cos(a2) * radius, bz = sin(a2) * radius
+            let dx = bx - ax, dz = bz - az
+            let segLen = sqrt(dx * dx + dz * dz)
+            guard segLen > 0.001 else { continue }
+
+            let cyl = SCNCylinder(radius: 0.015, height: CGFloat(segLen))
+            cyl.radialSegmentCount = 4
+            cyl.materials = [circleMat]
+            let segNode = SCNNode(geometry: cyl)
+            segNode.position = SCNVector3((ax + bx) / 2, 0, (az + bz) / 2)
+
+            // Orient horizontally in XZ plane — cylinder default is Y-axis
+            let midAngle = (a1 + a2) / 2.0
+            segNode.eulerAngles = SCNVector3(0, 0, Float.pi / 2)
+            segNode.eulerAngles.y = -midAngle
+            guideRoot.addChildNode(segNode)
+        }
+
+        scene.rootNode.addChildNode(guideRoot)
+        guideNodes.append(guideRoot)
     }
 
     // MARK: - View Mode Toggle

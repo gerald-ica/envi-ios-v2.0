@@ -67,6 +67,13 @@ enum ContentSource: String, CaseIterable, Codable {
     }
 }
 
+// MARK: - Content Status
+
+/// Publishing status of a content piece.
+enum ContentStatus: String, CaseIterable, Codable {
+    case draft, scheduled, posted, archived
+}
+
 // MARK: - Content Metrics
 
 /// Engagement metrics for a content piece.
@@ -95,6 +102,8 @@ struct ContentPiece: Identifiable, Codable {
     let aiSuggestion: String?
     let imageName: String
     let source: ContentSource
+    let status: ContentStatus
+    let scheduledDate: Date?
 
     // Future/predicted content fields
     let predictedEngagement: String?
@@ -117,6 +126,8 @@ struct ContentPiece: Identifiable, Codable {
         description: String, aiScore: Int, createdAt dateString: String, tags: [String],
         metrics: ContentMetrics?, aiSuggestion: String?, imageName: String,
         source: ContentSource,
+        status: ContentStatus = .draft,
+        scheduledDate: Date? = nil,
         predictedEngagement: String? = nil,
         confidenceScore: Int? = nil,
         aiExplanation: String? = nil
@@ -127,6 +138,7 @@ struct ContentPiece: Identifiable, Codable {
         self.createdAt = Self.dateFormatter.date(from: dateString) ?? Date()
         self.tags = tags; self.metrics = metrics; self.aiSuggestion = aiSuggestion
         self.imageName = imageName; self.source = source
+        self.status = status; self.scheduledDate = scheduledDate
         self.predictedEngagement = predictedEngagement
         self.confidenceScore = confidenceScore
         self.aiExplanation = aiExplanation
@@ -138,6 +150,8 @@ struct ContentPiece: Identifiable, Codable {
         description: String, aiScore: Int, createdAt: Date, tags: [String],
         metrics: ContentMetrics?, aiSuggestion: String?, imageName: String,
         source: ContentSource,
+        status: ContentStatus = .draft,
+        scheduledDate: Date? = nil,
         predictedEngagement: String? = nil,
         confidenceScore: Int? = nil,
         aiExplanation: String? = nil
@@ -148,6 +162,7 @@ struct ContentPiece: Identifiable, Codable {
         self.createdAt = createdAt
         self.tags = tags; self.metrics = metrics; self.aiSuggestion = aiSuggestion
         self.imageName = imageName; self.source = source
+        self.status = status; self.scheduledDate = scheduledDate
         self.predictedEngagement = predictedEngagement
         self.confidenceScore = confidenceScore
         self.aiExplanation = aiExplanation
@@ -170,7 +185,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 12400, likes: 1830, shares: 245, comments: 89),
             aiSuggestion: "Add a text overlay at 0:03 with your tagline — posts with early text hooks see 23% more completions.",
             imageName: "Closer",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-2",
@@ -184,7 +200,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 8700, likes: 2100, shares: 312, comments: nil),
             aiSuggestion: "Crop to 4:5 for feed — this 1:1 ratio loses 18% engagement on Instagram grid.",
             imageName: "studio-fashion",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-3",
@@ -198,7 +215,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 6200, likes: 980, shares: 156, comments: 67),
             aiSuggestion: "Slide 3 has low contrast text — increase font weight or add a subtle drop shadow for readability.",
             imageName: "runway",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-4",
@@ -212,7 +230,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 34500, likes: 4200, shares: 890, comments: nil),
             aiSuggestion: "The first 2 seconds are static — start with the final shot as a hook, then rewind to the process.",
             imageName: "fire-stunt",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-5",
@@ -226,7 +245,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 4100, likes: 620, shares: 88, comments: nil),
             aiSuggestion: "Add lifestyle context — flat lays with a hand or prop in frame get 31% more saves.",
             imageName: "jacket",
-            source: .contentLibrary
+            source: .contentLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-6",
@@ -240,7 +260,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 15800, likes: 2400, shares: 567, comments: 134),
             aiSuggestion: "Strong piece. Consider a carousel companion post with hi-res stills from the same event for 2x content.",
             imageName: "fashion-group",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-7",
@@ -254,7 +275,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 9300, likes: 1100, shares: 234, comments: nil),
             aiSuggestion: "YouTube Shorts version could reach 5x the audience — cut to the best 15s with a before/after hook.",
             imageName: "cyclist",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-8",
@@ -268,7 +290,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 3200, likes: 410, shares: 190, comments: nil),
             aiSuggestion: "Quote cards without a personal story get 40% less engagement — add a 2-line personal take in the caption.",
             imageName: "red-silhouette",
-            source: .contentLibrary
+            source: .contentLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-9",
@@ -282,7 +305,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 11200, likes: 1900, shares: 445, comments: 201),
             aiSuggestion: "Pin this to your grid — collab posts drive profile visits. Tag the partner account in every slide, not just the caption.",
             imageName: "culture-food",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-10",
@@ -296,7 +320,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 22100, likes: 3400, shares: 678, comments: nil),
             aiSuggestion: "Add chapters and timestamps in description — tutorial videos with chapters get 28% more watch time.",
             imageName: "subway",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-11",
@@ -310,7 +335,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 7600, likes: 890, shares: 234, comments: nil),
             aiSuggestion: "Thread format outperforms single tweets for art — add 3-4 process images showing how the prompt evolved.",
             imageName: "desert-car",
-            source: .contentLibrary
+            source: .contentLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-12",
@@ -324,7 +350,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 5400, likes: 780, shares: 145, comments: nil),
             aiSuggestion: "Save this as a Guide on Instagram — mood boards in Guides get ongoing discovery vs. feed posts.",
             imageName: "chopsticks",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-13",
@@ -338,7 +365,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 4800, likes: 560, shares: 312, comments: 45),
             aiSuggestion: "Lead with the result, not the introduction — \"We grew 40%\" hooks better than \"Hi, I'm...\" openings.",
             imageName: "parking-garage",
-            source: .contentLibrary
+            source: .contentLibrary,
+            status: .posted
         ),
         ContentPiece(
             id: "content-14",
@@ -352,7 +380,8 @@ struct ContentPiece: Identifiable, Codable {
             metrics: ContentMetrics(views: 89200, likes: 12300, shares: 3400, comments: 567),
             aiSuggestion: "This has viral momentum — cross-post to Reels within 24hrs. Trending sounds have a 3-5 day peak window.",
             imageName: "industrial-girl",
-            source: .photoLibrary
+            source: .photoLibrary,
+            status: .posted
         ),
 
         // MARK: - Future / AI-Predicted Content Pieces
@@ -370,6 +399,7 @@ struct ContentPiece: Identifiable, Codable {
             aiSuggestion: nil,
             imageName: "industrial-girl",
             source: .predicted,
+            status: .scheduled,
             predictedEngagement: "~15K views",
             confidenceScore: 87,
             aiExplanation: "Your last 3 TikTok trend remixes averaged 34K views. Current audio is trending upward with 12M uses this week. Posting within the next 48hrs maximizes reach."
@@ -387,6 +417,7 @@ struct ContentPiece: Identifiable, Codable {
             aiSuggestion: nil,
             imageName: "red-silhouette",
             source: .predicted,
+            status: .scheduled,
             predictedEngagement: "~3K impressions",
             confidenceScore: 82,
             aiExplanation: "Your LinkedIn audience is most active on Sundays. Weekly recap carousels in your niche see 40% higher save rates than standalone posts."
@@ -404,6 +435,7 @@ struct ContentPiece: Identifiable, Codable {
             aiSuggestion: nil,
             imageName: "culture-food",
             source: .predicted,
+            status: .scheduled,
             predictedEngagement: "High opportunity — trending hashtag",
             confidenceScore: 91,
             aiExplanation: "National Coffee Day generated 2.1M Instagram posts last year. Brands in your category saw 3x engagement spikes. Early posting (7-9am) captures peak interest."
@@ -421,6 +453,7 @@ struct ContentPiece: Identifiable, Codable {
             aiSuggestion: nil,
             imageName: "Closer",
             source: .predicted,
+            status: .scheduled,
             predictedEngagement: "Optimal posting window",
             confidenceScore: 93,
             aiExplanation: "Analysis of your last 90 days shows Thursday 2-4pm is your highest engagement window. Followers online: +47% vs. average."
@@ -438,6 +471,7 @@ struct ContentPiece: Identifiable, Codable {
             aiSuggestion: nil,
             imageName: "fire-stunt",
             source: .predicted,
+            status: .scheduled,
             predictedEngagement: "Gap risk — engagement may drop 20%",
             confidenceScore: 85,
             aiExplanation: "Your video content averages 4.2x more engagement than photo posts. Going 14+ days without video historically correlates with a 20% follower engagement drop."
@@ -455,6 +489,7 @@ struct ContentPiece: Identifiable, Codable {
             aiSuggestion: nil,
             imageName: "fashion-group",
             source: .predicted,
+            status: .scheduled,
             predictedEngagement: "~8K combined impressions",
             confidenceScore: 78,
             aiExplanation: "Your last collab post (Mar 8) drove 11.2K views and 201 comments — your highest engagement that week. Partner accounts with 5K-50K followers see the best cross-pollination."

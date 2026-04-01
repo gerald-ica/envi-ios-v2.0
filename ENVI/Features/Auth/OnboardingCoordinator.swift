@@ -18,7 +18,6 @@ struct OnboardingContainerView: View {
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(ENVITheme.text(for: colorScheme))
                     }
-                    .accessibilityLabel("Go back")
                 } else {
                     Spacer().frame(width: 24)
                 }
@@ -30,8 +29,6 @@ struct OnboardingContainerView: View {
                     totalSteps: OnboardingViewModel.Step.allCases.count,
                     currentStep: viewModel.currentStep.rawValue
                 )
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Step \(viewModel.currentStep.rawValue + 1) of \(OnboardingViewModel.Step.allCases.count)")
 
                 Spacer()
 
@@ -43,7 +40,6 @@ struct OnboardingContainerView: View {
                     .font(.spaceMonoBold(13))
                     .tracking(1.5)
                     .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                    .accessibilityHint("Skips this optional step")
                 } else {
                     Spacer().frame(width: 88)
                 }
@@ -52,26 +48,36 @@ struct OnboardingContainerView: View {
             .padding(.vertical, ENVISpacing.md)
 
             // MARK: - Step Content
-            Group {
-                switch viewModel.currentStep {
-                case .name:
-                    OnboardingNameView(viewModel: viewModel)
-                case .dateOfBirth:
-                    OnboardingDOBView(viewModel: viewModel)
-                case .birthTime:
-                    OnboardingBirthTimeView(viewModel: viewModel)
-                case .whereFrom:
-                    OnboardingWhereFromView(viewModel: viewModel)
-                case .photosAccess:
-                    OnboardingPhotosAccessView(viewModel: viewModel)
-                case .whereBorn:
-                    OnboardingWhereBornView(viewModel: viewModel)
-                case .socials:
-                    OnboardingSocialsView(viewModel: viewModel)
-                }
+            TabView(selection: $viewModel.currentStep) {
+                OnboardingNameView(viewModel: viewModel)
+                    .tag(OnboardingViewModel.Step.name)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                OnboardingDOBView(viewModel: viewModel)
+                    .tag(OnboardingViewModel.Step.dateOfBirth)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                OnboardingBirthTimeView(viewModel: viewModel)
+                    .tag(OnboardingViewModel.Step.birthTime)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                OnboardingWhereFromView(viewModel: viewModel)
+                    .tag(OnboardingViewModel.Step.whereFrom)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                OnboardingPhotosAccessView(viewModel: viewModel)
+                    .tag(OnboardingViewModel.Step.photosAccess)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                OnboardingWhereBornView(viewModel: viewModel)
+                    .tag(OnboardingViewModel.Step.whereBorn)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                OnboardingSocialsView(viewModel: viewModel)
+                    .tag(OnboardingViewModel.Step.socials)
+                    .padding(.horizontal, ENVISpacing.xl)
             }
-            .padding(.horizontal, ENVISpacing.xl)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut, value: viewModel.currentStep)
 
             // MARK: - Continue Button
@@ -111,7 +117,7 @@ private struct ProgressBarView: View {
 
     private func segmentColor(for index: Int) -> Color {
         if index < currentStep {
-            return ENVITheme.primary(for: colorScheme).opacity(0.4)
+            return ENVITheme.primary(for: colorScheme)
         } else if index == currentStep {
             return ENVITheme.primary(for: colorScheme)
         } else {

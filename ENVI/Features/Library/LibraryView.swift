@@ -2,9 +2,15 @@ import SwiftUI
 
 /// Main library screen with filter chips, template carousel, and masonry grid.
 struct LibraryView: View {
+    enum ViewMode: String {
+        case grid, timeline
+    }
+
     @StateObject private var viewModel = LibraryViewModel()
-    @State private var showAddSheet = false
+    @State private var showAddFlowAlert = false
     @State private var searchText = ""
+    @State private var selectedItem: LibraryItem?
+    @State private var viewMode: ViewMode = .grid
     @Environment(\.colorScheme) private var colorScheme
 
     private var searchFilteredItems: [LibraryItem] {
@@ -17,62 +23,85 @@ struct LibraryView: View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView {
                 VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
-                    // Title
-                    Text("LIBRARY")
-                        .font(.spaceMonoBold(28))
-                        .tracking(-1.5)
-                        .foregroundColor(ENVITheme.text(for: colorScheme))
-                        .padding(.horizontal, ENVISpacing.xl)
-
-                    // Search bar
-                    HStack(spacing: ENVISpacing.sm) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                        TextField("Search library...", text: $searchText)
-                            .font(.interRegular(15))
+                    // Title + view mode toggle
+                    HStack {
+                        Text("LIBRARY")
+                            .font(.spaceMonoBold(28))
+                            .tracking(-1.5)
                             .foregroundColor(ENVITheme.text(for: colorScheme))
-                        if !searchText.isEmpty {
-                            Button { searchText = "" } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(ENVITheme.textLight(for: colorScheme))
+
+                        Spacer()
+
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                viewMode = viewMode == .grid ? .timeline : .grid
                             }
+                        } label: {
+                            Image(systemName: viewMode == .grid ? "list.bullet" : "square.grid.2x2")
+                                .font(.system(size: 18, weight: .medium))
+                                .foregroundColor(ENVITheme.text(for: colorScheme))
+                                .frame(width: 36, height: 36)
+                                .background(ENVITheme.surfaceLow(for: colorScheme))
+                                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
                         }
                     }
-                    .padding(.horizontal, ENVISpacing.lg)
-                    .padding(.vertical, ENVISpacing.md)
-                    .background(ENVITheme.surfaceLow(for: colorScheme))
-                    .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
                     .padding(.horizontal, ENVISpacing.xl)
 
-                    // Filter chips (animated on selection change)
-                    ScrollView(.horizontal, showsIndicators: false) {
+                    if viewMode == .timeline {
+                        // Timeline view
+                        ContentTimelineView()
+                    } else {
+                        // Search bar
                         HStack(spacing: ENVISpacing.sm) {
-                            ForEach(LibraryViewModel.FilterType.allCases, id: \.self) { filter in
-                                ENVIChip(
-                                    title: filter.rawValue,
-                                    isSelected: viewModel.selectedFilter == filter
-                                ) {
-                                    viewModel.selectedFilter = filter
+                            Image(systemName: "magnifyingglass")
+                                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                            TextField("Search library...", text: $searchText)
+                                .font(.interRegular(15))
+                                .foregroundColor(ENVITheme.text(for: colorScheme))
+                            if !searchText.isEmpty {
+                                Button { searchText = "" } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(ENVITheme.textLight(for: colorScheme))
                                 }
                             }
                         }
+                        .padding(.horizontal, ENVISpacing.lg)
+                        .padding(.vertical, ENVISpacing.md)
+                        .background(ENVITheme.surfaceLow(for: colorScheme))
+                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
                         .padding(.horizontal, ENVISpacing.xl)
-                    }
-                    .animation(.easeInOut, value: viewModel.selectedFilter)
 
-                    if searchFilteredItems.isEmpty && viewModel.templates.isEmpty {
-                        ENVIEmptyState(
-                            icon: "photo.on.rectangle",
-                            title: "No Content Yet",
-                            subtitle: "Approve content from your For You feed to build your library"
-                        )
-                    } else {
-                        // Templates
-                        TemplateCarousel(templates: viewModel.templates)
-
-                        // Masonry grid
-                        MasonryGridView(items: searchFilteredItems)
+                        // Filter chips
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: ENVISpacing.sm) {
+                                ForEach(LibraryViewModel.FilterType.allCases, id: \.self) { filter in
+                                    ENVIChip(
+                                        title: filter.rawValue,
+                                        isSelected: viewModel.selectedFilter == filter
+                                    ) {
+                                        viewModel.selectedFilter = filter
+                                    }
+                                }
+                            }
                             .padding(.horizontal, ENVISpacing.xl)
+                        }
+
+                        if searchFilteredItems.isEmpty {
+                            ENVIEmptyState(
+                                icon: "photo.on.rectangle",
+                                title: "No Content Yet",
+                                subtitle: "Import photos and videos to build your content library"
+                            )
+                        } else {
+                            // Templates
+                            TemplateCarousel(templates: viewModel.templates)
+
+                            // Masonry grid
+                            MasonryGridView(items: searchFilteredItems, onTap: { item in
+                                selectedItem = item
+                            })
+                            .padding(.horizontal, ENVISpacing.xl)
+                        }
                     }
                 }
                 .padding(.top, ENVISpacing.lg)
@@ -84,7 +113,7 @@ struct LibraryView: View {
             }
 
             // FAB
-            Button(action: { showAddSheet = true }) {
+            Button(action: { showAddFlowAlert = true }) {
                 Image(systemName: "plus")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.black)
@@ -97,33 +126,13 @@ struct LibraryView: View {
             .padding(.bottom, 90)
         }
         .background(ENVITheme.background(for: colorScheme))
-        .confirmationDialog("Add to Library", isPresented: $showAddSheet, titleVisibility: .visible) {
-            Button {
-                // TODO: Wire up photo picker
-            } label: {
-                Label("Photos", systemImage: "photo.on.rectangle")
-            }
-            Button {
-                // TODO: Wire up camera capture
-            } label: {
-                Label("Camera", systemImage: "camera")
-            }
-            Button {
-                // TODO: Wire up file import
-            } label: {
-                Label("Files", systemImage: "folder")
-            }
-            Button {
-                // TODO: Wire up template browser
-            } label: {
-                Label("Templates", systemImage: "doc.text")
-            }
-            Button {
-                // TODO: Wire up save template flow
-            } label: {
-                Label("Save Template", systemImage: "square.and.arrow.down")
-            }
-            Button("Cancel", role: .cancel) { }
+        .alert("Add to Library", isPresented: $showAddFlowAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Import and create flows are not wired yet. This should open a real add/import sheet in the next pass.")
+        }
+        .sheet(item: $selectedItem) { item in
+            LibraryDetailView(item: item, allItems: viewModel.filteredItems)
         }
     }
 }

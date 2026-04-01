@@ -5,7 +5,11 @@ struct LibraryItem: Identifiable, Codable {
     let title: String
     let imageName: String
     let type: ItemType
-    let height: CGFloat // For masonry layout
+    let height: CGFloat
+    let platform: SocialPlatform?
+    let createdAt: Date?
+    let aiScore: Int?
+    let bodyText: String?
 
     enum ItemType: String, Codable {
         case photos = "Photos"
@@ -14,18 +18,36 @@ struct LibraryItem: Identifiable, Codable {
         case drafts = "Drafts"
     }
 
-    init(id: String = UUID().uuidString, title: String, imageName: String, type: ItemType, height: CGFloat) {
+    init(
+        id: String = UUID().uuidString,
+        title: String,
+        imageName: String,
+        type: ItemType,
+        height: CGFloat,
+        platform: SocialPlatform? = nil,
+        createdAt: Date? = nil,
+        aiScore: Int? = nil,
+        bodyText: String? = nil
+    ) {
         self.id = id
         self.title = title
         self.imageName = imageName
         self.type = type
         self.height = height
+        self.platform = platform
+        self.createdAt = createdAt
+        self.aiScore = aiScore
+        self.bodyText = bodyText
     }
 
     init(contentItem: ContentItem) {
         id = contentItem.id.uuidString
         title = contentItem.caption
         imageName = contentItem.imageName ?? LibraryItem.fallbackImageName(for: contentItem.platform)
+        platform = contentItem.platform
+        createdAt = contentItem.timestamp
+        aiScore = Int(contentItem.confidenceScore * 100)
+        bodyText = contentItem.bodyText
 
         switch contentItem.type {
         case .photo:

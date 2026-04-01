@@ -15,12 +15,12 @@ final class LibraryViewModel: ObservableObject {
     @Published var items: [LibraryItem] = []
     @Published var templates: [TemplateItem] = []
     @Published var isLoading = false
-    @Published var error: String?
     private var cancellables = Set<AnyCancellable>()
+
+    var isEmpty: Bool { items.isEmpty && templates.isEmpty }
 
     init() {
         let store = ApprovedMediaLibraryStore.shared
-
         store.$approvedItems
             .receive(on: DispatchQueue.main)
             .sink { [weak self] approvedItems in
@@ -30,51 +30,14 @@ final class LibraryViewModel: ObservableObject {
 
         store.$savedTemplates
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] savedTemplates in
-                self?.templates = savedTemplates
+            .sink { [weak self] templates in
+                self?.templates = templates
             }
             .store(in: &cancellables)
-    }
-
-    var hasContent: Bool {
-        !items.isEmpty || !templates.isEmpty
     }
 
     var filteredItems: [LibraryItem] {
         guard selectedFilter != .all else { return items }
         return items.filter { $0.type.rawValue == selectedFilter.rawValue }
-    }
-
-    var isEmpty: Bool {
-        items.isEmpty
-    }
-
-    // MARK: - Async Loading
-
-    /// Load library items from the API, falling back to local store data.
-    func loadLibrary() async {
-        await MainActor.run { isLoading = true }
-        defer { Task { @MainActor in isLoading = false } }
-
-        do {
-            let libraryItems: [LibraryItem] = try await APIClient.shared.get("/library")
-            let templateItems: [TemplateItem] = try await APIClient.shared.get("/library/templates")
-            await MainActor.run {
-                self.items = libraryItems
-                self.templates = templateItems
-            }
-        } catch {
-            // Fall back to local ApprovedMediaLibraryStore data
-            await MainActor.run {
-                self.items = ApprovedMediaLibraryStore.shared.approvedItems
-                self.templates = ApprovedMediaLibraryStore.shared.savedTemplates
-                // Don't surface error for mock fallback during development
-            }
-        }
-    }
-
-    /// Pull-to-refresh handler.
-    func refresh() async {
-        await loadLibrary()
     }
 }

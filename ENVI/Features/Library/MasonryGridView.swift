@@ -30,8 +30,12 @@ struct MasonryGridView: View {
             ForEach(0..<2, id: \.self) { colIndex in
                 LazyVStack(spacing: ENVISpacing.md) {
                     ForEach(columns[colIndex]) { item in
-                        MasonryItemView(item: item)
-                            .onTapGesture { onTap?(item) }
+                        Button {
+                            onTap?(item)
+                        } label: {
+                            MasonryItemView(item: item)
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -51,22 +55,12 @@ private struct MasonryItemView: View {
                 .frame(height: item.height)
                 .clipped()
 
-            // Bottom-only gradient overlay
+            // Gradient + title
             LinearGradient(
-                colors: [.clear, .clear, .black.opacity(0.55)],
+                colors: [.clear, .black.opacity(0.6)],
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: item.height)
-
-            // Video play indicator
-            if item.type == .videos {
-                Image(systemName: "play.circle.fill")
-                    .font(.system(size: 32))
-                    .foregroundColor(.white.opacity(0.9))
-                    .shadow(color: .black.opacity(0.4), radius: 4, x: 0, y: 2)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
 
             Text(item.title.uppercased())
                 .font(.spaceMonoBold(11))
@@ -75,8 +69,5 @@ private struct MasonryItemView: View {
                 .padding(ENVISpacing.md)
         }
         .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(item.title), \(item.type.rawValue.lowercased())")
-        .accessibilityAddTraits(item.type == .videos ? [.isButton, .startsMediaSession] : .isButton)
     }
 }

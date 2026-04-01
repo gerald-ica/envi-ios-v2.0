@@ -80,8 +80,6 @@ final class AppCoordinator: ParentCoordinator {
         navigationController.setViewControllers([tabBar], animated: true)
     }
 
-    // MARK: - Scene Lifecycle Helpers
-
     /// The currently selected tab index, if the main tab bar is visible.
     var selectedTabIndex: Int? {
         guard let tabBar = navigationController.viewControllers.first as? MainTabBarController else {
@@ -100,8 +98,6 @@ final class AppCoordinator: ParentCoordinator {
         NotificationCenter.default.post(name: .enviAppDidBecomeActive, object: nil)
     }
 }
-
-// MARK: - Notification Names
 
 extension Notification.Name {
     static let enviAppDidEnterForeground = Notification.Name("enviAppDidEnterForeground")

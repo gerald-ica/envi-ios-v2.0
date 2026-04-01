@@ -67,6 +67,8 @@ struct WorldExplorerView: View {
     @State private var editingContent: ContentPiece?
     @State private var explorerPrompt = ""
     @State private var explorerNotice: ExplorerNotice?
+    @State private var helixTimeMode: HelixTimeMode = .flowing
+    @State private var helixDataSource: HelixDataSource = .merged
 
     /// Reference to the scene controller for state sync
     @State private var sceneController: HelixSceneController?
@@ -124,6 +126,11 @@ struct WorldExplorerView: View {
                 topRightContentTypes
             }
 
+            // Time mode picker (top center)
+            if sceneReady && selectedContent == nil {
+                timeModeBar
+            }
+
             // Right side: Vertical time scrubber + zoom buttons
             if sceneReady && selectedContent == nil {
                 rightSideScrubber
@@ -165,10 +172,6 @@ struct WorldExplorerView: View {
                 bottomBar
             }
         }
-        .onDisappear {
-            voiceTimer?.invalidate()
-            voiceTimer = nil
-        }
         .preferredColorScheme(lightMode ? .light : .dark)
         .sheet(isPresented: $showSettings) {
             ContentLibrarySettingsView()
@@ -176,10 +179,6 @@ struct WorldExplorerView: View {
         .fullScreenCover(item: $editingContent) { piece in
             EditorContainerView(contentPiece: piece)
                 .preferredColorScheme(.dark)
-        }
-        .onDisappear {
-            voiceTimer?.invalidate()
-            voiceTimer = nil
         }
         .alert(item: $explorerNotice) { notice in
             Alert(
@@ -286,6 +285,110 @@ struct WorldExplorerView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
         .padding(.top, ENVISpacing.lg)
         .padding(.trailing, ENVISpacing.xxl)
+    }
+
+    // MARK: - Time Mode Bar
+
+    private var timeModeBar: some View {
+        VStack {
+            Spacer().frame(height: 100)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(HelixTimeMode.allCases, id: \.self) { mode in
+                        let isActive = helixTimeMode == mode
+                        Button {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                helixTimeMode = mode
+                                sceneController?.timeMode = mode
+                            }
+                        } label: {
+                            Text(mode.rawValue.uppercased())
+                                .font(.spaceMonoBold(10))
+                                .tracking(1.2)
+                                .foregroundColor(
+                                    isActive
+                                        ? (lightMode ? .white : .white)
+                                        : (lightMode ? .black.opacity(0.5) : .white.opacity(0.5))
+                                )
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 8)
+                                .background(
+                                    Capsule()
+                                        .fill(
+                                            isActive
+                                                ? Color(hex: "#30217C")
+                                                : (lightMode ? Color.black.opacity(0.06) : Color.white.opacity(0.08))
+                                        )
+                                )
+                                .overlay(
+                                    Capsule()
+                                        .strokeBorder(
+                                            isActive
+                                                ? Color(hex: "#30217C").opacity(0.6)
+                                                : (lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.12)),
+                                            lineWidth: 1
+                                        )
+                                )
+                        }
+                    }
+                }
+                .padding(.horizontal, ENVISpacing.xxl)
+            }
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    // MARK: - Data Source Bar
+
+    private var dataSourceBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(HelixDataSource.allCases, id: \.self) { source in
+                    let isActive = helixDataSource == source
+                    Button {
+                        withAnimation(.easeOut(duration: 0.15)) {
+                            helixDataSource = source
+                            sceneController?.dataSource = source
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: dataSourceIcon(source))
+                                .font(.system(size: 9, weight: .medium))
+                            Text(source.rawValue.uppercased())
+                                .font(.spaceMono(9))
+                                .tracking(1.0)
+                        }
+                        .foregroundColor(
+                            isActive
+                                ? (lightMode ? .black : .white)
+                                : (lightMode ? .black.opacity(0.35) : .white.opacity(0.35))
+                        )
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .overlay(
+                            Capsule()
+                                .strokeBorder(
+                                    isActive
+                                        ? (lightMode ? Color.black.opacity(0.3) : Color.white.opacity(0.4))
+                                        : (lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.1)),
+                                    lineWidth: 1
+                                )
+                        )
+                    }
+                }
+            }
+            .padding(.horizontal, ENVISpacing.xxl)
+        }
+    }
+
+    private func dataSourceIcon(_ source: HelixDataSource) -> String {
+        switch source {
+        case .cameraRoll: return "photo.on.rectangle"
+        case .posted:     return "checkmark.circle"
+        case .scheduled:  return "clock"
+        case .merged:     return "square.stack.3d.up"
+        }
     }
 
     private func typeFilterDotColor(_ type: ContentType) -> Color {
@@ -397,6 +500,10 @@ struct WorldExplorerView: View {
             Spacer()
 
             VStack(alignment: .leading, spacing: 0) {
+                // Data source chips
+                dataSourceBar
+                    .padding(.bottom, ENVISpacing.md)
+
                 // Suggestion chips
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: ENVISpacing.sm) {
