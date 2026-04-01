@@ -361,6 +361,10 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
 
     private func toggleBookmark(for id: UUID) {
         viewModel.bookmarkCard(id: id)
+        // If the card is now bookmarked, also persist it to the library
+        if let item = viewModel.visibleItems.first(where: { $0.id == id }), item.isBookmarked {
+            ApprovedMediaLibraryStore.shared.approve(item)
+        }
         refreshCard(for: id)
     }
 

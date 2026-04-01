@@ -60,11 +60,11 @@ struct LibraryView: View {
                     }
                     .animation(.easeInOut, value: viewModel.selectedFilter)
 
-                    if searchFilteredItems.isEmpty {
+                    if searchFilteredItems.isEmpty && viewModel.templates.isEmpty {
                         ENVIEmptyState(
                             icon: "photo.on.rectangle",
                             title: "No Content Yet",
-                            subtitle: "Import photos and videos to build your content library"
+                            subtitle: "Approve content from your For You feed to build your library"
                         )
                     } else {
                         // Templates
@@ -117,6 +117,11 @@ struct LibraryView: View {
                 // TODO: Wire up template browser
             } label: {
                 Label("Templates", systemImage: "doc.text")
+            }
+            Button {
+                // TODO: Wire up save template flow
+            } label: {
+                Label("Save Template", systemImage: "square.and.arrow.down")
             }
             Button("Cancel", role: .cancel) { }
         }

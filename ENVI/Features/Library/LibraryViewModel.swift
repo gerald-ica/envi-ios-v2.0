@@ -12,19 +12,32 @@ final class LibraryViewModel: ObservableObject {
     }
 
     @Published var selectedFilter: FilterType = .all
-    @Published var items: [LibraryItem] = LibraryItem.mockItems
-    @Published var templates: [TemplateItem] = TemplateItem.mockTemplates
+    @Published var items: [LibraryItem] = []
+    @Published var templates: [TemplateItem] = []
     @Published var isLoading = false
     @Published var error: String?
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        ApprovedMediaLibraryStore.shared.$approvedItems
+        let store = ApprovedMediaLibraryStore.shared
+
+        store.$approvedItems
             .receive(on: DispatchQueue.main)
             .sink { [weak self] approvedItems in
                 self?.items = approvedItems
             }
             .store(in: &cancellables)
+
+        store.$savedTemplates
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] savedTemplates in
+                self?.templates = savedTemplates
+            }
+            .store(in: &cancellables)
+    }
+
+    var hasContent: Bool {
+        !items.isEmpty || !templates.isEmpty
     }
 
     var filteredItems: [LibraryItem] {
@@ -54,7 +67,7 @@ final class LibraryViewModel: ObservableObject {
             // Fall back to local ApprovedMediaLibraryStore data
             await MainActor.run {
                 self.items = ApprovedMediaLibraryStore.shared.approvedItems
-                self.templates = TemplateItem.mockTemplates
+                self.templates = ApprovedMediaLibraryStore.shared.savedTemplates
                 // Don't surface error for mock fallback during development
             }
         }
