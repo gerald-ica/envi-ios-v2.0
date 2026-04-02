@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Profile screen with avatar, stats, platforms, settings, and appearance toggle.
+/// Profile screen with avatar, stats, platforms, subscription, settings, and appearance toggle.
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @Environment(\.colorScheme) private var colorScheme
@@ -46,6 +46,12 @@ struct ProfileView: View {
 
                 Divider().background(ENVITheme.border(for: colorScheme))
 
+                // Subscription Status
+                SubscriptionStatusView()
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                Divider().background(ENVITheme.border(for: colorScheme))
+
                 // Connected Platforms
                 ConnectedPlatformsView(platforms: viewModel.user.connectedPlatforms)
                     .padding(.horizontal, ENVISpacing.xl)
@@ -65,6 +71,7 @@ struct ProfileView: View {
                 // Sign Out
                 Button(action: {
                     viewModel.signOut()
+                    Task { await PurchaseManager.shared.logOut() }
                     onSignOut?()
                 }) {
                     Text("Sign Out")

@@ -14,6 +14,7 @@ final class ProfileViewModel: ObservableObject {
 
     let settingsItems: [SettingsItem] = [
         SettingsItem(title: "Account Settings", icon: "person.circle"),
+        SettingsItem(title: "Subscription", icon: "crown"),
         SettingsItem(title: "Notifications", icon: "bell"),
         SettingsItem(title: "AI Preferences", icon: "brain"),
         SettingsItem(title: "Privacy & Security", icon: "lock.shield"),

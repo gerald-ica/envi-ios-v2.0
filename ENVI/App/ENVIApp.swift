@@ -1,4 +1,5 @@
 import UIKit
+import RevenueCat
 
 /// App entry point using UIKit app delegate.
 /// Uses SceneDelegate for scene lifecycle management.
@@ -9,6 +10,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Register fonts at app launch
         ENVITypography.registerFonts()
+
+        // Configure RevenueCat SDK
+        PurchaseManager.shared.configure()
+
         return true
     }
 
