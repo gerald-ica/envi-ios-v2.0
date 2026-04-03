@@ -8,6 +8,7 @@ All timestamps are **UTC** unless noted. Update this file whenever wiki pages or
 | 2026-04-03 | Verification pass 2 | Engineering docs | Added `Testing-and-SPM.md`; documented `LocationPermissionManager` in Business-Logic; sidebar + Home links updated. |
 | 2026-04-03 | Verification pass 3 | Engineering docs | README links to wiki folder; Architecture notes RevenueCatUI; Testing page documents `swift test` vs Xcode caveat. |
 | 2026-04-03 | Publish | `main` branch | Pushed `docs/github-wiki/` + `docs/WIKI_CHANGELOG.md` + README link to `origin/main`. GitHub Wiki git remote still returned 404 (private repo: may need Pro for wiki clone, or create the first wiki page in the web UI to initialize `.wiki` repo). |
+| 2026-04-03 | Publish | GitHub Wiki (`master`) | Synced all pages to `https://github.com/gerald-ica/envi-ios-v2.0.wiki.git` after wiki repo was initialized; commit `07e33dd` on wiki `master`. |
 
 ## Verification checklist (last run: 2026-04-03)
 
