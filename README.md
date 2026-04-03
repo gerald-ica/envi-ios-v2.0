@@ -116,6 +116,10 @@ The app uses two custom font families bundled in the app:
 
 Fonts are registered at app launch via `ENVITypography.registerFonts()`.
 
+## Documentation (GitHub Wiki)
+
+Full engineering documentation (architecture, flows, APIs, Data Connect, AI, subscriptions, roadmap) lives in **`docs/github-wiki/`** as Markdown you can sync to the repo’s [GitHub Wiki](https://github.com/gerald-ica/envi-ios-v2.0/wiki). See **`docs/github-wiki/SYNC-TO-GITHUB-WIKI.md`** for publish steps and **`docs/WIKI_CHANGELOG.md`** for dated updates.
+
 ## License
 
 Copyright © 2026 Informal. All rights reserved.
