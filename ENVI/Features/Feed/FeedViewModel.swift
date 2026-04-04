@@ -7,6 +7,8 @@ final class FeedViewModel: ObservableObject {
     @Published var selectedTab: FeedTab = .forYou
     @Published var expandedItemID: UUID?
     @Published var showSearch = false
+    @Published var isLoading = false
+    @Published var loadErrorMessage: String?
 
     private let repository: ContentRepository
 
@@ -47,11 +49,21 @@ final class FeedViewModel: ObservableObject {
 
     @MainActor
     func reloadFeed() async {
+        isLoading = true
+        loadErrorMessage = nil
+
         do {
             items = try await repository.fetchFeedItems()
         } catch {
-            items = ContentItem.mockFeed
+            if AppEnvironment.current == .dev {
+                items = ContentItem.mockFeed
+            } else {
+                items = []
+                loadErrorMessage = "Unable to load feed right now."
+            }
         }
+
+        isLoading = false
     }
 
     // Available bundled image names for feed cards

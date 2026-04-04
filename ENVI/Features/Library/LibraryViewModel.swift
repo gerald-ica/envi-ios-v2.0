@@ -14,6 +14,8 @@ final class LibraryViewModel: ObservableObject {
     @Published var selectedFilter: FilterType = .all
     @Published var items: [LibraryItem] = []
     @Published var templates: [TemplateItem] = TemplateItem.mockTemplates
+    @Published var isLoading = false
+    @Published var loadErrorMessage: String?
     private var cancellables = Set<AnyCancellable>()
     private let repository: ContentRepository
 
@@ -36,13 +38,23 @@ final class LibraryViewModel: ObservableObject {
 
     @MainActor
     func reloadLibrary() async {
+        isLoading = true
+        loadErrorMessage = nil
+
         do {
             let contentItems = try await repository.fetchLibraryItems()
             let mapped = contentItems.map(LibraryItem.init(contentItem:))
             items = mapped
         } catch {
-            items = LibraryItem.mockItems
+            if AppEnvironment.current == .dev {
+                items = LibraryItem.mockItems
+            } else {
+                items = []
+                loadErrorMessage = "Unable to load library content."
+            }
         }
+
+        isLoading = false
     }
 
     private func mergeApprovedItems(_ approvedItems: [LibraryItem]) {
