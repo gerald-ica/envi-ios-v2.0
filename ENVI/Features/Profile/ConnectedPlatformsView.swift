@@ -3,6 +3,7 @@ import SwiftUI
 /// Shows connected social platforms with connection status.
 struct ConnectedPlatformsView: View {
     let platforms: [PlatformConnection]
+    var onConnectTap: ((SocialPlatform) -> Void)?
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -37,10 +38,16 @@ struct ConnectedPlatformsView: View {
                     Spacer()
 
                     // Status badge
-                    ENVIBadge(
-                        text: connection.isConnected ? "Connected" : "Connect",
-                        color: connection.isConnected ? ENVITheme.success : ENVITheme.Dark.surfaceHigh
-                    )
+                    Button {
+                        guard !connection.isConnected else { return }
+                        onConnectTap?(connection.platform)
+                    } label: {
+                        ENVIBadge(
+                            text: connection.isConnected ? "Connected" : "Connect",
+                            color: connection.isConnected ? ENVITheme.success : ENVITheme.Dark.surfaceHigh
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(.vertical, ENVISpacing.xs)
             }

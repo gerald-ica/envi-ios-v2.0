@@ -53,8 +53,20 @@ struct ProfileView: View {
                 Divider().background(ENVITheme.border(for: colorScheme))
 
                 // Connected Platforms
-                ConnectedPlatformsView(platforms: viewModel.user.connectedPlatforms)
+                ConnectedPlatformsView(
+                    platforms: viewModel.user.connectedPlatforms,
+                    onConnectTap: { platform in
+                        Task { await viewModel.connectPlatform(platform) }
+                    }
+                )
                     .padding(.horizontal, ENVISpacing.xl)
+
+                if let message = viewModel.connectionErrorMessage {
+                    Text(message)
+                        .font(.interRegular(13))
+                        .foregroundColor(ENVITheme.error)
+                        .padding(.horizontal, ENVISpacing.xl)
+                }
 
                 Divider().background(ENVITheme.border(for: colorScheme))
 
