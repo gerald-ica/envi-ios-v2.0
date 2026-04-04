@@ -11,9 +11,11 @@ struct ExportSheetView: View {
     @State private var quality: Double
     @State private var selectedPlatforms: Set<SocialPlatform>
     @State private var isExporting = false
+    @State private var isPublishing = false
     @State private var showShareSheet = false
     @State private var copyFeedback = "Copy"
     @State private var captionOptionIndex = 0
+    @State private var publishStatusMessage: String?
 
     private let ratios = ["9:16", "1:1", "16:9", "4:5"]
 
@@ -135,6 +137,19 @@ struct ExportSheetView: View {
                     ENVIButton(composer.exportButtonTitle) {
                         isExporting = true
                     }
+
+                    ENVIButton(
+                        isPublishing ? "Publishing..." : "Publish Selected",
+                        isEnabled: !isPublishing && !selectedPlatforms.isEmpty
+                    ) {
+                        Task { await publishSelected() }
+                    }
+
+                    if let publishStatusMessage {
+                        Text(publishStatusMessage)
+                            .font(.interRegular(13))
+                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                    }
                 }
                 .padding(ENVISpacing.xl)
             }
@@ -216,6 +231,36 @@ struct ExportSheetView: View {
         } else {
             selectedPlatforms.insert(platform)
         }
+    }
+
+    @MainActor
+    private func publishSelected() async {
+        guard !selectedPlatforms.isEmpty else { return }
+        isPublishing = true
+        publishStatusMessage = "Submitting publish request..."
+
+        do {
+            let ticket = try await PublishingManager.shared.startPublish(
+                caption: caption,
+                platforms: Array(selectedPlatforms)
+            )
+
+            publishStatusMessage = "Queued (\(ticket.jobID)). Checking status..."
+            let finalStatus = try await PublishingManager.shared.waitForFinalStatus(jobID: ticket.jobID)
+
+            switch finalStatus {
+            case .posted:
+                publishStatusMessage = "Published successfully."
+            case .failed:
+                publishStatusMessage = "Publish failed. Please retry."
+            case .queued, .processing:
+                publishStatusMessage = "Publish still processing."
+            }
+        } catch {
+            publishStatusMessage = "Publish request failed."
+        }
+
+        isPublishing = false
     }
 }
 
