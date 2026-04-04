@@ -9,6 +9,8 @@ final class EditorViewController: UIViewController {
     private let contentPiece: ContentPiece?
     private lazy var exportComposer = ExportComposerFactory.make(contentItem: contentItem, contentPiece: contentPiece)
     private var isPreviewPlaying = false
+    private let videoEditService = VideoEditService()
+    private var latestTrimmedVideoURL: URL?
 
     // MARK: - Top Toolbar
     private let topBar: UIView = {
@@ -285,16 +287,74 @@ final class EditorViewController: UIViewController {
 
     @objc private func toolTapped(_ sender: UIButton) {
         guard sender.tag < viewModel.tools.count else { return }
-        presentPlaceholderAlert(
-            title: viewModel.tools[sender.tag],
-            message: "This editing tool is still placeholder UI. The next pass should wire it into the real editor stack."
-        )
+        let tool = viewModel.tools[sender.tag]
+
+        switch tool {
+        case "Trim":
+            Task { await performQuickTrim() }
+        default:
+            presentPlaceholderAlert(
+                title: tool,
+                message: "This editing tool is still placeholder UI. The next pass should wire it into the real editor stack."
+            )
+        }
     }
 
     private func presentPlaceholderAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
+    }
+
+    @MainActor
+    private func performQuickTrim() async {
+        guard let sourceURL = resolveSourceVideoURL() else {
+            presentPlaceholderAlert(
+                title: "Trim",
+                message: "No source video is available for trimming in this context."
+            )
+            return
+        }
+
+        do {
+            let outputURL = try await videoEditService.trimVideo(
+                sourceURL: sourceURL,
+                startTime: 0,
+                endTime: min(8, 30)
+            )
+            latestTrimmedVideoURL = outputURL
+            presentPlaceholderAlert(
+                title: "Trim Complete",
+                message: "Created trimmed clip: \(outputURL.lastPathComponent)"
+            )
+        } catch {
+            presentPlaceholderAlert(
+                title: "Trim Failed",
+                message: "Could not trim video: \(error.localizedDescription)"
+            )
+        }
+    }
+
+    private func resolveSourceVideoURL() -> URL? {
+        if let latestTrimmedVideoURL {
+            return latestTrimmedVideoURL
+        }
+
+        let candidateNames: [String] = [
+            contentItem?.imageName,
+            contentPiece?.imageName,
+            "preview"
+        ].compactMap { $0 }
+
+        for baseName in candidateNames {
+            if let url = Bundle.main.url(forResource: baseName, withExtension: "mp4") {
+                return url
+            }
+            if let url = Bundle.main.url(forResource: baseName, withExtension: "mov") {
+                return url
+            }
+        }
+        return nil
     }
 
     private func previewImage() -> UIImage? {
