@@ -109,12 +109,15 @@ final class ContentPieceAssembler: ObservableObject {
     private let maxRetryCount = 3
     private var queue: [PendingItem] = []
     private var isProcessing = false
+    private let transport: ContentAssemblyTransport
 
     // MARK: - Singleton
 
     static let shared = ContentPieceAssembler()
 
-    private init() {}
+    init(transport: ContentAssemblyTransport = APIContentAssemblyTransport()) {
+        self.transport = transport
+    }
 
     // MARK: - Queue Management
 
@@ -208,12 +211,19 @@ final class ContentPieceAssembler: ObservableObject {
     }
 
     private func uploadAndAssemble(mediaID: String) async throws -> String {
-        let upload = try await uploadMediaAsset(mediaID: mediaID)
-        let piece = try await createContentPiece(mediaAssetID: upload.id)
+        let upload = try await transport.uploadMediaAsset(mediaID: mediaID)
+        let piece = try await transport.createContentPiece(mediaAssetID: upload.id)
         return piece.id
     }
+}
 
-    private func uploadMediaAsset(mediaID: String) async throws -> UploadMediaResponse {
+protocol ContentAssemblyTransport {
+    func uploadMediaAsset(mediaID: String) async throws -> UploadMediaResponse
+    func createContentPiece(mediaAssetID: String) async throws -> CreatePieceResponse
+}
+
+struct APIContentAssemblyTransport: ContentAssemblyTransport {
+    func uploadMediaAsset(mediaID: String) async throws -> UploadMediaResponse {
         let payload = UploadMediaRequest(
             mediaID: mediaID,
             fileName: "\(mediaID).mov",
@@ -229,7 +239,7 @@ final class ContentPieceAssembler: ObservableObject {
         )
     }
 
-    private func createContentPiece(mediaAssetID: String) async throws -> CreatePieceResponse {
+    func createContentPiece(mediaAssetID: String) async throws -> CreatePieceResponse {
         let payload = CreatePieceRequest(mediaAssetID: mediaAssetID)
         return try await APIClient.shared.request(
             endpoint: "content/assemble",
@@ -240,7 +250,7 @@ final class ContentPieceAssembler: ObservableObject {
     }
 }
 
-private struct UploadMediaRequest: Encodable {
+struct UploadMediaRequest: Encodable {
     let mediaID: String
     let fileName: String
     let fileUrl: String
@@ -248,14 +258,14 @@ private struct UploadMediaRequest: Encodable {
     let duration: Float?
 }
 
-private struct UploadMediaResponse: Decodable {
+struct UploadMediaResponse: Decodable {
     let id: String
 }
 
-private struct CreatePieceRequest: Encodable {
+struct CreatePieceRequest: Encodable {
     let mediaAssetID: String
 }
 
-private struct CreatePieceResponse: Decodable {
+struct CreatePieceResponse: Decodable {
     let id: String
 }
