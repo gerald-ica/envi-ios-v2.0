@@ -1,0 +1,42 @@
+query ListAllProjects @auth(level: USER) {
+  projects {
+    id
+    name
+    createdAt
+    user {
+      displayName
+    }
+  }
+}
+
+mutation CreateMediaAsset($fileName: String!, $fileUrl: String!, $fileType: String!, $duration: Float) @auth(level: USER) {
+  mediaAsset_insert(data: {
+    userId_expr: "auth.uid",
+    fileName: $fileName,
+    fileUrl: $fileUrl,
+    fileType: $fileType,
+    duration: $duration,
+    createdAt_expr: "request.time"
+  })
+}
+
+query GetTemplateDetails($id: UUID!) @auth(level: USER) {
+  template(id: $id) {
+    name
+    description
+    isPublic
+    user {
+      displayName
+    }
+  }
+}
+
+mutation UpdateProjectName($projectId: UUID!, $newName: String!) @auth(level: USER) {
+  project_update(
+    key: { id: $projectId },
+    data: {
+      name: $newName,
+      updatedAt_expr: "request.time"
+    }
+  )
+}
