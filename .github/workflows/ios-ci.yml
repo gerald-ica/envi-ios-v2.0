@@ -1,0 +1,53 @@
+name: iOS CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    name: Build and test (iOS simulator)
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve Swift packages
+        run: swift package resolve
+
+      - name: Select simulator
+        id: simulator
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone 16/ {print $2; exit}')
+          if [ -z "$DEVICE_ID" ]; then
+            DEVICE_ID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {print $2; exit}')
+          fi
+          if [ -z "$DEVICE_ID" ]; then
+            echo "No available iOS Simulator device found"
+            exit 1
+          fi
+          echo "device_id=$DEVICE_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: |
+          xcodebuild \
+            -scheme ENVI \
+            -destination "id=${{ steps.simulator.outputs.device_id }}" \
+            -configuration Debug \
+            build \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Test
+        run: |
+          xcodebuild \
+            -scheme ENVI \
+            -destination "id=${{ steps.simulator.outputs.device_id }}" \
+            -configuration Debug \
+            test \
+            CODE_SIGNING_ALLOWED=NO
