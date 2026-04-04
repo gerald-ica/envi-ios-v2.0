@@ -27,3 +27,10 @@ Pods/
 # IDE
 .idea/
 *.code-workspace
+
+# Local tooling
+.cache/
+.cursor/
+.firebase/
+.vscode/
+dataconnect/.dataconnect/
