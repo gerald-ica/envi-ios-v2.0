@@ -12,22 +12,44 @@ final class LibraryViewModel: ObservableObject {
     }
 
     @Published var selectedFilter: FilterType = .all
-    @Published var items: [LibraryItem] = LibraryItem.mockItems
+    @Published var items: [LibraryItem] = []
     @Published var templates: [TemplateItem] = TemplateItem.mockTemplates
     private var cancellables = Set<AnyCancellable>()
+    private let repository: ContentRepository
 
-    init() {
+    init(repository: ContentRepository = ContentRepositoryProvider.shared.contentRepository) {
+        self.repository = repository
         ApprovedMediaLibraryStore.shared.$approvedItems
             .receive(on: DispatchQueue.main)
             .sink { [weak self] approvedItems in
-                self?.items = approvedItems + LibraryItem.mockItems
+                self?.mergeApprovedItems(approvedItems)
             }
             .store(in: &cancellables)
+
+        Task { await reloadLibrary() }
     }
 
     var filteredItems: [LibraryItem] {
         guard selectedFilter != .all else { return items }
         return items.filter { $0.type.rawValue == selectedFilter.rawValue }
+    }
+
+    @MainActor
+    func reloadLibrary() async {
+        do {
+            let contentItems = try await repository.fetchLibraryItems()
+            let mapped = contentItems.map(LibraryItem.init(contentItem:))
+            items = mapped
+        } catch {
+            items = LibraryItem.mockItems
+        }
+    }
+
+    private func mergeApprovedItems(_ approvedItems: [LibraryItem]) {
+        let nonApproved = items.filter { item in
+            !approvedItems.contains(where: { $0.id == item.id })
+        }
+        items = approvedItems + nonApproved
     }
 }
 
