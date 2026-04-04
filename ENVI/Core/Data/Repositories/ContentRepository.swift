@@ -32,9 +32,18 @@ final class APIContentRepository: ContentRepository {
 }
 
 enum ContentRepositoryProvider {
-    static var shared = Shared()
+    static var shared = Shared(contentRepository: defaultRepository())
 
     struct Shared {
-        var contentRepository: ContentRepository = MockContentRepository()
+        var contentRepository: ContentRepository
+    }
+
+    private static func defaultRepository() -> ContentRepository {
+        switch AppEnvironment.current {
+        case .dev:
+            return MockContentRepository()
+        case .staging, .prod:
+            return APIContentRepository()
+        }
     }
 }
