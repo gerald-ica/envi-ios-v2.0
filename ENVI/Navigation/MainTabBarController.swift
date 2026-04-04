@@ -31,11 +31,11 @@ final class MainTabBarController: UIViewController {
         libraryVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
         // Tab 3: Chat + Explore (SwiftUI)
-        let chatExploreVC = UIHostingController(rootView: ChatExploreView())
+        let chatExploreVC = UIHostingController(rootView: ChatExploreView().requiresAura())
         chatExploreVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
         // Tab 4: Analytics (SwiftUI)
-        let analyticsVC = UIHostingController(rootView: AnalyticsView())
+        let analyticsVC = UIHostingController(rootView: AnalyticsView().requiresAura())
         analyticsVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
         // Tab 5: Profile (SwiftUI)

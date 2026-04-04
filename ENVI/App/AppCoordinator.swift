@@ -38,6 +38,7 @@ final class AppCoordinator: ParentCoordinator {
         if !UserDefaultsManager.shared.hasCompletedOnboarding {
             showOnboarding()
         } else if AuthManager.shared.isSignedIn {
+            syncPurchasesWithAuth()
             showMainApp()
         } else {
             showSignIn()
@@ -61,6 +62,7 @@ final class AppCoordinator: ParentCoordinator {
     private func showSignIn() {
         let signInView = SignInView(
             onSignIn: { [weak self] in
+                self?.syncPurchasesWithAuth()
                 self?.showMainApp()
             },
             onCreateAccount: { [weak self] in
@@ -77,9 +79,15 @@ final class AppCoordinator: ParentCoordinator {
         let tabBar = MainTabBarController()
         tabBar.onSignOut = { [weak self] in
             try? AuthManager.shared.signOut()
+            Task { await PurchaseManager.shared.logOut() }
             TelemetryManager.shared.track(.authSignedOut)
             self?.showSignIn()
         }
         navigationController.setViewControllers([tabBar], animated: true)
+    }
+
+    private func syncPurchasesWithAuth() {
+        guard let userID = AuthManager.shared.currentUserID else { return }
+        Task { await PurchaseManager.shared.logIn(appUserID: userID) }
     }
 }
