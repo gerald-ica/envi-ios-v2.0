@@ -35,10 +35,12 @@ final class AppCoordinator: ParentCoordinator {
 
     // MARK: - Post-Splash Routing
     private func handlePostSplash() {
-        if UserDefaultsManager.shared.hasCompletedOnboarding {
+        if !UserDefaultsManager.shared.hasCompletedOnboarding {
+            showOnboarding()
+        } else if AuthManager.shared.isSignedIn {
             showMainApp()
         } else {
-            showOnboarding()
+            showSignIn()
         }
     }
 
@@ -74,7 +76,7 @@ final class AppCoordinator: ParentCoordinator {
     private func showMainApp() {
         let tabBar = MainTabBarController()
         tabBar.onSignOut = { [weak self] in
-            UserDefaultsManager.shared.resetAll()
+            try? AuthManager.shared.signOut()
             self?.showSignIn()
         }
         navigationController.setViewControllers([tabBar], animated: true)

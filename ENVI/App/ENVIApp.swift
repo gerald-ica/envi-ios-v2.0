@@ -1,5 +1,6 @@
 import UIKit
 import RevenueCat
+import FirebaseCore
 
 /// App entry point using UIKit app delegate.
 /// Uses SceneDelegate for scene lifecycle management.
@@ -10,6 +11,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Register fonts at app launch
         ENVITypography.registerFonts()
+
+        // Configure Firebase SDK before any auth interaction.
+        if FirebaseApp.app() == nil {
+            if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+               let options = FirebaseOptions(contentsOfFile: path) {
+                FirebaseApp.configure(options: options)
+            } else {
+                print("Firebase not configured: missing GoogleService-Info.plist")
+            }
+        }
 
         // Configure RevenueCat SDK
         PurchaseManager.shared.configure()

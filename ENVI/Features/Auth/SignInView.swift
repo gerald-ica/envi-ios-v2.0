@@ -4,6 +4,8 @@ import SwiftUI
 struct SignInView: View {
     @State private var email = ""
     @State private var password = ""
+    @State private var errorMessage: String?
+    @State private var isLoading = false
     @Environment(\.colorScheme) private var colorScheme
 
     var onSignIn: (() -> Void)?
@@ -43,9 +45,17 @@ struct SignInView: View {
             }
             .padding(.horizontal, ENVISpacing.xl)
 
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.interRegular(13))
+                    .foregroundColor(.red.opacity(0.9))
+                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.top, ENVISpacing.md)
+            }
+
             // Sign In button
-            ENVIButton("Sign In", isEnabled: isValid) {
-                onSignIn?()
+            ENVIButton(isLoading ? "Signing in..." : "Sign In", isEnabled: isValid && !isLoading) {
+                signIn()
             }
             .padding(.horizontal, ENVISpacing.xl)
             .padding(.top, ENVISpacing.xxl)
@@ -73,6 +83,28 @@ struct SignInView: View {
     private var isValid: Bool {
         !email.trimmingCharacters(in: .whitespaces).isEmpty &&
         !password.isEmpty
+    }
+
+    private func signIn() {
+        guard !isLoading else { return }
+        errorMessage = nil
+        isLoading = true
+
+        let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        Task {
+            do {
+                _ = try await AuthManager.shared.signIn(email: normalizedEmail, password: password)
+                await MainActor.run {
+                    isLoading = false
+                    onSignIn?()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = "Sign in failed. Check your credentials and try again."
+                }
+            }
+        }
     }
 }
 

@@ -21,6 +21,6 @@ final class ProfileViewModel: ObservableObject {
     ]
 
     func signOut() {
-        UserDefaultsManager.shared.resetAll()
+        try? AuthManager.shared.signOut()
     }
 }

@@ -27,6 +27,7 @@ let package = Package(
         .package(url: "https://github.com/SDWebImage/SDWebImage.git", from: "5.19.0"),
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.4.0"),
         .package(url: "https://github.com/RevenueCat/purchases-ios-spm.git", from: "5.0.0"),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -36,6 +37,8 @@ let package = Package(
                 .product(name: "Lottie", package: "lottie-spm"),
                 .product(name: "RevenueCat", package: "purchases-ios-spm"),
                 .product(name: "RevenueCatUI", package: "purchases-ios-spm"),
+                .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
             ],
             path: "ENVI",
             resources: [
