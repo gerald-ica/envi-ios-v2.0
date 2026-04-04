@@ -1,0 +1,52 @@
+type User @table {
+  displayName: String!
+  createdAt: Timestamp!
+  email: String
+  photoUrl: String
+  subscriptionType: String
+}
+
+type Project @table {
+  user: User!
+  name: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  description: String
+  lastExportedAt: Timestamp
+}
+
+type MediaAsset @table {
+  user: User!
+  fileName: String!
+  fileUrl: String!
+  fileType: String!
+  createdAt: Timestamp!
+  duration: Float
+}
+
+type ProjectClip @table {
+  project: Project!
+  mediaAsset: MediaAsset
+  position: Int!
+  startTime: Float!
+  endTime: Float!
+  clipType: String!
+  volume: Float
+  speed: Float
+}
+
+type Effect @table {
+  projectClip: ProjectClip!
+  effectType: String!
+  createdAt: Timestamp!
+  parameters: String
+}
+
+type Template @table {
+  user: User!
+  name: String!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  description: String
+  isPublic: Boolean
+}
