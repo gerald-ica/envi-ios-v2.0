@@ -38,6 +38,8 @@ let package = Package(
                 .product(name: "RevenueCat", package: "purchases-ios-spm"),
                 .product(name: "RevenueCatUI", package: "purchases-ios-spm"),
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
             ],
             path: "ENVI",

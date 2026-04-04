@@ -77,6 +77,7 @@ final class AppCoordinator: ParentCoordinator {
         let tabBar = MainTabBarController()
         tabBar.onSignOut = { [weak self] in
             try? AuthManager.shared.signOut()
+            TelemetryManager.shared.track(.authSignedOut)
             self?.showSignIn()
         }
         navigationController.setViewControllers([tabBar], animated: true)

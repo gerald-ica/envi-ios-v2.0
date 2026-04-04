@@ -89,6 +89,7 @@ struct SignInView: View {
         guard !isLoading else { return }
         errorMessage = nil
         isLoading = true
+        TelemetryManager.shared.track(.authSignInStarted)
 
         let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         Task {
@@ -96,12 +97,15 @@ struct SignInView: View {
                 _ = try await AuthManager.shared.signIn(email: normalizedEmail, password: password)
                 await MainActor.run {
                     isLoading = false
+                    TelemetryManager.shared.track(.authSignInSucceeded)
                     onSignIn?()
                 }
             } catch {
                 await MainActor.run {
                     isLoading = false
                     errorMessage = "Sign in failed. Check your credentials and try again."
+                    TelemetryManager.shared.track(.authSignInFailed)
+                    TelemetryManager.shared.record(error: error, context: "sign_in")
                 }
             }
         }

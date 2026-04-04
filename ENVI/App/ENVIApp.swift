@@ -25,6 +25,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Configure RevenueCat SDK
         PurchaseManager.shared.configure()
 
+        // Baseline analytics heartbeat for app lifecycle.
+        TelemetryManager.shared.track(.appLaunched)
+
         return true
     }
 
