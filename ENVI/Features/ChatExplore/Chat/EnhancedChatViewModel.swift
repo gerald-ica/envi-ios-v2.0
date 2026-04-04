@@ -208,36 +208,11 @@ final class EnhancedChatViewModel: ObservableObject {
         isHome = false
         isTyping = true
 
-        // Resolve thread data:
-        // 1. Try ENVI Brain for content-strategy queries
-        // 2. Fall back to mock threads for exact-match quick actions
-        // 3. Use default thread as last resort
-        let resolved: ChatThread
-        if let brainThread = askBrain(query) {
-            // ENVI Brain produced a relevant insight-backed thread
-            resolved = brainThread
-        } else if let matched = mockThreads[query] {
-            resolved = matched
-        } else {
-            // Use the default thread with the user's query as the question
-            resolved = ChatThread(
-                question: query,
-                paragraphs: defaultThread.paragraphs,
-                metrics: defaultThread.metrics,
-                relatedQuestions: defaultThread.relatedQuestions
-            )
+        Task { @MainActor in
+            let resolved = await resolveThread(for: query)
+            activeThread = resolved
+            isTyping = false
         }
-
-        // Simulate 1.5s typing delay
-        let work = DispatchWorkItem { [weak self] in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                self.activeThread = resolved
-                self.isTyping = false
-            }
-        }
-        typingWorkItem = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: work)
     }
 
     /// Reset to the home / empty state.
@@ -309,5 +284,36 @@ final class EnhancedChatViewModel: ObservableObject {
                 ? defaultThread.relatedQuestions
                 : response.suggestedFollowUps
         )
+    }
+
+    @MainActor
+    private func resolveThread(for query: String) async -> ChatThread {
+        if AppConfig.isOracleEnabled,
+           let oracleThread = await fetchOracleThread(query) {
+            return oracleThread
+        }
+
+        if let brainThread = askBrain(query) {
+            return brainThread
+        }
+
+        if let matched = mockThreads[query] {
+            return matched
+        }
+
+        return ChatThread(
+            question: query,
+            paragraphs: defaultThread.paragraphs,
+            metrics: defaultThread.metrics,
+            relatedQuestions: defaultThread.relatedQuestions
+        )
+    }
+
+    private func fetchOracleThread(_ query: String) async -> ChatThread? {
+        do {
+            return try await OracleAPIClient.shared.fetchThread(query: query)
+        } catch {
+            return nil
+        }
     }
 }

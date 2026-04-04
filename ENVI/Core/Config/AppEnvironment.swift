@@ -34,6 +34,8 @@ enum AppEnvironment: String, CaseIterable {
 }
 
 enum AppConfig {
+    static let oracleEnabledKey = "ENVI_ORACLE_ENABLED"
+
     static var apiBaseURL: URL {
         if let override = ProcessInfo.processInfo.environment[AppEnvironment.apiBaseURLKey],
            let url = URL(string: override),
@@ -41,5 +43,12 @@ enum AppConfig {
             return url
         }
         return AppEnvironment.current.defaultAPIBaseURL
+    }
+
+    static var isOracleEnabled: Bool {
+        guard let value = ProcessInfo.processInfo.environment[oracleEnabledKey]?.lowercased() else {
+            return false
+        }
+        return value == "1" || value == "true" || value == "yes"
     }
 }
