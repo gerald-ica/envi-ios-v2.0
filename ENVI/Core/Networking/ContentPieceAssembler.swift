@@ -89,6 +89,9 @@ final class ContentPieceAssembler: ObservableObject {
     /// Number of content pieces successfully assembled in this session.
     @Published private(set) var assembledCount: Int = 0
 
+    /// Number of queued items that failed after retries.
+    @Published private(set) var failedCount: Int = 0
+
     /// Delegate for receiving assembly events.
     weak var delegate: ContentPieceAssemblyDelegate?
 
@@ -97,6 +100,15 @@ final class ContentPieceAssembler: ObservableObject {
 
     /// Queued completion handlers keyed by media ID.
     private var completionHandlers: [String: AssemblyCompletion] = [:]
+
+    private struct PendingItem {
+        let mediaID: String
+        var attempt: Int
+    }
+
+    private let maxRetryCount = 3
+    private var queue: [PendingItem] = []
+    private var isProcessing = false
 
     // MARK: - Singleton
 
@@ -116,30 +128,134 @@ final class ContentPieceAssembler: ObservableObject {
     ///   - mediaIDs: Array of PHAsset local identifiers to process.
     ///   - completion: Called for each media item when assembly completes or fails.
     func enqueueForAssembly(mediaIDs: [String], completion: AssemblyCompletion? = nil) {
-        // Stub: In production, this would upload media and begin processing
+        guard !mediaIDs.isEmpty else { return }
+
         queueCount += mediaIDs.count
         state = .assembling(inProgress: mediaIDs.count)
 
         for mediaID in mediaIDs {
+            queue.append(PendingItem(mediaID: mediaID, attempt: 0))
             if let completion = completion {
                 completionHandlers[mediaID] = completion
             }
         }
 
         delegate?.assembler(self, queueCountDidChange: queueCount)
+        startProcessingIfNeeded()
     }
 
     /// Cancels all pending assembly operations.
     func cancelAll() {
         completionHandlers.removeAll()
+        queue.removeAll()
         queueCount = 0
+        failedCount = 0
+        isProcessing = false
         state = .idle
         delegate?.assembler(self, queueCountDidChange: 0)
     }
 
     /// Returns the assembly progress as a value between 0.0 and 1.0.
     var progress: Double {
-        guard queueCount > 0 else { return 0.0 }
-        return Double(assembledCount) / Double(assembledCount + queueCount)
+        let total = assembledCount + failedCount + queueCount
+        guard total > 0 else { return 0.0 }
+        return Double(assembledCount + failedCount) / Double(total)
     }
+
+    // MARK: - Queue Processing
+
+    private func startProcessingIfNeeded() {
+        guard !isProcessing else { return }
+        isProcessing = true
+
+        Task { @MainActor in
+            await processQueue()
+        }
+    }
+
+    @MainActor
+    private func processQueue() async {
+        while !queue.isEmpty {
+            var item = queue.removeFirst()
+            state = .uploading(progress: progress)
+
+            do {
+                let pieceID = try await uploadAndAssemble(mediaID: item.mediaID)
+                assembledCount += 1
+                queueCount = max(queueCount - 1, 0)
+                completionHandlers[item.mediaID]?(.success(pieceID))
+                completionHandlers[item.mediaID] = nil
+                delegate?.assembler(self, didAssemble: pieceID)
+                delegate?.assembler(self, queueCountDidChange: queueCount)
+            } catch {
+                item.attempt += 1
+                if item.attempt < maxRetryCount {
+                    queue.append(item)
+                } else {
+                    failedCount += 1
+                    queueCount = max(queueCount - 1, 0)
+                    completionHandlers[item.mediaID]?(.failure(error))
+                    completionHandlers[item.mediaID] = nil
+                    delegate?.assembler(self, didFailForMediaID: item.mediaID, error: error)
+                    delegate?.assembler(self, queueCountDidChange: queueCount)
+                }
+            }
+        }
+
+        isProcessing = false
+        state = .idle
+        delegate?.assemblerDidCompleteQueue(self)
+    }
+
+    private func uploadAndAssemble(mediaID: String) async throws -> String {
+        let upload = try await uploadMediaAsset(mediaID: mediaID)
+        let piece = try await createContentPiece(mediaAssetID: upload.id)
+        return piece.id
+    }
+
+    private func uploadMediaAsset(mediaID: String) async throws -> UploadMediaResponse {
+        let payload = UploadMediaRequest(
+            mediaID: mediaID,
+            fileName: "\(mediaID).mov",
+            fileUrl: "envi://local/\(mediaID)",
+            fileType: "video",
+            duration: nil
+        )
+        return try await APIClient.shared.request(
+            endpoint: "media/assets",
+            method: .post,
+            body: payload,
+            requiresAuth: true
+        )
+    }
+
+    private func createContentPiece(mediaAssetID: String) async throws -> CreatePieceResponse {
+        let payload = CreatePieceRequest(mediaAssetID: mediaAssetID)
+        return try await APIClient.shared.request(
+            endpoint: "content/assemble",
+            method: .post,
+            body: payload,
+            requiresAuth: true
+        )
+    }
+}
+
+private struct UploadMediaRequest: Encodable {
+    let mediaID: String
+    let fileName: String
+    let fileUrl: String
+    let fileType: String
+    let duration: Float?
+}
+
+private struct UploadMediaResponse: Decodable {
+    let id: String
+}
+
+private struct CreatePieceRequest: Encodable {
+    let mediaAssetID: String
+}
+
+private struct CreatePieceResponse: Decodable {
+    let id: String
 }
