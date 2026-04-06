@@ -153,12 +153,7 @@ struct PublishResultsView: View {
             sectionHeader("PLATFORMS")
 
             if viewModel.publishResults.isEmpty {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                        .padding(.vertical, ENVISpacing.xxl)
-                    Spacer()
-                }
+                ENVILoadingState()
                 .background(ENVITheme.surfaceLow(for: colorScheme))
                 .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
             } else {
