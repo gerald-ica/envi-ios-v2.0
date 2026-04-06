@@ -391,14 +391,14 @@ final class EditorViewController: UIViewController {
         case "Adjust":
             showAdjustPanel()
         default:
-            presentPlaceholderAlert(
+            presentAlert(
                 title: tool,
-                message: "This editing tool is still placeholder UI. The next pass should wire it into the real editor stack."
+                message: "This tool is not yet available."
             )
         }
     }
 
-    private func presentPlaceholderAlert(title: String, message: String) {
+    private func presentAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
@@ -640,7 +640,7 @@ final class EditorViewController: UIViewController {
     @MainActor
     private func performQuickTrim() async {
         guard let sourceURL = resolveSourceVideoURL() else {
-            presentPlaceholderAlert(
+            presentAlert(
                 title: "Trim",
                 message: "No source video is available for trimming in this context."
             )
@@ -654,12 +654,12 @@ final class EditorViewController: UIViewController {
                 endTime: min(8, 30)
             )
             latestTrimmedVideoURL = outputURL
-            presentPlaceholderAlert(
+            presentAlert(
                 title: "Trim Complete",
                 message: "Created trimmed clip: \(outputURL.lastPathComponent)"
             )
         } catch {
-            presentPlaceholderAlert(
+            presentAlert(
                 title: "Trim Failed",
                 message: "Could not trim video: \(error.localizedDescription)"
             )
