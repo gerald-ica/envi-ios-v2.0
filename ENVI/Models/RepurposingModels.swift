@@ -53,14 +53,7 @@ enum RepurposeJobStatus: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .queued:      return "Queued"
-        case .processing:  return "Processing"
-        case .completed:   return "Completed"
-        case .failed:      return "Failed"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 }
 
 // MARK: - ENVI-0403 Repurpose Result Status

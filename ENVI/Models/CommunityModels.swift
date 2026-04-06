@@ -47,13 +47,7 @@ enum MessageSentiment: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .positive: return "Positive"
-        case .neutral:  return "Neutral"
-        case .negative: return "Negative"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 
     var iconName: String {
         switch self {
@@ -74,14 +68,7 @@ enum InboxFilter: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .all:      return "All"
-        case .unread:   return "Unread"
-        case .flagged:  return "Flagged"
-        case .platform: return "Platform"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 }
 
 // MARK: - Inbox Message

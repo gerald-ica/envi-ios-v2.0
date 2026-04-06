@@ -117,15 +117,7 @@ enum AspectRatio: String, Codable, CaseIterable {
     case portrait4x5 = "4:5"
     case story = "Story"
 
-    var displayName: String {
-        switch self {
-        case .portrait9x16:  return "9:16"
-        case .square1x1:     return "1:1"
-        case .landscape16x9: return "16:9"
-        case .portrait4x5:   return "4:5"
-        case .story:         return "Story"
-        }
-    }
+    var displayName: String { rawValue }
 
     var platformHint: String {
         switch self {
@@ -331,7 +323,5 @@ enum PhotoExportFormat: String, CaseIterable {
         rawValue.uppercased()
     }
 
-    var fileExtension: String {
-        rawValue
-    }
+    var fileExtension: String { rawValue }
 }

@@ -40,15 +40,7 @@ enum ScheduledPostStatus: String, Codable, CaseIterable {
     case failed
     case cancelled
 
-    var displayName: String {
-        switch self {
-        case .pending:    return "Pending"
-        case .processing: return "Processing"
-        case .completed:  return "Completed"
-        case .failed:     return "Failed"
-        case .cancelled:  return "Cancelled"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 }
 
 enum ApprovalStatus: String, Codable, CaseIterable {

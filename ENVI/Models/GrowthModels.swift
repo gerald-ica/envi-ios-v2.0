@@ -63,14 +63,7 @@ enum ReferralInviteStatus: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .pending:   return "Pending"
-        case .accepted:  return "Accepted"
-        case .expired:   return "Expired"
-        case .cancelled: return "Cancelled"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 
     var iconName: String {
         switch self {

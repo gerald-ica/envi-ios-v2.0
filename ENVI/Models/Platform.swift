@@ -13,16 +13,7 @@ enum SocialPlatform: String, CaseIterable, Codable, Identifiable {
     var id: String { rawValue }
 
     /// Lowercase slug used in API endpoint paths (e.g. `oauth/instagram/connect`).
-    var apiSlug: String {
-        switch self {
-        case .instagram: return "instagram"
-        case .tiktok:    return "tiktok"
-        case .x:         return "x"
-        case .threads:   return "threads"
-        case .linkedin:  return "linkedin"
-        case .youtube:   return "youtube"
-        }
-    }
+    var apiSlug: String { rawValue.lowercased() }
 
     var iconName: String {
         switch self {

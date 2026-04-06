@@ -147,8 +147,6 @@ struct TrustScore: Identifiable {
     let factors: [String]
     let lastUpdated: Date
 
-    var id_: String { userID }
-
     init(
         id: UUID = UUID(),
         userID: String,

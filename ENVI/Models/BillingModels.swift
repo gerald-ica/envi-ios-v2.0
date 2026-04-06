@@ -13,16 +13,7 @@ enum PricingTier: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .free:       return "Free"
-        case .creator:    return "Creator"
-        case .pro:        return "Pro"
-        case .team:       return "Team"
-        case .agency:     return "Agency"
-        case .enterprise: return "Enterprise"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 
     /// Tier ordering for comparison and upgrade prompts.
     var rank: Int {

@@ -262,18 +262,6 @@ struct BrandingOverride: Codable {
     var agencyName: String?
     var footerText: String?
 
-    init(
-        logoURL: String? = nil,
-        primaryColor: String? = nil,
-        agencyName: String? = nil,
-        footerText: String? = nil
-    ) {
-        self.logoURL = logoURL
-        self.primaryColor = primaryColor
-        self.agencyName = agencyName
-        self.footerText = footerText
-    }
-
     static let mock = BrandingOverride(
         agencyName: "Neon Digital Agency",
         footerText: "Powered by Neon Digital"

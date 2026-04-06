@@ -58,16 +58,7 @@ enum HapticFeedback: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .light:     return "Light"
-        case .medium:    return "Medium"
-        case .heavy:     return "Heavy"
-        case .selection: return "Selection"
-        case .success:   return "Success"
-        case .error:     return "Error"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 
     /// Trigger the corresponding UIKit haptic.
     func fire() {

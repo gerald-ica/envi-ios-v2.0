@@ -10,13 +10,7 @@ enum OfferType: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .digital:  return "Digital"
-        case .physical: return "Physical"
-        case .service:  return "Service"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 
     var iconName: String {
         switch self {
@@ -71,15 +65,7 @@ enum LinkInBioThemeName: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .minimal:  return "Minimal"
-        case .bold:     return "Bold"
-        case .gradient: return "Gradient"
-        case .neon:     return "Neon"
-        case .mono:     return "Mono"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 }
 
 // MARK: - ENVI-0680 Link-in-Bio

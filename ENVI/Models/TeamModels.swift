@@ -10,14 +10,7 @@ enum TeamRole: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .owner:  return "Owner"
-        case .admin:  return "Admin"
-        case .editor: return "Editor"
-        case .viewer: return "Viewer"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 
     var iconName: String {
         switch self {
@@ -100,13 +93,7 @@ enum WorkspacePlan: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .free:     return "Free"
-        case .pro:      return "Pro"
-        case .business: return "Business"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 }
 
 // MARK: - Team Member
@@ -187,13 +174,7 @@ enum MemberStatus: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .active:      return "Active"
-        case .invited:     return "Invited"
-        case .deactivated: return "Deactivated"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 }
 
 // MARK: - Workspace Invite
