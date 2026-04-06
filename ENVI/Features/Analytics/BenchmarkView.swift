@@ -23,9 +23,7 @@ struct BenchmarkView: View {
             }
 
             if viewModel.isLoading {
-                ProgressView()
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, ENVISpacing.xl)
+                ENVILoadingState()
             } else if viewModel.benchmarks.isEmpty {
                 Text("No benchmark data available.")
                     .font(.interRegular(13))
