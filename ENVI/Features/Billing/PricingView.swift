@@ -99,8 +99,7 @@ struct PricingView: View {
     private var planCards: some View {
         VStack(spacing: ENVISpacing.lg) {
             if viewModel.isLoadingPlans {
-                ProgressView()
-                    .padding(ENVISpacing.xxxxl)
+                ENVILoadingState()
             } else {
                 ForEach(viewModel.filteredPlans) { plan in
                     planCard(plan)
