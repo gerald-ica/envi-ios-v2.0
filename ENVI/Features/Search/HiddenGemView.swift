@@ -50,7 +50,7 @@ struct HiddenGemView: View {
     @ViewBuilder
     private var gemsSection: some View {
         if viewModel.hiddenGems.isEmpty {
-            emptyCard(
+            ENVIEmptyState(
                 icon: "sparkles",
                 title: "No Hidden Gems Yet",
                 subtitle: "We'll surface high-potential content as your library grows."
@@ -179,27 +179,6 @@ struct HiddenGemView: View {
             .tracking(0.8)
             .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
             .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func emptyCard(icon: String, title: String, subtitle: String) -> some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: icon)
-                .font(.system(size: 28))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text(title)
-                .font(.spaceMonoBold(13))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text(subtitle)
-                .font(.spaceMono(11))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .padding(ENVISpacing.xl)
-        .frame(maxWidth: .infinity)
-        .background(ENVITheme.surfaceLow(for: colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
     }
 
     private func iconForSeason(_ season: String) -> String {
