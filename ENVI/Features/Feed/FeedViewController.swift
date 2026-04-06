@@ -1,4 +1,5 @@
 import UIKit
+import SwiftUI
 
 /// Main feed screen with a tappable "For You" feed.
 final class FeedViewController: UIViewController, UIScrollViewDelegate {
@@ -96,17 +97,6 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         label.textColor = UIColor.white.withAlphaComponent(0.72)
         label.numberOfLines = 0
         label.text = "Fresh concepts across your connected platforms."
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private let explorePlaceholderLabel: UILabel = {
-        let label = UILabel()
-        label.font = .interRegular(15)
-        label.textColor = UIColor.white.withAlphaComponent(0.72)
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.text = "Explore is coming next. For now, your For You feed is fully interactive."
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -212,6 +202,12 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
     }
 
     private func renderFeed() {
+        // Remove any embedded child view controllers (e.g. Explore grid host)
+        children.forEach { child in
+            child.willMove(toParent: nil)
+            child.view.removeFromSuperview()
+            child.removeFromParent()
+        }
         contentStack.arrangedSubviews.forEach {
             contentStack.removeArrangedSubview($0)
             $0.removeFromSuperview()
@@ -242,7 +238,12 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
                 contentStack.addArrangedSubview(cardView)
             }
         case .explore:
-            contentStack.addArrangedSubview(explorePlaceholderLabel)
+            let exploreHost = UIHostingController(rootView: ExploreGridView())
+            exploreHost.view.backgroundColor = .clear
+            exploreHost.view.translatesAutoresizingMaskIntoConstraints = false
+            addChild(exploreHost)
+            contentStack.addArrangedSubview(exploreHost.view)
+            exploreHost.didMove(toParent: self)
         }
     }
 
@@ -309,17 +310,22 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
     }
 
     @objc private func searchTapped() {
-        presentPlaceholderAlert(title: "Search", message: "Global search is the next feed flow to wire up.")
+        let searchView = FeedSearchView()
+        let hostingController = UIHostingController(rootView: searchView)
+        hostingController.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        hostingController.modalPresentationStyle = .fullScreen
+        present(hostingController, animated: true)
     }
 
     @objc private func notificationsTapped() {
-        presentPlaceholderAlert(title: "Notifications", message: "Notifications center is not wired yet.")
-    }
-
-    private func presentPlaceholderAlert(title: String, message: String) {
-        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        present(alert, animated: true)
+        let notificationsView = NotificationCenterView()
+        let hostingController = UIHostingController(rootView: notificationsView)
+        hostingController.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        if let sheet = hostingController.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberIndicator = true
+        }
+        present(hostingController, animated: true)
     }
 
     private func updateTabSelection(animated: Bool) {
