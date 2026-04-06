@@ -15,6 +15,8 @@ final class EditorToolbar: UIView {
         Tool(name: "Audio", iconName: "waveform"),
         Tool(name: "Filters", iconName: "camera.filters"),
         Tool(name: "Crop", iconName: "crop"),
+        Tool(name: "Color", iconName: "paintpalette"),
+        Tool(name: "Ratio", iconName: "aspectratio"),
     ]
 
     var onToolSelected: ((Int) -> Void)?
