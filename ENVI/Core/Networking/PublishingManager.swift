@@ -12,14 +12,16 @@ final class PublishingManager {
 
     func startPublish(
         caption: String,
-        platforms: [SocialPlatform]
+        platforms: [SocialPlatform],
+        scheduledAt: Date? = nil
     ) async throws -> PublishTicket {
         let response: PublishStartResponse = try await APIClient.shared.request(
             endpoint: "publish/jobs",
             method: .post,
             body: PublishStartRequest(
                 caption: caption,
-                platforms: platforms.map(\.rawValue)
+                platforms: platforms.map(\.rawValue),
+                scheduleAt: scheduledAt.map { Self.iso8601Formatter.string(from: $0) }
             ),
             requiresAuth: true
         )
@@ -43,6 +45,12 @@ final class PublishingManager {
 
         throw PublishError.timedOut
     }
+
+    private static let iso8601Formatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
 }
 
 struct PublishTicket {
@@ -60,6 +68,7 @@ enum PublishStatus: String, Decodable {
 private struct PublishStartRequest: Encodable {
     let caption: String
     let platforms: [String]
+    let scheduleAt: String?
 }
 
 private struct PublishStartResponse: Decodable {

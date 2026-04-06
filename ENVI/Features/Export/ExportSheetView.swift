@@ -16,6 +16,8 @@ struct ExportSheetView: View {
     @State private var copyFeedback = "Copy"
     @State private var captionOptionIndex = 0
     @State private var publishStatusMessage: String?
+    @State private var publishMode: PublishMode = .now
+    @State private var scheduledAt = Date().addingTimeInterval(60 * 60)
 
     private let ratios = ["9:16", "1:1", "16:9", "4:5"]
 
@@ -145,6 +147,32 @@ struct ExportSheetView: View {
                         Task { await publishSelected() }
                     }
 
+                    VStack(alignment: .leading, spacing: ENVISpacing.sm) {
+                        Text("PUBLISH MODE")
+                            .font(.spaceMono(11))
+                            .tracking(0.88)
+                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
+
+                        Picker("Publish mode", selection: $publishMode) {
+                            ForEach(PublishMode.allCases, id: \.self) { mode in
+                                Text(mode.title).tag(mode)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+
+                        if publishMode == .scheduled {
+                            DatePicker(
+                                "Schedule time",
+                                selection: $scheduledAt,
+                                in: Date()...,
+                                displayedComponents: [.date, .hourAndMinute]
+                            )
+                            .datePickerStyle(.compact)
+                            .font(.interRegular(13))
+                            .foregroundColor(ENVITheme.text(for: colorScheme))
+                        }
+                    }
+
                     if let publishStatusMessage {
                         Text(publishStatusMessage)
                             .font(.interRegular(13))
@@ -238,14 +266,20 @@ struct ExportSheetView: View {
         guard !selectedPlatforms.isEmpty else { return }
         isPublishing = true
         publishStatusMessage = "Submitting publish request..."
+        let scheduledAtDate = publishMode == .scheduled ? scheduledAt : nil
 
         do {
             let ticket = try await PublishingManager.shared.startPublish(
                 caption: caption,
-                platforms: Array(selectedPlatforms)
+                platforms: Array(selectedPlatforms),
+                scheduledAt: scheduledAtDate
             )
 
-            publishStatusMessage = "Queued (\(ticket.jobID)). Checking status..."
+            if scheduledAtDate != nil {
+                publishStatusMessage = "Scheduled (\(ticket.jobID)). Checking status..."
+            } else {
+                publishStatusMessage = "Queued (\(ticket.jobID)). Checking status..."
+            }
             let finalStatus = try await PublishingManager.shared.waitForFinalStatus(jobID: ticket.jobID)
 
             switch finalStatus {
@@ -261,6 +295,20 @@ struct ExportSheetView: View {
         }
 
         isPublishing = false
+    }
+}
+
+private enum PublishMode: CaseIterable {
+    case now
+    case scheduled
+
+    var title: String {
+        switch self {
+        case .now:
+            return "Now"
+        case .scheduled:
+            return "Schedule"
+        }
     }
 }
 
