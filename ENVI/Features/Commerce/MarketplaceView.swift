@@ -109,8 +109,7 @@ struct MarketplaceView: View {
     private var listingGrid: some View {
         Group {
             if viewModel.isLoadingMarketplace {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 200)
+                ENVILoadingState(minHeight: 200)
             } else if viewModel.filteredMarketplace.isEmpty {
                 ENVIEmptyState(
                     icon: "tray",
@@ -199,8 +198,7 @@ struct MarketplaceView: View {
                 .padding(.horizontal, ENVISpacing.xl)
 
             if viewModel.isLoadingUGC {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 80)
+                ENVILoadingState(minHeight: 80)
             } else {
                 LazyVStack(spacing: ENVISpacing.sm) {
                     ForEach(viewModel.ugcRequests) { request in
