@@ -4,7 +4,9 @@ import PhotosUI
 /// Main library screen with filter chips, template carousel, and masonry grid.
 struct LibraryView: View {
     @StateObject private var viewModel = LibraryViewModel()
+    @StateObject private var damViewModel = LibraryDAMViewModel()
     @State private var showMediaPicker = false
+    @State private var showCalendar = false
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -79,6 +81,26 @@ struct LibraryView: View {
                             .padding(.horizontal, ENVISpacing.xl)
                     }
 
+                    // Calendar shortcut
+                    Button {
+                        showCalendar = true
+                    } label: {
+                        HStack(spacing: ENVISpacing.sm) {
+                            Image(systemName: "calendar")
+                                .font(.system(size: 14, weight: .medium))
+                            Text("OPEN CALENDAR")
+                                .font(.spaceMonoBold(11))
+                                .tracking(1.5)
+                        }
+                        .foregroundColor(colorScheme == .dark ? .black : .white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, ENVISpacing.md)
+                        .background(ENVITheme.text(for: colorScheme))
+                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, ENVISpacing.xl)
+
                     ContentPlanningSectionView(
                         items: $viewModel.contentPlan,
                         isLoading: viewModel.isLoadingPlan,
@@ -116,6 +138,15 @@ struct LibraryView: View {
                             .foregroundColor(.red)
                             .padding(.horizontal, ENVISpacing.xl)
                     }
+
+                    // DAM: Folders
+                    FolderBrowserView(viewModel: damViewModel)
+
+                    // DAM: Smart Collections
+                    SmartCollectionView(viewModel: damViewModel)
+
+                    // DAM: Storage Quota
+                    StorageQuotaView(viewModel: damViewModel)
 
                     if viewModel.isLoading {
                         HStack {
@@ -182,6 +213,9 @@ struct LibraryView: View {
                 guard !assetIdentifiers.isEmpty else { return }
                 ContentPieceAssembler.shared.enqueueForAssembly(mediaIDs: assetIdentifiers)
             }
+        }
+        .fullScreenCover(isPresented: $showCalendar) {
+            ContentCalendarFullView()
         }
     }
 }
