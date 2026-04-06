@@ -31,7 +31,7 @@ final class BillingViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        repository: BillingRepository = BillingRepositoryFactory.make(),
+        repository: BillingRepository = BillingRepositoryProvider.shared.repository,
         purchaseManager: PurchaseManager = .shared
     ) {
         self.repository = repository

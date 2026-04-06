@@ -64,20 +64,10 @@ final class APIAnalyticsRepository: AnalyticsRepository {
 }
 
 enum AnalyticsRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: AnalyticsRepository
-    }
-
-    private static func defaultRepository() -> AnalyticsRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockAnalyticsRepository()
-        case .staging, .prod:
-            return APIAnalyticsRepository()
-        }
-    }
+    static var shared = RepositoryProvider<AnalyticsRepository>(
+        dev: MockAnalyticsRepository(),
+        api: APIAnalyticsRepository()
+    )
 }
 
 private struct CreatorGrowthResponse: Decodable {

@@ -105,13 +105,9 @@ final class APIAccountRepository: AccountRepository {
 
 // MARK: - Factory
 
-enum AccountRepositoryFactory {
-    static func make() -> AccountRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockAccountRepository()
-        case .staging, .prod:
-            return APIAccountRepository()
-        }
-    }
+enum AccountRepositoryProvider {
+    static var shared = RepositoryProvider<AccountRepository>(
+        dev: MockAccountRepository(),
+        api: APIAccountRepository()
+    )
 }

@@ -155,18 +155,8 @@ enum AgencyError: LocalizedError {
 // MARK: - Provider
 
 enum AgencyRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: AgencyRepository
-    }
-
-    private static func defaultRepository() -> AgencyRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockAgencyRepository()
-        case .staging, .prod:
-            return APIAgencyRepository()
-        }
-    }
+    static var shared = RepositoryProvider<AgencyRepository>(
+        dev: MockAgencyRepository(),
+        api: APIAgencyRepository()
+    )
 }

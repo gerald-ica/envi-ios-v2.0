@@ -17,7 +17,7 @@ final class FeedViewModel: ObservableObject {
         case explore = "Explore"
     }
 
-    init(repository: ContentRepository = ContentRepositoryProvider.shared.contentRepository) {
+    init(repository: ContentRepository = ContentRepositoryProvider.shared.repository) {
         self.repository = repository
         Task { await reloadFeed() }
     }

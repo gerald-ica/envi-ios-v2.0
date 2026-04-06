@@ -139,7 +139,7 @@ final class APIIdeationRepository: IdeationRepository {
     }
 }
 
-private struct EmptyIdeationBody: Encodable {}
+private typealias EmptyIdeationBody = EmptyBody
 
 private struct IdeaColumnUpdate: Encodable {
     let column: IdeaBoardColumn
@@ -162,18 +162,8 @@ enum IdeationError: LocalizedError {
 // MARK: - Provider
 
 enum IdeationRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: IdeationRepository
-    }
-
-    private static func defaultRepository() -> IdeationRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockIdeationRepository()
-        case .staging, .prod:
-            return APIIdeationRepository()
-        }
-    }
+    static var shared = RepositoryProvider<IdeationRepository>(
+        dev: MockIdeationRepository(),
+        api: APIIdeationRepository()
+    )
 }

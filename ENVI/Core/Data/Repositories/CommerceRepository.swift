@@ -130,13 +130,9 @@ final class APICommerceRepository: CommerceRepository {
 
 // MARK: - Factory
 
-enum CommerceRepositoryFactory {
-    static func make() -> CommerceRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockCommerceRepository()
-        case .staging, .prod:
-            return APICommerceRepository()
-        }
-    }
+enum CommerceRepositoryProvider {
+    static var shared = RepositoryProvider<CommerceRepository>(
+        dev: MockCommerceRepository(),
+        api: APICommerceRepository()
+    )
 }

@@ -138,3 +138,12 @@ private struct ShareableAssetBody: Encodable {
     let contentID: UUID
     let shareURL: String
 }
+
+// MARK: - Provider
+
+enum GrowthRepositoryProvider {
+    static var shared = RepositoryProvider<GrowthRepository>(
+        dev: MockGrowthRepository(),
+        api: APIGrowthRepository()
+    )
+}

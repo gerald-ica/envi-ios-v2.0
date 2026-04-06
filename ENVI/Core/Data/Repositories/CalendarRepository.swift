@@ -117,20 +117,10 @@ final class APICalendarRepository: CalendarRepository {
 // MARK: - Provider
 
 enum CalendarRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: CalendarRepository
-    }
-
-    private static func defaultRepository() -> CalendarRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockCalendarRepository()
-        case .staging, .prod:
-            return APICalendarRepository()
-        }
-    }
+    static var shared = RepositoryProvider<CalendarRepository>(
+        dev: MockCalendarRepository(),
+        api: APICalendarRepository()
+    )
 }
 
 // MARK: - API Response Models

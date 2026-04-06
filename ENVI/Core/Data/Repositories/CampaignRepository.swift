@@ -180,18 +180,8 @@ enum CampaignError: LocalizedError {
 // MARK: - Provider
 
 enum CampaignRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: CampaignRepository
-    }
-
-    private static func defaultRepository() -> CampaignRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockCampaignRepository()
-        case .staging, .prod:
-            return APICampaignRepository()
-        }
-    }
+    static var shared = RepositoryProvider<CampaignRepository>(
+        dev: MockCampaignRepository(),
+        api: APICampaignRepository()
+    )
 }

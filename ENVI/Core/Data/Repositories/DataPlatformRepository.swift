@@ -86,20 +86,10 @@ final class APIDataPlatformRepository: DataPlatformRepository {
 // MARK: - Provider
 
 enum DataPlatformRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: DataPlatformRepository
-    }
-
-    private static func defaultRepository() -> DataPlatformRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockDataPlatformRepository()
-        case .staging, .prod:
-            return APIDataPlatformRepository()
-        }
-    }
+    static var shared = RepositoryProvider<DataPlatformRepository>(
+        dev: MockDataPlatformRepository(),
+        api: APIDataPlatformRepository()
+    )
 }
 
 // MARK: - API Response DTOs

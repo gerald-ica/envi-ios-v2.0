@@ -177,7 +177,8 @@ private struct UpdateRoleBody: Encodable {
     let role: TeamRole
 }
 
-private struct EmptyTeamBody: Encodable {}
+// Uses shared EmptyBody from RepositoryProvider.swift
+private typealias EmptyTeamBody = EmptyBody
 
 // MARK: - Error
 
@@ -194,18 +195,8 @@ enum TeamError: LocalizedError {
 // MARK: - Provider
 
 enum TeamRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: TeamRepository
-    }
-
-    private static func defaultRepository() -> TeamRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockTeamRepository()
-        case .staging, .prod:
-            return APITeamRepository()
-        }
-    }
+    static var shared = RepositoryProvider<TeamRepository>(
+        dev: MockTeamRepository(),
+        api: APITeamRepository()
+    )
 }

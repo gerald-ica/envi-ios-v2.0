@@ -174,18 +174,8 @@ enum AIWritingError: LocalizedError {
 // MARK: - Provider
 
 enum AIWritingRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: AIWritingRepository
-    }
-
-    private static func defaultRepository() -> AIWritingRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockAIWritingRepository()
-        case .staging, .prod:
-            return APIAIWritingRepository()
-        }
-    }
+    static var shared = RepositoryProvider<AIWritingRepository>(
+        dev: MockAIWritingRepository(),
+        api: APIAIWritingRepository()
+    )
 }

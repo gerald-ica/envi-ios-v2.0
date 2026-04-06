@@ -189,20 +189,10 @@ final class APILibraryDAMRepository: LibraryDAMRepository {
 // MARK: - Provider
 
 enum LibraryDAMRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: LibraryDAMRepository
-    }
-
-    private static func defaultRepository() -> LibraryDAMRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockLibraryDAMRepository()
-        case .staging, .prod:
-            return APILibraryDAMRepository()
-        }
-    }
+    static var shared = RepositoryProvider<LibraryDAMRepository>(
+        dev: MockLibraryDAMRepository(),
+        api: APILibraryDAMRepository()
+    )
 }
 
 // MARK: - Request Bodies

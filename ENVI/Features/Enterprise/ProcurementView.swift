@@ -13,7 +13,7 @@ struct ProcurementView: View {
     @State private var newAmount = ""
     @State private var newApprover = ""
 
-    private let repository: EnterpriseRepository = EnterpriseRepositoryFactory.make()
+    private let repository: EnterpriseRepository = EnterpriseRepositoryProvider.shared.repository
 
     var body: some View {
         ScrollView {

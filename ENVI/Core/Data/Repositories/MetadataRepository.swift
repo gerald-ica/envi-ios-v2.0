@@ -177,18 +177,8 @@ enum MetadataError: LocalizedError {
 // MARK: - Provider
 
 enum MetadataRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: MetadataRepository
-    }
-
-    private static func defaultRepository() -> MetadataRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockMetadataRepository()
-        case .staging, .prod:
-            return APIMetadataRepository()
-        }
-    }
+    static var shared = RepositoryProvider<MetadataRepository>(
+        dev: MockMetadataRepository(),
+        api: APIMetadataRepository()
+    )
 }

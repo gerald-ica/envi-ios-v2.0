@@ -170,7 +170,7 @@ final class APICommunityRepository: CommunityRepository {
 
 // MARK: - Request Bodies
 
-private struct EmptyCommunityBody: Encodable {}
+private typealias EmptyCommunityBody = EmptyBody
 
 private struct ReplyBody: Encodable {
     let text: String
@@ -191,18 +191,8 @@ enum CommunityError: LocalizedError {
 // MARK: - Provider
 
 enum CommunityRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: CommunityRepository
-    }
-
-    private static func defaultRepository() -> CommunityRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockCommunityRepository()
-        case .staging, .prod:
-            return APICommunityRepository()
-        }
-    }
+    static var shared = RepositoryProvider<CommunityRepository>(
+        dev: MockCommunityRepository(),
+        api: APICommunityRepository()
+    )
 }

@@ -149,7 +149,7 @@ final class APICollaborationRepository: CollaborationRepository {
 
 // MARK: - Request Bodies
 
-private struct EmptyCollaborationBody: Encodable {}
+private typealias EmptyCollaborationBody = EmptyBody
 
 private struct StatusUpdateBody: Encodable {
     let status: ReviewStatus
@@ -176,18 +176,8 @@ enum CollaborationError: LocalizedError {
 // MARK: - Provider
 
 enum CollaborationRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: CollaborationRepository
-    }
-
-    private static func defaultRepository() -> CollaborationRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockCollaborationRepository()
-        case .staging, .prod:
-            return APICollaborationRepository()
-        }
-    }
+    static var shared = RepositoryProvider<CollaborationRepository>(
+        dev: MockCollaborationRepository(),
+        api: APICollaborationRepository()
+    )
 }

@@ -189,20 +189,10 @@ final class APIContentRepository: ContentRepository {
 }
 
 enum ContentRepositoryProvider {
-    static var shared = Shared(contentRepository: defaultRepository())
-
-    struct Shared {
-        var contentRepository: ContentRepository
-    }
-
-    private static func defaultRepository() -> ContentRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockContentRepository()
-        case .staging, .prod:
-            return APIContentRepository()
-        }
-    }
+    static var shared = RepositoryProvider<ContentRepository>(
+        dev: MockContentRepository(),
+        api: APIContentRepository()
+    )
 }
 
 private struct TemplateItemResponse: Decodable {
@@ -242,7 +232,7 @@ private struct TemplateItemResponse: Decodable {
     }
 }
 
-private struct EmptyBody: Encodable {}
+// Uses shared EmptyBody from RepositoryProvider.swift
 
 // MARK: - Planning Request Bodies
 

@@ -127,13 +127,9 @@ final class APIEnterpriseRepository: EnterpriseRepository {
 
 // MARK: - Factory
 
-enum EnterpriseRepositoryFactory {
-    static func make() -> EnterpriseRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockEnterpriseRepository()
-        case .staging, .prod:
-            return APIEnterpriseRepository()
-        }
-    }
+enum EnterpriseRepositoryProvider {
+    static var shared = RepositoryProvider<EnterpriseRepository>(
+        dev: MockEnterpriseRepository(),
+        api: APIEnterpriseRepository()
+    )
 }

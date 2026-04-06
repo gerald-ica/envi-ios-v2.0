@@ -132,20 +132,10 @@ final class APISearchRepository: SearchRepository {
 // MARK: - Provider
 
 enum SearchRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: SearchRepository
-    }
-
-    private static func defaultRepository() -> SearchRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockSearchRepository()
-        case .staging, .prod:
-            return APISearchRepository()
-        }
-    }
+    static var shared = RepositoryProvider<SearchRepository>(
+        dev: MockSearchRepository(),
+        api: APISearchRepository()
+    )
 }
 
 // MARK: - Request Bodies

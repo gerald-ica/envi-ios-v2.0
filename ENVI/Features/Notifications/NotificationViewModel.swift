@@ -22,7 +22,7 @@ final class NotificationViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(repository: NotificationRepository = NotificationRepositoryFactory.make()) {
+    init(repository: NotificationRepository = NotificationRepositoryProvider.shared.repository) {
         self.repository = repository
     }
 

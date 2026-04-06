@@ -16,7 +16,7 @@ final class AccountManagementViewModel: ObservableObject {
 
     private let repository: AccountRepository
 
-    init(repository: AccountRepository = AccountRepositoryFactory.make()) {
+    init(repository: AccountRepository = AccountRepositoryProvider.shared.repository) {
         self.repository = repository
     }
 

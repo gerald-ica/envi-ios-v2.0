@@ -130,32 +130,18 @@ final class APIAdvancedAnalyticsRepository: AdvancedAnalyticsRepository {
         return response.map { $0.toDomain() }
     }
 
-    /// Builds a URL query string from key-value pairs.
     private func buildQuery(_ params: [String: String]) -> String {
-        guard !params.isEmpty else { return "" }
-        var components = URLComponents()
-        components.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
-        return components.string ?? ""
+        buildQueryString(params)
     }
 }
 
 // MARK: - Provider
 
 enum AdvancedAnalyticsRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: AdvancedAnalyticsRepository
-    }
-
-    private static func defaultRepository() -> AdvancedAnalyticsRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockAdvancedAnalyticsRepository()
-        case .staging, .prod:
-            return APIAdvancedAnalyticsRepository()
-        }
-    }
+    static var shared = RepositoryProvider<AdvancedAnalyticsRepository>(
+        dev: MockAdvancedAnalyticsRepository(),
+        api: APIAdvancedAnalyticsRepository()
+    )
 }
 
 // MARK: - API Response DTOs

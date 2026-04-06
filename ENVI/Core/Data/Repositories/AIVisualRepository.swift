@@ -130,18 +130,8 @@ enum AIVisualError: LocalizedError {
 // MARK: - Provider
 
 enum AIVisualRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: AIVisualRepository
-    }
-
-    private static func defaultRepository() -> AIVisualRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockAIVisualRepository()
-        case .staging, .prod:
-            return APIAIVisualRepository()
-        }
-    }
+    static var shared = RepositoryProvider<AIVisualRepository>(
+        dev: MockAIVisualRepository(),
+        api: APIAIVisualRepository()
+    )
 }

@@ -209,20 +209,10 @@ final class APISchedulingRepository: SchedulingRepository {
 // MARK: - Provider
 
 enum SchedulingRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: SchedulingRepository
-    }
-
-    private static func defaultRepository() -> SchedulingRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockSchedulingRepository()
-        case .staging, .prod:
-            return APISchedulingRepository()
-        }
-    }
+    static var shared = RepositoryProvider<SchedulingRepository>(
+        dev: MockSchedulingRepository(),
+        api: APISchedulingRepository()
+    )
 }
 
 // MARK: - Errors
@@ -246,4 +236,4 @@ enum SchedulingError: LocalizedError {
 
 // MARK: - Helpers
 
-private struct EmptyBody: Encodable {}
+// Uses shared EmptyBody from RepositoryProvider.swift

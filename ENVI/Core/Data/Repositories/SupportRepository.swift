@@ -151,4 +151,13 @@ private struct ReplyTicketBody: Encodable {
     let text: String
 }
 
-private struct EmptySupportBody: Encodable {}
+private typealias EmptySupportBody = EmptyBody
+
+// MARK: - Provider
+
+enum SupportRepositoryProvider {
+    static var shared = RepositoryProvider<SupportRepository>(
+        dev: MockSupportRepository(),
+        api: APISupportRepository()
+    )
+}

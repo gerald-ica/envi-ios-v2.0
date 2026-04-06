@@ -31,7 +31,7 @@ final class IntegrationViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(repository: IntegrationRepository = IntegrationRepositoryFactory.make()) {
+    init(repository: IntegrationRepository = IntegrationRepositoryProvider.shared.repository) {
         self.repository = repository
     }
 

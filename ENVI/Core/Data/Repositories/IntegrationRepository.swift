@@ -186,13 +186,9 @@ final class APIIntegrationRepository: IntegrationRepository {
 
 // MARK: - Factory
 
-enum IntegrationRepositoryFactory {
-    static func make() -> IntegrationRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockIntegrationRepository()
-        case .staging, .prod:
-            return APIIntegrationRepository()
-        }
-    }
+enum IntegrationRepositoryProvider {
+    static var shared = RepositoryProvider<IntegrationRepository>(
+        dev: MockIntegrationRepository(),
+        api: APIIntegrationRepository()
+    )
 }

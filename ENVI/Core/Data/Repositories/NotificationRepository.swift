@@ -119,13 +119,9 @@ final class APINotificationRepository: NotificationRepository {
 
 // MARK: - Factory
 
-enum NotificationRepositoryFactory {
-    static func make() -> NotificationRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockNotificationRepository()
-        case .staging, .prod:
-            return APINotificationRepository()
-        }
-    }
+enum NotificationRepositoryProvider {
+    static var shared = RepositoryProvider<NotificationRepository>(
+        dev: MockNotificationRepository(),
+        api: APINotificationRepository()
+    )
 }

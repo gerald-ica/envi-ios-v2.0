@@ -101,18 +101,8 @@ enum RepurposingError: LocalizedError {
 // MARK: - Provider
 
 enum RepurposingRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: RepurposingRepository
-    }
-
-    private static func defaultRepository() -> RepurposingRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockRepurposingRepository()
-        case .staging, .prod:
-            return APIRepurposingRepository()
-        }
-    }
+    static var shared = RepositoryProvider<RepurposingRepository>(
+        dev: MockRepurposingRepository(),
+        api: APIRepurposingRepository()
+    )
 }

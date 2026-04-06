@@ -171,7 +171,8 @@ final class APIBrandKitRepository: BrandKitRepository {
     }
 }
 
-private struct EmptyBrandKitBody: Encodable {}
+// Uses shared EmptyBody from RepositoryProvider.swift
+private typealias EmptyBrandKitBody = EmptyBody
 
 // MARK: - Error
 
@@ -188,18 +189,8 @@ enum BrandKitError: LocalizedError {
 // MARK: - Provider
 
 enum BrandKitRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: BrandKitRepository
-    }
-
-    private static func defaultRepository() -> BrandKitRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockBrandKitRepository()
-        case .staging, .prod:
-            return APIBrandKitRepository()
-        }
-    }
+    static var shared = RepositoryProvider<BrandKitRepository>(
+        dev: MockBrandKitRepository(),
+        api: APIBrandKitRepository()
+    )
 }

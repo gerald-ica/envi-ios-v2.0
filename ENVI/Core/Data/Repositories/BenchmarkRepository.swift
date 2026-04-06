@@ -70,30 +70,17 @@ final class APIBenchmarkRepository: BenchmarkRepository {
     }
 
     private func buildQuery(_ params: [String: String]) -> String {
-        guard !params.isEmpty else { return "" }
-        var components = URLComponents()
-        components.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
-        return components.string ?? ""
+        buildQueryString(params)
     }
 }
 
 // MARK: - Provider
 
 enum BenchmarkRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: BenchmarkRepository
-    }
-
-    private static func defaultRepository() -> BenchmarkRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockBenchmarkRepository()
-        case .staging, .prod:
-            return APIBenchmarkRepository()
-        }
-    }
+    static var shared = RepositoryProvider<BenchmarkRepository>(
+        dev: MockBenchmarkRepository(),
+        api: APIBenchmarkRepository()
+    )
 }
 
 // MARK: - API Response DTOs

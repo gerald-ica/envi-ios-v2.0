@@ -108,18 +108,8 @@ final class APISecurityRepository: SecurityRepository {
 // MARK: - Provider
 
 enum SecurityRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: SecurityRepository
-    }
-
-    private static func defaultRepository() -> SecurityRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockSecurityRepository()
-        case .staging, .prod:
-            return APISecurityRepository()
-        }
-    }
+    static var shared = RepositoryProvider<SecurityRepository>(
+        dev: MockSecurityRepository(),
+        api: APISecurityRepository()
+    )
 }

@@ -123,18 +123,8 @@ enum ExperimentError: LocalizedError {
 // MARK: - Provider
 
 enum ExperimentRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: ExperimentRepository
-    }
-
-    private static func defaultRepository() -> ExperimentRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockExperimentRepository()
-        case .staging, .prod:
-            return APIExperimentRepository()
-        }
-    }
+    static var shared = RepositoryProvider<ExperimentRepository>(
+        dev: MockExperimentRepository(),
+        api: APIExperimentRepository()
+    )
 }

@@ -11,7 +11,7 @@ struct SSOConfigView: View {
     @State private var newMetaKey = ""
     @State private var newMetaValue = ""
 
-    private let repository: EnterpriseRepository = EnterpriseRepositoryFactory.make()
+    private let repository: EnterpriseRepository = EnterpriseRepositoryProvider.shared.repository
 
     var body: some View {
         ScrollView {

@@ -29,7 +29,7 @@ final class LibraryViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let repository: ContentRepository
 
-    init(repository: ContentRepository = ContentRepositoryProvider.shared.contentRepository) {
+    init(repository: ContentRepository = ContentRepositoryProvider.shared.repository) {
         self.repository = repository
         ApprovedMediaLibraryStore.shared.$approvedItems
             .receive(on: DispatchQueue.main)

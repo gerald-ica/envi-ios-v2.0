@@ -104,13 +104,9 @@ final class APIBillingRepository: BillingRepository {
 
 // MARK: - Factory
 
-enum BillingRepositoryFactory {
-    static func make() -> BillingRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockBillingRepository()
-        case .staging, .prod:
-            return APIBillingRepository()
-        }
-    }
+enum BillingRepositoryProvider {
+    static var shared = RepositoryProvider<BillingRepository>(
+        dev: MockBillingRepository(),
+        api: APIBillingRepository()
+    )
 }

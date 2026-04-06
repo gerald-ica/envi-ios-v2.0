@@ -94,20 +94,10 @@ final class APIAdminRepository: AdminRepository {
 // MARK: - Provider
 
 enum AdminRepositoryProvider {
-    static var shared = Shared(repository: defaultRepository())
-
-    struct Shared {
-        var repository: AdminRepository
-    }
-
-    private static func defaultRepository() -> AdminRepository {
-        switch AppEnvironment.current {
-        case .dev:
-            return MockAdminRepository()
-        case .staging, .prod:
-            return APIAdminRepository()
-        }
-    }
+    static var shared = RepositoryProvider<AdminRepository>(
+        dev: MockAdminRepository(),
+        api: APIAdminRepository()
+    )
 }
 
 // MARK: - API Request Bodies

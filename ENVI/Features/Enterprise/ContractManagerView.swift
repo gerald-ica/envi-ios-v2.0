@@ -8,7 +8,7 @@ struct ContractManagerView: View {
     @State private var certifications: [ComplianceCertification] = []
     @State private var isLoading = true
 
-    private let repository: EnterpriseRepository = EnterpriseRepositoryFactory.make()
+    private let repository: EnterpriseRepository = EnterpriseRepositoryProvider.shared.repository
 
     var body: some View {
         ScrollView {

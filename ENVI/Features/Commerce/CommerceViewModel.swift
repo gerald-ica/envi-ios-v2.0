@@ -32,7 +32,7 @@ final class CommerceViewModel: ObservableObject {
 
     // MARK: - Init
 
-    init(repository: CommerceRepository = CommerceRepositoryFactory.make()) {
+    init(repository: CommerceRepository = CommerceRepositoryProvider.shared.repository) {
         self.repository = repository
     }
 
