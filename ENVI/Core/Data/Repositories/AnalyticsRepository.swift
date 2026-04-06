@@ -2,11 +2,16 @@ import Foundation
 
 protocol AnalyticsRepository {
     func fetchDashboard() async throws -> AnalyticsData
+    func fetchCreatorGrowth() async throws -> CreatorGrowthSnapshot
 }
 
 final class MockAnalyticsRepository: AnalyticsRepository {
     func fetchDashboard() async throws -> AnalyticsData {
         AnalyticsData.mock
+    }
+
+    func fetchCreatorGrowth() async throws -> CreatorGrowthSnapshot {
+        .mock
     }
 }
 
@@ -14,6 +19,15 @@ final class APIAnalyticsRepository: AnalyticsRepository {
     func fetchDashboard() async throws -> AnalyticsData {
         let response: AnalyticsDashboardResponse = try await APIClient.shared.request(
             endpoint: "analytics/dashboard",
+            method: .get,
+            requiresAuth: true
+        )
+        return response.toDomain()
+    }
+
+    func fetchCreatorGrowth() async throws -> CreatorGrowthSnapshot {
+        let response: CreatorGrowthResponse = try await APIClient.shared.request(
+            endpoint: "analytics/growth",
             method: .get,
             requiresAuth: true
         )
@@ -35,6 +49,38 @@ enum AnalyticsRepositoryProvider {
         case .staging, .prod:
             return APIAnalyticsRepository()
         }
+    }
+}
+
+private struct CreatorGrowthResponse: Decodable {
+    let followerGrowthPercent: Double
+    let netNewFollowers: Int
+    let weeklyRetentionPercent: Double
+    let topPerformingPlatform: String
+    let channels: [ChannelGrowthResponse]
+
+    func toDomain() -> CreatorGrowthSnapshot {
+        CreatorGrowthSnapshot(
+            followerGrowthPercent: followerGrowthPercent,
+            netNewFollowers: netNewFollowers,
+            weeklyRetentionPercent: weeklyRetentionPercent,
+            topPerformingPlatform: SocialPlatform(rawValue: topPerformingPlatform) ?? .instagram,
+            channels: channels.map { $0.toDomain() }
+        )
+    }
+}
+
+private struct ChannelGrowthResponse: Decodable {
+    let platform: String
+    let netFollowers: Int
+    let growthPercent: Double
+
+    func toDomain() -> ChannelGrowth {
+        ChannelGrowth(
+            platform: SocialPlatform(rawValue: platform) ?? .instagram,
+            netFollowers: netFollowers,
+            growthPercent: growthPercent
+        )
     }
 }
 

@@ -4,6 +4,7 @@ import Combine
 /// ViewModel for the Analytics dashboard.
 final class AnalyticsViewModel: ObservableObject {
     @Published var data = AnalyticsData.mock
+    @Published var growth = CreatorGrowthSnapshot.mock
     @Published var selectedPlatform: SocialPlatform? = nil
     @Published var dateRange = "Jun 10 – Jun 16, 2024"
     @Published var isLoading = false
@@ -35,9 +36,11 @@ final class AnalyticsViewModel: ObservableObject {
         loadErrorMessage = nil
         do {
             data = try await repository.fetchDashboard()
+            growth = try await repository.fetchCreatorGrowth()
         } catch {
             if AppEnvironment.current == .dev {
                 data = .mock
+                growth = .mock
             } else {
                 loadErrorMessage = "Unable to load analytics right now."
             }

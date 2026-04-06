@@ -77,6 +77,9 @@ struct AnalyticsView: View {
                 EngagementChartView(data: viewModel.data.dailyEngagement)
                     .padding(.horizontal, ENVISpacing.xl)
 
+                CreatorGrowthSectionView(growth: viewModel.growth)
+                    .padding(.horizontal, ENVISpacing.xl)
+
                 // Content Calendar
                 ContentCalendarView(days: viewModel.displayedCalendarDays)
                     .padding(.horizontal, ENVISpacing.xl)
