@@ -11,8 +11,7 @@ struct SprintBoardView: View {
             header
 
             if viewModel.isLoadingSprint {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 200)
+                ENVILoadingState(minHeight: 200)
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(alignment: .top, spacing: ENVISpacing.md) {
