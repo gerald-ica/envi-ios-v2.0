@@ -21,7 +21,7 @@ mutation CreateMediaAsset($fileName: String!, $fileUrl: String!, $fileType: Stri
 }
 
 query GetTemplateDetails($id: UUID!) @auth(level: USER) {
-  template(id: $id) {
+  template(id: $id) @check(expr: "this.userId == auth.uid || this.isPublic == true", message: "Not authorized to view this template") {
     name
     description
     isPublic
@@ -31,7 +31,12 @@ query GetTemplateDetails($id: UUID!) @auth(level: USER) {
   }
 }
 
-mutation UpdateProjectName($projectId: UUID!, $newName: String!) @auth(level: USER) {
+mutation UpdateProjectName($projectId: UUID!, $newName: String!) @auth(level: USER) @transaction {
+  query @redact {
+    project(id: $projectId) @check(expr: "this != null && this.userId == auth.uid", message: "Not authorized to update this project") {
+      userId
+    }
+  }
   project_update(
     key: { id: $projectId },
     data: {
