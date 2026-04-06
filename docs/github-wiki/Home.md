@@ -49,7 +49,7 @@ ENVI is an AI-native content operating system for creators, teams, and agencies.
 
 ## Executive summary
 
-- **Stack:** SwiftUI + UIKit hybrid, SceneKit (World Explorer), iOS **17.0+**, Xcode **15+**. SPM dependencies: SDWebImage, Lottie, RevenueCat.
+- **Stack:** SwiftUI + UIKit hybrid, SceneKit (World Explorer), iOS **17.0+**, Xcode **15+**. SPM dependencies: SDWebImage, Lottie, RevenueCat, Firebase (Auth, Analytics, Crashlytics).
 - **Navigation:** `AppCoordinator` -> Splash / Onboarding / Sign-in -> `MainTabBarController` (5 tabs: Feed, Library, Chat/Explore, Analytics, Profile).
 - **Data layer:** Protocol-backed repositories with Mock -> API implementations. Firebase Auth for identity. Typed `APIClient` with retry policy and auth token injection.
 - **Backend (in repo):** Firebase Data Connect schema + connectors under `dataconnect/`. Deploy via Firebase CLI.

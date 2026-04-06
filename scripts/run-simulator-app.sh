@@ -13,18 +13,22 @@ INFO_PLIST="$APP_DIR/Info.plist"
 DEVICE_ID="${SIMULATOR_ID:-$(xcrun simctl list devices | awk -F '[()]' '/Booted/{print $2; exit}')}"
 
 if [[ -z "$DEVICE_ID" ]]; then
-  echo "No booted simulator found. Boot a simulator first, then rerun this script." >&2
+  echo "❌ No booted simulator found." >&2
+  echo "Fix: open Simulator.app and boot a device, or set SIMULATOR_ID." >&2
   exit 1
 fi
 
 open -a Simulator
 
-xcodebuild \
+if ! xcodebuild \
   -workspace "$WORKSPACE_PATH" \
   -scheme ENVI \
   -destination "id=$DEVICE_ID" \
   -derivedDataPath "$DERIVED_DATA_PATH" \
-  build
+  build; then
+  echo "❌ Build failed. Check xcodebuild output above." >&2
+  exit 1
+fi
 
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Frameworks"

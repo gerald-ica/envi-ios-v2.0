@@ -6,7 +6,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 IMAGES_DIR="$ROOT_DIR/ENVI/Resources/Images"
 
 if ! xcrun simctl list devices | grep -q "Booted"; then
-  echo "No booted simulator found."
+  echo "❌ No booted simulator found. Boot a simulator first." >&2
   exit 1
 fi
 
@@ -32,7 +32,7 @@ typeset -a media_files=(
 
 for file in "${media_files[@]}"; do
   if [[ ! -f "$file" ]]; then
-    echo "Missing placeholder image: $file"
+    echo "❌ Missing placeholder image: $file" >&2
     exit 1
   fi
 done
