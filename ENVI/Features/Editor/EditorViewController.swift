@@ -20,6 +20,19 @@ final class EditorViewController: UIViewController {
     private var currentRotationAngle: CGFloat = 0
     private var isCroppedToSquare = false
 
+    // MARK: - Adjust Panel State
+    private var adjustPanel: UIView?
+    private var adjustBrightness: Float = 0
+    private var adjustContrast: Float = 1.0
+    private var adjustSaturation: Float = 1.0
+    private var originalPreviewImage: UIImage?
+
+    // MARK: - Timeline State
+    private var timelineContainer: UIView?
+    private var playheadView: UIView?
+    private var scrubPosition: CGFloat = 0
+    private var player: AVPlayer?
+
     // MARK: - Top Toolbar
     private let topBar: UIView = {
         let v = UIView()
@@ -137,12 +150,37 @@ final class EditorViewController: UIViewController {
         previewView.addSubview(playButton)
         previewView.addSubview(textPreviewLabel)
 
-        // Add a placeholder image
         let imageView = UIImageView()
-        imageView.image = previewImage()
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
         previewView.insertSubview(imageView, at: 0)
+
+        // Load preview from content item or content piece
+        if let image = previewImage() {
+            imageView.image = image
+            originalPreviewImage = image
+        } else if let mediaThumbnail = loadContentPieceThumbnail() {
+            imageView.image = mediaThumbnail
+            originalPreviewImage = mediaThumbnail
+        }
+
+        // Gradient overlay for contrast against controls
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.colors = [
+            UIColor.clear.cgColor,
+            UIColor.black.withAlphaComponent(0.4).cgColor
+        ]
+        gradientLayer.locations = [0.6, 1.0]
+        let gradientView = UIView()
+        gradientView.translatesAutoresizingMaskIntoConstraints = false
+        gradientView.isUserInteractionEnabled = false
+        gradientView.layer.addSublayer(gradientLayer)
+        previewView.insertSubview(gradientView, aboveSubview: imageView)
+        // Size gradient layer on layout
+        gradientView.layoutIfNeeded()
+        DispatchQueue.main.async {
+            gradientLayer.frame = gradientView.bounds
+        }
 
         if isTextEditingContext {
             imageView.isHidden = true
@@ -166,6 +204,11 @@ final class EditorViewController: UIViewController {
             imageView.leadingAnchor.constraint(equalTo: previewView.leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: previewView.trailingAnchor),
 
+            gradientView.topAnchor.constraint(equalTo: previewView.topAnchor),
+            gradientView.bottomAnchor.constraint(equalTo: previewView.bottomAnchor),
+            gradientView.leadingAnchor.constraint(equalTo: previewView.leadingAnchor),
+            gradientView.trailingAnchor.constraint(equalTo: previewView.trailingAnchor),
+
             playButton.centerXAnchor.constraint(equalTo: previewView.centerXAnchor),
             playButton.centerYAnchor.constraint(equalTo: previewView.centerYAnchor),
 
@@ -176,27 +219,42 @@ final class EditorViewController: UIViewController {
     }
 
     private func setupTimeline() {
-        // Simplified timeline placeholder
+        // Interactive timeline with scrubbing and playhead
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.clipsToBounds = true
+        view.addSubview(container)
+        self.timelineContainer = container
+
         let timelineLabel = UILabel()
         timelineLabel.text = "Timeline"
         timelineLabel.font = .spaceMono(11)
         timelineLabel.textColor = ENVITheme.UIKit.textLightDark
         timelineLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(timelineLabel)
+        container.addSubview(timelineLabel)
+
+        // Playhead indicator
+        let playhead = UIView()
+        playhead.backgroundColor = .white
+        playhead.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(playhead)
+        self.playheadView = playhead
 
         // Track lanes
         let tracks = ["V1", "A1", "T1", "FX"]
-        var previousView: UIView = previewView
+        var previousAnchor = container.topAnchor
+        var topOffset: CGFloat = 20
         for (index, trackName) in tracks.enumerated() {
             let track = createTrackView(name: trackName)
-            view.addSubview(track)
+            container.addSubview(track)
             NSLayoutConstraint.activate([
-                track.topAnchor.constraint(equalTo: previousView.bottomAnchor, constant: index == 0 ? 32 : 4),
-                track.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 48),
-                track.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+                track.topAnchor.constraint(equalTo: previousAnchor, constant: index == 0 ? topOffset : 4),
+                track.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 32),
+                track.trailingAnchor.constraint(equalTo: container.trailingAnchor),
                 track.heightAnchor.constraint(equalToConstant: 28),
             ])
-            previousView = track
+            previousAnchor = track.bottomAnchor
+            topOffset = 4
 
             // Label
             let label = UILabel()
@@ -204,12 +262,34 @@ final class EditorViewController: UIViewController {
             label.font = .spaceMonoBold(9)
             label.textColor = ENVITheme.UIKit.textLightDark
             label.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview(label)
+            container.addSubview(label)
             NSLayoutConstraint.activate([
                 label.centerYAnchor.constraint(equalTo: track.centerYAnchor),
-                label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+                label.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             ])
         }
+
+        NSLayoutConstraint.activate([
+            container.topAnchor.constraint(equalTo: previewView.bottomAnchor, constant: 12),
+            container.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            container.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            container.heightAnchor.constraint(equalToConstant: 148),
+
+            timelineLabel.topAnchor.constraint(equalTo: container.topAnchor),
+            timelineLabel.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+
+            playhead.topAnchor.constraint(equalTo: container.topAnchor, constant: 16),
+            playhead.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            playhead.widthAnchor.constraint(equalToConstant: 2),
+            playhead.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: 32),
+        ])
+
+        // Pan gesture for scrubbing
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handleTimelineScrub(_:)))
+        container.addGestureRecognizer(panGesture)
+
+        // Bring playhead to front so it renders above tracks
+        container.bringSubviewToFront(playhead)
     }
 
     private func createTrackView(name: String) -> UIView {
@@ -308,6 +388,8 @@ final class EditorViewController: UIViewController {
             performSpeedToggle()
         case "Rotate":
             performRotate()
+        case "Adjust":
+            showAdjustPanel()
         default:
             presentPlaceholderAlert(
                 title: tool,
@@ -662,5 +744,186 @@ final class EditorViewController: UIViewController {
             ?? Bundle.main.path(forResource: imageName, ofType: "png")
         guard let resourcePath else { return nil }
         return UIImage(contentsOfFile: resourcePath)
+    }
+
+    /// Attempts to generate a thumbnail from a content piece's video media.
+    private func loadContentPieceThumbnail() -> UIImage? {
+        guard let piece = contentPiece else { return nil }
+        // Try to load a video asset and extract a thumbnail frame
+        let candidateNames = [piece.imageName]
+        for name in candidateNames {
+            for ext in ["mp4", "mov"] {
+                if let url = Bundle.main.url(forResource: name, withExtension: ext) {
+                    let asset = AVAsset(url: url)
+                    let generator = AVAssetImageGenerator(asset: asset)
+                    generator.appliesPreferredTrackTransform = true
+                    generator.maximumSize = CGSize(width: 600, height: 600)
+                    if let cgImage = try? generator.copyCGImage(at: .zero, actualTime: nil) {
+                        return UIImage(cgImage: cgImage)
+                    }
+                }
+            }
+        }
+        return nil
+    }
+
+    // MARK: - Adjust Panel
+
+    private func showAdjustPanel() {
+        // Dismiss if already showing
+        if let existing = adjustPanel {
+            existing.removeFromSuperview()
+            adjustPanel = nil
+            return
+        }
+
+        // Store original image for live adjustment
+        if originalPreviewImage == nil,
+           let imageView = previewView.subviews.compactMap({ $0 as? UIImageView }).first {
+            originalPreviewImage = imageView.image
+        }
+
+        let panel = UIView()
+        panel.backgroundColor = UIColor.black.withAlphaComponent(0.9)
+        panel.layer.cornerRadius = ENVIRadius.lg
+        panel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(panel)
+        self.adjustPanel = panel
+
+        // Done button
+        let doneButton = UIButton(type: .system)
+        doneButton.setTitle("Done", for: .normal)
+        doneButton.titleLabel?.font = .spaceMonoBold(14)
+        doneButton.tintColor = .white
+        doneButton.translatesAutoresizingMaskIntoConstraints = false
+        doneButton.addTarget(self, action: #selector(dismissAdjustPanel), for: .touchUpInside)
+        panel.addSubview(doneButton)
+
+        // Slider rows
+        let brightnessRow = makeAdjustSlider(label: "Brightness", min: -0.5, max: 0.5, value: adjustBrightness, tag: 0)
+        let contrastRow = makeAdjustSlider(label: "Contrast", min: 0.5, max: 2.0, value: adjustContrast, tag: 1)
+        let saturationRow = makeAdjustSlider(label: "Saturation", min: 0.0, max: 2.0, value: adjustSaturation, tag: 2)
+
+        let stack = UIStackView(arrangedSubviews: [brightnessRow, contrastRow, saturationRow])
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        panel.addSubview(stack)
+
+        NSLayoutConstraint.activate([
+            panel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            panel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            panel.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -72),
+            panel.heightAnchor.constraint(equalToConstant: 180),
+
+            doneButton.topAnchor.constraint(equalTo: panel.topAnchor, constant: 8),
+            doneButton.trailingAnchor.constraint(equalTo: panel.trailingAnchor, constant: -12),
+
+            stack.topAnchor.constraint(equalTo: doneButton.bottomAnchor, constant: 4),
+            stack.leadingAnchor.constraint(equalTo: panel.leadingAnchor, constant: 16),
+            stack.trailingAnchor.constraint(equalTo: panel.trailingAnchor, constant: -16),
+        ])
+    }
+
+    private func makeAdjustSlider(label: String, min: Float, max: Float, value: Float, tag: Int) -> UIView {
+        let row = UIView()
+        row.translatesAutoresizingMaskIntoConstraints = false
+
+        let nameLabel = UILabel()
+        nameLabel.text = label
+        nameLabel.font = .spaceMono(11)
+        nameLabel.textColor = ENVITheme.UIKit.textLightDark
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.setContentHuggingPriority(.required, for: .horizontal)
+        row.addSubview(nameLabel)
+
+        let slider = UISlider()
+        slider.minimumValue = min
+        slider.maximumValue = max
+        slider.value = value
+        slider.tintColor = .white
+        slider.tag = tag
+        slider.translatesAutoresizingMaskIntoConstraints = false
+        slider.addTarget(self, action: #selector(adjustSliderChanged(_:)), for: .valueChanged)
+        row.addSubview(slider)
+
+        NSLayoutConstraint.activate([
+            row.heightAnchor.constraint(equalToConstant: 32),
+            nameLabel.leadingAnchor.constraint(equalTo: row.leadingAnchor),
+            nameLabel.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+            nameLabel.widthAnchor.constraint(equalToConstant: 80),
+            slider.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 8),
+            slider.trailingAnchor.constraint(equalTo: row.trailingAnchor),
+            slider.centerYAnchor.constraint(equalTo: row.centerYAnchor),
+        ])
+
+        return row
+    }
+
+    @objc private func adjustSliderChanged(_ sender: UISlider) {
+        switch sender.tag {
+        case 0: adjustBrightness = sender.value
+        case 1: adjustContrast = sender.value
+        case 2: adjustSaturation = sender.value
+        default: break
+        }
+        applyAdjustments()
+    }
+
+    private func applyAdjustments() {
+        guard let imageView = previewView.subviews.compactMap({ $0 as? UIImageView }).first,
+              let original = originalPreviewImage,
+              let ciImage = CIImage(image: original) else { return }
+
+        let filter = CIFilter(name: "CIColorControls")!
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(adjustBrightness, forKey: kCIInputBrightnessKey)
+        filter.setValue(adjustContrast, forKey: kCIInputContrastKey)
+        filter.setValue(adjustSaturation, forKey: kCIInputSaturationKey)
+
+        if let output = filter.outputImage {
+            let context = CIContext()
+            if let cgImage = context.createCGImage(output, from: output.extent) {
+                imageView.image = UIImage(cgImage: cgImage)
+            }
+        }
+    }
+
+    @objc private func dismissAdjustPanel() {
+        adjustPanel?.removeFromSuperview()
+        adjustPanel = nil
+    }
+
+    // MARK: - Timeline Scrubbing
+
+    @objc private func handleTimelineScrub(_ gesture: UIPanGestureRecognizer) {
+        guard let container = timelineContainer else { return }
+
+        let trackAreaLeading: CGFloat = 32
+        let trackAreaWidth = container.bounds.width - trackAreaLeading
+        guard trackAreaWidth > 0 else { return }
+
+        let locationX = gesture.location(in: container).x - trackAreaLeading
+        let percent = Swift.min(Swift.max(locationX / trackAreaWidth, 0), 1.0)
+        scrubPosition = percent
+
+        // Move playhead
+        if let playhead = playheadView {
+            let xOffset = trackAreaLeading + (trackAreaWidth * percent)
+            playhead.constraints.forEach { constraint in
+                if constraint.firstAttribute == .leading {
+                    constraint.constant = xOffset
+                }
+            }
+            container.layoutIfNeeded()
+        }
+
+        // Seek AVPlayer if present
+        if let player = self.player,
+           let duration = player.currentItem?.duration,
+           duration.isNumeric && duration.seconds > 0 {
+            let targetTime = CMTimeMultiplyByFloat64(duration, multiplier: Float64(percent))
+            player.seek(to: targetTime, toleranceBefore: .zero, toleranceAfter: .zero)
+        }
     }
 }
