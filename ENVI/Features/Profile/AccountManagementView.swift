@@ -84,8 +84,7 @@ struct AccountManagementView: View {
                 header
 
                 if viewModel.isLoading {
-                    ProgressView()
-                        .padding(.top, ENVISpacing.xxxxl)
+                    ENVILoadingState()
                 } else {
                     // ENVI-0008 Active Sessions
                     activeSessionsSection
