@@ -1,16 +1,23 @@
 # ENVI iOS v2.0
 
-**Content creation and management platform for iOS.**
+**AI-native content operating system for iOS.**
 
-ENVI assembles and edits content pieces from the user's camera roll — photos, videos, carousels, stories, and reels — and presents them in an interactive 3D content library. Powered by AI, it provides smart insights, automated editing suggestions, optimal posting times, and engagement analytics across social platforms.
+ENVI assembles and edits content pieces from the user's camera roll -- photos, videos, carousels, stories, and reels -- and presents them in an interactive 3D content library. Powered by AI, it provides smart insights, automated editing suggestions, optimal posting times, and engagement analytics across social platforms.
+
+**40 feature domains** | **28 feature modules** | **25 API repositories** | **150+ endpoint contracts**
 
 ## Features
 
-- **World Explorer** — 3D content library rendered as a helix timeline using SceneKit, displaying the user's content pieces in an immersive, navigable space
-- **ENVI AI Chat** — Conversational AI for content insights, editing suggestions, and creative direction
-- **Content Analytics** — KPI cards, engagement charts, content calendar, and performance tracking
-- **Content Editor** — Video and photo editor with timeline, toolbar, and AI-assisted editing
-- **Social Platform Integration** — Connect and manage multiple social media platforms from one place
+- **World Explorer** -- 3D content library rendered as a helix timeline using SceneKit, displaying the user's content pieces in an immersive, navigable space
+- **ENVI AI Engine** -- Caption generation, script editing, hook libraries, visual AI editing, style transfer, ideation dashboard with trends and competitor analysis
+- **Content Editor** -- AVFoundation-based video and photo editor with crop, filter, speed, rotate, color grading, text overlays, and audio mixer
+- **Content Analytics** -- KPI cards, engagement charts, benchmarks, trend intelligence, A/B experiments, retention cohorts, and source attribution
+- **Multi-Platform Publishing** -- Scheduling queue, recurring posts, distribution rules, and cross-platform status reconciliation across 6 social platforms
+- **Digital Asset Management** -- Folders, smart collections, version tracking, rights management, and storage quota
+- **Brand Kits and Templates** -- Brand identity management, template gallery, and creative systems
+- **Teams and Collaboration** -- Workspaces, role management, review workflows, approval steps, and share links
+- **Campaigns** -- Campaign management with briefs, content requests, and sprint boards
+- **Monetization** -- RevenueCat-powered Aura subscription, billing, commerce offers, and marketplace UGC
 
 ## Chat/Explore Tab
 
@@ -85,8 +92,8 @@ ENVI/
 
 ```bash
 # Clone the repository
-git clone https://github.com/gerald-ica/envi-ios.git
-cd envi-ios
+git clone https://github.com/gerald-ica/envi-ios-v2.0.git
+cd envi-ios-v2.0
 
 # Resolve Swift Package Manager dependencies
 swift package resolve
@@ -118,8 +125,25 @@ Fonts are registered at app launch via `ENVITypography.registerFonts()`.
 
 ## Documentation (GitHub Wiki)
 
-Full engineering documentation (architecture, flows, APIs, Data Connect, AI, subscriptions, roadmap) lives in **`docs/github-wiki/`** as Markdown you can sync to the repo’s [GitHub Wiki](https://github.com/gerald-ica/envi-ios-v2.0/wiki). See **`docs/github-wiki/SYNC-TO-GITHUB-WIKI.md`** for publish steps and **`docs/WIKI_CHANGELOG.md`** for dated updates.
+Full engineering documentation lives in the [GitHub Wiki](https://github.com/gerald-ica/envi-ios-v2.0/wiki):
+
+- [Architecture](https://github.com/gerald-ica/envi-ios-v2.0/wiki/Architecture) -- system design, repository pattern, environment model
+- [Feature Domains](https://github.com/gerald-ica/envi-ios-v2.0/wiki/Feature-Domains) -- all 40 domains with implementation status
+- [API Contracts](https://github.com/gerald-ica/envi-ios-v2.0/wiki/API-Contracts) -- 150+ endpoint specifications organized by domain
+- [Getting Started](https://github.com/gerald-ica/envi-ios-v2.0/wiki/Getting-Started) -- development environment setup
+
+Wiki source files are in `docs/github-wiki/`. See `docs/github-wiki/SYNC-TO-GITHUB-WIKI.md` for publish steps.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Follow the repository pattern: Protocol -> Mock -> API -> Provider
+4. Ensure the app builds and tests pass (`swift test`)
+5. Submit a pull request with a clear description
+
+See the [Architecture wiki page](https://github.com/gerald-ica/envi-ios-v2.0/wiki/Architecture) for coding patterns and conventions.
 
 ## License
 
-Copyright © 2026 Informal. All rights reserved.
+Copyright 2026 Informal. All rights reserved.
