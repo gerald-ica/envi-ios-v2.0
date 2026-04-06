@@ -12,6 +12,7 @@ final class LibraryViewModel: ObservableObject {
     }
 
     @Published var selectedFilter: FilterType = .all
+    @Published var searchQuery: String = ""
     @Published var items: [LibraryItem] = []
     @Published var templates: [TemplateItem] = TemplateItem.mockTemplates
     @Published var isLoading = false
@@ -32,8 +33,20 @@ final class LibraryViewModel: ObservableObject {
     }
 
     var filteredItems: [LibraryItem] {
-        guard selectedFilter != .all else { return items }
-        return items.filter { $0.type.rawValue == selectedFilter.rawValue }
+        let base: [LibraryItem]
+        if selectedFilter == .all {
+            base = items
+        } else {
+            base = items.filter { $0.type.rawValue == selectedFilter.rawValue }
+        }
+
+        let query = searchQuery.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return base }
+
+        return base.filter { item in
+            item.title.localizedCaseInsensitiveContains(query) ||
+                item.type.rawValue.localizedCaseInsensitiveContains(query)
+        }
     }
 
     @MainActor

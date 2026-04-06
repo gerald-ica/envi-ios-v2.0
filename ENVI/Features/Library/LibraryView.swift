@@ -32,8 +32,46 @@ struct LibraryView: View {
                         .padding(.horizontal, ENVISpacing.xl)
                     }
 
+                    // Search
+                    HStack(spacing: ENVISpacing.sm) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                        TextField("Search library", text: $viewModel.searchQuery)
+                            .textInputAutocapitalization(.never)
+                            .disableAutocorrection(true)
+                            .foregroundColor(ENVITheme.text(for: colorScheme))
+                    }
+                    .padding(.horizontal, ENVISpacing.md)
+                    .padding(.vertical, ENVISpacing.sm)
+                    .background(ENVITheme.surfaceLow(for: colorScheme))
+                    .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+                    .padding(.horizontal, ENVISpacing.xl)
+
                     // Templates
                     TemplateCarousel(templates: viewModel.templates)
+
+                    if viewModel.isLoading {
+                        HStack {
+                            ProgressView()
+                            Text("Loading library...")
+                                .font(.interRegular(13))
+                                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                        }
+                        .padding(.horizontal, ENVISpacing.xl)
+                    }
+
+                    if let error = viewModel.loadErrorMessage {
+                        VStack(alignment: .leading, spacing: ENVISpacing.sm) {
+                            Text(error)
+                                .font(.interMedium(13))
+                                .foregroundColor(.red)
+                            Button("Retry") {
+                                Task { await viewModel.reloadLibrary() }
+                            }
+                            .font(.interMedium(13))
+                        }
+                        .padding(.horizontal, ENVISpacing.xl)
+                    }
 
                     // Masonry grid
                     MasonryGridView(items: viewModel.filteredItems)
