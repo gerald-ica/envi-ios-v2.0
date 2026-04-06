@@ -12,8 +12,7 @@ struct MetadataCompletenessView: View {
                 header
 
                 if viewModel.isLoadingCompleteness {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 200)
+                    ENVILoadingState(minHeight: 200)
                 } else if let metadata = viewModel.contentMetadata {
                     gaugeSection(metadata)
                     tagsSummary(metadata)
@@ -186,8 +185,7 @@ struct MetadataCompletenessView: View {
                 .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
 
             if viewModel.isLoadingClusters {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 60)
+                ENVILoadingState(minHeight: 60)
             } else {
                 ForEach(viewModel.topicClusters) { cluster in
                     clusterCard(cluster)
