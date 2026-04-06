@@ -18,6 +18,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check for committed secrets
+        run: |
+          # Scan all Swift/config files for common secret patterns
+          PATTERNS="AKIA[0-9A-Z]{16}|sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}|AIza[0-9A-Za-z_-]{35}"
+          if grep -rE "$PATTERNS" --include="*.swift" --include="*.plist" --include="*.json" --include="*.yml" --include="*.yaml" . 2>/dev/null | grep -v '.build/' | grep -v 'node_modules/' | grep -v 'check-secrets'; then
+            echo "❌ Potential secrets found in source files!"
+            exit 1
+          fi
+          echo "✅ No secrets detected."
+
       - name: Resolve Swift packages
         run: swift package resolve
 
