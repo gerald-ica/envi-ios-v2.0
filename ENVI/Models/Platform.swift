@@ -12,6 +12,18 @@ enum SocialPlatform: String, CaseIterable, Codable, Identifiable {
 
     var id: String { rawValue }
 
+    /// Lowercase slug used in API endpoint paths (e.g. `oauth/instagram/connect`).
+    var apiSlug: String {
+        switch self {
+        case .instagram: return "instagram"
+        case .tiktok:    return "tiktok"
+        case .x:         return "x"
+        case .threads:   return "threads"
+        case .linkedin:  return "linkedin"
+        case .youtube:   return "youtube"
+        }
+    }
+
     var iconName: String {
         switch self {
         case .instagram: return "camera"
@@ -42,12 +54,33 @@ struct PlatformConnection: Identifiable, Codable {
     var isConnected: Bool
     var handle: String?
     var followerCount: Int?
+    var tokenExpiresAt: Date?
+    var lastRefreshedAt: Date?
+    var scopes: [String]
 
-    init(platform: SocialPlatform, isConnected: Bool = false, handle: String? = nil, followerCount: Int? = nil) {
+    /// Whether the token expires within the next 7 days.
+    var isTokenExpiringSoon: Bool {
+        guard let expiresAt = tokenExpiresAt else { return false }
+        let sevenDays = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
+        return expiresAt <= sevenDays
+    }
+
+    init(
+        platform: SocialPlatform,
+        isConnected: Bool = false,
+        handle: String? = nil,
+        followerCount: Int? = nil,
+        tokenExpiresAt: Date? = nil,
+        lastRefreshedAt: Date? = nil,
+        scopes: [String] = []
+    ) {
         self.id = UUID()
         self.platform = platform
         self.isConnected = isConnected
         self.handle = handle
         self.followerCount = followerCount
+        self.tokenExpiresAt = tokenExpiresAt
+        self.lastRefreshedAt = lastRefreshedAt
+        self.scopes = scopes
     }
 }

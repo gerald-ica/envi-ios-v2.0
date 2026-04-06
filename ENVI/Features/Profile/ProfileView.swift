@@ -54,9 +54,15 @@ struct ProfileView: View {
 
                 // Connected Platforms
                 ConnectedPlatformsView(
-                    platforms: viewModel.user.connectedPlatforms,
+                    connections: viewModel.connections,
                     onConnectTap: { platform in
                         Task { await viewModel.connectPlatform(platform) }
+                    },
+                    onDisconnectTap: { platform in
+                        Task { await viewModel.disconnectPlatform(platform) }
+                    },
+                    onRefreshTap: { platform in
+                        Task { await viewModel.refreshPlatformToken(platform) }
                     }
                 )
                     .padding(.horizontal, ENVISpacing.xl)
@@ -100,6 +106,9 @@ struct ProfileView: View {
             .padding(.top, ENVISpacing.xxl)
         }
         .background(ENVITheme.background(for: colorScheme))
+        .onAppear {
+            viewModel.loadConnections()
+        }
     }
 }
 

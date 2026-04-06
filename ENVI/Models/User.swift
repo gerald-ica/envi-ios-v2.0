@@ -43,6 +43,7 @@ struct User: Identifiable, Codable {
             PlatformConnection(platform: .youtube, isConnected: true, handle: "Alex Rivera", followerCount: 45_000),
             PlatformConnection(platform: .x, isConnected: false),
             PlatformConnection(platform: .threads, isConnected: false),
+            PlatformConnection(platform: .linkedin, isConnected: false),
         ],
         publishedCount: 142,
         draftsCount: 8,
