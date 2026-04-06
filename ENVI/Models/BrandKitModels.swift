@@ -205,9 +205,7 @@ enum TemplateCategory: String, Codable, CaseIterable {
     case article
     case ad
 
-    var displayName: String {
-        rawValue.capitalized
-    }
+    var displayName: String { rawValue.capitalized }
 
     var iconName: String {
         switch self {
