@@ -12,8 +12,7 @@ struct ExperimentResultsView: View {
         NavigationView {
             ScrollView {
                 if isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 200)
+                    ENVILoadingState(minHeight: 200)
                 } else if let result {
                     VStack(alignment: .leading, spacing: ENVISpacing.xl) {
                         experimentHeader
