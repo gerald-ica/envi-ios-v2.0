@@ -50,6 +50,9 @@ struct LibraryView: View {
                     // Templates
                     TemplateCarousel(
                         templates: viewModel.templates,
+                        onApply: { template in
+                            viewModel.applyTemplate(template)
+                        },
                         onDuplicate: { template in
                             Task { await viewModel.duplicateTemplate(template) }
                         },
@@ -76,14 +79,42 @@ struct LibraryView: View {
                     }
 
                     ContentPlanningSectionView(
-                        items: viewModel.contentPlan,
+                        items: $viewModel.contentPlan,
                         isLoading: viewModel.isLoadingPlan,
                         errorMessage: viewModel.planErrorMessage,
                         onRetry: {
                             Task { await viewModel.reloadContentPlan() }
+                        },
+                        onAdd: {
+                            viewModel.isShowingPlanEditor = true
+                        },
+                        onEdit: { item in
+                            viewModel.editingPlanItem = item
+                        },
+                        onDelete: { item in
+                            Task { await viewModel.deletePlanItem(item) }
+                        },
+                        onStatusToggle: { item in
+                            let next: ContentPlanItem.Status
+                            switch item.status {
+                            case .draft: next = .ready
+                            case .ready: next = .scheduled
+                            case .scheduled: next = .draft
+                            }
+                            Task { await viewModel.updatePlanItem(item, status: next) }
+                        },
+                        onMove: { source, destination in
+                            viewModel.reorderPlanItems(from: source, to: destination)
                         }
                     )
                     .padding(.horizontal, ENVISpacing.xl)
+
+                    if let planError = viewModel.planOperationErrorMessage {
+                        Text(planError)
+                            .font(.interRegular(12))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, ENVISpacing.xl)
+                    }
 
                     if viewModel.isLoading {
                         HStack {
@@ -130,6 +161,21 @@ struct LibraryView: View {
             .padding(.bottom, 90)
         }
         .background(ENVITheme.background(for: colorScheme))
+        .sheet(item: $viewModel.templateToApply) { template in
+            ExportSheetView(
+                composer: ExportComposerFactory.make(template: template)
+            )
+        }
+        .sheet(isPresented: $viewModel.isShowingPlanEditor) {
+            PlanItemEditorSheet(existingItem: nil) { title, platform, scheduledAt in
+                Task { await viewModel.createPlanItem(title: title, platform: platform, scheduledAt: scheduledAt) }
+            }
+        }
+        .sheet(item: $viewModel.editingPlanItem) { item in
+            PlanItemEditorSheet(existingItem: item) { title, platform, scheduledAt in
+                Task { await viewModel.updatePlanItem(item, title: title, platform: platform, scheduledAt: scheduledAt) }
+            }
+        }
         .alert("Add to Library", isPresented: $showAddFlowAlert) {
             Button("OK", role: .cancel) { }
         } message: {
