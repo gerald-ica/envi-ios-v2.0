@@ -47,6 +47,12 @@ final class OnboardingViewModel: ObservableObject {
     @Published var threadsEnabled = false
     @Published var linkedinEnabled = false
 
+    /// OAuth connection states for each platform.
+    @Published var platformConnections: [SocialPlatform: PlatformConnection] = [:]
+    @Published var connectingPlatform: SocialPlatform?
+    @Published var connectionErrorPlatform: SocialPlatform?
+    @Published var connectionErrorMessage: String?
+
     private var cancellables: Set<AnyCancellable> = []
 
     init() {
@@ -190,6 +196,67 @@ final class OnboardingViewModel: ObservableObject {
             return "Open Settings and allow Full Access to Photos to continue."
         case .restricted:
             return "Photo access is restricted on this device."
+        }
+    }
+
+    // MARK: - Social OAuth
+
+    /// Returns whether the given platform is currently connected via OAuth.
+    func isConnected(_ platform: SocialPlatform) -> Bool {
+        platformConnections[platform]?.isConnected == true
+    }
+
+    /// Returns the handle for a connected platform, if available.
+    func handleFor(_ platform: SocialPlatform) -> String? {
+        platformConnections[platform]?.handle
+    }
+
+    /// Initiates OAuth connection for the given platform.
+    func connectPlatform(_ platform: SocialPlatform) {
+        guard connectingPlatform == nil else { return }
+        connectingPlatform = platform
+        connectionErrorPlatform = nil
+        connectionErrorMessage = nil
+
+        Task { @MainActor in
+            do {
+                let connection = try await SocialOAuthManager.shared.connect(platform: platform)
+                platformConnections[platform] = connection
+                setToggle(for: platform, enabled: true)
+            } catch {
+                connectionErrorPlatform = platform
+                connectionErrorMessage = error.localizedDescription
+            }
+            connectingPlatform = nil
+        }
+    }
+
+    /// Returns the error message for a platform, if any.
+    func connectionError(for platform: SocialPlatform) -> String? {
+        guard connectionErrorPlatform == platform else { return nil }
+        return connectionErrorMessage
+    }
+
+    /// Binds the toggle state for a given platform.
+    func isEnabled(for platform: SocialPlatform) -> Binding<Bool> {
+        switch platform {
+        case .instagram: return Binding(get: { self.instagramEnabled }, set: { self.instagramEnabled = $0 })
+        case .tiktok:    return Binding(get: { self.tiktokEnabled },    set: { self.tiktokEnabled = $0 })
+        case .x:         return Binding(get: { self.xEnabled },         set: { self.xEnabled = $0 })
+        case .threads:   return Binding(get: { self.threadsEnabled },   set: { self.threadsEnabled = $0 })
+        case .linkedin:  return Binding(get: { self.linkedinEnabled },  set: { self.linkedinEnabled = $0 })
+        case .youtube:   return Binding(get: { false }, set: { _ in })
+        }
+    }
+
+    private func setToggle(for platform: SocialPlatform, enabled: Bool) {
+        switch platform {
+        case .instagram: instagramEnabled = enabled
+        case .tiktok:    tiktokEnabled = enabled
+        case .x:         xEnabled = enabled
+        case .threads:   threadsEnabled = enabled
+        case .linkedin:  linkedinEnabled = enabled
+        case .youtube:   break
         }
     }
 
