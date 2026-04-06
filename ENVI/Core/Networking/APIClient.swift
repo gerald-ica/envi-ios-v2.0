@@ -8,17 +8,20 @@ final class APIClient {
     private let session: URLSession
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
+    private let retryPolicy: RetryPolicy
 
     let baseURL = AppConfig.apiBaseURL
 
     init(
         session: URLSession = .shared,
         decoder: JSONDecoder = JSONDecoder(),
-        encoder: JSONEncoder = JSONEncoder()
+        encoder: JSONEncoder = JSONEncoder(),
+        retryPolicy: RetryPolicy = .default
     ) {
         self.session = session
         self.decoder = decoder
         self.encoder = encoder
+        self.retryPolicy = retryPolicy
     }
 
     enum APIError: LocalizedError {
@@ -29,6 +32,7 @@ final class APIClient {
         case httpError(statusCode: Int)
         case firebaseNotConfigured
         case missingAuthToken
+        case retryExhausted
 
         var errorDescription: String? {
             switch self {
@@ -46,6 +50,8 @@ final class APIClient {
                 return "Firebase is not configured."
             case .missingAuthToken:
                 return "Missing auth token."
+            case .retryExhausted:
+                return "Request failed after retries."
             }
         }
     }
@@ -56,6 +62,18 @@ final class APIClient {
         case put = "PUT"
         case patch = "PATCH"
         case delete = "DELETE"
+    }
+
+    struct RetryPolicy {
+        let maxAttempts: Int
+        let baseDelaySeconds: Double
+        let retryableStatusCodes: Set<Int>
+
+        static let `default` = RetryPolicy(
+            maxAttempts: 3,
+            baseDelaySeconds: 0.4,
+            retryableStatusCodes: [408, 429, 500, 502, 503, 504]
+        )
     }
 
     func request<T: Decodable>(
@@ -86,12 +104,7 @@ final class APIClient {
             request.httpBody = try encoder.encode(body)
         }
 
-        let (data, response): (Data, URLResponse)
-        do {
-            (data, response) = try await session.data(for: request)
-        } catch {
-            throw APIError.networkError
-        }
+        let (data, response) = try await performRequestWithRetry(request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.networkError
@@ -122,5 +135,41 @@ final class APIClient {
         }
         let tokenResult = try await user.getIDTokenResult()
         return tokenResult.token
+    }
+
+    private func performRequestWithRetry(_ request: URLRequest) async throws -> (Data, URLResponse) {
+        var attempt = 0
+        var lastError: Error?
+
+        while attempt < retryPolicy.maxAttempts {
+            do {
+                let (data, response) = try await session.data(for: request)
+                if let http = response as? HTTPURLResponse,
+                   retryPolicy.retryableStatusCodes.contains(http.statusCode),
+                   attempt < retryPolicy.maxAttempts - 1 {
+                    attempt += 1
+                    try await backoffDelay(for: attempt)
+                    continue
+                }
+                return (data, response)
+            } catch {
+                lastError = error
+                if attempt >= retryPolicy.maxAttempts - 1 {
+                    break
+                }
+                attempt += 1
+                try await backoffDelay(for: attempt)
+            }
+        }
+
+        if lastError != nil {
+            throw APIError.networkError
+        }
+        throw APIError.retryExhausted
+    }
+
+    private func backoffDelay(for attempt: Int) async throws {
+        let delay = retryPolicy.baseDelaySeconds * pow(2, Double(max(attempt - 1, 0)))
+        try await Task.sleep(for: .seconds(delay))
     }
 }
