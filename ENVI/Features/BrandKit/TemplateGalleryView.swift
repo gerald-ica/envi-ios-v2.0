@@ -133,8 +133,7 @@ struct TemplateGalleryView: View {
     private var templateGrid: some View {
         Group {
             if viewModel.isLoadingTemplates {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.filteredTemplates.isEmpty {
                 emptyState
             } else {

@@ -108,8 +108,7 @@ struct ContactListView: View {
     private var contactList: some View {
         LazyVStack(spacing: ENVISpacing.md) {
             if viewModel.isLoadingContacts {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.filteredContacts.isEmpty {
                 emptyState
             } else {

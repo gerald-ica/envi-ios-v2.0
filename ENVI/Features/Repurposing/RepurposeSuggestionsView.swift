@@ -11,8 +11,7 @@ struct RepurposeSuggestionsView: View {
                 header
 
                 if viewModel.isLoadingSuggestions {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 120)
+                    ENVILoadingState()
                 } else if viewModel.suggestions.isEmpty {
                     emptyState
                 } else {
@@ -109,22 +108,11 @@ struct RepurposeSuggestionsView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "sparkles")
-                .font(.system(size: 32))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No suggestions yet")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Publish more content to unlock AI-powered repurposing suggestions.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.xxxl)
+        ENVIEmptyState(
+            icon: "sparkles",
+            title: "No suggestions yet",
+            subtitle: "Publish more content to unlock AI-powered repurposing suggestions."
+        )
     }
 
     // MARK: - Helpers

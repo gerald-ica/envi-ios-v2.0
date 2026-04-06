@@ -43,7 +43,7 @@ struct InboxView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: ENVISpacing.sm) {
                 ForEach(InboxFilter.allCases) { filter in
-                    filterChip(title: filter.displayName, isSelected: viewModel.inboxFilter == filter) {
+                    ENVIFilterChip(title: filter.displayName, isSelected: viewModel.inboxFilter == filter) {
                         viewModel.inboxFilter = filter
                         viewModel.platformFilter = nil
                         Task { await viewModel.loadInbox() }
@@ -58,22 +58,6 @@ struct InboxView: View {
                 }
             }
             .padding(.horizontal, ENVISpacing.xl)
-        }
-    }
-
-    private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.interMedium(13))
-                .foregroundColor(isSelected ? ENVITheme.background(for: colorScheme) : ENVITheme.text(for: colorScheme))
-                .padding(.horizontal, ENVISpacing.md)
-                .padding(.vertical, ENVISpacing.sm)
-                .background(isSelected ? ENVITheme.text(for: colorScheme) : ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                .overlay(
-                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                        .strokeBorder(isSelected ? Color.clear : ENVITheme.border(for: colorScheme), lineWidth: 1)
-                )
         }
     }
 
@@ -100,8 +84,7 @@ struct InboxView: View {
     private var messageList: some View {
         LazyVStack(spacing: ENVISpacing.md) {
             if viewModel.isLoadingInbox {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.filteredMessages.isEmpty {
                 emptyState
             } else {

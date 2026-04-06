@@ -112,15 +112,10 @@ struct MarketplaceView: View {
                 ProgressView()
                     .frame(maxWidth: .infinity, minHeight: 200)
             } else if viewModel.filteredMarketplace.isEmpty {
-                VStack(spacing: ENVISpacing.sm) {
-                    Image(systemName: "tray")
-                        .font(.system(size: 28))
-                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                    Text("No listings found")
-                        .font(.interRegular(13))
-                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                }
-                .frame(maxWidth: .infinity, minHeight: 160)
+                ENVIEmptyState(
+                    icon: "tray",
+                    title: "No listings found"
+                )
             } else {
                 LazyVGrid(columns: columns, spacing: ENVISpacing.md) {
                     ForEach(viewModel.filteredMarketplace) { listing in

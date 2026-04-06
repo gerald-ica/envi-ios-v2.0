@@ -114,18 +114,12 @@ struct APIKeyView: View {
     private var keyList: some View {
         Group {
             if viewModel.isLoadingAPIKeys {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.apiKeys.isEmpty {
-                VStack(spacing: ENVISpacing.sm) {
-                    Image(systemName: "key")
-                        .font(.system(size: 28))
-                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                    Text("No API keys created")
-                        .font(.interRegular(13))
-                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                }
-                .frame(maxWidth: .infinity, minHeight: 120)
+                ENVIEmptyState(
+                    icon: "key",
+                    title: "No API keys created"
+                )
             } else {
                 LazyVStack(spacing: ENVISpacing.sm) {
                     ForEach(viewModel.apiKeys) { apiKey in

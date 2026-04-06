@@ -16,8 +16,7 @@ struct BrandKitListView: View {
                 header
 
                 if viewModel.isLoadingBrandKits {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 120)
+                    ENVILoadingState()
                 } else if viewModel.brandKits.isEmpty {
                     emptyState
                 } else {

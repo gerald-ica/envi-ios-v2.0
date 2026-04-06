@@ -134,15 +134,10 @@ struct IntegrationMarketplaceView: View {
                 ProgressView()
                     .frame(maxWidth: .infinity, minHeight: 200)
             } else if viewModel.filteredIntegrations.isEmpty {
-                VStack(spacing: ENVISpacing.sm) {
-                    Image(systemName: "puzzlepiece.extension")
-                        .font(.system(size: 28))
-                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                    Text("No integrations found")
-                        .font(.interRegular(13))
-                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                }
-                .frame(maxWidth: .infinity, minHeight: 160)
+                ENVIEmptyState(
+                    icon: "puzzlepiece.extension",
+                    title: "No integrations found"
+                )
             } else {
                 LazyVGrid(columns: columns, spacing: ENVISpacing.md) {
                     ForEach(viewModel.filteredIntegrations) { integration in

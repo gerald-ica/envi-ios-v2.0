@@ -108,15 +108,7 @@ struct TagManagerView: View {
     }
 
     private func categoryChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.interSemiBold(12))
-                .foregroundColor(isSelected ? ENVITheme.background(for: colorScheme) : ENVITheme.text(for: colorScheme))
-                .padding(.horizontal, ENVISpacing.md)
-                .padding(.vertical, ENVISpacing.xs + 2)
-                .background(isSelected ? ENVITheme.text(for: colorScheme) : ENVITheme.surfaceLow(for: colorScheme))
-                .cornerRadius(ENVIRadius.sm)
-        }
+        ENVIFilterChip(title: title, isSelected: isSelected, action: action)
     }
 
     // MARK: - Tag Cloud
@@ -124,8 +116,7 @@ struct TagManagerView: View {
     private var tagCloud: some View {
         Group {
             if viewModel.isLoadingTags {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.filteredTags.isEmpty {
                 emptyState
             } else {
@@ -180,22 +171,11 @@ struct TagManagerView: View {
     // MARK: - Empty
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "tag")
-                .font(.system(size: 32))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No tags yet")
-                .font(.interSemiBold(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Create your first tag to start organizing content.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.xxxxl)
+        ENVIEmptyState(
+            icon: "tag",
+            title: "No tags yet",
+            subtitle: "Create your first tag to start organizing content."
+        )
     }
 }
 

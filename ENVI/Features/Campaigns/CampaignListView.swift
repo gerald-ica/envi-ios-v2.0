@@ -16,8 +16,7 @@ struct CampaignListView: View {
                 statusFilterBar
 
                 if viewModel.isLoadingCampaigns {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 120)
+                    ENVILoadingState()
                 } else if viewModel.filteredCampaigns.isEmpty {
                     emptyState
                 } else {

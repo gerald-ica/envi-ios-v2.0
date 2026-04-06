@@ -67,8 +67,7 @@ struct OfferManagerView: View {
     private var offerList: some View {
         LazyVStack(spacing: ENVISpacing.md) {
             if viewModel.isLoadingOffers {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else {
                 ForEach(viewModel.offers) { offer in
                     offerCard(offer)

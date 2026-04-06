@@ -122,8 +122,7 @@ struct DealTrackerView: View {
     private var dealList: some View {
         LazyVStack(spacing: ENVISpacing.md) {
             if viewModel.isLoadingDeals {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.filteredDeals.isEmpty {
                 Text("No deals match this filter.")
                     .font(.interRegular(13))

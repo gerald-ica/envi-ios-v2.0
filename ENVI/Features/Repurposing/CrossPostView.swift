@@ -11,8 +11,7 @@ struct CrossPostView: View {
                 header
 
                 if viewModel.isLoadingMappings {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 120)
+                    ENVILoadingState()
                 } else if viewModel.mappings.isEmpty {
                     emptyState
                 } else {
@@ -158,22 +157,11 @@ struct CrossPostView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "arrow.triangle.branch")
-                .font(.system(size: 32))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No cross-post mappings")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Repurpose content to see how it branches across platforms and formats.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.xxxl)
+        ENVIEmptyState(
+            icon: "arrow.triangle.branch",
+            title: "No cross-post mappings",
+            subtitle: "Repurpose content to see how it branches across platforms and formats."
+        )
     }
 }
 

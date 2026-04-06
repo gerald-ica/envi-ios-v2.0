@@ -94,18 +94,12 @@ struct WebhookManagerView: View {
     private var webhookList: some View {
         Group {
             if viewModel.isLoadingWebhooks {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.webhooks.isEmpty {
-                VStack(spacing: ENVISpacing.sm) {
-                    Image(systemName: "arrow.triangle.branch")
-                        .font(.system(size: 28))
-                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                    Text("No webhooks configured")
-                        .font(.interRegular(13))
-                        .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                }
-                .frame(maxWidth: .infinity, minHeight: 120)
+                ENVIEmptyState(
+                    icon: "arrow.triangle.branch",
+                    title: "No webhooks configured"
+                )
             } else {
                 LazyVStack(spacing: ENVISpacing.sm) {
                     ForEach(viewModel.webhooks) { webhook in

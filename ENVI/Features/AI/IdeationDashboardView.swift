@@ -123,8 +123,7 @@ struct IdeationDashboardView: View {
             }
 
             if viewModel.isLoadingTrends {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.trends.isEmpty {
                 emptyState(icon: "chart.line.uptrend.xyaxis", message: "No trends detected yet")
             } else {
@@ -352,8 +351,7 @@ struct IdeationDashboardView: View {
             }
 
             if viewModel.isLoadingCompetitors {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else {
                 ForEach(viewModel.competitorInsights) { insight in
                     competitorCard(insight)
@@ -449,8 +447,7 @@ struct IdeationDashboardView: View {
             }
 
             if viewModel.isLoadingKeywords {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else {
                 ForEach(viewModel.keywords) { keyword in
                     keywordCard(keyword)
@@ -545,8 +542,7 @@ struct IdeationDashboardView: View {
     private var boardsSection: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.lg) {
             if viewModel.isLoadingBoards {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.boards.isEmpty {
                 emptyState(icon: "rectangle.3.group", message: "No idea boards yet")
             } else {
