@@ -19,9 +19,13 @@ final class LibraryViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var isLoadingPlan = false
     @Published var isApplyingTemplateOperation = false
+    @Published var isShowingPlanEditor = false
+    @Published var editingPlanItem: ContentPlanItem? = nil
     @Published var loadErrorMessage: String?
     @Published var planErrorMessage: String?
     @Published var templateOperationErrorMessage: String?
+    @Published var planOperationErrorMessage: String?
+    @Published var templateToApply: TemplateItem? = nil
     private var cancellables = Set<AnyCancellable>()
     private let repository: ContentRepository
 
@@ -120,6 +124,11 @@ final class LibraryViewModel: ObservableObject {
     }
 
     @MainActor
+    func applyTemplate(_ template: TemplateItem) {
+        templateToApply = template
+    }
+
+    @MainActor
     func deleteTemplate(_ template: TemplateItem) async {
         isApplyingTemplateOperation = true
         templateOperationErrorMessage = nil
@@ -135,6 +144,77 @@ final class LibraryViewModel: ObservableObject {
         }
 
         isApplyingTemplateOperation = false
+    }
+
+    // MARK: - Planning CRUD
+
+    @MainActor
+    func createPlanItem(title: String, platform: SocialPlatform, scheduledAt: Date) async {
+        planOperationErrorMessage = nil
+
+        do {
+            let created = try await repository.createPlanItem(title: title, platform: platform, scheduledAt: scheduledAt)
+            contentPlan.insert(created, at: 0)
+            // Re-index sort orders
+            for i in contentPlan.indices { contentPlan[i].sortOrder = i }
+        } catch {
+            planOperationErrorMessage = "Could not create plan item."
+        }
+    }
+
+    @MainActor
+    func updatePlanItem(_ item: ContentPlanItem, title: String? = nil, platform: SocialPlatform? = nil, scheduledAt: Date? = nil, status: ContentPlanItem.Status? = nil) async {
+        planOperationErrorMessage = nil
+
+        guard let index = contentPlan.firstIndex(where: { $0.id == item.id }) else { return }
+        let snapshot = contentPlan
+
+        // Optimistic update
+        if let title { contentPlan[index].title = title }
+        if let platform { contentPlan[index].platform = platform }
+        if let scheduledAt { contentPlan[index].scheduledAt = scheduledAt }
+        if let status { contentPlan[index].status = status }
+
+        do {
+            _ = try await repository.updatePlanItem(id: item.id, title: title, platform: platform, scheduledAt: scheduledAt, status: status)
+        } catch {
+            contentPlan = snapshot
+            planOperationErrorMessage = "Could not update plan item."
+        }
+    }
+
+    @MainActor
+    func deletePlanItem(_ item: ContentPlanItem) async {
+        planOperationErrorMessage = nil
+
+        let snapshot = contentPlan
+        contentPlan.removeAll { $0.id == item.id }
+
+        do {
+            try await repository.deletePlanItem(id: item.id)
+        } catch {
+            contentPlan = snapshot
+            planOperationErrorMessage = "Could not delete plan item."
+        }
+    }
+
+    @MainActor
+    func reorderPlanItems(from source: IndexSet, to destination: Int) {
+        planOperationErrorMessage = nil
+
+        let snapshot = contentPlan
+        contentPlan.move(fromOffsets: source, toOffset: destination)
+        for i in contentPlan.indices { contentPlan[i].sortOrder = i }
+
+        let ids = contentPlan.map(\.id)
+        Task {
+            do {
+                try await repository.reorderPlanItems(ids: ids)
+            } catch {
+                contentPlan = snapshot
+                planOperationErrorMessage = "Could not reorder plan items."
+            }
+        }
     }
 }
 
@@ -209,22 +289,52 @@ struct TemplateItem: Identifiable {
     let title: String
     let imageName: String
     let category: String
+    let captionTemplate: String
+    let suggestedPlatforms: [SocialPlatform]
+    let contentKind: ExportContentKind
 
     init(
         id: UUID = UUID(),
         title: String,
         imageName: String,
-        category: String
+        category: String,
+        captionTemplate: String = "",
+        suggestedPlatforms: [SocialPlatform] = [.instagram],
+        contentKind: ExportContentKind = .photo
     ) {
         self.id = id
         self.title = title
         self.imageName = imageName
         self.category = category
+        self.captionTemplate = captionTemplate
+        self.suggestedPlatforms = suggestedPlatforms
+        self.contentKind = contentKind
     }
 
     static let mockTemplates: [TemplateItem] = [
-        TemplateItem(title: "Minimal Story", imageName: "jacket", category: "Instagram"),
-        TemplateItem(title: "Bold Reel", imageName: "industrial-girl", category: "TikTok"),
-        TemplateItem(title: "Clean Post", imageName: "office-girl", category: "Instagram"),
+        TemplateItem(
+            title: "Minimal Story",
+            imageName: "jacket",
+            category: "Instagram",
+            captionTemplate: "✨ [Your story here] #minimal #aesthetic",
+            suggestedPlatforms: [.instagram],
+            contentKind: .photo
+        ),
+        TemplateItem(
+            title: "Bold Reel",
+            imageName: "industrial-girl",
+            category: "TikTok",
+            captionTemplate: "🔥 [Your hook] #trending #fyp",
+            suggestedPlatforms: [.tiktok],
+            contentKind: .video
+        ),
+        TemplateItem(
+            title: "Clean Post",
+            imageName: "office-girl",
+            category: "LinkedIn",
+            captionTemplate: "[Professional insight here] #thoughtleadership",
+            suggestedPlatforms: [.linkedin, .x],
+            contentKind: .textPost
+        ),
     ]
 }
