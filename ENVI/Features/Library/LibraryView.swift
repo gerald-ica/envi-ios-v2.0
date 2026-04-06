@@ -50,6 +50,16 @@ struct LibraryView: View {
                     // Templates
                     TemplateCarousel(templates: viewModel.templates)
 
+                    ContentPlanningSectionView(
+                        items: viewModel.contentPlan,
+                        isLoading: viewModel.isLoadingPlan,
+                        errorMessage: viewModel.planErrorMessage,
+                        onRetry: {
+                            Task { await viewModel.reloadContentPlan() }
+                        }
+                    )
+                    .padding(.horizontal, ENVISpacing.xl)
+
                     if viewModel.isLoading {
                         HStack {
                             ProgressView()

@@ -15,8 +15,11 @@ final class LibraryViewModel: ObservableObject {
     @Published var searchQuery: String = ""
     @Published var items: [LibraryItem] = []
     @Published var templates: [TemplateItem] = TemplateItem.mockTemplates
+    @Published var contentPlan: [ContentPlanItem] = []
     @Published var isLoading = false
+    @Published var isLoadingPlan = false
     @Published var loadErrorMessage: String?
+    @Published var planErrorMessage: String?
     private var cancellables = Set<AnyCancellable>()
     private let repository: ContentRepository
 
@@ -29,7 +32,29 @@ final class LibraryViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
-        Task { await reloadLibrary() }
+        Task {
+            await reloadLibrary()
+            await reloadContentPlan()
+        }
+    }
+
+    @MainActor
+    func reloadContentPlan() async {
+        isLoadingPlan = true
+        planErrorMessage = nil
+
+        do {
+            contentPlan = try await repository.fetchContentPlan()
+        } catch {
+            if AppEnvironment.current == .dev {
+                contentPlan = ContentPlanItem.mockPlan
+            } else {
+                contentPlan = []
+                planErrorMessage = "Unable to load content plan."
+            }
+        }
+
+        isLoadingPlan = false
     }
 
     var filteredItems: [LibraryItem] {
