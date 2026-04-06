@@ -135,8 +135,7 @@ struct LinkInBioEditorView: View {
             .padding(.horizontal, ENVISpacing.xl)
 
             if viewModel.isLoadingBio {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 100)
+                ENVILoadingState(minHeight: 100)
             } else if let links = viewModel.linkInBio?.links, !links.isEmpty {
                 List {
                     ForEach(links) { link in
