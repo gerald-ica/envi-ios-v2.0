@@ -38,6 +38,8 @@ final class LibraryViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
+        TelemetryManager.shared.track(.libraryOpened)
+
         Task {
             await reloadLibrary()
             await reloadContentPlan()

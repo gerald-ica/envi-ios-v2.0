@@ -133,6 +133,9 @@ final class ContentPieceAssembler: ObservableObject {
     func enqueueForAssembly(mediaIDs: [String], completion: AssemblyCompletion? = nil) {
         guard !mediaIDs.isEmpty else { return }
 
+        TelemetryManager.shared.track(.contentAssemblyStarted, parameters: [
+            "media_count": mediaIDs.count
+        ])
         queueCount += mediaIDs.count
         state = .assembling(inProgress: mediaIDs.count)
 

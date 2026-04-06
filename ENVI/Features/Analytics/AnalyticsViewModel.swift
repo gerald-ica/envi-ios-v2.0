@@ -36,6 +36,7 @@ final class AnalyticsViewModel: ObservableObject {
     func reload() async {
         isLoading = true
         loadErrorMessage = nil
+        TelemetryManager.shared.track(.analyticsViewed)
         do {
             data = try await repository.fetchDashboard()
             growth = try await repository.fetchCreatorGrowth()

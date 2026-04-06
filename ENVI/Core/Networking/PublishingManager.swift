@@ -15,6 +15,11 @@ final class PublishingManager {
         platforms: [SocialPlatform],
         scheduledAt: Date? = nil
     ) async throws -> PublishTicket {
+        TelemetryManager.shared.trackPublish(
+            .publishStarted,
+            jobID: "",
+            platforms: platforms.map(\.rawValue)
+        )
         let response: PublishStartResponse = try await APIClient.shared.request(
             endpoint: "publish/jobs",
             method: .post,
