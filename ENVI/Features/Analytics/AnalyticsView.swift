@@ -42,6 +42,29 @@ struct AnalyticsView: View {
                     .padding(.horizontal, ENVISpacing.xl)
                 }
 
+                if viewModel.isLoading {
+                    HStack {
+                        ProgressView()
+                        Text("Loading analytics...")
+                            .font(.interRegular(13))
+                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                    }
+                    .padding(.horizontal, ENVISpacing.xl)
+                }
+
+                if let error = viewModel.loadErrorMessage {
+                    VStack(alignment: .leading, spacing: ENVISpacing.sm) {
+                        Text(error)
+                            .font(.interMedium(13))
+                            .foregroundColor(.red)
+                        Button("Retry") {
+                            Task { await viewModel.reload() }
+                        }
+                        .font(.interMedium(13))
+                    }
+                    .padding(.horizontal, ENVISpacing.xl)
+                }
+
                 // KPI Cards
                 HStack(spacing: ENVISpacing.md) {
                     KPICardView(kpi: viewModel.data.reach)
@@ -55,13 +78,16 @@ struct AnalyticsView: View {
                     .padding(.horizontal, ENVISpacing.xl)
 
                 // Content Calendar
-                ContentCalendarView(days: viewModel.data.calendarDays)
+                ContentCalendarView(days: viewModel.displayedCalendarDays)
                     .padding(.horizontal, ENVISpacing.xl)
             }
             .padding(.top, ENVISpacing.lg)
             .padding(.bottom, 100)
         }
         .background(ENVITheme.background(for: colorScheme))
+        .refreshable {
+            await viewModel.reload()
+        }
     }
 }
 

@@ -20,6 +20,11 @@ final class AnalyticsViewModel: ObservableObject {
         [nil, .instagram, .tiktok, .youtube]
     }
 
+    var displayedCalendarDays: [AnalyticsData.CalendarDay] {
+        guard let selectedPlatform else { return data.calendarDays }
+        return data.calendarDays.filter { $0.platform == selectedPlatform }
+    }
+
     func platformLabel(_ platform: SocialPlatform?) -> String {
         platform?.rawValue ?? "All"
     }
