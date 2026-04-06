@@ -8,10 +8,27 @@ struct ContentPlanItem: Identifiable {
     }
 
     let id: UUID
-    let title: String
-    let platform: SocialPlatform
-    let scheduledAt: Date
-    let status: Status
+    var title: String
+    var platform: SocialPlatform
+    var scheduledAt: Date
+    var status: Status
+    var sortOrder: Int
+
+    init(
+        id: UUID = UUID(),
+        title: String,
+        platform: SocialPlatform,
+        scheduledAt: Date,
+        status: Status,
+        sortOrder: Int = 0
+    ) {
+        self.id = id
+        self.title = title
+        self.platform = platform
+        self.scheduledAt = scheduledAt
+        self.status = status
+        self.sortOrder = sortOrder
+    }
 }
 
 extension ContentPlanItem {
@@ -25,21 +42,24 @@ extension ContentPlanItem {
                 title: "Product teaser reel",
                 platform: .instagram,
                 scheduledAt: calendar.date(byAdding: .day, value: 1, to: now) ?? now,
-                status: .ready
+                status: .ready,
+                sortOrder: 0
             ),
             ContentPlanItem(
                 id: UUID(),
                 title: "Weekly trend recap",
                 platform: .tiktok,
                 scheduledAt: calendar.date(byAdding: .day, value: 2, to: now) ?? now,
-                status: .draft
+                status: .draft,
+                sortOrder: 1
             ),
             ContentPlanItem(
                 id: UUID(),
                 title: "Behind-the-scenes short",
                 platform: .youtube,
                 scheduledAt: calendar.date(byAdding: .day, value: 3, to: now) ?? now,
-                status: .scheduled
+                status: .scheduled,
+                sortOrder: 2
             )
         ]
     }
