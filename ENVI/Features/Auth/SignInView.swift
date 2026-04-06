@@ -60,6 +60,33 @@ struct SignInView: View {
             .padding(.horizontal, ENVISpacing.xl)
             .padding(.top, ENVISpacing.xxl)
 
+            // Divider
+            HStack {
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(ENVITheme.textLight(for: colorScheme).opacity(0.3))
+                Text("or")
+                    .font(.interRegular(13))
+                    .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(ENVITheme.textLight(for: colorScheme).opacity(0.3))
+            }
+            .padding(.horizontal, ENVISpacing.xl)
+            .padding(.top, ENVISpacing.lg)
+
+            // Apple Sign In
+            AppleSignInButton { payload in
+                TelemetryManager.shared.track(.authSignInSucceeded)
+                onSignIn?()
+            } onError: { error in
+                errorMessage = "Apple Sign In failed. Please try again."
+                TelemetryManager.shared.track(.authSignInFailed)
+                TelemetryManager.shared.record(error: error, context: "apple_sign_in")
+            }
+            .padding(.horizontal, ENVISpacing.xl)
+            .padding(.top, ENVISpacing.md)
+
             Spacer()
 
             // Create account
