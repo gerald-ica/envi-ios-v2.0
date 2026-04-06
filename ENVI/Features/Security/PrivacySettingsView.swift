@@ -143,8 +143,7 @@ struct PrivacySettingsView: View {
                 .padding(.horizontal, ENVISpacing.xl)
 
             if viewModel.isLoadingRetention {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 80)
+                ENVILoadingState(minHeight: 80)
             } else {
                 VStack(spacing: ENVISpacing.sm) {
                     ForEach(viewModel.retentionPolicies) { policy in
