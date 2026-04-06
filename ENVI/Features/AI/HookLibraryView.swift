@@ -217,36 +217,17 @@ struct HookLibraryView: View {
     // MARK: - Loading & Empty States
 
     private var loadingState: some View {
-        VStack(spacing: ENVISpacing.lg) {
-            ProgressView()
-                .tint(ENVITheme.text(for: colorScheme))
-            Text("Loading hooks...")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.xxxxl)
+        ENVILoadingState()
     }
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.lg) {
-            Image(systemName: showFavoritesOnly ? "heart.slash" : "magnifyingglass")
-                .font(.system(size: 28))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text(showFavoritesOnly ? "No favorite hooks yet" : "No hooks found")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text(showFavoritesOnly
-                 ? "Tap the heart icon on any hook to add it here."
-                 : "Try a different search term.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.xxxxl)
+        ENVIEmptyState(
+            icon: showFavoritesOnly ? "heart.slash" : "magnifyingglass",
+            title: showFavoritesOnly ? "No favorite hooks yet" : "No hooks found",
+            subtitle: showFavoritesOnly
+                ? "Tap the heart icon on any hook to add it here."
+                : "Try a different search term."
+        )
     }
 
     // MARK: - Actions

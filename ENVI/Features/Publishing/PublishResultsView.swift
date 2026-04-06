@@ -288,10 +288,7 @@ struct PublishResultsView: View {
     // MARK: - Helpers
 
     private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.spaceMono(11))
-            .tracking(0.88)
-            .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
+        ENVISectionHeader(title: title)
     }
 }
 

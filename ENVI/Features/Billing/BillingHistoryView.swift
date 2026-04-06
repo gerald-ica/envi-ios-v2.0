@@ -123,17 +123,10 @@ struct BillingHistoryView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "doc.text")
-                .font(.system(size: 32))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No billing history yet")
-                .font(.interRegular(14))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(ENVISpacing.xxxxl)
+        ENVIEmptyState(
+            icon: "doc.text",
+            title: "No billing history yet"
+        )
     }
 
     // MARK: - Helpers

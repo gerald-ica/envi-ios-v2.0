@@ -240,13 +240,7 @@ struct RepurposeDashboardView: View {
     }
 
     private func statusBadge(_ status: RepurposeJobStatus) -> some View {
-        Text(status.displayName)
-            .font(.interMedium(11))
-            .padding(.horizontal, ENVISpacing.sm)
-            .padding(.vertical, ENVISpacing.xs)
-            .foregroundColor(statusColor(status))
-            .background(statusColor(status).opacity(0.12))
-            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
+        ENVIStatusBadge(text: status.displayName, color: statusColor(status))
     }
 
     private func statusColor(_ status: RepurposeJobStatus) -> Color {
@@ -259,22 +253,11 @@ struct RepurposeDashboardView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "arrow.triangle.2.circlepath")
-                .font(.system(size: 32))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No repurpose jobs yet")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Select a source format and target formats to get started.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.xxxl)
+        ENVIEmptyState(
+            icon: "arrow.triangle.2.circlepath",
+            title: "No repurpose jobs yet",
+            subtitle: "Select a source format and target formats to get started."
+        )
     }
 }
 

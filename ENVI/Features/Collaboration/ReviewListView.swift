@@ -43,11 +43,11 @@ struct ReviewListView: View {
     private var statusFilterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: ENVISpacing.sm) {
-                filterChip(title: "All", isSelected: viewModel.statusFilter == nil) {
+                ENVIFilterChip(title: "All", isSelected: viewModel.statusFilter == nil) {
                     viewModel.statusFilter = nil
                 }
                 ForEach(ReviewStatus.allCases) { status in
-                    filterChip(title: status.displayName, isSelected: viewModel.statusFilter == status) {
+                    ENVIFilterChip(title: status.displayName, isSelected: viewModel.statusFilter == status) {
                         viewModel.statusFilter = status
                     }
                 }
@@ -56,29 +56,12 @@ struct ReviewListView: View {
         }
     }
 
-    private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.interMedium(13))
-                .foregroundColor(isSelected ? ENVITheme.background(for: colorScheme) : ENVITheme.text(for: colorScheme))
-                .padding(.horizontal, ENVISpacing.md)
-                .padding(.vertical, ENVISpacing.sm)
-                .background(isSelected ? ENVITheme.text(for: colorScheme) : ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                .overlay(
-                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                        .strokeBorder(isSelected ? Color.clear : ENVITheme.border(for: colorScheme), lineWidth: 1)
-                )
-        }
-    }
-
     // MARK: - Review List
 
     private var reviewList: some View {
         LazyVStack(spacing: ENVISpacing.md) {
             if viewModel.isLoadingReviews {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.filteredReviews.isEmpty {
                 emptyState
             } else {
@@ -91,10 +74,7 @@ struct ReviewListView: View {
             }
 
             if let error = viewModel.reviewError {
-                Text(error)
-                    .font(.interRegular(13))
-                    .foregroundColor(ENVITheme.error)
-                    .padding(.horizontal, ENVISpacing.xl)
+                ENVIErrorBanner(message: error)
             }
         }
         .padding(.horizontal, ENVISpacing.xl)
@@ -191,19 +171,10 @@ struct ReviewListView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "checkmark.seal")
-                .font(.system(size: 36))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No review requests")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Create a review to start collaborating.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
+        ENVIEmptyState(
+            icon: "checkmark.seal",
+            title: "No review requests",
+            subtitle: "Create a review to start collaborating."
+        )
     }
 }

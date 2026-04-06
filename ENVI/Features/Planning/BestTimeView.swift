@@ -59,53 +59,7 @@ struct BestTimeView: View {
     // MARK: - Platform Chips
 
     private var platformChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: ENVISpacing.sm) {
-                Button {
-                    filterPlatform = nil
-                } label: {
-                    Text("ALL")
-                        .font(.spaceMonoBold(9))
-                        .tracking(1.0)
-                        .foregroundColor(chipForeground(isSelected: filterPlatform == nil))
-                        .padding(.horizontal, ENVISpacing.md)
-                        .padding(.vertical, 4)
-                        .background(chipBackground(isSelected: filterPlatform == nil))
-                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                                .strokeBorder(chipBorder(isSelected: filterPlatform == nil), lineWidth: 1)
-                        )
-                }
-                .buttonStyle(.plain)
-
-                ForEach(SocialPlatform.allCases) { platform in
-                    Button {
-                        filterPlatform = filterPlatform == platform ? nil : platform
-                    } label: {
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(platform.brandColor)
-                                .frame(width: 6, height: 6)
-                            Text(platform.rawValue.uppercased())
-                                .font(.spaceMonoBold(9))
-                                .tracking(1.0)
-                        }
-                        .foregroundColor(chipForeground(isSelected: filterPlatform == platform))
-                        .padding(.horizontal, ENVISpacing.md)
-                        .padding(.vertical, 4)
-                        .background(chipBackground(isSelected: filterPlatform == platform))
-                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                                .strokeBorder(chipBorder(isSelected: filterPlatform == platform), lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, ENVISpacing.xl)
-        }
+        ENVIPlatformFilterBar(selectedPlatform: $filterPlatform)
     }
 
     // MARK: - Heatmap Grid
@@ -215,19 +169,6 @@ struct BestTimeView: View {
         return "\(h)\(suffix)"
     }
 
-    private func chipForeground(isSelected: Bool) -> Color {
-        isSelected
-            ? (colorScheme == .dark ? .black : .white)
-            : ENVITheme.textLight(for: colorScheme)
-    }
-
-    private func chipBackground(isSelected: Bool) -> Color {
-        isSelected ? ENVITheme.text(for: colorScheme) : .clear
-    }
-
-    private func chipBorder(isSelected: Bool) -> Color {
-        isSelected ? .clear : ENVITheme.border(for: colorScheme)
-    }
 }
 
 #Preview {

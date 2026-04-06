@@ -157,22 +157,11 @@ struct NotificationListView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "bell.slash")
-                .font(.system(size: 32))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No notifications yet")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("You'll see updates about your content, milestones, and more here.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.xxxxl)
+        ENVIEmptyState(
+            icon: "bell.slash",
+            title: "No notifications yet",
+            subtitle: "You'll see updates about your content, milestones, and more here."
+        )
         .padding(.horizontal, ENVISpacing.xl)
     }
 

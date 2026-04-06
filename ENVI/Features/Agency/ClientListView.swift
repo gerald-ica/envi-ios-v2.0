@@ -67,11 +67,11 @@ struct ClientListView: View {
     private var statusFilterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: ENVISpacing.sm) {
-                filterChip(title: "All", isSelected: viewModel.statusFilter == nil) {
+                ENVIFilterChip(title: "All", isSelected: viewModel.statusFilter == nil) {
                     viewModel.statusFilter = nil
                 }
                 ForEach(ClientStatus.allCases) { status in
-                    filterChip(title: status.displayName, isSelected: viewModel.statusFilter == status) {
+                    ENVIFilterChip(title: status.displayName, isSelected: viewModel.statusFilter == status) {
                         viewModel.statusFilter = status
                     }
                 }
@@ -80,29 +80,12 @@ struct ClientListView: View {
         }
     }
 
-    private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.interMedium(13))
-                .foregroundColor(isSelected ? ENVITheme.background(for: colorScheme) : ENVITheme.text(for: colorScheme))
-                .padding(.horizontal, ENVISpacing.md)
-                .padding(.vertical, ENVISpacing.sm)
-                .background(isSelected ? ENVITheme.text(for: colorScheme) : ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                .overlay(
-                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                        .strokeBorder(isSelected ? Color.clear : ENVITheme.border(for: colorScheme), lineWidth: 1)
-                )
-        }
-    }
-
     // MARK: - Client List
 
     private var clientList: some View {
         LazyVStack(spacing: ENVISpacing.md) {
             if viewModel.isLoadingClients {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.filteredClients.isEmpty {
                 emptyState
             } else {
@@ -115,10 +98,7 @@ struct ClientListView: View {
             }
 
             if let error = viewModel.errorMessage {
-                Text(error)
-                    .font(.interRegular(13))
-                    .foregroundColor(ENVITheme.error)
-                    .padding(.horizontal, ENVISpacing.xl)
+                ENVIErrorBanner(message: error)
             }
         }
         .padding(.horizontal, ENVISpacing.xl)
@@ -236,19 +216,10 @@ struct ClientListView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "person.3")
-                .font(.system(size: 36))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No clients found")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Add your first client to get started.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
+        ENVIEmptyState(
+            icon: "person.3",
+            title: "No clients found",
+            subtitle: "Add your first client to get started."
+        )
     }
 }

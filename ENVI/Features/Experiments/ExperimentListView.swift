@@ -16,8 +16,7 @@ struct ExperimentListView: View {
                 statusFilterBar
 
                 if viewModel.isLoading {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 120)
+                    ENVILoadingState()
                 } else if viewModel.filteredExperiments.isEmpty {
                     emptyState
                 } else {
@@ -25,10 +24,7 @@ struct ExperimentListView: View {
                 }
 
                 if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(.interRegular(13))
-                        .foregroundColor(ENVITheme.error)
-                        .padding(.horizontal, ENVISpacing.xl)
+                    ENVIErrorBanner(message: error)
                 }
             }
             .padding(.vertical, ENVISpacing.xl)
@@ -97,34 +93,17 @@ struct ExperimentListView: View {
     private var statusFilterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: ENVISpacing.sm) {
-                filterChip(label: "All", isSelected: viewModel.statusFilter == nil) {
+                ENVIFilterChip(title: "All", isSelected: viewModel.statusFilter == nil) {
                     viewModel.statusFilter = nil
                 }
 
                 ForEach(ExperimentStatus.allCases) { status in
-                    filterChip(label: status.displayName, isSelected: viewModel.statusFilter == status) {
+                    ENVIFilterChip(title: status.displayName, isSelected: viewModel.statusFilter == status) {
                         viewModel.statusFilter = status
                     }
                 }
             }
             .padding(.horizontal, ENVISpacing.xl)
-        }
-    }
-
-    private func filterChip(label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(label.uppercased())
-                .font(.spaceMono(11))
-                .tracking(0.5)
-                .foregroundColor(isSelected ? ENVITheme.text(for: colorScheme) : ENVITheme.textSecondary(for: colorScheme))
-                .padding(.horizontal, ENVISpacing.md)
-                .padding(.vertical, ENVISpacing.sm)
-                .background(isSelected ? ENVITheme.surfaceHigh(for: colorScheme) : ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                .overlay(
-                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                        .strokeBorder(isSelected ? ENVITheme.text(for: colorScheme).opacity(0.3) : Color.clear, lineWidth: 1)
-                )
         }
     }
 
@@ -162,25 +141,17 @@ struct ExperimentListView: View {
 
     private var emptyState: some View {
         VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "flask")
-                .font(.system(size: 32))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No experiments yet")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Create an A/B test to compare content variants and discover what resonates with your audience.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
+            ENVIEmptyState(
+                icon: "flask",
+                title: "No experiments yet",
+                subtitle: "Create an A/B test to compare content variants and discover what resonates with your audience."
+            )
 
             ENVIButton("New Experiment", variant: .secondary, isFullWidth: false) {
                 viewModel.startCreatingExperiment()
             }
         }
-        .padding(ENVISpacing.xxxl)
-        .frame(maxWidth: .infinity)
+        .padding(.horizontal, ENVISpacing.xxxl)
     }
 }
 

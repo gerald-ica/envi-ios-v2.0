@@ -231,17 +231,10 @@ struct MetadataCompletenessView: View {
     // MARK: - Empty
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "chart.bar.doc.horizontal")
-                .font(.system(size: 32))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No metadata available")
-                .font(.interSemiBold(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.xxxxl)
+        ENVIEmptyState(
+            icon: "chart.bar.doc.horizontal",
+            title: "No metadata available"
+        )
     }
 }
 

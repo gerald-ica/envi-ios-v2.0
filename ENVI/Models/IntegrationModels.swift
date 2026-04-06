@@ -13,16 +13,7 @@ enum IntegrationCategory: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var displayName: String {
-        switch self {
-        case .storage:       return "Storage"
-        case .analytics:     return "Analytics"
-        case .design:        return "Design"
-        case .communication: return "Communication"
-        case .commerce:      return "Commerce"
-        case .automation:    return "Automation"
-        }
-    }
+    var displayName: String { rawValue.capitalized }
 
     var iconName: String {
         switch self {

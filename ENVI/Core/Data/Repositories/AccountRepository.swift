@@ -63,7 +63,6 @@ final class APIAccountRepository: AccountRepository {
         try await APIClient.shared.requestVoid(
             endpoint: "account/sessions/\(id)",
             method: .delete,
-            body: Optional<String>.none,
             requiresAuth: true
         )
     }

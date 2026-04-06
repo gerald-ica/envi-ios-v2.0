@@ -256,22 +256,11 @@ struct ReminderManagerView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "clock")
-                .font(.system(size: 32))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No reminders yet")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Set up recurring reminders to stay on top of your content schedule.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.xxxxl)
+        ENVIEmptyState(
+            icon: "clock",
+            title: "No reminders yet",
+            subtitle: "Set up recurring reminders to stay on top of your content schedule."
+        )
         .padding(.horizontal, ENVISpacing.xl)
     }
 
