@@ -3,6 +3,8 @@ import Foundation
 protocol AnalyticsRepository {
     func fetchDashboard() async throws -> AnalyticsData
     func fetchCreatorGrowth() async throws -> CreatorGrowthSnapshot
+    func fetchRetentionCohorts() async throws -> [RetentionCohort]
+    func fetchAttribution() async throws -> [SourceAttribution]
 }
 
 final class MockAnalyticsRepository: AnalyticsRepository {
@@ -12,6 +14,14 @@ final class MockAnalyticsRepository: AnalyticsRepository {
 
     func fetchCreatorGrowth() async throws -> CreatorGrowthSnapshot {
         .mock
+    }
+
+    func fetchRetentionCohorts() async throws -> [RetentionCohort] {
+        RetentionCohort.mock
+    }
+
+    func fetchAttribution() async throws -> [SourceAttribution] {
+        SourceAttribution.mock
     }
 }
 
@@ -32,6 +42,24 @@ final class APIAnalyticsRepository: AnalyticsRepository {
             requiresAuth: true
         )
         return response.toDomain()
+    }
+
+    func fetchRetentionCohorts() async throws -> [RetentionCohort] {
+        let response: [RetentionCohortResponse] = try await APIClient.shared.request(
+            endpoint: "analytics/cohorts",
+            method: .get,
+            requiresAuth: true
+        )
+        return response.map { $0.toDomain() }
+    }
+
+    func fetchAttribution() async throws -> [SourceAttribution] {
+        let response: [SourceAttributionResponse] = try await APIClient.shared.request(
+            endpoint: "analytics/attribution",
+            method: .get,
+            requiresAuth: true
+        )
+        return response.map { $0.toDomain() }
     }
 }
 
@@ -134,6 +162,40 @@ private struct CalendarDayResponse: Decodable {
             date: parsedDate,
             hasContent: hasContent,
             platform: socialPlatform
+        )
+    }
+}
+
+private struct RetentionCohortResponse: Decodable {
+    let weekLabel: String
+    let cohortSize: Int
+    let retainedPercent: Double
+    let platform: String?
+
+    func toDomain() -> RetentionCohort {
+        RetentionCohort(
+            weekLabel: weekLabel,
+            cohortSize: cohortSize,
+            retainedPercent: retainedPercent,
+            platform: platform.flatMap(SocialPlatform.init(rawValue:))
+        )
+    }
+}
+
+private struct SourceAttributionResponse: Decodable {
+    let source: String
+    let channel: String?
+    let visitors: Int
+    let conversions: Int
+    let conversionRate: Double
+
+    func toDomain() -> SourceAttribution {
+        SourceAttribution(
+            source: source,
+            channel: channel,
+            visitors: visitors,
+            conversions: conversions,
+            conversionRate: conversionRate
         )
     }
 }

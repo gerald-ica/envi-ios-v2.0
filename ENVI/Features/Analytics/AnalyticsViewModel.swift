@@ -5,6 +5,8 @@ import Combine
 final class AnalyticsViewModel: ObservableObject {
     @Published var data = AnalyticsData.mock
     @Published var growth = CreatorGrowthSnapshot.mock
+    @Published var cohorts: [RetentionCohort] = RetentionCohort.mock
+    @Published var attribution: [SourceAttribution] = SourceAttribution.mock
     @Published var selectedPlatform: SocialPlatform? = nil
     @Published var dateRange = "Jun 10 – Jun 16, 2024"
     @Published var isLoading = false
@@ -37,10 +39,14 @@ final class AnalyticsViewModel: ObservableObject {
         do {
             data = try await repository.fetchDashboard()
             growth = try await repository.fetchCreatorGrowth()
+            cohorts = try await repository.fetchRetentionCohorts()
+            attribution = try await repository.fetchAttribution()
         } catch {
             if AppEnvironment.current == .dev {
                 data = .mock
                 growth = .mock
+                cohorts = RetentionCohort.mock
+                attribution = SourceAttribution.mock
             } else {
                 loadErrorMessage = "Unable to load analytics right now."
             }

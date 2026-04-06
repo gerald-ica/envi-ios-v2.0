@@ -80,6 +80,12 @@ struct AnalyticsView: View {
                 CreatorGrowthSectionView(growth: viewModel.growth)
                     .padding(.horizontal, ENVISpacing.xl)
 
+                RetentionCohortView(cohorts: viewModel.cohorts)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                SourceAttributionView(attributions: viewModel.attribution)
+                    .padding(.horizontal, ENVISpacing.xl)
+
                 // Content Calendar
                 ContentCalendarView(days: viewModel.displayedCalendarDays)
                     .padding(.horizontal, ENVISpacing.xl)
