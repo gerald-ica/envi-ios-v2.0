@@ -131,8 +131,7 @@ struct IntegrationMarketplaceView: View {
     private var integrationGrid: some View {
         Group {
             if viewModel.isLoadingIntegrations {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 200)
+                ENVILoadingState(minHeight: 200)
             } else if viewModel.filteredIntegrations.isEmpty {
                 ENVIEmptyState(
                     icon: "puzzlepiece.extension",
