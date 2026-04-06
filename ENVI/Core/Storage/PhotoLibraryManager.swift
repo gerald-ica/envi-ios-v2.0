@@ -11,10 +11,18 @@ import Combine
 ///   3. Media is passed to ContentPieceAssembler for backend processing
 ///   4. Assembled content pieces are displayed in the World Explorer 3D helix
 ///
-/// This is a stub providing proper structure — full implementation will include
-/// change observers, incremental fetching, and background refresh.
+/// Observes real-time photo library changes via `PHPhotoLibraryChangeObserver`
+/// and notifies delegates when the library is updated.
 
-final class PhotoLibraryManager: ObservableObject {
+// MARK: - PhotoLibraryChangeDelegate
+
+/// Delegate protocol for receiving photo library change notifications.
+protocol PhotoLibraryChangeDelegate: AnyObject {
+    /// Called when the photo library contents have changed.
+    func photoLibraryDidChange(insertedCount: Int, removedCount: Int, updatedCount: Int)
+}
+
+final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChangeObserver {
 
     // MARK: - Authorization Status
 
@@ -61,12 +69,24 @@ final class PhotoLibraryManager: ObservableObject {
     /// Number of media items available in the user's library.
     @Published private(set) var availableMediaCount: Int = 0
 
+    /// Delegate for receiving library change events.
+    weak var changeDelegate: PhotoLibraryChangeDelegate?
+
+    /// Cached fetch result for change observer diffing.
+    private var cachedFetchResult: PHFetchResult<PHAsset>?
+
     // MARK: - Singleton
 
     static let shared = PhotoLibraryManager()
 
-    private init() {
+    private override init() {
+        super.init()
         refreshAuthorizationStatus()
+        startObservingChanges()
+    }
+
+    deinit {
+        PHPhotoLibrary.shared().unregisterChangeObserver(self)
     }
 
     // MARK: - Authorization
@@ -141,5 +161,47 @@ final class PhotoLibraryManager: ObservableObject {
             PHAssetMediaType.video.rawValue
         )
         return PHAsset.fetchAssets(with: fetchOptions).count
+    }
+
+    // MARK: - Photo Library Change Observation
+
+    /// Registers as a photo library change observer for real-time sync.
+    private func startObservingChanges() {
+        guard authorizationStatus.isAuthorized else { return }
+        PHPhotoLibrary.shared().register(self)
+
+        // Perform an initial fetch to seed the cached result for diffing
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchOptions.predicate = NSPredicate(
+            format: "mediaType == %d OR mediaType == %d",
+            PHAssetMediaType.image.rawValue,
+            PHAssetMediaType.video.rawValue
+        )
+        cachedFetchResult = PHAsset.fetchAssets(with: fetchOptions)
+        availableMediaCount = cachedFetchResult?.count ?? 0
+    }
+
+    /// Called by the Photos framework when the library changes.
+    func photoLibraryDidChange(_ changeInstance: PHChange) {
+        guard let previousResult = cachedFetchResult else { return }
+        guard let changeDetails = changeInstance.changeDetails(for: previousResult) else { return }
+
+        let inserted = changeDetails.insertedObjects.count
+        let removed = changeDetails.removedObjects.count
+        let updated = changeDetails.changedObjects.count
+
+        // Update cached result on the main thread
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.cachedFetchResult = changeDetails.fetchResultAfterChanges
+            self.availableMediaCount = changeDetails.fetchResultAfterChanges.count
+
+            self.changeDelegate?.photoLibraryDidChange(
+                insertedCount: inserted,
+                removedCount: removed,
+                updatedCount: updated
+            )
+        }
     }
 }

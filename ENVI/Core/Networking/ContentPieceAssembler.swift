@@ -1,4 +1,5 @@
 import Foundation
+import Photos
 
 // MARK: - Content Piece Assembly Pipeline
 //
@@ -15,8 +16,6 @@ import Foundation
 //
 // Supported content types: photos, videos, carousels, stories, reels
 //
-// This is a stub class — full implementation requires backend API integration.
-
 // MARK: - ContentPieceAssemblyDelegate
 
 /// Delegate protocol for receiving assembly pipeline events.
@@ -68,8 +67,7 @@ enum AssemblyState: Equatable {
 
 // MARK: - ContentPieceAssembler
 
-/// Stub class representing the backend service that assembles content pieces
-/// from the user's camera roll media.
+/// Backend service that assembles content pieces from the user's camera roll media.
 ///
 /// In production, this communicates with the ENVI backend API to:
 /// - Upload raw photos and videos
@@ -225,14 +223,23 @@ protocol ContentAssemblyTransport {
     func createContentPiece(mediaAssetID: String) async throws -> CreatePieceResponse
 }
 
+/// Resolved file information from a PHAsset for upload.
+struct MediaFileInfo {
+    let fileName: String
+    let fileURL: URL
+    let fileType: String
+    let duration: Float?
+}
+
 struct APIContentAssemblyTransport: ContentAssemblyTransport {
     func uploadMediaAsset(mediaID: String) async throws -> UploadMediaResponse {
+        let fileInfo = try await resolveMediaFile(localIdentifier: mediaID)
         let payload = UploadMediaRequest(
             mediaID: mediaID,
-            fileName: "\(mediaID).mov",
-            fileUrl: "envi://local/\(mediaID)",
-            fileType: "video",
-            duration: nil
+            fileName: fileInfo.fileName,
+            fileUrl: fileInfo.fileURL.absoluteString,
+            fileType: fileInfo.fileType,
+            duration: fileInfo.duration
         )
         return try await APIClient.shared.request(
             endpoint: "media/assets",
@@ -250,6 +257,129 @@ struct APIContentAssemblyTransport: ContentAssemblyTransport {
             body: payload,
             requiresAuth: true
         )
+    }
+
+    // MARK: - PHAsset Resolution
+
+    private func resolveMediaFile(localIdentifier: String) async throws -> MediaFileInfo {
+        let results = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil)
+        guard let asset = results.firstObject else {
+            throw ContentAssemblyError.assetNotFound(localIdentifier)
+        }
+
+        switch asset.mediaType {
+        case .video:
+            return try await resolveVideoAsset(asset)
+        case .image:
+            return try await resolveImageAsset(asset)
+        default:
+            throw ContentAssemblyError.unsupportedMediaType
+        }
+    }
+
+    private func resolveVideoAsset(_ asset: PHAsset) async throws -> MediaFileInfo {
+        let manager = PHImageManager.default()
+        let options = PHVideoRequestOptions()
+        options.version = .current
+        options.isNetworkAccessAllowed = true
+
+        return try await withCheckedThrowingContinuation { continuation in
+            manager.requestAVAsset(forVideo: asset, options: options) { avAsset, _, info in
+                if let error = info?[PHImageErrorKey] as? Error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                guard let urlAsset = avAsset as? AVURLAsset else {
+                    continuation.resume(throwing: ContentAssemblyError.fileURLUnavailable)
+                    return
+                }
+                let fileURL = urlAsset.url
+                let fileName = fileURL.lastPathComponent
+                let duration = Float(asset.duration)
+                let info = MediaFileInfo(
+                    fileName: fileName,
+                    fileURL: fileURL,
+                    fileType: "video",
+                    duration: duration
+                )
+                continuation.resume(returning: info)
+            }
+        }
+    }
+
+    private func resolveImageAsset(_ asset: PHAsset) async throws -> MediaFileInfo {
+        let manager = PHImageManager.default()
+        let options = PHImageRequestOptions()
+        options.version = .current
+        options.isNetworkAccessAllowed = true
+        options.isSynchronous = false
+
+        return try await withCheckedThrowingContinuation { continuation in
+            manager.requestImageDataAndOrientation(for: asset, options: options) { data, uti, _, info in
+                if let error = info?[PHImageErrorKey] as? Error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                guard data != nil else {
+                    continuation.resume(throwing: ContentAssemblyError.fileURLUnavailable)
+                    return
+                }
+
+                // Derive file extension from UTI (e.g. "public.jpeg" -> "jpg")
+                let ext: String
+                if let uti = uti {
+                    switch uti {
+                    case "public.jpeg":       ext = "jpg"
+                    case "public.png":        ext = "png"
+                    case "public.heif",
+                         "public.heic":       ext = "heic"
+                    default:                  ext = "jpg"
+                    }
+                } else {
+                    ext = "jpg"
+                }
+
+                // Build a file URL from the asset's local identifier
+                let sanitizedID = asset.localIdentifier
+                    .replacingOccurrences(of: "/", with: "_")
+                    .replacingOccurrences(of: ":", with: "-")
+                let fileName = "\(sanitizedID).\(ext)"
+                let tempURL = FileManager.default.temporaryDirectory
+                    .appendingPathComponent(fileName)
+
+                // Write image data to temp file so we have a real URL
+                if let imageData = data {
+                    try? imageData.write(to: tempURL, options: .atomic)
+                }
+
+                let info = MediaFileInfo(
+                    fileName: fileName,
+                    fileURL: tempURL,
+                    fileType: "photo",
+                    duration: nil
+                )
+                continuation.resume(returning: info)
+            }
+        }
+    }
+}
+
+// MARK: - Content Assembly Errors
+
+enum ContentAssemblyError: LocalizedError {
+    case assetNotFound(String)
+    case unsupportedMediaType
+    case fileURLUnavailable
+
+    var errorDescription: String? {
+        switch self {
+        case .assetNotFound(let id):
+            return "PHAsset not found for local identifier: \(id)"
+        case .unsupportedMediaType:
+            return "Media type is not supported for assembly (only photos and videos)"
+        case .fileURLUnavailable:
+            return "Could not resolve a file URL for the media asset"
+        }
     }
 }
 

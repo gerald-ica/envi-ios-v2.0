@@ -68,20 +68,19 @@ enum ExplorerViewMode: String {
 
 // MARK: - Helix Scene Controller
 
-/// Manages the SceneKit scene: 2000 content piece nodes arranged in a horizontal helix,
+/// Manages the SceneKit scene: content piece nodes arranged in a horizontal helix,
 /// continuous animation, starfield, spine tube, timeline, connection lines,
 /// camera system with auto/orbit/zoom modes, and tap-to-select hit testing.
 ///
 /// Content pieces represent already-edited assets from the user's camera roll.
-/// The 2000 count is a placeholder; in production this would match the user's actual library size.
+/// The piece count is driven by the user's actual library size via `contentPieceCount` init parameter.
 final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
     // MARK: - Configuration (matches React STREAM_CONFIG exactly)
 
     private struct Config {
-        /// Placeholder count for user's content library — each represents an edited piece.
-        /// Keep this below the previous 2600-node spike so launch stays responsive on simulator.
-        static let contentPieceCount: Int = 1600
+        /// Default fallback when no library count is provided.
+        static let defaultContentPieceCount: Int = 1600
         static let streamLength: Float = 140
         static let streamRadius: Float = 7.2
         static let size: Float = 0.95
@@ -175,6 +174,9 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
     var timePosition: Float = 0.5
     var zoomLevel: ExplorerZoomLevel = .month
 
+    /// Actual content piece count for this session, driven by the user's library size.
+    let contentPieceCount: Int
+
     /// Cached star material for light mode toggling
     private var starMaterial: SCNMaterial?
     private var tlLineMaterial: SCNMaterial?
@@ -182,9 +184,18 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
     // MARK: - Init
 
-    init(onNodeTapped: ((String) -> Void)?, onSceneReady: (() -> Void)?) {
+    init(
+        onNodeTapped: ((String) -> Void)?,
+        onSceneReady: (() -> Void)?,
+        contentPieceCount: Int? = nil
+    ) {
         self.onNodeTapped = onNodeTapped
         self.onSceneReady = onSceneReady
+        // Use the caller-provided count, fall back to assembler's live count,
+        // and finally to the default if neither is available.
+        let assembledCount = ContentPieceAssembler.shared.assembledCount
+        self.contentPieceCount = contentPieceCount
+            ?? (assembledCount > 0 ? assembledCount : Config.defaultContentPieceCount)
         super.init()
     }
 
@@ -633,7 +644,7 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
     // MARK: - Content Piece Creation
 
     private func createContentPieces(in scene: SCNScene) {
-        let count = Config.contentPieceCount
+        let count = contentPieceCount
         let allPieces = ContentLibrary.pieces
         let contentCount = allPieces.count  // 14 past + 6 future = 20
         let imageNames = ContentLibrary.imageNames
@@ -746,7 +757,7 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
     private func createConnectionLines(in scene: SCNScene) {
         let contentIDs = ContentLibrary.pieces.map { $0.id }
-        let count = Config.contentPieceCount
+        let count = contentPieceCount
 
         // Build nodeIndex → first content piece index lookup
         var nodeFirstPiece: [Int: Int] = [:]
@@ -908,7 +919,7 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
         if viewLerp > 0.999 { viewLerp = 1 }
         let vl = viewLerp
 
-        let count = Config.contentPieceCount
+        let count = contentPieceCount
         guard let cameraPos = cameraNode?.position else { return }
 
         let contentIDs = ContentLibrary.pieces.map { $0.id }

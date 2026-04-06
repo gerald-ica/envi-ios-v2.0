@@ -1,5 +1,6 @@
 import SwiftUI
 import SceneKit
+import PhotosUI
 
 // MARK: - Content Library
 
@@ -70,6 +71,12 @@ struct WorldExplorerView: View {
 
     /// Reference to the scene controller for state sync
     @State private var sceneController: HelixSceneController?
+
+    /// PHPicker presentation
+    @State private var showPhotoPicker: Bool = false
+
+    /// Content assembly observation
+    @StateObject private var assembler = ContentPieceAssembler.shared
 
     /// Voice timer
     @State private var voiceTimer: Timer?
@@ -179,6 +186,19 @@ struct WorldExplorerView: View {
                 message: Text(notice.message),
                 dismissButton: .default(Text("OK"))
             )
+        }
+        .sheet(isPresented: $showPhotoPicker) {
+            PhotoPickerView { identifiers in
+                guard !identifiers.isEmpty else { return }
+                assembler.enqueueForAssembly(mediaIDs: identifiers)
+            }
+        }
+        .overlay(alignment: .top) {
+            if case .uploading(let progress) = assembler.state {
+                assemblyProgressBanner(progress: progress)
+            } else if case .assembling(let count) = assembler.state, count > 0 {
+                assemblyProgressBanner(progress: assembler.progress)
+            }
         }
     }
 
@@ -550,10 +570,7 @@ struct WorldExplorerView: View {
     private var plusMenu: some View {
         VStack(alignment: .leading, spacing: 2) {
             plusMenuItem(icon: "paperclip", label: "ATTACH") {
-                explorerNotice = ExplorerNotice(
-                    title: "Attach Is Next",
-                    message: "Direct media attach from Photos is the next Explore workflow to wire into ENVI."
-                )
+                showPhotoPicker = true
                 plusMenuOpen = false
             }
             plusMenuItem(icon: "clock", label: "TIMELINE") {
@@ -822,6 +839,37 @@ struct WorldExplorerView: View {
         sceneController?.timePosition = 0.5
     }
 
+    // MARK: - Assembly Progress Banner
+
+    private func assemblyProgressBanner(progress: Double) -> some View {
+        HStack(spacing: ENVISpacing.md) {
+            ProgressView(value: progress)
+                .progressViewStyle(.linear)
+                .tint(Color(hex: "#3C64C8"))
+                .frame(maxWidth: 160)
+
+            Text("ASSEMBLING \(assembler.queueCount) PIECE\(assembler.queueCount == 1 ? "" : "S")")
+                .font(.spaceMonoBold(10))
+                .tracking(1.5)
+                .foregroundColor(lightMode ? .black.opacity(0.6) : .white.opacity(0.7))
+        }
+        .padding(.horizontal, ENVISpacing.xl)
+        .padding(.vertical, ENVISpacing.md)
+        .background(
+            Capsule()
+                .fill(lightMode ? Color.white.opacity(0.9) : Color.black.opacity(0.85))
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+        )
+        .overlay(
+            Capsule()
+                .strokeBorder(lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.1), lineWidth: 0.5)
+        )
+        .padding(.top, 60)
+        .transition(.move(edge: .top).combined(with: .opacity))
+        .animation(.easeOut(duration: 0.3), value: assembler.state)
+    }
+
     private func submitExplorerPrompt() {
         let trimmed = explorerPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
@@ -835,6 +883,45 @@ private struct ExplorerNotice: Identifiable {
     let id = UUID()
     let title: String
     let message: String
+}
+
+// MARK: - PHPicker SwiftUI Wrapper
+
+/// Wraps PHPickerViewController for selecting photos/videos to feed into the assembly pipeline.
+struct PhotoPickerView: UIViewControllerRepresentable {
+
+    var onSelection: ([String]) -> Void
+
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 0 // unlimited
+        config.filter = .any(of: [.images, .videos])
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onSelection: onSelection)
+    }
+
+    final class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let onSelection: ([String]) -> Void
+
+        init(onSelection: @escaping ([String]) -> Void) {
+            self.onSelection = onSelection
+        }
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            picker.dismiss(animated: true)
+
+            let identifiers = results.compactMap(\.assetIdentifier)
+            guard !identifiers.isEmpty else { return }
+            onSelection(identifiers)
+        }
+    }
 }
 
 // MARK: - SCNView UIViewRepresentable
