@@ -21,7 +21,7 @@ mutation CreateMediaAsset($fileName: String!, $fileUrl: String!, $fileType: Stri
 }
 
 query GetTemplateDetails($id: UUID!) @auth(level: USER) {
-  template(id: $id, where: { userId: { eq_expr: "auth.uid" } }) {
+  template(id: $id) {
     name
     description
     isPublic
@@ -37,7 +37,6 @@ mutation UpdateProjectName($projectId: UUID!, $newName: String!) @auth(level: US
     data: {
       name: $newName,
       updatedAt_expr: "request.time"
-    },
-    where: { userId: { eq_expr: "auth.uid" } }
+    }
   )
 }
