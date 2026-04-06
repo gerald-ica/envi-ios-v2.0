@@ -1,15 +1,21 @@
 import SwiftUI
 
 struct ContentPlanningSectionView: View {
-    let items: [ContentPlanItem]
+    @Binding var items: [ContentPlanItem]
     let isLoading: Bool
     let errorMessage: String?
     let onRetry: () -> Void
+    let onAdd: () -> Void
+    let onEdit: (ContentPlanItem) -> Void
+    let onDelete: (ContentPlanItem) -> Void
+    let onStatusToggle: (ContentPlanItem) -> Void
+    let onMove: (IndexSet, Int) -> Void
 
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.md) {
+            // Header
             HStack {
                 Text("CONTENT PLAN")
                     .font(.spaceMono(11))
@@ -19,6 +25,11 @@ struct ContentPlanningSectionView: View {
                 if isLoading {
                     ProgressView()
                         .scaleEffect(0.8)
+                }
+                Button(action: onAdd) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(ENVITheme.text(for: colorScheme))
                 }
             }
 
@@ -34,6 +45,7 @@ struct ContentPlanningSectionView: View {
                 .padding(.vertical, ENVISpacing.xs)
             }
 
+            // Items list with move support
             ForEach(items.prefix(5)) { item in
                 HStack(spacing: ENVISpacing.sm) {
                     Circle()
@@ -51,12 +63,32 @@ struct ContentPlanningSectionView: View {
 
                     Spacer()
 
-                    Text(item.status.rawValue.uppercased())
-                        .font(.spaceMono(9))
-                        .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                    // Tappable status chip
+                    Button {
+                        onStatusToggle(item)
+                    } label: {
+                        Text(item.status.rawValue.uppercased())
+                            .font(.spaceMono(9))
+                            .foregroundColor(statusColor(for: item.status))
+                            .padding(.horizontal, ENVISpacing.sm)
+                            .padding(.vertical, 4)
+                            .background(statusColor(for: item.status).opacity(0.15))
+                            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(.vertical, ENVISpacing.xs)
+                .contentShape(Rectangle())
+                .onTapGesture { onEdit(item) }
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        onDelete(item)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
             }
+            .onMove(perform: onMove)
         }
     }
 
@@ -64,5 +96,13 @@ struct ContentPlanningSectionView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEE h:mm a"
         return "\(item.platform.rawValue) • \(formatter.string(from: item.scheduledAt))"
+    }
+
+    private func statusColor(for status: ContentPlanItem.Status) -> Color {
+        switch status {
+        case .draft: return ENVITheme.textLight(for: colorScheme)
+        case .ready: return .green
+        case .scheduled: return .blue
+        }
     }
 }
