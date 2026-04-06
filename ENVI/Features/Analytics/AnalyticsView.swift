@@ -3,6 +3,7 @@ import SwiftUI
 /// Main analytics dashboard screen.
 struct AnalyticsView: View {
     @StateObject private var viewModel = AnalyticsViewModel()
+    @StateObject private var advancedViewModel = AdvancedAnalyticsViewModel()
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -77,6 +78,22 @@ struct AnalyticsView: View {
                 EngagementChartView(data: viewModel.data.dailyEngagement)
                     .padding(.horizontal, ENVISpacing.xl)
 
+                // Performance Report (D20 — Advanced Analytics)
+                PerformanceReportView(viewModel: advancedViewModel)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                // Audience Demographics (D20)
+                AudienceDemographicsView(viewModel: advancedViewModel)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                // Content Leaderboard (D20)
+                ContentLeaderboardView(viewModel: advancedViewModel)
+                    .padding(.horizontal, ENVISpacing.xl)
+
+                // Post Time Heatmap (D20)
+                PostTimeHeatmapView(viewModel: advancedViewModel)
+                    .padding(.horizontal, ENVISpacing.xl)
+
                 CreatorGrowthSectionView(growth: viewModel.growth)
                     .padding(.horizontal, ENVISpacing.xl)
 
@@ -96,6 +113,7 @@ struct AnalyticsView: View {
         .background(ENVITheme.background(for: colorScheme))
         .refreshable {
             await viewModel.reload()
+            await advancedViewModel.loadAll()
         }
     }
 }
