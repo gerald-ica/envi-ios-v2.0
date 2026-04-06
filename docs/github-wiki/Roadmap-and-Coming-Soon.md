@@ -4,20 +4,26 @@
 
 This page lists **known gaps** and **intended next passes** inferred from code comments and placeholder UX. Treat as engineering backlog, not a committed product roadmap.
 
-## Confirmed placeholder / stub areas
+## Completed areas (previously placeholder/stub)
 
-| Area | What users see today | Intended direction (from code / README) |
-|------|----------------------|----------------------------------------|
-| **REST API** | `APIClient.mockRequest` throws `notImplemented` | Real `https://api.envi.app/v1` clients |
-| **Content assembly** | `ContentPieceAssembler` queue without upload | Upload PHAsset IDs → backend AI → `ContentPiece` |
-| **Feed search** | Alert: “Global search is the next feed flow” | Global search |
-| **Feed notifications** | Alert: not wired | Notifications center |
-| **Feed Explore** | Placeholder label | Real explore feed |
-| **Library FAB** | Alert: import/create not wired | Real add/import sheet |
-| **Editor tools** | Alert: placeholder UI | Wire tools into real editor stack |
-| **Photo library** | Basic fetch; comment: stub | Observers, background refresh |
-| **Analytics** | `AnalyticsData.mock` | Live KPIs from platforms / backend |
-| **AI subsystems** | Mock engagement / trends | APIs + real user history |
+| Area | Previous state | Current state |
+|------|----------------|---------------|
+| **REST API** | `APIClient.mockRequest` threw `notImplemented` | Typed `APIClient` with auth token injection and retry policy |
+| **Content assembly** | Queue without upload | PHAsset-backed assembler with real resolution |
+| **Feed search** | Alert placeholder | Search implemented |
+| **Feed notifications** | Alert placeholder | Notifications center implemented |
+| **Feed Explore** | Placeholder label | Explore grid implemented |
+| **Library FAB** | Alert placeholder | PHPicker integration for media import |
+| **Editor tools** | Alert placeholder | Crop, filter, speed, rotate with AVFoundation |
+| **Photo library** | Basic fetch stub | PhotoLibraryManager change observer + approved media persistence |
+| **Analytics** | `AnalyticsData.mock` | Retention cohorts, source attribution, creator growth analytics |
+| **AI subsystems** | Mock engagement / trends | Oracle API fallback path + production annotations |
+| **Social OAuth** | Not started | All 6 platforms with token lifecycle |
+
+## Remaining placeholder areas
+
+| Area | Current state | Intended direction |
+|------|---------------|-------------------|
 | **Chat** | Mock threads + partial Brain | LLM backend, durable threads |
 | **World Explorer count** | ~1600 / 2000 placeholder nodes | Match real library size |
 | **Helix textures** | Placeholder image generation | User / server-provided thumbnails |
@@ -26,14 +32,9 @@ This page lists **known gaps** and **intended next passes** inferred from code c
 
 | Item | Status |
 |------|--------|
-| **`firebase.json`** | Missing — add for Data Connect deploy workflow |
-| **iOS ↔ Data Connect** | Not started — no Firebase in app target |
+| **`firebase.json`** | Added with Data Connect deploy runbook |
+| **iOS ↔ Firebase** | Firebase Auth, Analytics, Crashlytics, Core declared in `Package.swift` |
 | **`GetTemplateDetails` / `CreateDemoData` PUBLIC** | Security review before production |
-
-## README vs code
-
-- README says **iOS 17+** and hybrid architecture — wiki aligned.
-- README clone URL shows `envi-ios` vs repo name `envi-ios-v2.0` — fix README separately if confusing.
 
 ## How this page stays current
 

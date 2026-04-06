@@ -154,8 +154,12 @@ See [Features & Requirements](Features-and-Requirements) and [Roadmap](Roadmap-a
 | **Lottie** | Animation playback |
 | **RevenueCat** | Subscription management |
 | **RevenueCatUI** | Paywall and Customer Center views |
+| **FirebaseAuth** | Authentication (email + Apple Sign-In) |
+| **FirebaseAnalytics** | Product analytics and event tracking |
+| **FirebaseCrashlytics** | Crash reporting and diagnostics |
+| **FirebaseCore** | Firebase SDK foundation |
 
-Firebase SDK is used for Auth but not yet declared in `Package.swift` for Data Connect. See [Firebase Data Connect](Firebase-Data-Connect).
+All dependencies are declared in `Package.swift`. See [Firebase Data Connect](Firebase-Data-Connect) for the backend data layer.
 
 ## Bundle identifier
 

@@ -31,9 +31,10 @@ Bundled TTFs registered via `ENVITypography.registerFonts()`:
 
 ## Dependencies (SPM)
 
-- SDWebImage  
-- Lottie  
-- RevenueCat  
+- SDWebImage
+- Lottie
+- RevenueCat + RevenueCatUI
+- Firebase (Auth, Analytics, Crashlytics, Core)
 
 ## Info.plist
 

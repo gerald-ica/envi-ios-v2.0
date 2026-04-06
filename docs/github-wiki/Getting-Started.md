@@ -28,6 +28,7 @@ This fetches the following SPM dependencies:
 - **SDWebImage** -- async image loading and caching
 - **Lottie** -- animation playback
 - **RevenueCat** + **RevenueCatUI** -- subscription management, paywalls, and Customer Center
+- **Firebase** (Auth, Analytics, Crashlytics, Core) -- identity, telemetry, and crash reporting
 
 ## 3. Firebase setup
 
