@@ -61,3 +61,21 @@ Generated: 2026-04-03 23:46:44Z (UTC)
 
 ## Deferred phases (post-PMF)
 - Teams/roles/workspaces, agency operations, CRM/inbox, marketplace, enterprise features.
+
+## Completion Status
+
+All five phases completed as of 2026-04-06. Additional hardening deliverables
+shipped beyond the original roadmap scope:
+
+- Content planning CRUD with optimistic UI
+- Template apply flow bridging to export composer
+- Retention cohorts and source attribution analytics
+- Apple Sign-In with Firebase OAuthProvider
+- All 6 social platform OAuth with token lifecycle
+- 40+ telemetry events with strategic placements
+- Real editor tools (crop, filter, speed, rotate)
+- Feed notifications, search, and explore grid
+- PHAsset-backed media pipeline (assembler + library observer)
+- Oracle API fallback path and AI production annotations
+- TestFlight workflow, incident runbook, deployment checklist
+- Secret policy CI enforcement
