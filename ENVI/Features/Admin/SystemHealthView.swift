@@ -20,8 +20,7 @@ struct SystemHealthView: View {
             VStack(spacing: ENVISpacing.xxl) {
                 header
                 if isLoading {
-                    ProgressView()
-                        .padding(.top, ENVISpacing.xxl)
+                    ENVILoadingState()
                 } else {
                     overallBanner
                     metricsGrid
