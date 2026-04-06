@@ -1,7 +1,7 @@
 import Foundation
 
 struct ContentPlanItem: Identifiable {
-    enum Status: String {
+    enum Status: String, Codable {
         case draft
         case ready
         case scheduled
