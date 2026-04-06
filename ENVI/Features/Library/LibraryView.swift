@@ -48,7 +48,32 @@ struct LibraryView: View {
                     .padding(.horizontal, ENVISpacing.xl)
 
                     // Templates
-                    TemplateCarousel(templates: viewModel.templates)
+                    TemplateCarousel(
+                        templates: viewModel.templates,
+                        onDuplicate: { template in
+                            Task { await viewModel.duplicateTemplate(template) }
+                        },
+                        onDelete: { template in
+                            Task { await viewModel.deleteTemplate(template) }
+                        }
+                    )
+
+                    if viewModel.isApplyingTemplateOperation {
+                        HStack {
+                            ProgressView()
+                            Text("Updating templates...")
+                                .font(.interRegular(12))
+                                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                        }
+                        .padding(.horizontal, ENVISpacing.xl)
+                    }
+
+                    if let templateError = viewModel.templateOperationErrorMessage {
+                        Text(templateError)
+                            .font(.interRegular(12))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, ENVISpacing.xl)
+                    }
 
                     ContentPlanningSectionView(
                         items: viewModel.contentPlan,

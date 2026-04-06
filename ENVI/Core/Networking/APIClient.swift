@@ -126,6 +126,41 @@ final class APIClient {
         }
     }
 
+    func requestVoid<Body: Encodable>(
+        endpoint: String,
+        method: HTTPMethod = .post,
+        body: Body? = nil,
+        requiresAuth: Bool = true
+    ) async throws {
+        let url = baseURL.appendingPathComponent(endpoint)
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        if requiresAuth {
+            request.setValue("Bearer \(try await authToken())", forHTTPHeaderField: "Authorization")
+        }
+
+        if let body {
+            request.httpBody = try encoder.encode(body)
+        }
+
+        let (_, response) = try await performRequestWithRetry(request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.networkError
+        }
+
+        switch httpResponse.statusCode {
+        case 200...299:
+            return
+        case 401:
+            throw APIError.unauthorized
+        default:
+            throw APIError.httpError(statusCode: httpResponse.statusCode)
+        }
+    }
+
     private func authToken() async throws -> String {
         guard FirebaseApp.app() != nil else {
             throw APIError.firebaseNotConfigured

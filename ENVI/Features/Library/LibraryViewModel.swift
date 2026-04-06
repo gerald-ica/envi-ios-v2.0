@@ -18,8 +18,10 @@ final class LibraryViewModel: ObservableObject {
     @Published var contentPlan: [ContentPlanItem] = []
     @Published var isLoading = false
     @Published var isLoadingPlan = false
+    @Published var isApplyingTemplateOperation = false
     @Published var loadErrorMessage: String?
     @Published var planErrorMessage: String?
+    @Published var templateOperationErrorMessage: String?
     private var cancellables = Set<AnyCancellable>()
     private let repository: ContentRepository
 
@@ -101,6 +103,39 @@ final class LibraryViewModel: ObservableObject {
         }
         items = approvedItems + nonApproved
     }
+
+    @MainActor
+    func duplicateTemplate(_ template: TemplateItem) async {
+        isApplyingTemplateOperation = true
+        templateOperationErrorMessage = nil
+
+        do {
+            let duplicated = try await repository.duplicateTemplate(templateID: template.id)
+            templates.insert(duplicated, at: 0)
+        } catch {
+            templateOperationErrorMessage = "Could not duplicate template."
+        }
+
+        isApplyingTemplateOperation = false
+    }
+
+    @MainActor
+    func deleteTemplate(_ template: TemplateItem) async {
+        isApplyingTemplateOperation = true
+        templateOperationErrorMessage = nil
+
+        let currentTemplates = templates
+        templates.removeAll { $0.id == template.id }
+
+        do {
+            try await repository.deleteTemplate(templateID: template.id)
+        } catch {
+            templates = currentTemplates
+            templateOperationErrorMessage = "Could not delete template."
+        }
+
+        isApplyingTemplateOperation = false
+    }
 }
 
 struct LibraryItem: Identifiable {
@@ -170,10 +205,22 @@ struct LibraryItem: Identifiable {
 }
 
 struct TemplateItem: Identifiable {
-    let id = UUID()
+    let id: UUID
     let title: String
     let imageName: String
     let category: String
+
+    init(
+        id: UUID = UUID(),
+        title: String,
+        imageName: String,
+        category: String
+    ) {
+        self.id = id
+        self.title = title
+        self.imageName = imageName
+        self.category = category
+    }
 
     static let mockTemplates: [TemplateItem] = [
         TemplateItem(title: "Minimal Story", imageName: "jacket", category: "Instagram"),

@@ -3,6 +3,8 @@ import SwiftUI
 /// Horizontal template carousel for the Library screen.
 struct TemplateCarousel: View {
     let templates: [TemplateItem]
+    let onDuplicate: (TemplateItem) -> Void
+    let onDelete: (TemplateItem) -> Void
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -17,7 +19,11 @@ struct TemplateCarousel: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: ENVISpacing.md) {
                     ForEach(templates) { template in
-                        TemplateCardView(template: template)
+                        TemplateCardView(
+                            template: template,
+                            onDuplicate: onDuplicate,
+                            onDelete: onDelete
+                        )
                     }
                 }
                 .padding(.horizontal, ENVISpacing.xl)
@@ -28,6 +34,8 @@ struct TemplateCarousel: View {
 
 private struct TemplateCardView: View {
     let template: TemplateItem
+    let onDuplicate: (TemplateItem) -> Void
+    let onDelete: (TemplateItem) -> Void
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -48,5 +56,9 @@ private struct TemplateCardView: View {
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
         }
         .frame(width: 140)
+        .contextMenu {
+            Button("Duplicate") { onDuplicate(template) }
+            Button("Delete", role: .destructive) { onDelete(template) }
+        }
     }
 }
