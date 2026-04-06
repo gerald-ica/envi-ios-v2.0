@@ -42,8 +42,7 @@ struct ActivityFeedView: View {
     private var activityList: some View {
         LazyVStack(spacing: 0) {
             if viewModel.isLoadingActivity {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.activities.isEmpty {
                 emptyState
             } else {
@@ -53,10 +52,7 @@ struct ActivityFeedView: View {
             }
 
             if let error = viewModel.errorMessage {
-                Text(error)
-                    .font(.interRegular(13))
-                    .foregroundColor(ENVITheme.error)
-                    .padding(.horizontal, ENVISpacing.xl)
+                ENVIErrorBanner(message: error)
             }
         }
         .padding(.horizontal, ENVISpacing.xl)
@@ -110,20 +106,10 @@ struct ActivityFeedView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "clock.arrow.circlepath")
-                .font(.system(size: 36))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No activity yet")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Team actions will appear here as they happen.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
+        ENVIEmptyState(
+            icon: "clock.arrow.circlepath",
+            title: "No activity yet",
+            subtitle: "Team actions will appear here as they happen."
+        )
     }
 }

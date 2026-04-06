@@ -58,8 +58,7 @@ struct WorkspaceListView: View {
     private var workspaceList: some View {
         LazyVStack(spacing: ENVISpacing.md) {
             if viewModel.isLoadingWorkspaces {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.workspaces.isEmpty {
                 emptyState
             } else {
@@ -74,10 +73,7 @@ struct WorkspaceListView: View {
             }
 
             if let error = viewModel.errorMessage {
-                Text(error)
-                    .font(.interRegular(13))
-                    .foregroundColor(ENVITheme.error)
-                    .padding(.horizontal, ENVISpacing.xl)
+                ENVIErrorBanner(message: error)
             }
         }
         .padding(.horizontal, ENVISpacing.xl)
@@ -153,21 +149,11 @@ struct WorkspaceListView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "building.2")
-                .font(.system(size: 36))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No workspaces yet")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Create a workspace to start collaborating with your team.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
+        ENVIEmptyState(
+            icon: "building.2",
+            title: "No workspaces yet",
+            subtitle: "Create a workspace to start collaborating with your team."
+        )
     }
 
     // MARK: - Create Workspace Sheet

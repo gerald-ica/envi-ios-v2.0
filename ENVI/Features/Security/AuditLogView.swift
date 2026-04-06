@@ -64,11 +64,11 @@ struct AuditLogView: View {
     private var actionFilterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: ENVISpacing.sm) {
-                filterChip(title: "All", isSelected: viewModel.auditActionFilter == nil) {
+                ENVIFilterChip(title: "All", isSelected: viewModel.auditActionFilter == nil) {
                     viewModel.auditActionFilter = nil
                 }
                 ForEach(viewModel.uniqueActions, id: \.self) { action in
-                    filterChip(title: action, isSelected: viewModel.auditActionFilter == action) {
+                    ENVIFilterChip(title: action, isSelected: viewModel.auditActionFilter == action) {
                         viewModel.auditActionFilter = action
                     }
                 }
@@ -77,30 +77,12 @@ struct AuditLogView: View {
         }
     }
 
-    private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.interMedium(11))
-                .lineLimit(1)
-                .foregroundColor(isSelected ? ENVITheme.background(for: colorScheme) : ENVITheme.text(for: colorScheme))
-                .padding(.horizontal, ENVISpacing.md)
-                .padding(.vertical, ENVISpacing.sm)
-                .background(isSelected ? ENVITheme.text(for: colorScheme) : ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                .overlay(
-                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                        .strokeBorder(isSelected ? Color.clear : ENVITheme.border(for: colorScheme), lineWidth: 1)
-                )
-        }
-    }
-
     // MARK: - Log List
 
     private var logList: some View {
         LazyVStack(spacing: ENVISpacing.sm) {
             if viewModel.isLoadingAuditLog {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.filteredAuditLog.isEmpty {
                 emptyState
             } else {
@@ -113,15 +95,10 @@ struct AuditLogView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.sm) {
-            Image(systemName: "doc.text.magnifyingglass")
-                .font(.system(size: 28))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-            Text("No log entries found")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-        }
-        .frame(maxWidth: .infinity, minHeight: 120)
+        ENVIEmptyState(
+            icon: "doc.text.magnifyingglass",
+            title: "No log entries found"
+        )
     }
 
     private func logRow(_ entry: AuditLogEntry) -> some View {

@@ -21,8 +21,7 @@ struct ModerationQueueView: View {
                 header
                 filterBar
                 if isLoading {
-                    ProgressView()
-                        .padding(.top, ENVISpacing.xxl)
+                    ENVILoadingState()
                 } else if filteredItems.isEmpty {
                     emptyState
                 } else {
@@ -57,32 +56,16 @@ struct ModerationQueueView: View {
     private var filterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: ENVISpacing.sm) {
-                filterChip(label: "ALL", filter: nil)
+                ENVIFilterChip(title: "All", isSelected: selectedFilter == nil) {
+                    selectedFilter = nil
+                }
                 ForEach(ModerationStatus.allCases) { status in
-                    filterChip(label: status.displayName.uppercased(), filter: status)
+                    ENVIFilterChip(title: status.displayName, isSelected: selectedFilter == status) {
+                        selectedFilter = status
+                    }
                 }
             }
             .padding(.horizontal, ENVISpacing.xl)
-        }
-    }
-
-    private func filterChip(label: String, filter: ModerationStatus?) -> some View {
-        let isSelected = selectedFilter == filter
-        return Button {
-            selectedFilter = filter
-        } label: {
-            Text(label)
-                .font(.spaceMonoBold(10))
-                .tracking(0.5)
-                .padding(.horizontal, ENVISpacing.md)
-                .padding(.vertical, ENVISpacing.xs)
-                .foregroundColor(isSelected
-                    ? ENVITheme.background(for: colorScheme)
-                    : ENVITheme.text(for: colorScheme))
-                .background(isSelected
-                    ? ENVITheme.text(for: colorScheme)
-                    : ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
         }
     }
 
@@ -168,20 +151,11 @@ struct ModerationQueueView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "checkmark.shield")
-                .font(.system(size: 40))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("Queue is clear")
-                .font(.spaceMonoBold(16))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("No items matching this filter")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-        }
-        .padding(.top, ENVISpacing.xxl)
+        ENVIEmptyState(
+            icon: "checkmark.shield",
+            title: "Queue is clear",
+            subtitle: "No items matching this filter"
+        )
     }
 
     // MARK: - Helpers

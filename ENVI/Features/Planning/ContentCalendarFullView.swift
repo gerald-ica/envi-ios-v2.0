@@ -29,9 +29,7 @@ struct ContentCalendarFullView: View {
 
                 // Calendar content
                 if viewModel.isLoading {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
+                    ENVILoadingState()
                 } else if let error = viewModel.errorMessage {
                     errorView(error)
                 } else {
@@ -168,55 +166,8 @@ struct ContentCalendarFullView: View {
     // MARK: - Platform Filter
 
     private var platformFilter: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: ENVISpacing.sm) {
-                // "All" chip
-                Button {
-                    viewModel.selectedPlatformFilter = nil
-                } label: {
-                    Text("ALL")
-                        .font(.spaceMonoBold(9))
-                        .tracking(1.0)
-                        .foregroundColor(viewModel.selectedPlatformFilter == nil ? (colorScheme == .dark ? .black : .white) : ENVITheme.textLight(for: colorScheme))
-                        .padding(.horizontal, ENVISpacing.md)
-                        .padding(.vertical, 4)
-                        .background(viewModel.selectedPlatformFilter == nil ? ENVITheme.text(for: colorScheme) : Color.clear)
-                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                                .strokeBorder(viewModel.selectedPlatformFilter == nil ? Color.clear : ENVITheme.border(for: colorScheme), lineWidth: 1)
-                        )
-                }
-                .buttonStyle(.plain)
-
-                ForEach(SocialPlatform.allCases) { platform in
-                    Button {
-                        viewModel.selectedPlatformFilter = viewModel.selectedPlatformFilter == platform ? nil : platform
-                    } label: {
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(platform.brandColor)
-                                .frame(width: 6, height: 6)
-                            Text(platform.rawValue.uppercased())
-                                .font(.spaceMonoBold(9))
-                                .tracking(1.0)
-                        }
-                        .foregroundColor(viewModel.selectedPlatformFilter == platform ? (colorScheme == .dark ? .black : .white) : ENVITheme.textLight(for: colorScheme))
-                        .padding(.horizontal, ENVISpacing.md)
-                        .padding(.vertical, 4)
-                        .background(viewModel.selectedPlatformFilter == platform ? ENVITheme.text(for: colorScheme) : Color.clear)
-                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                                .strokeBorder(viewModel.selectedPlatformFilter == platform ? Color.clear : ENVITheme.border(for: colorScheme), lineWidth: 1)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
-            .padding(.horizontal, ENVISpacing.xl)
-        }
-        .padding(.vertical, ENVISpacing.xs)
+        ENVIPlatformFilterBar(selectedPlatform: $viewModel.selectedPlatformFilter)
+            .padding(.vertical, ENVISpacing.xs)
     }
 
     // MARK: - Calendar Content Router
@@ -666,13 +617,7 @@ struct ContentCalendarFullView: View {
     // MARK: - Helpers
 
     private func statusBadge(_ status: ContentPlanItem.Status) -> some View {
-        Text(status.rawValue.uppercased())
-            .font(.spaceMono(8))
-            .foregroundColor(statusColor(for: status))
-            .padding(.horizontal, ENVISpacing.sm)
-            .padding(.vertical, 2)
-            .background(statusColor(for: status).opacity(0.15))
-            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
+        ENVIStatusBadge(text: status.rawValue, color: statusColor(for: status))
     }
 
     private func statusColor(for status: ContentPlanItem.Status) -> Color {

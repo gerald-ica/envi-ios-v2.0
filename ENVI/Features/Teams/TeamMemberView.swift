@@ -67,8 +67,7 @@ struct TeamMemberView: View {
     private var memberList: some View {
         LazyVStack(spacing: ENVISpacing.sm) {
             if viewModel.isLoadingMembers {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.members.isEmpty {
                 emptyState
             } else {
@@ -78,10 +77,7 @@ struct TeamMemberView: View {
             }
 
             if let error = viewModel.errorMessage {
-                Text(error)
-                    .font(.interRegular(13))
-                    .foregroundColor(ENVITheme.error)
-                    .padding(.horizontal, ENVISpacing.xl)
+                ENVIErrorBanner(message: error)
             }
         }
         .padding(.horizontal, ENVISpacing.xl)
@@ -217,21 +213,11 @@ struct TeamMemberView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Image(systemName: "person.3")
-                .font(.system(size: 36))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-
-            Text("No members yet")
-                .font(.interMedium(15))
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text("Invite teammates to collaborate in this workspace.")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
+        ENVIEmptyState(
+            icon: "person.3",
+            title: "No members yet",
+            subtitle: "Invite teammates to collaborate in this workspace."
+        )
     }
 
     // MARK: - Invite Sheet

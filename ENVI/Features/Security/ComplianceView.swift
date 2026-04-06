@@ -51,11 +51,11 @@ struct ComplianceView: View {
     private var statusFilterBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: ENVISpacing.sm) {
-                filterChip(title: "All", isSelected: viewModel.complianceStatusFilter == nil) {
+                ENVIFilterChip(title: "All", isSelected: viewModel.complianceStatusFilter == nil) {
                     viewModel.complianceStatusFilter = nil
                 }
                 ForEach(ComplianceStatus.allCases) { status in
-                    filterChip(title: status.displayName, isSelected: viewModel.complianceStatusFilter == status) {
+                    ENVIFilterChip(title: status.displayName, isSelected: viewModel.complianceStatusFilter == status) {
                         viewModel.complianceStatusFilter = status
                     }
                 }
@@ -64,29 +64,12 @@ struct ComplianceView: View {
         }
     }
 
-    private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.interMedium(13))
-                .foregroundColor(isSelected ? ENVITheme.background(for: colorScheme) : ENVITheme.text(for: colorScheme))
-                .padding(.horizontal, ENVISpacing.md)
-                .padding(.vertical, ENVISpacing.sm)
-                .background(isSelected ? ENVITheme.text(for: colorScheme) : ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                .overlay(
-                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                        .strokeBorder(isSelected ? Color.clear : ENVITheme.border(for: colorScheme), lineWidth: 1)
-                )
-        }
-    }
-
     // MARK: - Compliance List
 
     private var complianceList: some View {
         LazyVStack(spacing: ENVISpacing.sm) {
             if viewModel.isLoadingCompliance {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 120)
+                ENVILoadingState()
             } else if viewModel.filteredCompliance.isEmpty {
                 emptyState
             } else {
@@ -99,15 +82,10 @@ struct ComplianceView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: ENVISpacing.sm) {
-            Image(systemName: "shield.slash")
-                .font(.system(size: 28))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-            Text("No compliance checks found")
-                .font(.interRegular(13))
-                .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
-        }
-        .frame(maxWidth: .infinity, minHeight: 120)
+        ENVIEmptyState(
+            icon: "shield.slash",
+            title: "No compliance checks found"
+        )
     }
 
     private func complianceCard(_ check: ComplianceCheck) -> some View {
@@ -138,7 +116,7 @@ struct ComplianceView: View {
                         HStack(alignment: .top, spacing: ENVISpacing.sm) {
                             Image(systemName: findingIcon(for: check.status))
                                 .font(.system(size: 9))
-                                .foregroundColor(findingColor(for: check.status))
+                                .foregroundColor(statusColor(for: check.status))
                                 .padding(.top, 2)
 
                             Text(finding)
@@ -175,18 +153,7 @@ struct ComplianceView: View {
     }
 
     private func statusBadge(_ status: ComplianceStatus) -> some View {
-        HStack(spacing: ENVISpacing.xs) {
-            Image(systemName: status.iconName)
-                .font(.system(size: 10))
-            Text(status.displayName.uppercased())
-                .font(.spaceMono(9))
-                .tracking(0.44)
-        }
-        .foregroundColor(statusColor(for: status))
-        .padding(.horizontal, ENVISpacing.sm)
-        .padding(.vertical, ENVISpacing.xs)
-        .background(statusColor(for: status).opacity(0.12))
-        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
+        ENVIStatusBadge(text: status.displayName, color: statusColor(for: status))
     }
 
     private func statusColor(for status: ComplianceStatus) -> Color {
@@ -207,10 +174,6 @@ struct ComplianceView: View {
         }
     }
 
-    private func findingColor(for status: ComplianceStatus) -> Color {
-        statusColor(for: status)
-    }
-
     // MARK: - Security Policies Section
 
     private var policiesSection: some View {
@@ -222,8 +185,7 @@ struct ComplianceView: View {
                 .padding(.horizontal, ENVISpacing.xl)
 
             if viewModel.isLoadingPolicies {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 80)
+                ENVILoadingState(minHeight: 80)
             } else {
                 VStack(spacing: ENVISpacing.sm) {
                     ForEach(viewModel.policies) { policy in
