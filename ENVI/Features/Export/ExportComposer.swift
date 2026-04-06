@@ -55,6 +55,19 @@ struct ContentItemExportAdapter: ExportContextAdapter {
     }
 }
 
+struct TemplateExportAdapter: ExportContextAdapter {
+    let template: TemplateItem
+
+    var exportContext: ExportContext {
+        ExportContext(
+            title: template.title,
+            baseCaption: template.captionTemplate,
+            preferredPlatforms: template.suggestedPlatforms,
+            kind: template.contentKind
+        )
+    }
+}
+
 struct ContentPieceExportAdapter: ExportContextAdapter {
     let piece: ContentPiece
 
@@ -256,9 +269,15 @@ struct ExportComposer {
 }
 
 enum ExportComposerFactory {
-    static func make(contentItem: ContentItem?, contentPiece: ContentPiece?) -> ExportComposer {
+    static func make(
+        contentItem: ContentItem? = nil,
+        contentPiece: ContentPiece? = nil,
+        template: TemplateItem? = nil
+    ) -> ExportComposer {
         let context: ExportContext
-        if let contentItem {
+        if let template {
+            context = TemplateExportAdapter(template: template).exportContext
+        } else if let contentItem {
             context = ContentItemExportAdapter(item: contentItem).exportContext
         } else if let contentPiece {
             context = ContentPieceExportAdapter(piece: contentPiece).exportContext

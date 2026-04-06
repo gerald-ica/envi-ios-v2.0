@@ -30,15 +30,20 @@ final class MockContentRepository: ContentRepository {
     }
 
     func duplicateTemplate(templateID: UUID) async throws -> TemplateItem {
-        let source = TemplateItem.mockTemplates.first ?? TemplateItem(
-            title: "Untitled Template",
-            imageName: "jacket",
-            category: "General"
-        )
+        let source = TemplateItem.mockTemplates.first(where: { $0.id == templateID })
+            ?? TemplateItem.mockTemplates.first
+            ?? TemplateItem(
+                title: "Untitled Template",
+                imageName: "jacket",
+                category: "General"
+            )
         return TemplateItem(
             title: "\(source.title) Copy",
             imageName: source.imageName,
-            category: source.category
+            category: source.category,
+            captionTemplate: source.captionTemplate,
+            suggestedPlatforms: source.suggestedPlatforms,
+            contentKind: source.contentKind
         )
     }
 
@@ -205,13 +210,34 @@ private struct TemplateItemResponse: Decodable {
     let title: String
     let imageName: String?
     let category: String
+    let captionTemplate: String?
+    let suggestedPlatforms: [String]?
+    let contentKind: String?
 
     func toDomain() -> TemplateItem {
-        TemplateItem(
+        let platforms: [SocialPlatform] = (suggestedPlatforms ?? []).compactMap {
+            SocialPlatform(rawValue: $0)
+        }
+        let kind: ExportContentKind
+        switch contentKind {
+        case "video":
+            kind = .video
+        case "carousel":
+            kind = .carousel
+        case "textPost":
+            kind = .textPost
+        default:
+            kind = .photo
+        }
+
+        return TemplateItem(
             id: UUID(uuidString: id ?? "") ?? UUID(),
             title: title,
             imageName: imageName ?? "jacket",
-            category: category
+            category: category,
+            captionTemplate: captionTemplate ?? "",
+            suggestedPlatforms: platforms.isEmpty ? [.instagram] : platforms,
+            contentKind: kind
         )
     }
 }
