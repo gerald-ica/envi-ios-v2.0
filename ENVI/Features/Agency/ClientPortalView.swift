@@ -11,8 +11,7 @@ struct ClientPortalView: View {
             VStack(alignment: .leading, spacing: ENVISpacing.xl) {
                 header
                 if viewModel.isLoadingPortal {
-                    ProgressView()
-                        .frame(maxWidth: .infinity, minHeight: 200)
+                    ENVILoadingState(minHeight: 200)
                 } else if let portal = viewModel.portal {
                     shareLinkSection(portal)
                     permissionsSection(portal)
