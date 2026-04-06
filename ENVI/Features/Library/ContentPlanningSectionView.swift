@@ -45,51 +45,65 @@ struct ContentPlanningSectionView: View {
                 .padding(.vertical, ENVISpacing.xs)
             }
 
-            // Items list with move support
-            ForEach(items.prefix(5)) { item in
-                HStack(spacing: ENVISpacing.sm) {
-                    Circle()
-                        .fill(item.platform.brandColor)
-                        .frame(width: 8, height: 8)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(item.title)
-                            .font(.interMedium(13))
-                            .foregroundColor(ENVITheme.text(for: colorScheme))
-                        Text(scheduleLabel(for: item))
-                            .font(.interRegular(11))
-                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                    }
-
-                    Spacer()
-
-                    // Tappable status chip
-                    Button {
-                        onStatusToggle(item)
-                    } label: {
-                        Text(item.status.rawValue.uppercased())
-                            .font(.spaceMono(9))
-                            .foregroundColor(statusColor(for: item.status))
-                            .padding(.horizontal, ENVISpacing.sm)
-                            .padding(.vertical, 4)
-                            .background(statusColor(for: item.status).opacity(0.15))
-                            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
-                    }
-                    .buttonStyle(.plain)
+            // Items list
+            List {
+                ForEach(Array(items.prefix(5))) { item in
+                    planRow(for: item)
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .listRowSeparator(.hidden)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                onDelete(item)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        }
                 }
-                .padding(.vertical, ENVISpacing.xs)
-                .contentShape(Rectangle())
-                .onTapGesture { onEdit(item) }
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                    Button(role: .destructive) {
-                        onDelete(item)
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                }
+                .onMove(perform: onMove)
             }
-            .onMove(perform: onMove)
+            .listStyle(.plain)
+            .environment(\.editMode, .constant(.active))
+            .frame(height: CGFloat(min(items.count, 5)) * 52)
+            .scrollDisabled(true)
         }
+    }
+
+    @ViewBuilder
+    private func planRow(for item: ContentPlanItem) -> some View {
+        HStack(spacing: ENVISpacing.sm) {
+            Circle()
+                .fill(item.platform.brandColor)
+                .frame(width: 8, height: 8)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.title)
+                    .font(.interMedium(13))
+                    .foregroundColor(ENVITheme.text(for: colorScheme))
+                Text(scheduleLabel(for: item))
+                    .font(.interRegular(11))
+                    .foregroundColor(ENVITheme.textLight(for: colorScheme))
+            }
+
+            Spacer()
+
+            // Tappable status chip
+            Button {
+                onStatusToggle(item)
+            } label: {
+                Text(item.status.rawValue.uppercased())
+                    .font(.spaceMono(9))
+                    .foregroundColor(statusColor(for: item.status))
+                    .padding(.horizontal, ENVISpacing.sm)
+                    .padding(.vertical, 4)
+                    .background(statusColor(for: item.status).opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.vertical, ENVISpacing.xs)
+        .contentShape(Rectangle())
+        .onTapGesture { onEdit(item) }
     }
 
     private func scheduleLabel(for item: ContentPlanItem) -> String {
