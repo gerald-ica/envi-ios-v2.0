@@ -58,6 +58,18 @@ Generated: 2026-04-03 23:46:44Z (UTC)
 | Deployment cutover checklist (`docs/ops/DEPLOYMENT_CUTOVER_CHECKLIST.md`) | ✅ Done |
 | Secret policy CI check (`scripts/check-secrets.sh` + CI integration) | ✅ Done |
 | Scheduled publishing support | ✅ Done |
+| Apple Sign-In with auth state listener | ✅ Done |
+| Social OAuth expansion (all 6 platforms with token lifecycle) | ✅ Done |
+| Telemetry expansion (40+ events with strategic placements) | ✅ Done |
+| Editor tools (crop, filter, speed, rotate with AVFoundation) | ✅ Done |
+| Library media import (PHPicker integration) | ✅ Done |
+| Feed notifications center, search, and explore grid | ✅ Done |
+| ContentPieceAssembler real PHAsset resolution | ✅ Done |
+| World Explorer dynamic piece count + PHPicker attach | ✅ Done |
+| PhotoLibraryManager change observer | ✅ Done |
+| Oracle API fallback path for staging/prod | ✅ Done |
+| AI engine production architecture annotations | ✅ Done |
+| Approved media UserDefaults persistence | ✅ Done |
 
 ## First 20 must-do tasks (next 30 days)
 ENVI-T001 through ENVI-T020 are the mandatory 30-day program.
