@@ -6,6 +6,8 @@ struct SignInView: View {
     @State private var password = ""
     @State private var errorMessage: String?
     @State private var isLoading = false
+    @State private var showForgotPassword = false
+    @State private var resetEmailSent = false
     @Environment(\.colorScheme) private var colorScheme
 
     var onSignIn: (() -> Void)?
@@ -87,6 +89,26 @@ struct SignInView: View {
             .padding(.horizontal, ENVISpacing.xl)
             .padding(.top, ENVISpacing.md)
 
+            // ENVI-0004 Google Sign In
+            GoogleSignInButton {
+                TelemetryManager.shared.track(.authSignInSucceeded)
+                onSignIn?()
+            } onError: { error in
+                errorMessage = "Google Sign In failed. Please try again."
+                TelemetryManager.shared.track(.authSignInFailed)
+                TelemetryManager.shared.record(error: error, context: "google_sign_in")
+            }
+            .padding(.horizontal, ENVISpacing.xl)
+            .padding(.top, ENVISpacing.sm)
+
+            // ENVI-0017 Forgot Password
+            Button(action: { showForgotPassword = true }) {
+                Text("Forgot password?")
+                    .font(.interRegular(13))
+                    .foregroundColor(ENVITheme.textLight(for: colorScheme))
+            }
+            .padding(.top, ENVISpacing.lg)
+
             Spacer()
 
             // Create account
@@ -105,6 +127,18 @@ struct SignInView: View {
             .padding(.bottom, ENVISpacing.xxxl)
         }
         .background(ENVITheme.background(for: colorScheme))
+        .sheet(isPresented: $showForgotPassword) {
+            ForgotPasswordSheet(
+                onResetSent: { resetEmailSent = true },
+                colorScheme: colorScheme
+            )
+            .presentationDetents([.medium])
+        }
+        .alert("Reset Email Sent", isPresented: $resetEmailSent) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Check your inbox for a password reset link.")
+        }
     }
 
     private var isValid: Bool {

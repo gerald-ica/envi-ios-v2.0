@@ -37,7 +37,8 @@ final class AppCoordinator: ParentCoordinator {
     private func handlePostSplash() {
         if !UserDefaultsManager.shared.hasCompletedOnboarding {
             showOnboarding()
-        } else if AuthManager.shared.isSignedIn {
+        } else if AuthManager.shared.restoreSession() {
+            // ENVI-0007: Cross-device session restore — rehydrate Firebase Auth state
             syncPurchasesWithAuth()
             showMainApp()
         } else {

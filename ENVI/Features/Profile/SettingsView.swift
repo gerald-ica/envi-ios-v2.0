@@ -4,6 +4,7 @@ import SwiftUI
 struct SettingsSection: View {
     let items: [ProfileViewModel.SettingsItem]
     @Environment(\.colorScheme) private var colorScheme
+    @State private var showAccountManagement = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.md) {
@@ -13,7 +14,11 @@ struct SettingsSection: View {
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
             ForEach(items) { item in
-                Button(action: {}) {
+                Button(action: {
+                    if item.title == "Account Settings" {
+                        showAccountManagement = true
+                    }
+                }) {
                     HStack(spacing: ENVISpacing.md) {
                         Image(systemName: item.icon)
                             .font(.system(size: 16, weight: .medium))
@@ -33,6 +38,9 @@ struct SettingsSection: View {
                     .padding(.vertical, ENVISpacing.sm)
                 }
             }
+        }
+        .sheet(isPresented: $showAccountManagement) {
+            AccountManagementView()
         }
     }
 }
