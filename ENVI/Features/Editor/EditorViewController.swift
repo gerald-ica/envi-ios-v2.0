@@ -390,6 +390,14 @@ final class EditorViewController: UIViewController {
             performRotate()
         case "Adjust":
             showAdjustPanel()
+        case "Text":
+            presentTextOverlay()
+        case "Audio":
+            presentAudioMixer()
+        case "Color":
+            presentColorGrade()
+        case "Ratio":
+            presentAspectRatioPicker()
         default:
             presentAlert(
                 title: tool,
@@ -892,6 +900,55 @@ final class EditorViewController: UIViewController {
     @objc private func dismissAdjustPanel() {
         adjustPanel?.removeFromSuperview()
         adjustPanel = nil
+    }
+
+    // MARK: - New Editor Panels
+
+    private func presentTextOverlay() {
+        let textView = TextOverlayView()
+        let host = UIHostingController(rootView: textView)
+        host.modalPresentationStyle = .pageSheet
+        if let sheet = host.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(host, animated: true)
+    }
+
+    private func presentAudioMixer() {
+        let audioView = AudioMixerView()
+        let host = UIHostingController(rootView: audioView)
+        host.modalPresentationStyle = .pageSheet
+        if let sheet = host.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(host, animated: true)
+    }
+
+    private func presentColorGrade() {
+        let colorView = ColorGradeView()
+        let host = UIHostingController(rootView: colorView)
+        host.modalPresentationStyle = .pageSheet
+        if let sheet = host.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(host, animated: true)
+    }
+
+    private func presentAspectRatioPicker() {
+        let pickerView = AspectRatioPickerView(selectedRatio: Binding(
+            get: { self.viewModel.selectedAspectRatio },
+            set: { self.viewModel.selectedAspectRatio = $0 }
+        ))
+        let host = UIHostingController(rootView: pickerView)
+        host.modalPresentationStyle = .pageSheet
+        if let sheet = host.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        present(host, animated: true)
     }
 
     // MARK: - Timeline Scrubbing
