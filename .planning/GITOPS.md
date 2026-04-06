@@ -2,11 +2,11 @@
 
 Generated: 2026-04-03 23:46:44Z (UTC)
 
-## Current issues
-- Active workflow is a generic GKE template with placeholder values and broken branch trigger (`"main"`).
-- No iOS-focused CI policy for PR gatekeeping.
-- No explicit IaC/deploy config for backend stack beyond `dataconnect/` + `.firebaserc`.
-- Environment secrets/config strategy is undocumented.
+## Resolved issues (as of roadmap completion)
+- ~~Active workflow is a generic GKE template with placeholder values and broken branch trigger.~~ Replaced with `ios-ci.yml`.
+- ~~No iOS-focused CI policy for PR gatekeeping.~~ iOS CI workflow gates PRs on build + test.
+- ~~No explicit IaC/deploy config for backend stack.~~ `firebase.json` + Data Connect deploy runbook added.
+- ~~Environment secrets/config strategy is undocumented.~~ Documented in `docs/ops/ENV_CONFIG_MATRIX.md`.
 
 ## Target GitOps model
 1. **Git as source of truth** for app + backend config.
@@ -15,16 +15,16 @@ Generated: 2026-04-03 23:46:44Z (UTC)
 4. **Deploy safety** with approvals and rollback strategy.
 
 ## Mandatory tasks
-- [ ] Create `.github/workflows/ios-ci.yml` (build + test + lint).
-- [ ] Disable/remove `.github/workflows/google.yml` or move into `infra/legacy/` with trigger off.
-- [ ] Add `firebase.json` and deployment doc for Data Connect.
-- [ ] Add environment-specific config files (`.xcconfig` or equivalent) and secret injection strategy.
+- [x] Create `.github/workflows/ios-ci.yml` (build + test + lint).
+- [x] Disable/remove `.github/workflows/google.yml` or move into `infra/legacy/` with trigger off.
+- [x] Add `firebase.json` and deployment doc for Data Connect.
+- [x] Add environment-specific config files and secret injection strategy.
 - [ ] Add branch protections: require status checks + PR review + no force push on main.
-- [ ] Add release workflow for TestFlight (`workflow_dispatch` + tagged release path).
-- [ ] Add observability bootstrap (Crashlytics/Sentry + release version correlation).
-- [ ] Add incident runbook (`docs/ops/INCIDENT_RUNBOOK.md`).
-- [ ] Add policy check to block committed secrets.
-- [ ] Add deployment checklist for staging/prod cutovers.
+- [x] Add release workflow for TestFlight (`workflow_dispatch` + tagged release path).
+- [x] Add observability bootstrap (Crashlytics via Firebase SDK + release version correlation).
+- [x] Add incident runbook (`docs/ops/INCIDENT_RUNBOOK.md`).
+- [x] Add policy check to block committed secrets (`scripts/check-secrets.sh` + CI integration).
+- [x] Add deployment checklist for staging/prod cutovers (`docs/ops/DEPLOYMENT_CUTOVER_CHECKLIST.md`).
 
 ## Nice-to-have GitOps tasks
 - [ ] Terraform/OpenTofu for backend infra (if not fully managed by Firebase).

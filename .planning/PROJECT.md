@@ -3,8 +3,8 @@
 Generated: 2026-04-03 23:46:44Z (UTC)
 
 ## Inputs reviewed
-- `/Users/gerald/Downloads/ENVI_Product_Strategy_and_1000_Feature_Backlog.md`
-- `/Users/gerald/Downloads/ENVI_iOS_Developer_Handoff_AgilityIO (1).pdf`
+- ENVI Product Strategy and 1000 Feature Backlog (product spec document)
+- ENVI iOS Developer Handoff (AgilityIO design/engineering handoff PDF)
 - Current repository + GitHub state (`gerald-ica/envi-ios-v2.0`)
 
 ## Problem statement
