@@ -1,5 +1,7 @@
 import UIKit
 import SwiftUI
+import AVFoundation
+import CoreImage
 
 /// UIKit-based video editor with preview, timeline, and toolbar.
 final class EditorViewController: UIViewController {
@@ -11,6 +13,12 @@ final class EditorViewController: UIViewController {
     private var isPreviewPlaying = false
     private let videoEditService = VideoEditService()
     private var latestTrimmedVideoURL: URL?
+
+    // MARK: - Editor Tool State
+    private var currentFilterIndex = 0
+    private var currentSpeedMultiplier: Float = 1.0
+    private var currentRotationAngle: CGFloat = 0
+    private var isCroppedToSquare = false
 
     // MARK: - Top Toolbar
     private let topBar: UIView = {
@@ -292,6 +300,14 @@ final class EditorViewController: UIViewController {
         switch tool {
         case "Trim":
             Task { await performQuickTrim() }
+        case "Crop":
+            performCrop()
+        case "Filters":
+            performFilterCycle()
+        case "Speed":
+            performSpeedToggle()
+        case "Rotate":
+            performRotate()
         default:
             presentPlaceholderAlert(
                 title: tool,
@@ -304,6 +320,239 @@ final class EditorViewController: UIViewController {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
+    }
+
+    // MARK: - Crop (1:1 center crop)
+
+    private func performCrop() {
+        isCroppedToSquare.toggle()
+
+        if isCroppedToSquare {
+            // Apply center-crop to 1:1 by masking the preview view
+            let side = min(previewView.bounds.width, previewView.bounds.height)
+            let maskLayer = CALayer()
+            maskLayer.backgroundColor = UIColor.white.cgColor
+            maskLayer.frame = CGRect(
+                x: (previewView.bounds.width - side) / 2,
+                y: (previewView.bounds.height - side) / 2,
+                width: side,
+                height: side
+            )
+            maskLayer.cornerRadius = ENVIRadius.lg
+            previewView.layer.mask = maskLayer
+            showHUD("Crop: 1:1")
+        } else {
+            previewView.layer.mask = nil
+            showHUD("Crop: Original")
+        }
+    }
+
+    /// Applies 1:1 center crop to a video asset using AVMutableVideoComposition.
+    private func applyCropToAsset(_ asset: AVAsset) async throws -> AVMutableVideoComposition {
+        let tracks = try await asset.loadTracks(withMediaType: .video)
+        guard let videoTrack = tracks.first else {
+            throw VideoEditService.EditError.exportSessionUnavailable
+        }
+        let naturalSize = try await videoTrack.load(.naturalSize)
+        let side = min(naturalSize.width, naturalSize.height)
+        let cropOrigin = CGPoint(
+            x: (naturalSize.width - side) / 2,
+            y: (naturalSize.height - side) / 2
+        )
+
+        let composition = AVMutableVideoComposition()
+        composition.renderSize = CGSize(width: side, height: side)
+        composition.frameDuration = CMTime(value: 1, timescale: 30)
+
+        let instruction = AVMutableVideoCompositionInstruction()
+        let duration = try await asset.load(.duration)
+        instruction.timeRange = CMTimeRange(start: .zero, duration: duration)
+
+        let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+        let transform = CGAffineTransform(translationX: -cropOrigin.x, y: -cropOrigin.y)
+        layerInstruction.setTransform(transform, at: .zero)
+        instruction.layerInstructions = [layerInstruction]
+        composition.instructions = [instruction]
+
+        return composition
+    }
+
+    // MARK: - Filter (cycle through presets)
+
+    private struct FilterPreset {
+        let name: String
+        let brightness: Float
+        let contrast: Float
+        let saturation: Float
+    }
+
+    private static let filterPresets: [FilterPreset] = [
+        FilterPreset(name: "Original", brightness: 0, contrast: 1.0, saturation: 1.0),
+        FilterPreset(name: "High Contrast", brightness: 0.05, contrast: 1.4, saturation: 1.1),
+        FilterPreset(name: "Warm Tone", brightness: 0.08, contrast: 1.1, saturation: 1.35),
+    ]
+
+    private func performFilterCycle() {
+        currentFilterIndex = (currentFilterIndex + 1) % Self.filterPresets.count
+        let preset = Self.filterPresets[currentFilterIndex]
+
+        // Apply CIFilter to the preview image view
+        if let imageView = previewView.subviews.compactMap({ $0 as? UIImageView }).first,
+           let originalImage = imageView.image,
+           let ciImage = CIImage(image: originalImage) {
+
+            let filter = CIFilter(name: "CIColorControls")!
+            filter.setValue(ciImage, forKey: kCIInputImageKey)
+            filter.setValue(preset.brightness, forKey: kCIInputBrightnessKey)
+            filter.setValue(preset.contrast, forKey: kCIInputContrastKey)
+            filter.setValue(preset.saturation, forKey: kCIInputSaturationKey)
+
+            if let output = filter.outputImage {
+                let context = CIContext()
+                if let cgImage = context.createCGImage(output, from: output.extent) {
+                    imageView.image = UIImage(cgImage: cgImage)
+                }
+            }
+        }
+
+        showHUD("Filter: \(preset.name)")
+    }
+
+    /// Builds a CIFilter-based AVVideoComposition for export.
+    private func applyFilterToAsset(_ asset: AVAsset) async throws -> AVVideoComposition {
+        let preset = Self.filterPresets[currentFilterIndex]
+        let videoComposition = try await AVVideoComposition.videoComposition(
+            with: asset,
+            applyingCIFiltersWithHandler: { request in
+                let filter = CIFilter(name: "CIColorControls")!
+                filter.setValue(request.sourceImage.clampedToExtent(), forKey: kCIInputImageKey)
+                filter.setValue(preset.brightness, forKey: kCIInputBrightnessKey)
+                filter.setValue(preset.contrast, forKey: kCIInputContrastKey)
+                filter.setValue(preset.saturation, forKey: kCIInputSaturationKey)
+
+                if let output = filter.outputImage?.cropped(to: request.sourceImage.extent) {
+                    request.finish(with: output, context: nil)
+                } else {
+                    request.finish(with: request.sourceImage, context: nil)
+                }
+            }
+        )
+        return videoComposition
+    }
+
+    // MARK: - Speed (toggle 1x / 0.5x / 2x)
+
+    private func performSpeedToggle() {
+        switch currentSpeedMultiplier {
+        case 1.0:
+            currentSpeedMultiplier = 0.5
+        case 0.5:
+            currentSpeedMultiplier = 2.0
+        default:
+            currentSpeedMultiplier = 1.0
+        }
+        showHUD("Speed: \(currentSpeedMultiplier == 1.0 ? "1x" : currentSpeedMultiplier == 0.5 ? "0.5x" : "2x")")
+    }
+
+    /// Applies speed change to an AVMutableComposition track via scaleTimeRange.
+    private func applySpeedToComposition(_ composition: AVMutableComposition, asset: AVAsset) async throws {
+        let duration = try await asset.load(.duration)
+        let timeRange = CMTimeRange(start: .zero, duration: duration)
+        let scaledDuration = CMTimeMultiplyByFloat64(duration, multiplier: Float64(1.0 / currentSpeedMultiplier))
+
+        for track in composition.tracks {
+            track.scaleTimeRange(timeRange, toDuration: scaledDuration)
+        }
+    }
+
+    // MARK: - Rotate (90 degrees clockwise each tap)
+
+    private func performRotate() {
+        currentRotationAngle += 90
+        if currentRotationAngle >= 360 { currentRotationAngle = 0 }
+
+        let radians = currentRotationAngle * .pi / 180
+        UIView.animate(withDuration: 0.3) {
+            self.previewView.transform = CGAffineTransform(rotationAngle: radians)
+        }
+
+        let label = currentRotationAngle == 0 ? "0 (Original)" : "\(Int(currentRotationAngle))"
+        showHUD("Rotate: \(label)")
+    }
+
+    /// Builds a rotation transform for export via AVMutableVideoCompositionLayerInstruction.
+    private func applyRotationToAsset(_ asset: AVAsset) async throws -> AVMutableVideoComposition {
+        let tracks = try await asset.loadTracks(withMediaType: .video)
+        guard let videoTrack = tracks.first else {
+            throw VideoEditService.EditError.exportSessionUnavailable
+        }
+        let naturalSize = try await videoTrack.load(.naturalSize)
+        let isLandscapeRotation = Int(currentRotationAngle) % 180 != 0
+        let renderSize: CGSize
+        if isLandscapeRotation {
+            renderSize = CGSize(width: naturalSize.height, height: naturalSize.width)
+        } else {
+            renderSize = naturalSize
+        }
+
+        let composition = AVMutableVideoComposition()
+        composition.renderSize = renderSize
+        composition.frameDuration = CMTime(value: 1, timescale: 30)
+
+        let instruction = AVMutableVideoCompositionInstruction()
+        let duration = try await asset.load(.duration)
+        instruction.timeRange = CMTimeRange(start: .zero, duration: duration)
+
+        let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+        var transform = CGAffineTransform.identity
+        switch Int(currentRotationAngle) {
+        case 90:
+            transform = transform.translatedBy(x: naturalSize.height, y: 0)
+                .rotated(by: .pi / 2)
+        case 180:
+            transform = transform.translatedBy(x: naturalSize.width, y: naturalSize.height)
+                .rotated(by: .pi)
+        case 270:
+            transform = transform.translatedBy(x: 0, y: naturalSize.width)
+                .rotated(by: .pi * 3 / 2)
+        default:
+            break
+        }
+        layerInstruction.setTransform(transform, at: .zero)
+        instruction.layerInstructions = [layerInstruction]
+        composition.instructions = [instruction]
+
+        return composition
+    }
+
+    // MARK: - HUD Toast
+
+    private func showHUD(_ message: String) {
+        let hudLabel = UILabel()
+        hudLabel.text = message
+        hudLabel.font = .spaceMonoBold(13)
+        hudLabel.textColor = .white
+        hudLabel.textAlignment = .center
+        hudLabel.backgroundColor = UIColor.black.withAlphaComponent(0.75)
+        hudLabel.layer.cornerRadius = 8
+        hudLabel.clipsToBounds = true
+        hudLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        view.addSubview(hudLabel)
+        NSLayoutConstraint.activate([
+            hudLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            hudLabel.topAnchor.constraint(equalTo: previewView.bottomAnchor, constant: 8),
+            hudLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 120),
+            hudLabel.heightAnchor.constraint(equalToConstant: 32),
+        ])
+        // Add padding via content insets
+        hudLabel.layoutMargins = UIEdgeInsets(top: 4, left: 12, bottom: 4, right: 12)
+
+        UIView.animate(withDuration: 0.3, delay: 1.2, options: .curveEaseOut) {
+            hudLabel.alpha = 0
+        } completion: { _ in
+            hudLabel.removeFromSuperview()
+        }
     }
 
     @MainActor

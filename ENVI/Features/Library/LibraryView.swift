@@ -1,9 +1,10 @@
 import SwiftUI
+import PhotosUI
 
 /// Main library screen with filter chips, template carousel, and masonry grid.
 struct LibraryView: View {
     @StateObject private var viewModel = LibraryViewModel()
-    @State private var showAddFlowAlert = false
+    @State private var showMediaPicker = false
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
@@ -148,7 +149,7 @@ struct LibraryView: View {
             }
 
             // FAB
-            Button(action: { showAddFlowAlert = true }) {
+            Button(action: { showMediaPicker = true }) {
                 Image(systemName: "plus")
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.black)
@@ -176,10 +177,45 @@ struct LibraryView: View {
                 Task { await viewModel.updatePlanItem(item, title: title, platform: platform, scheduledAt: scheduledAt) }
             }
         }
-        .alert("Add to Library", isPresented: $showAddFlowAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("Import and create flows are not wired yet. This should open a real add/import sheet in the next pass.")
+        .sheet(isPresented: $showMediaPicker) {
+            MediaPickerView { assetIdentifiers in
+                guard !assetIdentifiers.isEmpty else { return }
+                ContentPieceAssembler.shared.enqueueForAssembly(mediaIDs: assetIdentifiers)
+            }
+        }
+    }
+}
+
+// MARK: - PHPicker Wrapper
+
+/// UIViewControllerRepresentable wrapping PHPickerViewController for importing media.
+struct MediaPickerView: UIViewControllerRepresentable {
+    let onPick: ([String]) -> Void
+
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 10
+        config.filter = .any(of: [.images, .videos])
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator(onPick: onPick) }
+
+    final class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let onPick: ([String]) -> Void
+
+        init(onPick: @escaping ([String]) -> Void) {
+            self.onPick = onPick
+        }
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            picker.dismiss(animated: true)
+            let identifiers = results.compactMap(\.assetIdentifier)
+            onPick(identifiers)
         }
     }
 }

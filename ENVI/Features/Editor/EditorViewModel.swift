@@ -8,8 +8,8 @@ final class EditorViewModel: ObservableObject {
     @Published var duration: Double = 30.0
     @Published var showExportSheet = false
 
-    let tools = ["Trim", "Adjust", "Text", "Audio", "Filters", "Crop"]
-    let toolIcons = ["scissors", "slider.horizontal.3", "textformat", "waveform", "camera.filters", "crop"]
+    let tools = ["Trim", "Crop", "Filters", "Speed", "Rotate", "Adjust"]
+    let toolIcons = ["scissors", "crop", "camera.filters", "gauge.with.needle", "rotate.right", "slider.horizontal.3"]
 
     func togglePlayback() { isPlaying.toggle() }
     func exportVideo() { showExportSheet = true }
