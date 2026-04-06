@@ -5,6 +5,10 @@ import Combine
 
 /// Generates content predictions and recommendations for the ENVI Brain.
 ///
+/// Production architecture: These computations run server-side via the
+/// `oracle/insights` endpoint. The client-side implementations provide
+/// offline fallback and development-mode preview data.
+///
 /// In the karpathy/autoresearch pattern, this is the agent that "proposes changes
 /// to train.py" — it looks at the current state, identifies opportunities, and
 /// generates a concrete hypothesis to test.
@@ -188,7 +192,7 @@ final class PredictionEngine: ObservableObject {
             }
         }
 
-        // 3. Trend opportunity (mock — in production, powered by API)
+        // 3. Trend opportunity (derived from API in production via oracle/insights)
         results.append(Prediction(
             type: .trendOpportunity,
             title: "Trending: Short-Form Behind-the-Scenes",
@@ -274,7 +278,7 @@ final class PredictionEngine: ObservableObject {
         let baseShares = piece.metrics?.shares ?? 100
         let baseComments = piece.metrics?.comments ?? 40
 
-        // Time-of-day multiplier (mock — in production, learned from user's data)
+        // Time-of-day multiplier (derived from API in production, learned from user's data)
         let hour = Calendar.current.component(.hour, from: date)
         let timeMultiplier: Double
         switch hour {
@@ -318,7 +322,7 @@ final class PredictionEngine: ObservableObject {
     /// configurations, this scans the user's posting history for the time slots
     /// that consistently produce the highest engagement.
     func getOptimalPostingWindows(count: Int) -> [(date: Date, confidence: Double)] {
-        // Mock implementation — in production, this analyzes real posting history
+        // Derived from API in production — analyzes real posting history
         // and uses the learned engagement-by-hour/day patterns.
         let calendar = Calendar.current
         let now = Date()

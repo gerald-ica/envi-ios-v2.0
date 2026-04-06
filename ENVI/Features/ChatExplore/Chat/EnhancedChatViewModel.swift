@@ -1,16 +1,42 @@
 import Foundation
 import Combine
 
+// MARK: - Oracle API Response
+
+/// Decodable response from the `oracle/chat` endpoint.
+///
+/// Endpoint contract:
+/// - POST `oracle/chat`
+/// - Body: `{ "prompt": "...", "threadId": "..." }`
+/// - Response: `{ "message": "...", "citations": [...], "suggestedFollowUps": [...] }`
+struct OracleResponse: Decodable {
+    let message: String
+    let citations: [Citation]
+    let suggestedFollowUps: [String]
+
+    struct Citation: Decodable {
+        let title: String
+        let url: String?
+    }
+}
+
+/// Encodable request body for the `oracle/chat` endpoint.
+private struct OracleChatRequest: Encodable {
+    let prompt: String
+    let threadId: String?
+}
+
 /// ViewModel powering the enhanced ENVI AI chat experience.
-/// Manages thread state, typing simulation, and mock data lookup.
+/// Manages thread state, typing simulation, and Oracle API integration.
 ///
 /// ## ENVI Brain Integration
 ///
 /// The ViewModel bridges user queries to the ENVI Brain (ENVIBrain.shared),
 /// which provides data-backed insights through its InsightGenerator subsystem.
 /// When the Brain has relevant insights for a query, they are used to build
-/// a richer ChatThread response. Mock data serves as fallback for queries
-/// the Brain doesn't yet handle or when running in preview mode.
+/// a richer ChatThread response. In dev mode, mock data serves as fallback
+/// for queries the Brain doesn't yet handle or when running in preview mode.
+/// In staging/prod, unmatched queries are routed to the Oracle API.
 final class EnhancedChatViewModel: ObservableObject {
 
     // MARK: - Published State
@@ -19,6 +45,7 @@ final class EnhancedChatViewModel: ObservableObject {
     @Published var isTyping: Bool = false
     @Published var isHome: Bool = true
     @Published var inputText: String = ""
+    @Published var errorMessage: String?
 
     // MARK: - Quick Actions
 
@@ -43,9 +70,13 @@ final class EnhancedChatViewModel: ObservableObject {
 
     private var typingWorkItem: DispatchWorkItem?
 
-    // MARK: - Mock Thread Data (ported from ChatPanel.tsx MOCK_THREADS)
+    // MARK: - Mock Thread Data (dev environment only)
 
+    /// Mock threads are only used in `.dev` environment for preview and offline development.
+    /// In `.staging` and `.prod`, unmatched queries are routed to the Oracle API.
     private let mockThreads: [String: ChatThread] = {
+        guard AppEnvironment.current == .dev else { return [:] }
+
         var threads: [String: ChatThread] = [:]
 
         // 1. Weekly energy forecast
@@ -161,8 +192,10 @@ final class EnhancedChatViewModel: ObservableObject {
         return threads
     }()
 
-    // MARK: - Default Thread (fallback for unrecognized queries)
+    // MARK: - Default Thread (dev-only fallback for unrecognized queries)
 
+    /// Default mock thread used only in `.dev` environment. In staging/prod,
+    /// unrecognized queries go through the Oracle API instead.
     private let defaultThread = ChatThread(
         question: "",
         paragraphs: [
@@ -288,32 +321,74 @@ final class EnhancedChatViewModel: ObservableObject {
 
     @MainActor
     private func resolveThread(for query: String) async -> ChatThread {
+        errorMessage = nil
+
+        // 1. Try Oracle endpoint if enabled
         if AppConfig.isOracleEnabled,
            let oracleThread = await fetchOracleThread(query) {
             return oracleThread
         }
 
+        // 2. Try ENVI Brain for content-strategy queries
         if let brainThread = askBrain(query) {
             return brainThread
         }
 
-        if let matched = mockThreads[query] {
-            return matched
+        // 3. Dev environment: fall back to mock data
+        if AppEnvironment.current == .dev {
+            if let matched = mockThreads[query] {
+                return matched
+            }
+            return ChatThread(
+                question: query,
+                paragraphs: defaultThread.paragraphs,
+                metrics: defaultThread.metrics,
+                relatedQuestions: defaultThread.relatedQuestions
+            )
         }
 
-        return ChatThread(
-            question: query,
-            paragraphs: defaultThread.paragraphs,
-            metrics: defaultThread.metrics,
-            relatedQuestions: defaultThread.relatedQuestions
-        )
+        // 4. Staging/prod: call Oracle API as the fallback path
+        do {
+            let oracleResponse = try await fetchOracleResponse(prompt: query)
+            return ChatThread(
+                question: query,
+                paragraphs: [oracleResponse.message],
+                metrics: [],
+                relatedQuestions: oracleResponse.suggestedFollowUps
+            )
+        } catch {
+            errorMessage = "Unable to reach Oracle. Please try again."
+            return ChatThread(
+                question: query,
+                paragraphs: ["Something went wrong while fetching your response. Please try again in a moment."],
+                metrics: [],
+                relatedQuestions: []
+            )
+        }
     }
 
+    // MARK: - Oracle API
+
+    /// Fetch a full chat thread from the Oracle API client (used when Oracle is explicitly enabled).
     private func fetchOracleThread(_ query: String) async -> ChatThread? {
         do {
             return try await OracleAPIClient.shared.fetchThread(query: query)
         } catch {
             return nil
         }
+    }
+
+    /// Call the `oracle/chat` endpoint directly and return the raw `OracleResponse`.
+    ///
+    /// Used as the production fallback when neither the Oracle feature flag
+    /// nor the ENVI Brain can handle a query.
+    func fetchOracleResponse(prompt: String, threadId: String? = nil) async throws -> OracleResponse {
+        let response: OracleResponse = try await APIClient.shared.request(
+            endpoint: "oracle/chat",
+            method: .post,
+            body: OracleChatRequest(prompt: prompt, threadId: threadId),
+            requiresAuth: true
+        )
+        return response
     }
 }

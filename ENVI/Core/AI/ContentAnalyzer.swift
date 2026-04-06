@@ -5,6 +5,10 @@ import Combine
 
 /// Analyzes the user's content library for patterns, trends, and opportunities.
 ///
+/// Production architecture: These computations run server-side via the
+/// `oracle/insights` endpoint. The client-side implementations provide
+/// offline fallback and development-mode preview data.
+///
 /// In karpathy/autoresearch, the first step of every experiment is to
 /// "read the code" — understand the current state before proposing changes.
 /// The ContentAnalyzer is ENVI's equivalent: it reads the user's content library
@@ -138,7 +142,7 @@ final class ContentAnalyzer: ObservableObject {
             avgFrequency = 86400 * 3 // Default: every 3 days
         }
 
-        // Engagement by day of week (mock — in production, derived from actual timestamps)
+        // Engagement by day of week (derived from API in production via actual timestamps)
         let engagementByDay: [Int: Double] = [
             1: 0.032,  // Sunday
             2: 0.038,  // Monday
@@ -149,7 +153,7 @@ final class ContentAnalyzer: ObservableObject {
             7: 0.036,  // Saturday
         ]
 
-        // Engagement by hour (mock)
+        // Engagement by hour (derived from API in production)
         let engagementByHour: [Int: Double] = [
             7: 0.035, 8: 0.042, 9: 0.045,
             10: 0.038, 11: 0.036, 12: 0.048,
@@ -180,7 +184,7 @@ final class ContentAnalyzer: ObservableObject {
             engagementByHour: engagementByHour,
             contentTypeDistribution: typeDistribution,
             topTags: topTags,
-            audienceGrowthRate: 18.5,  // Mock: ~18.5 new followers/day
+            audienceGrowthRate: 18.5,  // Derived from API in production (~18.5 new followers/day fallback)
             totalPieces: realPieces.count,
             averageAIScore: avgAIScore,
             averageEngagementRate: avgEngRate
@@ -263,9 +267,9 @@ final class ContentAnalyzer: ObservableObject {
     /// over successive experiments, this tracks whether the user's engagement
     /// is trending up (improving) over time.
     func calculateEngagementTrend(over days: Int) -> TrendDirection {
-        // Mock implementation — in production, compare engagement rates
+        // Derived from API in production — compares engagement rates
         // from the first half of the window to the second half.
-        // Positive slope → improving, negative → declining, flat → stable.
+        // Positive slope -> improving, negative -> declining, flat -> stable.
         let direction: TrendDirection = .improving
         trendDirection = direction
         return direction

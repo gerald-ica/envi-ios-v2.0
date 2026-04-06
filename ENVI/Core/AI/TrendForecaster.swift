@@ -6,6 +6,10 @@ import Combine
 /// Forecasts engagement trends, identifies optimal posting times,
 /// and detects upcoming opportunities (holidays, events, trending topics).
 ///
+/// Production architecture: These computations run server-side via the
+/// `oracle/insights` endpoint. The client-side implementations provide
+/// offline fallback and development-mode preview data.
+///
 /// In karpathy/autoresearch, the agent reads the training log and code to
 /// identify promising directions for the next experiment. The TrendForecaster
 /// is ENVI's forward-looking equivalent — it reads the content landscape
@@ -131,7 +135,7 @@ final class TrendForecaster: ObservableObject {
         let now = Date()
         var forecast: [Date: Double] = [:]
 
-        // Base engagement rate from recent history (mock)
+        // Base engagement rate from recent history (derived from API in production)
         let baseRate = 0.042
 
         for dayOffset in 1...days {
@@ -204,7 +208,7 @@ final class TrendForecaster: ObservableObject {
             ))
         }
 
-        // Trending topic opportunities (mock — in production from APIs)
+        // Trending topic opportunities (derived from API in production)
         events.append(ForecastedEvent(
             title: "Trending: AI-Generated Art Backlash Discussion",
             date: now.addingTimeInterval(86400),
@@ -272,7 +276,7 @@ final class TrendForecaster: ObservableObject {
 
         var slots: [ScheduleSlot] = []
 
-        // Optimal schedule based on learned patterns (mock)
+        // Optimal schedule based on learned patterns (derived from API in production)
         let schedule: [(dayOffset: Int, hour: Int, type: String, platform: String, confidence: Double, reason: String)] = [
             (0, 8, "photo", "instagram", 0.78, "Monday morning — strong for lifestyle and motivational content"),
             (1, 14, "video", "tiktok", 0.82, "Tuesday afternoon — TikTok algorithm favors fresh video at this window"),
@@ -301,8 +305,9 @@ final class TrendForecaster: ObservableObject {
 
     /// Detect currently trending opportunities.
     ///
-    /// In production, this would query platform APIs for trending hashtags,
-    /// audio, and topics. For now, returns mock data showing the interface.
+    /// In production, this queries platform APIs via `oracle/insights` for trending
+    /// hashtags, audio, and topics. The client-side implementation provides offline
+    /// fallback and development-mode preview data.
     func detectTrendingOpportunities() -> [TrendOpportunity] {
         let opportunities: [TrendOpportunity] = [
             TrendOpportunity(

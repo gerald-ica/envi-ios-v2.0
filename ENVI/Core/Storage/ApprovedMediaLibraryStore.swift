@@ -1,17 +1,45 @@
 import Foundation
 import Combine
 
-/// Shared in-memory store for approved For You posts that should appear in the Library tab.
+/// Shared store for approved For You posts that should appear in the Library tab.
+/// Persists approved items to UserDefaults via Codable serialization so they
+/// survive app restarts. The @Published `approvedItems` property remains reactive.
 final class ApprovedMediaLibraryStore: ObservableObject {
     static let shared = ApprovedMediaLibraryStore()
 
-    @Published private(set) var approvedItems: [LibraryItem] = []
+    private static let userDefaultsKey = "ApprovedMediaLibraryStore.approvedItems"
 
-    private init() {}
+    @Published private(set) var approvedItems: [LibraryItem] = [] {
+        didSet { persistToUserDefaults() }
+    }
+
+    private init() {
+        loadFromUserDefaults()
+    }
 
     func approve(_ contentItem: ContentItem) {
         let libraryItem = LibraryItem(contentItem: contentItem)
         guard approvedItems.contains(where: { $0.id == libraryItem.id }) == false else { return }
         approvedItems.insert(libraryItem, at: 0)
+    }
+
+    // MARK: - Persistence
+
+    private func persistToUserDefaults() {
+        do {
+            let data = try JSONEncoder().encode(approvedItems)
+            UserDefaults.standard.set(data, forKey: Self.userDefaultsKey)
+        } catch {
+            assertionFailure("Failed to encode approved items: \(error)")
+        }
+    }
+
+    private func loadFromUserDefaults() {
+        guard let data = UserDefaults.standard.data(forKey: Self.userDefaultsKey) else { return }
+        do {
+            approvedItems = try JSONDecoder().decode([LibraryItem].self, from: data)
+        } catch {
+            assertionFailure("Failed to decode approved items: \(error)")
+        }
     }
 }
