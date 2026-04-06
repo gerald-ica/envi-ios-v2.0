@@ -39,7 +39,7 @@ ENVI uses a **SwiftUI + UIKit hybrid** architecture targeting **iOS 17.0+**.
 - **SwiftUI** — Library, Chat/Explore, Analytics, Profile, Export screens
 - **UIKit** — Feed, Editor, custom tab bar, navigation coordinators
 - **SceneKit** — 3D World Explorer helix rendering and interaction
-- **SPM Dependencies** — SDWebImage for image loading, Lottie for animations
+- **SPM Dependencies** — SDWebImage, Lottie, RevenueCat, Firebase (Auth, Analytics, Crashlytics)
 
 ### Navigation
 

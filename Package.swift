@@ -4,14 +4,16 @@
 //
 // Dependency structure:
 //   ENVI (main target)
-//   ├── Core/AI/          — ENVI Brain: autoresearch-based AI engine (ENVIBrain, PredictionEngine,
-//   │                       ContentAnalyzer, TrendForecaster, InsightGenerator, ExperimentTracker,
-//   │                       ResearchLoop, ENVIBrainConfig) — no external dependencies, pure Swift
+//   ├── Core/AI/          — ENVI Brain: autoresearch-based AI engine (pure Swift, no deps)
 //   ├── Models/            — ContentPiece, ContentPrediction, ContentInsight, ChatThread, etc.
 //   ├── SDWebImage         — Image loading & caching for content library thumbnails
 //   ├── Lottie             — Animation playback for onboarding and transitions
 //   ├── RevenueCat         — In-app purchase & subscription management
-//   └── RevenueCatUI       — Pre-built paywalls & Customer Center
+//   ├── RevenueCatUI       — Pre-built paywalls & Customer Center
+//   ├── FirebaseAuth       — Authentication (email + Apple Sign-In)
+//   ├── FirebaseAnalytics  — Product analytics and event tracking
+//   ├── FirebaseCrashlytics — Crash reporting and diagnostics
+//   └── FirebaseCore       — Firebase SDK foundation
 //
 import PackageDescription
 
