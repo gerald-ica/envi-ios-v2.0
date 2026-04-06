@@ -116,8 +116,7 @@ struct RepurposeDashboardView: View {
     private var jobsList: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.md) {
             if viewModel.isLoadingJobs {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 80)
+                ENVILoadingState(minHeight: 80)
             } else if viewModel.jobs.isEmpty {
                 emptyState
             } else {
