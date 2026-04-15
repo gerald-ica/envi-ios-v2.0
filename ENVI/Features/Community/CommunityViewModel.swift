@@ -8,7 +8,7 @@ final class CommunityViewModel: ObservableObject {
     @Published var isLoadingInbox = false
     @Published var inboxError: String?
     @Published var inboxFilter: InboxFilter = .all
-    @Published var platformFilter: SocialPlatform?
+    @Published var platformFilter: CommunityPlatform?
     @Published var selectedMessage: InboxMessage?
     @Published var replyText = ""
     @Published var isSendingReply = false

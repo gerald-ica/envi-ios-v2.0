@@ -1,0 +1,343 @@
+//
+//  MediaClassifier.swift
+//  ENVI
+//
+//  Unified pipeline that orchestrates Tasks 1-4 of the Media Intelligence
+//  Core (Phase 1, Template Tab v1) into a single entry point.
+//
+//  Flow per asset:
+//    1. Check ClassificationCache.fetch(localIdentifier:) — return if fresh
+//       (classifierVersion matches kCurrentClassifierVersion).
+//    2. Run MediaMetadataExtractor.extract(asset) (cheap, always).
+//    3. Request image data via PHImageManager → VisionAnalysisEngine.analyze().
+//       For videos, write the video URL to a temp path and call analyzeVideo.
+//    4. If location present, enqueue ReverseGeocodeCache.shared.place(for:)
+//       best-effort and non-blocking (fire-and-forget detached Task).
+//    5. Compose a ClassifiedAsset, upsert into the cache, return.
+//
+//  Batch: TaskGroup with max concurrency = activeProcessorCount, reports
+//  progress every 10 items. Per-asset failures are logged to the actor's
+//  `failures: [UUID: Error]` side-channel and skipped — the batch never
+//  throws.
+//
+//  Design notes:
+//    - Not @MainActor. Actor isolation keeps all Vision/Photos work off
+//      the main thread.
+//    - Dependencies are injected for testability; `shared` default wires
+//      the production cache + engines.
+//    - JSON-encodes ExtractedMetadata / VisionAnalysis into the
+//      ClassifiedAsset @Model's Data blobs per Task 3's schema.
+//
+
+import Foundation
+import Photos
+import CoreLocation
+import ImageIO
+#if canImport(UIKit)
+import UIKit
+#endif
+
+// MARK: - Errors
+
+public enum MediaClassifierError: Error {
+    case imageDataUnavailable
+    case videoURLUnavailable
+    case encodingFailed(Error)
+    case cacheFailure(Error)
+}
+
+// MARK: - MediaClassifier
+
+public actor MediaClassifier {
+
+    // MARK: Dependencies
+
+    private let cache: ClassificationCache
+    private let visionEngine: VisionAnalysisEngine
+    private let geocodeCache: ReverseGeocodeCache
+    private let imageManager: PHImageManager
+    private let classifierVersion: Int
+
+    /// Per-asset failures surfaced via actor-isolated side channel so that
+    /// batch callers can post-inspect what went wrong without the batch
+    /// itself throwing.
+    public private(set) var failures: [String: Error] = [:]
+
+    // MARK: Init
+
+    public init(
+        cache: ClassificationCache,
+        visionEngine: VisionAnalysisEngine = .shared,
+        geocodeCache: ReverseGeocodeCache = .shared,
+        imageManager: PHImageManager = .default(),
+        classifierVersion: Int = kCurrentClassifierVersion
+    ) {
+        self.cache = cache
+        self.visionEngine = visionEngine
+        self.geocodeCache = geocodeCache
+        self.imageManager = imageManager
+        self.classifierVersion = classifierVersion
+    }
+
+    /// Default production instance. Uses the shared on-disk cache.
+    public static let shared: MediaClassifier = {
+        // Fall back to in-memory if the on-disk cache can't be built —
+        // the app should not crash at import time because of a missing
+        // Application Support directory.
+        if let onDisk = try? ClassificationCache() {
+            return MediaClassifier(cache: onDisk)
+        }
+        // swiftlint:disable:next force_try
+        let fallback = try! ClassificationCache(inMemory: true)
+        return MediaClassifier(cache: fallback)
+    }()
+
+    // MARK: - Public API
+
+    /// Classifies a single PHAsset, returning a cache hit if fresh.
+    /// `priority` is advisory — it's applied to the downstream Vision
+    /// TaskGroup via `Task.detached(priority:)` when this is called inside
+    /// a batch.
+    public func classify(_ asset: PHAsset, priority: TaskPriority = .medium) async throws -> ClassifiedAsset {
+        _ = priority // retained in signature for API stability / future use
+        if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
+            return fresh
+        }
+        return try await classifyUncached(asset)
+    }
+
+    /// Re-classifies an asset if the cached entry is stale (version mismatch)
+    /// or missing. Returns the fresh entry either way.
+    public func rescanIfStale(_ asset: PHAsset) async throws -> ClassifiedAsset {
+        if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
+            return fresh
+        }
+        return try await classifyUncached(asset)
+    }
+
+    /// Classifies a batch in parallel with a cap on concurrent tasks.
+    /// Failures are stashed on `failures` and absent from the returned
+    /// array — the batch never throws.
+    public func classifyBatch(
+        _ assets: [PHAsset],
+        progress: ((Int, Int) -> Void)? = nil
+    ) async -> [ClassifiedAsset] {
+        guard !assets.isEmpty else { return [] }
+
+        let total = assets.count
+        let maxConcurrent = max(1, ProcessInfo.processInfo.activeProcessorCount)
+        var results: [ClassifiedAsset] = []
+        results.reserveCapacity(total)
+        var completed = 0
+
+        await withTaskGroup(of: (PHAsset, Result<ClassifiedAsset, Error>).self) { group in
+            var index = 0
+            // Seed up to maxConcurrent tasks.
+            while index < min(maxConcurrent, total) {
+                let asset = assets[index]
+                group.addTask { [weak self] in
+                    guard let self else {
+                        return (asset, .failure(MediaClassifierError.cacheFailure(CancellationError())))
+                    }
+                    do {
+                        let result = try await self.classify(asset, priority: .medium)
+                        return (asset, .success(result))
+                    } catch {
+                        return (asset, .failure(error))
+                    }
+                }
+                index += 1
+            }
+
+            while let finished = await group.next() {
+                let (asset, outcome) = finished
+                switch outcome {
+                case .success(let classified):
+                    results.append(classified)
+                case .failure(let err):
+                    failures[asset.localIdentifier] = err
+                }
+                completed += 1
+                if progress != nil, (completed % 10 == 0 || completed == total) {
+                    progress?(completed, total)
+                }
+
+                // Schedule next asset.
+                if index < total {
+                    let next = assets[index]
+                    index += 1
+                    group.addTask { [weak self] in
+                        guard let self else {
+                            return (next, .failure(MediaClassifierError.cacheFailure(CancellationError())))
+                        }
+                        do {
+                            let result = try await self.classify(next, priority: .medium)
+                            return (next, .success(result))
+                        } catch {
+                            return (next, .failure(error))
+                        }
+                    }
+                }
+            }
+        }
+
+        return results
+    }
+
+    /// Clears the in-memory failure log (test hook / caller-controlled reset).
+    public func resetFailures() {
+        failures.removeAll()
+    }
+
+    // MARK: - Core pipeline
+
+    private func fetchFreshIfAny(for localIdentifier: String) async throws -> ClassifiedAsset? {
+        do {
+            guard let cached = try await cache.fetch(localIdentifier: localIdentifier) else {
+                return nil
+            }
+            return cached.classifierVersion == classifierVersion ? cached : nil
+        } catch {
+            throw MediaClassifierError.cacheFailure(error)
+        }
+    }
+
+    private func classifyUncached(_ asset: PHAsset) async throws -> ClassifiedAsset {
+        // 1. Metadata — always cheap.
+        let metadata = await MediaMetadataExtractor.extract(asset)
+
+        // 2. Vision — image or video path.
+        var vision = VisionAnalysis()
+        do {
+            vision = try await runVision(for: asset)
+        } catch {
+            // Vision failure is not fatal — we still persist the metadata row
+            // so future queries see the asset at all. Record the failure.
+            failures[asset.localIdentifier] = error
+        }
+
+        // 3. Location — fire-and-forget reverse geocode (best effort).
+        if let loc = metadata.surface.location {
+            let clLocation = CLLocation(
+                coordinate: CLLocationCoordinate2D(latitude: loc.latitude, longitude: loc.longitude),
+                altitude: loc.altitude ?? 0,
+                horizontalAccuracy: loc.horizontalAccuracy ?? -1,
+                verticalAccuracy: loc.verticalAccuracy ?? -1,
+                timestamp: loc.timestamp ?? Date()
+            )
+            let geocoder = geocodeCache
+            Task.detached(priority: .background) {
+                _ = await geocoder.place(for: clLocation)
+            }
+        }
+
+        // 4. Compose ClassifiedAsset.
+        let record = try compose(asset: asset, metadata: metadata, vision: vision)
+
+        // 5. Persist.
+        do {
+            try await cache.upsert(record)
+        } catch {
+            throw MediaClassifierError.cacheFailure(error)
+        }
+
+        return record
+    }
+
+    // MARK: - Vision dispatch
+
+    private func runVision(for asset: PHAsset) async throws -> VisionAnalysis {
+        switch asset.mediaType {
+        case .image:
+            let (data, orientation) = try await requestImageData(for: asset)
+            return try await visionEngine.analyzeImage(data: data, orientation: orientation)
+        case .video:
+            let url = try await requestVideoURL(for: asset)
+            return try await visionEngine.analyzeVideo(at: url)
+        default:
+            // Unknown / audio — return an empty analysis so the record still persists.
+            return VisionAnalysis()
+        }
+    }
+
+    private func requestImageData(for asset: PHAsset) async throws -> (Data, CGImagePropertyOrientation) {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<(Data, CGImagePropertyOrientation), Error>) in
+            let options = PHImageRequestOptions()
+            options.isNetworkAccessAllowed = true
+            options.deliveryMode = .highQualityFormat
+            options.version = .current
+            options.isSynchronous = false
+
+            imageManager.requestImageDataAndOrientation(for: asset, options: options) { data, _, orientation, _ in
+                if let data = data {
+                    continuation.resume(returning: (data, orientation))
+                } else {
+                    continuation.resume(throwing: MediaClassifierError.imageDataUnavailable)
+                }
+            }
+        }
+    }
+
+    private func requestVideoURL(for asset: PHAsset) async throws -> URL {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<URL, Error>) in
+            let options = PHVideoRequestOptions()
+            options.isNetworkAccessAllowed = true
+            options.deliveryMode = .highQualityFormat
+            options.version = .current
+
+            imageManager.requestAVAsset(forVideo: asset, options: options) { avAsset, _, _ in
+                if let urlAsset = avAsset as? AVURLAsset {
+                    continuation.resume(returning: urlAsset.url)
+                } else {
+                    continuation.resume(throwing: MediaClassifierError.videoURLUnavailable)
+                }
+            }
+        }
+    }
+
+    // MARK: - Composition
+
+    private func compose(
+        asset: PHAsset,
+        metadata: ExtractedMetadata,
+        vision: VisionAnalysis
+    ) throws -> ClassifiedAsset {
+        let encoder = JSONEncoder()
+        let metadataData: Data
+        let visionData: Data
+        do {
+            metadataData = try encoder.encode(metadata)
+            visionData = try encoder.encode(vision)
+        } catch {
+            throw MediaClassifierError.encodingFailed(error)
+        }
+
+        let topLabels = vision.classifications.map { $0.identifier }
+
+        let loc = metadata.surface.location
+        return ClassifiedAsset(
+            localIdentifier: asset.localIdentifier,
+            classifiedAt: Date(),
+            classifierVersion: classifierVersion,
+            metadata: metadataData,
+            visionAnalysis: visionData,
+            featurePrint: vision.featurePrintData,
+            aestheticsScore: Double(vision.aestheticsScore ?? 0),
+            isUtility: vision.isUtility ?? false,
+            faceCount: vision.faceCount,
+            personCount: vision.personCount,
+            topLabels: topLabels,
+            mediaType: metadata.surface.mediaType.rawValue,
+            mediaSubtypeRaw: metadata.surface.mediaSubtypeRawValue,
+            creationDate: metadata.surface.creationDate,
+            latitude: loc?.latitude,
+            longitude: loc?.longitude
+        )
+    }
+}
+
+
+// MARK: - Protocol Conformance
+// Bridges Task 5's concrete MediaClassifier to Task 6's MediaScanCoordinator
+// protocol dependency. Both signatures already match.
+extension MediaClassifier: MediaClassifierProtocol {}

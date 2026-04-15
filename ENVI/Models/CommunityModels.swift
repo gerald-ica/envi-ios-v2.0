@@ -1,8 +1,13 @@
 import Foundation
 
-// MARK: - Platform
+// MARK: - Community Platform
+// NOTE: Renamed from `SocialPlatform` to `CommunityPlatform` to resolve
+// pre-existing duplicate-definition build error with ENVI/Models/Platform.swift.
+// The canonical SocialPlatform (6 platforms matching OAuth integrations) lives
+// in Platform.swift. CommunityPlatform adds `.facebook` + `.twitter` for
+// community-inbox features that haven't yet migrated to the canonical type.
 
-enum SocialPlatform: String, Codable, CaseIterable, Identifiable {
+enum CommunityPlatform: String, Codable, CaseIterable, Identifiable {
     case instagram
     case tiktok
     case youtube
@@ -75,7 +80,7 @@ enum InboxFilter: String, Codable, CaseIterable, Identifiable {
 
 struct InboxMessage: Identifiable, Codable {
     let id: UUID
-    var platform: SocialPlatform
+    var platform: CommunityPlatform
     var senderName: String
     var senderAvatar: String?
     var text: String
@@ -86,7 +91,7 @@ struct InboxMessage: Identifiable, Codable {
 
     init(
         id: UUID = UUID(),
-        platform: SocialPlatform,
+        platform: CommunityPlatform,
         senderName: String,
         senderAvatar: String? = nil,
         text: String,
@@ -127,7 +132,7 @@ struct AudienceContact: Identifiable, Codable {
     let id: UUID
     var name: String
     var email: String?
-    var platforms: [SocialPlatform]
+    var platforms: [CommunityPlatform]
     var segments: [String]
     var lifetimeValue: Double
     var lastInteraction: Date
@@ -137,7 +142,7 @@ struct AudienceContact: Identifiable, Codable {
         id: UUID = UUID(),
         name: String,
         email: String? = nil,
-        platforms: [SocialPlatform] = [],
+        platforms: [CommunityPlatform] = [],
         segments: [String] = [],
         lifetimeValue: Double = 0,
         lastInteraction: Date = Date(),

@@ -53,7 +53,7 @@ struct InboxView: View {
                 Divider()
                     .frame(height: 20)
 
-                ForEach(SocialPlatform.allCases) { platform in
+                ForEach(CommunityPlatform.allCases) { platform in
                     platformChip(platform: platform)
                 }
             }
@@ -61,7 +61,7 @@ struct InboxView: View {
         }
     }
 
-    private func platformChip(platform: SocialPlatform) -> some View {
+    private func platformChip(platform: CommunityPlatform) -> some View {
         let isSelected = viewModel.platformFilter == platform
         return Button {
             viewModel.platformFilter = isSelected ? nil : platform
