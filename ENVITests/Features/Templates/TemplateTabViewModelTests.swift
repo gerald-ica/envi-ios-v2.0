@@ -1,0 +1,195 @@
+//
+//  TemplateTabViewModelTests.swift
+//  ENVITests
+//
+//  Phase 3 — Task 4 unit tests for TemplateTabViewModel.
+//
+//  Strategy:
+//    - Inject a spyable VideoTemplateRepository returning either a fixed
+//      catalog or an error.
+//    - Real TemplateMatchEngine + TemplateRanker (thin + deterministic).
+//    - Real ClassificationCache / EmbeddingIndex / MediaScanCoordinator
+//      wired with empty state so populate returns empty FilledSlots but
+//      still produces PopulatedTemplate wrappers — we assert count/shape
+//      rather than match quality (matcher correctness is Task 2's tests).
+//
+
+import XCTest
+import Photos
+@testable import ENVI
+
+// MARK: - Lightweight test doubles
+
+/// Minimal classifier stub — the VM doesn't exercise classification, but
+/// MediaScanCoordinator's init requires one. `classifyBatch` returns [];
+/// `classify` throws (never called by the VM path under test).
+final class StubMediaClassifier: MediaClassifierProtocol, @unchecked Sendable {
+    func classifyBatch(
+        _ assets: [PHAsset],
+        progress: ((Int, Int) -> Void)?
+    ) async -> [ClassifiedAsset] { [] }
+
+    func classify(
+        _ asset: PHAsset,
+        priority: TaskPriority
+    ) async throws -> ClassifiedAsset {
+        throw NSError(domain: "StubMediaClassifier", code: -1)
+    }
+}
+
+/// Empty PHAsset provider — keeps lazyRescan() a no-op in tests.
+final class EmptyAssetProvider: PHAssetProviding, @unchecked Sendable {
+    func fetchRecentMedia(limit: Int, mediaTypes: [PHAssetMediaType]) -> [PHAsset] { [] }
+    func totalMediaCount() -> Int { 0 }
+}
+
+@MainActor
+final class TemplateTabViewModelTests: XCTestCase {
+
+    // MARK: - Mocks
+
+    /// Spyable repository used across tests.
+    final class SpyRepository: VideoTemplateRepository {
+        var catalog: [VideoTemplate] = []
+        var trending: [VideoTemplate] = []
+        var shouldThrow: Bool = false
+        struct BoomError: Error {}
+
+        func fetchCatalog() async throws -> [VideoTemplate] {
+            if shouldThrow { throw BoomError() }
+            return catalog
+        }
+        func fetchTrending() async throws -> [VideoTemplate] {
+            if shouldThrow { throw BoomError() }
+            return trending
+        }
+        func fetchByCategory(_ category: VideoTemplateCategory) async throws -> [VideoTemplate] {
+            if shouldThrow { throw BoomError() }
+            return catalog.filter { $0.category == category }
+        }
+    }
+
+    // MARK: - Fixtures
+
+    private func makeScanner(cache: ClassificationCache) -> MediaScanCoordinator {
+        MediaScanCoordinator(
+            classifier: StubMediaClassifier(),
+            cache: cache,
+            library: EmptyAssetProvider(),
+            defaults: UserDefaults(suiteName: "TemplateTabVMTests-\(UUID().uuidString)")!
+        )
+    }
+
+    private func makeVM(
+        repo: SpyRepository,
+        cache: ClassificationCache,
+        index: EmbeddingIndex,
+        scanner: MediaScanCoordinator
+    ) -> TemplateTabViewModel {
+        TemplateTabViewModel(
+            repo: repo,
+            matcher: TemplateMatchEngine(),
+            ranker: TemplateRanker(),
+            cache: cache,
+            index: index,
+            scanner: scanner
+        )
+    }
+
+    // MARK: - Tests
+
+    /// `refresh()` should load templates from the repo and toggle isLoading
+    /// true → false across the call.
+    func testRefreshLoadsTemplates() async throws {
+        let repo = SpyRepository()
+        repo.catalog = VideoTemplate.mockLibrary
+        let cache = try ClassificationCache(inMemory: true)
+        let index = EmbeddingIndex()
+        let scanner = makeScanner(cache: cache)
+
+        let vm = makeVM(repo: repo, cache: cache, index: index, scanner: scanner)
+
+        XCTAssertFalse(vm.isLoading)
+        XCTAssertTrue(vm.populatedTemplates.isEmpty)
+
+        await vm.refresh()
+
+        XCTAssertFalse(vm.isLoading, "isLoading must return to false after refresh completes")
+        XCTAssertEqual(vm.populatedTemplates.count, repo.catalog.count)
+        XCTAssertNil(vm.error)
+    }
+
+    /// After a successful refresh, if a second refresh fails the error
+    /// should be surfaced but the previously loaded templates must remain.
+    func testErrorDoesNotClearExistingTemplates() async throws {
+        let repo = SpyRepository()
+        repo.catalog = VideoTemplate.mockLibrary
+        let cache = try ClassificationCache(inMemory: true)
+        let index = EmbeddingIndex()
+        let scanner = makeScanner(cache: cache)
+
+        let vm = makeVM(repo: repo, cache: cache, index: index, scanner: scanner)
+        await vm.refresh()
+        let firstCount = vm.populatedTemplates.count
+        XCTAssertGreaterThan(firstCount, 0)
+
+        // Now make the repo fail.
+        repo.shouldThrow = true
+        await vm.refresh()
+
+        XCTAssertNotNil(vm.error, "Error must be surfaced when fetchCatalog throws")
+        XCTAssertEqual(
+            vm.populatedTemplates.count, firstCount,
+            "Previously loaded templates must stay visible on failure"
+        )
+    }
+
+    /// `selectCategory` updates the observable selection.
+    func testSelectCategoryUpdatesState() async throws {
+        let repo = SpyRepository()
+        let cache = try ClassificationCache(inMemory: true)
+        let index = EmbeddingIndex()
+        let scanner = makeScanner(cache: cache)
+        let vm = makeVM(repo: repo, cache: cache, index: index, scanner: scanner)
+
+        XCTAssertNil(vm.selectedCategory)
+        if let first = VideoTemplateCategory.allCases.first {
+            vm.selectCategory(first)
+            XCTAssertEqual(vm.selectedCategory, first)
+            vm.selectCategory(nil)
+            XCTAssertNil(vm.selectedCategory)
+        }
+    }
+
+    /// `select(_:)` yields into the selections AsyncStream.
+    func testSelectEmitsToStream() async throws {
+        let repo = SpyRepository()
+        repo.catalog = VideoTemplate.mockLibrary
+        let cache = try ClassificationCache(inMemory: true)
+        let index = EmbeddingIndex()
+        let scanner = makeScanner(cache: cache)
+        let vm = makeVM(repo: repo, cache: cache, index: index, scanner: scanner)
+        await vm.refresh()
+
+        guard let sample = vm.populatedTemplates.first else {
+            XCTFail("Expected at least one populated template")
+            return
+        }
+
+        // Kick off observation before emitting.
+        let expectation = expectation(description: "selection emitted")
+        Task {
+            var iterator = vm.selections.makeAsyncIterator()
+            if let received = await iterator.next() {
+                XCTAssertEqual(received.id, sample.id)
+                expectation.fulfill()
+            }
+        }
+
+        // Let the consumer task start.
+        try await Task.sleep(nanoseconds: 50_000_000)
+        vm.select(sample)
+
+        await fulfillment(of: [expectation], timeout: 2.0)
+    }
+}
