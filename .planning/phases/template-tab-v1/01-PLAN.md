@@ -189,7 +189,7 @@ Output: MediaClassifier + ClassificationCache + MediaScanCoordinator + 5 support
 
 <verification>
 Before declaring phase complete:
-- [ ] `swift build` succeeds on iOS 17+ simulator
+- [ ] `swift build` succeeds on iOS 26+ simulator
 - [ ] All unit tests pass (ENVITests/MediaClassifier*, ENVITests/VisionAnalysisEngine*, ENVITests/ClassificationCache*)
 - [ ] No new SPM dependencies (all Apple frameworks)
 - [ ] BGProcessingTask identifier added to Info.plist

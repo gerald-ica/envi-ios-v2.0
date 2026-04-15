@@ -47,7 +47,7 @@ CapCut shows a remote catalog of templates with generic placeholders. ENVI scans
 
 - **Repo**: `/Users/wendyly/Documents/envi-ios-v2.0`
 - **Branch**: `feature/template-tab-v1`
-- **Swift**: 5.9, iOS 17+
+- **Swift**: 5.9, iOS 26+
 - **Existing stack**: SwiftUI + UIKit + SceneKit + Firebase (Auth/Analytics/Crashlytics) + RevenueCat + SDWebImage + Lottie
 - **Existing template system**: `ENVI/Models/BrandKitModels.swift` has `ContentTemplate` (caption/metadata templates) — this milestone adds a complementary `VideoTemplate` type for camera-roll-driven media templates. They coexist, do not conflict.
 - **Existing Photos pipeline**: `ENVI/Core/Storage/PhotoLibraryManager.swift` is the entry point — extend, don't replace.

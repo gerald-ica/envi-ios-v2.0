@@ -57,7 +57,7 @@ Cache path: `FileManager.default.applicationSupportDirectory/ClassificationCache
 
 ## Vision API Path Chosen
 
-Legacy `VNImageRequestHandler` with `withCheckedContinuation`, dispatched concurrently via `TaskGroup`. Reason: Package targets iOS 17, but async Vision request API (`ClassifyImageRequest` without VN prefix) is iOS 18+.
+Legacy `VNImageRequestHandler` with `withCheckedContinuation`, dispatched concurrently via `TaskGroup`. Reason: Package targets iOS 26, but async Vision request API (`ClassifyImageRequest` without VN prefix) is iOS 18+.
 
 `VNCalculateImageAestheticsScoresRequest` is gated with `#if #available(iOS 18.0, *)`; on iOS 17 the engine returns `aestheticsScore: nil` / `isUtility: nil`.
 
