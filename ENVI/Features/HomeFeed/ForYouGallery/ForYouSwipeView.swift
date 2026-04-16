@@ -47,7 +47,7 @@ struct ForYouSwipeView: View {
     private var cardStack: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 0) {
-                Text("[ TAP THE CONTENT PIECES TO EXPAND ]")
+                Text("[ TAP THE CONTENT PIECES, AND EXPLORE ]")
                     .font(.spaceMonoBold(11))
                     .tracking(1.5)
                     .foregroundColor(.white.opacity(0.46))
