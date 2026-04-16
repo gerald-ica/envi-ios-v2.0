@@ -29,10 +29,13 @@ targets:
         excludes:
           - "Resources/Info.plist"
           - "SupportingFiles/Info.plist"
+          - "Resources/App logo/**"
+          - "Resources/Images/Sample Users Photos/**"
           - "_Archive/**"
     resources:
       - path: ENVI/Resources/Fonts
       - path: ENVI/Resources/Images
+      - path: ENVI/Resources/SymbolsIconsDecor
       - path: ENVI/Resources/GoogleService-Info.plist
       - path: ENVI/Features/Templates/Resources
     settings:
