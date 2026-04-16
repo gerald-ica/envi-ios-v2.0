@@ -52,7 +52,8 @@ actor MediaClassifier {
 
     // MARK: Dependencies
 
-    private let cache: ClassificationCache
+    /// Exposed so the ForYou pipeline can query classified assets directly.
+    let cache: ClassificationCache
     private let visionEngine: VisionAnalysisEngine
     private let geocodeCache: ReverseGeocodeCache
     private let imageManager: PHImageManager

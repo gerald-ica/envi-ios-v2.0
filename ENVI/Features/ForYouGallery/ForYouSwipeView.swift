@@ -11,13 +11,34 @@ struct ForYouSwipeView: View {
 
     var body: some View {
         ZStack {
-            if viewModel.isLoading {
-                ProgressView()
-                    .tint(.white)
-            } else if viewModel.forYouItems.isEmpty {
+            switch viewModel.loadingPhase {
+            case .idle, .analyzing:
+                analyzingState
+            case .matchingTemplates:
+                matchingState
+            case .ready:
+                if viewModel.forYouItems.isEmpty {
+                    emptyState
+                } else {
+                    cardStack
+                }
+            case .empty:
                 emptyState
-            } else {
-                cardStack
+            case .error(let message):
+                errorState(message: message)
+            }
+
+            // Overlay a spinner when isLoading but we already have items
+            if viewModel.isLoading && !viewModel.forYouItems.isEmpty {
+                VStack {
+                    ProgressView()
+                        .tint(.white)
+                        .padding(ENVISpacing.md)
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+                    Spacer()
+                }
+                .padding(.top, ENVISpacing.xl)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -51,6 +72,40 @@ struct ForYouSwipeView: View {
         }
     }
 
+    // MARK: - Loading States
+
+    private var analyzingState: some View {
+        VStack(spacing: ENVISpacing.lg) {
+            ProgressView()
+                .tint(.white)
+                .scaleEffect(1.2)
+            Text("Analyzing your content...")
+                .font(.interSemiBold(15))
+                .foregroundColor(.white.opacity(0.7))
+            Text("Scanning your camera roll to find the best matches")
+                .font(.interRegular(13))
+                .foregroundColor(.white.opacity(0.4))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, ENVISpacing.xxxl)
+        }
+    }
+
+    private var matchingState: some View {
+        VStack(spacing: ENVISpacing.lg) {
+            ProgressView()
+                .tint(.white)
+                .scaleEffect(1.2)
+            Text("Matching templates...")
+                .font(.interSemiBold(15))
+                .foregroundColor(.white.opacity(0.7))
+            Text("Finding the best content pieces from your library")
+                .font(.interRegular(13))
+                .foregroundColor(.white.opacity(0.4))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, ENVISpacing.xxxl)
+        }
+    }
+
     private var emptyState: some View {
         VStack(spacing: ENVISpacing.lg) {
             Image(systemName: "sparkles")
@@ -59,8 +114,35 @@ struct ForYouSwipeView: View {
             Text("No content pieces yet")
                 .font(.interMedium(15))
                 .foregroundColor(.white.opacity(0.5))
+            Text("Add photos to your camera roll or wait for classification to complete")
+                .font(.interRegular(13))
+                .foregroundColor(.white.opacity(0.35))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, ENVISpacing.xxxl)
             Button("Refresh") {
-                Task { await viewModel.loadForYouContent() }
+                Task { await viewModel.refresh() }
+            }
+            .font(.spaceMonoBold(13))
+            .foregroundColor(.black)
+            .padding(.horizontal, ENVISpacing.xxl)
+            .padding(.vertical, ENVISpacing.sm)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
+        }
+    }
+
+    private func errorState(message: String) -> some View {
+        VStack(spacing: ENVISpacing.lg) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 40))
+                .foregroundColor(.white.opacity(0.3))
+            Text(message)
+                .font(.interMedium(14))
+                .foregroundColor(.white.opacity(0.5))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, ENVISpacing.xxxl)
+            Button("Try Again") {
+                Task { await viewModel.refresh() }
             }
             .font(.spaceMonoBold(13))
             .foregroundColor(.black)

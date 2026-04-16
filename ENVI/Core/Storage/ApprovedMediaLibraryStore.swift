@@ -23,6 +23,16 @@ final class ApprovedMediaLibraryStore: ObservableObject {
         approvedItems.insert(libraryItem, at: 0)
     }
 
+    /// Remove a previously-approved item (e.g. undo).
+    func removeItem(id: String) {
+        approvedItems.removeAll { $0.id == id }
+    }
+
+    /// Whether a given content item has already been approved.
+    func isApproved(contentItemID: UUID) -> Bool {
+        approvedItems.contains { $0.id == contentItemID.uuidString }
+    }
+
     // MARK: - Persistence
 
     private func persistToUserDefaults() {
