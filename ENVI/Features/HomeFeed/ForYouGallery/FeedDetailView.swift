@@ -1,10 +1,11 @@
 import SwiftUI
 
-/// Full-screen detail view when a content piece is tapped in For You.
+/// Feed Detail — Sketch artboard "11a - Feed Detail" (393×1320, scrollable).
 ///
-/// Shows a large hero image, platform badge, caption, compact metric
-/// tiles, creator info, and action buttons in the same dark language as
-/// the main feed.
+/// Full-bleed hero image (589pt), back + bookmark overlays, platform tag,
+/// a Post Angle caption card, a 3-stat row (EST. REACH, BEST TIME,
+/// ENVI SCORE), an Edit CTA, and the month Content Calendar. The
+/// alternate 2×2 stat layout lives in `FeedDetailAltView` (11b).
 struct FeedDetailView: View {
 
     let item: ContentItem
@@ -12,279 +13,241 @@ struct FeedDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
 
+    private let heroHeight: CGFloat = 589
+
     var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .top) {
-                backgroundLayer
-                    .ignoresSafeArea()
+        ZStack(alignment: .top) {
+            Color.black.ignoresSafeArea()
 
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: ENVISpacing.xl) {
-                        heroImage(containerHeight: geo.size.height)
-                            .padding(.top, ENVISpacing.sm)
-
-                        VStack(alignment: .leading, spacing: ENVISpacing.md) {
-                            platformBadge
-
-                            Text(item.caption)
-                                .font(.spaceMonoBold(22))
-                                .tracking(-0.8)
-                                .foregroundColor(.white)
-                                .fixedSize(horizontal: false, vertical: true)
-
-                            if let bodyText = item.bodyText {
-                                Text(bodyText)
-                                    .font(.interRegular(14))
-                                    .foregroundColor(.white.opacity(0.68))
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-
-                            metricsRow
-
-                            creatorRow
-
-                            actionButtons
-                        }
-                        .padding(ENVISpacing.xl)
-                        .background(ENVITheme.Dark.surfaceLow.opacity(0.88))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 30, style: .continuous)
-                                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 30, style: .continuous))
-                        .padding(.horizontal, ENVISpacing.lg)
-                    }
-                    .padding(.bottom, 128)
-                }
-
-                HStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.white)
-                            .frame(width: 40, height: 40)
-                            .background(ENVITheme.Dark.surfaceLow.opacity(0.9))
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                            )
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.leading, ENVISpacing.lg)
-                    .padding(.top, ENVISpacing.sm)
-
-                    Spacer()
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
+                    hero
+                    postAngleCard
+                        .padding(.top, ENVISpacing.xl)
+                        .padding(.horizontal, 19)
+                    statsRow
+                        .padding(.top, ENVISpacing.lg)
+                        .padding(.horizontal, 19)
+                    editButton
+                        .padding(.top, ENVISpacing.xxl)
+                        .padding(.horizontal, 16)
+                    calendar
+                        .padding(.top, ENVISpacing.xl)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 120)
                 }
             }
-            .preferredColorScheme(.dark)
+            .ignoresSafeArea(edges: .top)
+
+            topOverlays
         }
+        .preferredColorScheme(.dark)
     }
 
-    private var backgroundLayer: some View {
-        ZStack {
-            Color.black
+    // MARK: - Hero
 
-            LinearGradient(
-                colors: [Color(hex: "#090909"), Color(hex: "#000000")],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-
-            RadialGradient(
-                colors: [Color.white.opacity(0.05), .clear],
-                center: .topLeading,
-                startRadius: 20,
-                endRadius: 320
-            )
-        }
-    }
-
-    // MARK: - Hero Image
-
-    private func heroImage(containerHeight: CGFloat) -> some View {
-        Group {
-            if let imageName = item.imageName {
-                Image(imageName)
+    private var hero: some View {
+        ZStack(alignment: .bottomLeading) {
+            if let name = item.imageName, UIImage(named: name) != nil {
+                Image(name)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .scaledToFill()
                     .frame(maxWidth: .infinity)
-                    .frame(height: containerHeight * 0.44)
+                    .frame(height: heroHeight)
                     .clipped()
             } else {
-                LinearGradient(
-                    colors: [
-                        ENVITheme.Dark.surfaceLow,
-                        Color.black.opacity(0.94)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .frame(height: containerHeight * 0.44)
+                Rectangle()
+                    .fill(Color(hex: "#4A5FB2"))
+                    .frame(height: heroHeight)
             }
+
+            LinearGradient(
+                colors: [.clear, .black.opacity(0.55)],
+                startPoint: .center,
+                endPoint: .bottom
+            )
+            .frame(height: heroHeight)
+            .allowsHitTesting(false)
+
+            platformTag
+                .padding(.leading, 19)
+                .padding(.bottom, 18)
         }
-        .frame(maxWidth: .infinity)
-        .background(ENVITheme.Dark.surfaceLow.opacity(0.92))
-        .overlay(
-            RoundedRectangle(cornerRadius: 34, style: .continuous)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
-        .shadow(color: .black.opacity(0.45), radius: 24, y: 12)
-        .padding(.horizontal, ENVISpacing.lg)
+        .frame(height: heroHeight)
     }
 
-    // MARK: - Platform Badge
-
-    private var platformBadge: some View {
-        HStack(spacing: ENVISpacing.xs) {
-            Image(systemName: "camera.fill")
-                .font(.system(size: 12, weight: .semibold))
+    private var platformTag: some View {
+        HStack(spacing: 6) {
+            Image(systemName: item.platform.iconName)
+                .font(.system(size: 11, weight: .semibold))
             Text("DESIGNED FOR \(item.platform.rawValue.uppercased())")
                 .font(.spaceMonoBold(11))
                 .tracking(1.2)
         }
         .foregroundColor(.white)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color.white.opacity(0.08))
-        .overlay(
-            Capsule()
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
-        .clipShape(Capsule())
     }
 
-    // MARK: - Metrics
+    // MARK: - Top overlays (back + bookmark)
 
-    private var metricsRow: some View {
-        HStack(spacing: ENVISpacing.sm) {
-            metricTile(
-                label: "REACH",
-                value: item.estimatedReach,
-                tint: ENVITheme.info
-            )
-            metricTile(
-                label: "TIME",
-                value: item.bestTime,
-                tint: ENVITheme.warning
-            )
-            metricTile(
-                label: "SCORE",
-                value: "\(Int(item.confidenceScore * 100))%",
-                tint: ENVITheme.success
-            )
+    private var topOverlays: some View {
+        HStack(alignment: .top) {
+            Button(action: { dismiss() }) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Color.black.opacity(0.35))
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .padding(.leading, 11)
+
+            Spacer()
+
+            Button(action: {}) {
+                Image(systemName: "bookmark")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Color.black.opacity(0.35))
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .padding(.trailing, 14)
         }
+        .padding(.top, 36)
     }
 
-    private func metricTile(label: String, value: String, tint: Color) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(label)
-                .font(.spaceMonoBold(9))
-                .tracking(1.4)
-                .foregroundColor(.white.opacity(0.48))
+    // MARK: - Post Angle Card
 
-            Text(value)
+    private var postAngleCard: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("POST ANGLE")
+                .font(.spaceMonoBold(10))
+                .tracking(2.0)
+                .foregroundColor(.white.opacity(0.48))
+            Text(item.caption)
                 .font(.interSemiBold(15))
                 .foregroundColor(.white)
-                .lineLimit(1)
-
-            Rectangle()
-                .fill(tint)
-                .frame(width: 24, height: 2)
+                .lineLimit(3)
+                .multilineTextAlignment(.leading)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 14)
-        .background(Color.white.opacity(0.06))
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+        .background(Color(hex: "#2A2A2A"))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(Color.white.opacity(0.06), lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
-    // MARK: - Creator
+    // MARK: - Stats row — EST. REACH | BEST TIME | ENVI SCORE
 
-    private var creatorRow: some View {
-        HStack(spacing: ENVISpacing.md) {
-            Circle()
-                .fill(Color.white.opacity(0.18))
-                .frame(width: 42, height: 42)
-                .overlay(
-                    Text(String(item.creatorName.prefix(1)))
-                        .font(.interSemiBold(16))
-                        .foregroundColor(.white)
-                )
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.creatorName)
-                    .font(.interSemiBold(15))
-                    .foregroundColor(.white)
-                Text(item.creatorHandle)
-                    .font(.interRegular(13))
-                    .foregroundColor(.white.opacity(0.56))
-            }
-
-            Spacer()
+    private var statsRow: some View {
+        HStack(spacing: 0) {
+            stat(
+                icon: AnyView(eyeIcon),
+                value: item.estimatedReach,
+                label: "EST.\nREACH"
+            )
+            statDivider
+            stat(
+                icon: AnyView(clockIcon),
+                value: item.bestTime,
+                label: "BEST\nTIME"
+            )
+            statDivider
+            stat(
+                icon: AnyView(sparkIcon),
+                value: "\(Int(item.confidenceScore * 100))%",
+                label: "ENVI\nSCORE"
+            )
         }
+        .padding(.vertical, 20)
+        .background(Color(hex: "#2A2A2A"))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
-    // MARK: - Actions
+    private var statDivider: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.08))
+            .frame(width: 1, height: 44)
+    }
 
-    private var actionButtons: some View {
-        VStack(spacing: ENVISpacing.md) {
-            Button {
-                dismiss()
-            } label: {
-                HStack(spacing: ENVISpacing.sm) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .semibold))
-                    Text("BACK TO FEED")
-                        .font(.spaceMonoBold(13))
-                        .tracking(1.5)
-                }
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(ENVITheme.Dark.surfaceLow)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            }
-            .buttonStyle(.plain)
+    private func stat(icon: AnyView, value: String, label: String) -> some View {
+        HStack(spacing: 10) {
+            icon
+                .frame(width: 34, height: 34)
+                .background(Color.white.opacity(0.08))
+                .clipShape(Circle())
 
-            if let onApprove {
-                Button {
-                    onApprove()
-                    dismiss()
-                } label: {
-                    HStack(spacing: ENVISpacing.sm) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                        Text("APPROVE TO ARSENAL")
-                            .font(.spaceMonoBold(13))
-                            .tracking(1.5)
-                    }
-                    .foregroundColor(.black)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-                }
-                .buttonStyle(.plain)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.interSemiBold(14))
+                    .foregroundColor(.white)
+                Text(label)
+                    .font(.spaceMonoBold(9))
+                    .tracking(1.3)
+                    .foregroundColor(.white.opacity(0.55))
             }
         }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var eyeIcon: some View {
+        Image(systemName: "eye.fill")
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundColor(.white)
+    }
+
+    private var clockIcon: some View {
+        Image(systemName: "clock.fill")
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundColor(.white)
+    }
+
+    private var sparkIcon: some View {
+        Image(systemName: "sparkles")
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundColor(.white)
+    }
+
+    // MARK: - Edit button
+
+    private var editButton: some View {
+        Button {
+            onApprove?()
+            dismiss()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "pencil")
+                    .font(.system(size: 13, weight: .semibold))
+                Text("EDIT")
+                    .font(.spaceMonoBold(12))
+                    .tracking(1.8)
+            }
+            .foregroundColor(.black)
+            .frame(maxWidth: .infinity)
+            .frame(height: 48)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Calendar
+
+    private var calendar: some View {
+        ContentCalendarView(days: AnalyticsData.mock.calendarDays)
     }
 }
 
 #Preview {
-    FeedDetailView(
-        item: ContentItem.mockFeed[0],
-        onApprove: {}
-    )
+    FeedDetailView(item: ContentItem.mockFeed[0])
 }
