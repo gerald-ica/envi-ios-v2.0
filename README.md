@@ -142,12 +142,12 @@ cd envi-ios-v2.0
 swift package resolve
 
 # Open in Xcode
-open ENVI.xcodeproj
+open .swiftpm/xcode/package.xcworkspace
 ```
 
 ### Build & Run
 
-1. Open `ENVI.xcodeproj` in Xcode
+1. Open `.swiftpm/xcode/package.xcworkspace` in Xcode
 2. Select an iOS 26.0+ simulator or device
 3. Press `⌘R` to build and run
 

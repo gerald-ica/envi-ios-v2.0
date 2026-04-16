@@ -156,12 +156,21 @@ final class EditorViewController: UIViewController {
         previewView.insertSubview(imageView, at: 0)
 
         // Load preview from content item or content piece
-        if let image = previewImage() {
+        let preview = previewImage()
+        if let image = preview {
             imageView.image = image
             originalPreviewImage = image
-        } else if let mediaThumbnail = loadContentPieceThumbnail() {
-            imageView.image = mediaThumbnail
-            originalPreviewImage = mediaThumbnail
+        } else if let pieceImageName = contentPiece?.imageName {
+            Task { [weak imageView] in
+                guard let mediaThumbnail = await Self.loadContentPieceThumbnail(imageName: pieceImageName) else {
+                    return
+                }
+                await MainActor.run { [weak self, weak imageView] in
+                    guard let self, let imageView else { return }
+                    imageView.image = mediaThumbnail
+                    self.originalPreviewImage = mediaThumbnail
+                }
+            }
         }
 
         // Gradient overlay for contrast against controls
@@ -437,8 +446,8 @@ final class EditorViewController: UIViewController {
         }
     }
 
-    /// Applies 1:1 center crop to a video asset using AVMutableVideoComposition.
-    private func applyCropToAsset(_ asset: AVAsset) async throws -> AVMutableVideoComposition {
+    /// Applies 1:1 center crop to a video asset using AVVideoComposition.Configuration.
+    private func applyCropToAsset(_ asset: AVAsset) async throws -> AVVideoComposition {
         let tracks = try await asset.loadTracks(withMediaType: .video)
         guard let videoTrack = tracks.first else {
             throw VideoEditService.EditError.exportSessionUnavailable
@@ -450,21 +459,23 @@ final class EditorViewController: UIViewController {
             y: (naturalSize.height - side) / 2
         )
 
-        let composition = AVMutableVideoComposition()
-        composition.renderSize = CGSize(width: side, height: side)
-        composition.frameDuration = CMTime(value: 1, timescale: 30)
-
-        let instruction = AVMutableVideoCompositionInstruction()
         let duration = try await asset.load(.duration)
-        instruction.timeRange = CMTimeRange(start: .zero, duration: duration)
-
-        let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+        var layerConfig = AVVideoCompositionLayerInstruction.Configuration(assetTrack: videoTrack)
         let transform = CGAffineTransform(translationX: -cropOrigin.x, y: -cropOrigin.y)
-        layerInstruction.setTransform(transform, at: .zero)
-        instruction.layerInstructions = [layerInstruction]
-        composition.instructions = [instruction]
+        layerConfig.setTransform(transform, at: .zero)
 
-        return composition
+        let instructionConfig = AVVideoCompositionInstruction.Configuration(
+            layerInstructions: [AVVideoCompositionLayerInstruction(configuration: layerConfig)],
+            timeRange: CMTimeRange(start: .zero, duration: duration)
+        )
+        let instruction = AVVideoCompositionInstruction(configuration: instructionConfig)
+
+        let compositionConfig = AVVideoComposition.Configuration(
+            frameDuration: CMTime(value: 1, timescale: 30),
+            instructions: [instruction],
+            renderSize: CGSize(width: side, height: side)
+        )
+        return AVVideoComposition(configuration: compositionConfig)
     }
 
     // MARK: - Filter (cycle through presets)
@@ -511,23 +522,16 @@ final class EditorViewController: UIViewController {
     /// Builds a CIFilter-based AVVideoComposition for export.
     private func applyFilterToAsset(_ asset: AVAsset) async throws -> AVVideoComposition {
         let preset = Self.filterPresets[currentFilterIndex]
-        let videoComposition = try await AVVideoComposition.videoComposition(
-            with: asset,
-            applyingCIFiltersWithHandler: { request in
-                let filter = CIFilter(name: "CIColorControls")!
-                filter.setValue(request.sourceImage.clampedToExtent(), forKey: kCIInputImageKey)
-                filter.setValue(preset.brightness, forKey: kCIInputBrightnessKey)
-                filter.setValue(preset.contrast, forKey: kCIInputContrastKey)
-                filter.setValue(preset.saturation, forKey: kCIInputSaturationKey)
+        return try await AVVideoComposition(applyingFiltersTo: asset) { request in
+            let filter = CIFilter(name: "CIColorControls")!
+            filter.setValue(request.sourceImage.clampedToExtent(), forKey: kCIInputImageKey)
+            filter.setValue(preset.brightness, forKey: kCIInputBrightnessKey)
+            filter.setValue(preset.contrast, forKey: kCIInputContrastKey)
+            filter.setValue(preset.saturation, forKey: kCIInputSaturationKey)
 
-                if let output = filter.outputImage?.cropped(to: request.sourceImage.extent) {
-                    request.finish(with: output, context: nil)
-                } else {
-                    request.finish(with: request.sourceImage, context: nil)
-                }
-            }
-        )
-        return videoComposition
+            let outputImage = filter.outputImage?.cropped(to: request.sourceImage.extent) ?? request.sourceImage
+            return AVCIImageFilteringResult(resultImage: outputImage)
+        }
     }
 
     // MARK: - Speed (toggle 1x / 0.5x / 2x)
@@ -570,8 +574,8 @@ final class EditorViewController: UIViewController {
         showHUD("Rotate: \(label)")
     }
 
-    /// Builds a rotation transform for export via AVMutableVideoCompositionLayerInstruction.
-    private func applyRotationToAsset(_ asset: AVAsset) async throws -> AVMutableVideoComposition {
+    /// Builds a rotation transform for export via AVVideoCompositionLayerInstruction.Configuration.
+    private func applyRotationToAsset(_ asset: AVAsset) async throws -> AVVideoComposition {
         let tracks = try await asset.loadTracks(withMediaType: .video)
         guard let videoTrack = tracks.first else {
             throw VideoEditService.EditError.exportSessionUnavailable
@@ -585,15 +589,8 @@ final class EditorViewController: UIViewController {
             renderSize = naturalSize
         }
 
-        let composition = AVMutableVideoComposition()
-        composition.renderSize = renderSize
-        composition.frameDuration = CMTime(value: 1, timescale: 30)
-
-        let instruction = AVMutableVideoCompositionInstruction()
         let duration = try await asset.load(.duration)
-        instruction.timeRange = CMTimeRange(start: .zero, duration: duration)
-
-        let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
+        var layerConfig = AVVideoCompositionLayerInstruction.Configuration(assetTrack: videoTrack)
         var transform = CGAffineTransform.identity
         switch Int(currentRotationAngle) {
         case 90:
@@ -608,11 +605,20 @@ final class EditorViewController: UIViewController {
         default:
             break
         }
-        layerInstruction.setTransform(transform, at: .zero)
-        instruction.layerInstructions = [layerInstruction]
-        composition.instructions = [instruction]
+        layerConfig.setTransform(transform, at: .zero)
 
-        return composition
+        let instructionConfig = AVVideoCompositionInstruction.Configuration(
+            layerInstructions: [AVVideoCompositionLayerInstruction(configuration: layerConfig)],
+            timeRange: CMTimeRange(start: .zero, duration: duration)
+        )
+        let instruction = AVVideoCompositionInstruction(configuration: instructionConfig)
+
+        let compositionConfig = AVVideoComposition.Configuration(
+            frameDuration: CMTime(value: 1, timescale: 30),
+            instructions: [instruction],
+            renderSize: renderSize
+        )
+        return AVVideoComposition(configuration: compositionConfig)
     }
 
     // MARK: - HUD Toast
@@ -755,20 +761,20 @@ final class EditorViewController: UIViewController {
     }
 
     /// Attempts to generate a thumbnail from a content piece's video media.
-    private func loadContentPieceThumbnail() -> UIImage? {
-        guard let piece = contentPiece else { return nil }
-        // Try to load a video asset and extract a thumbnail frame
-        let candidateNames = [piece.imageName]
-        for name in candidateNames {
-            for ext in ["mp4", "mov"] {
-                if let url = Bundle.main.url(forResource: name, withExtension: ext) {
-                    let asset = AVAsset(url: url)
-                    let generator = AVAssetImageGenerator(asset: asset)
-                    generator.appliesPreferredTrackTransform = true
-                    generator.maximumSize = CGSize(width: 600, height: 600)
-                    if let cgImage = try? generator.copyCGImage(at: .zero, actualTime: nil) {
-                        return UIImage(cgImage: cgImage)
-                    }
+    private static func loadContentPieceThumbnail(imageName: String?) async -> UIImage? {
+        guard let imageName else { return nil }
+
+        for ext in ["mp4", "mov"] {
+            if let url = Bundle.main.url(forResource: imageName, withExtension: ext) {
+                let asset = AVURLAsset(url: url)
+                let generator = AVAssetImageGenerator(asset: asset)
+                generator.appliesPreferredTrackTransform = true
+                generator.maximumSize = CGSize(width: 600, height: 600)
+                do {
+                    let frame = try await generator.image(at: .zero)
+                    return UIImage(cgImage: frame.image)
+                } catch {
+                    continue
                 }
             }
         }

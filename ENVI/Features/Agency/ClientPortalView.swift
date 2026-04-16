@@ -184,9 +184,6 @@ struct ClientPortalView: View {
                         Text(lastViewed, style: .relative)
                             .font(.spaceMono(13))
                             .foregroundColor(ENVITheme.text(for: colorScheme))
-                            + Text(" ago")
-                            .font(.spaceMono(13))
-                            .foregroundColor(ENVITheme.text(for: colorScheme))
                     }
                 } else {
                     Text("Never viewed")

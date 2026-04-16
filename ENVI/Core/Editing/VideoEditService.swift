@@ -36,7 +36,7 @@ final class VideoEditService {
             end: CMTime(seconds: endTime, preferredTimescale: 600)
         )
 
-        try await exporter.export()
+        await exporter.export()
         return outputURL
     }
 }

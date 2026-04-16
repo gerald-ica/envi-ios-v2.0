@@ -22,6 +22,7 @@ final class MainTabBarController: UIViewController {
         view.backgroundColor = ENVITheme.UIKit.backgroundDark
         setupViewControllers()
         setupTabBar()
+        attachViewControllersIfNeeded()
         showViewController(at: 0)
     }
 
@@ -66,7 +67,9 @@ final class MainTabBarController: UIViewController {
 
         NSLayoutConstraint.activate([
             customTabBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            customTabBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -4),
+            customTabBar.widthAnchor.constraint(equalToConstant: 164),
+            customTabBar.heightAnchor.constraint(equalToConstant: 64),
+            customTabBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -6),
         ])
 
         customTabBar.onTabSelected = { [weak self] index in
@@ -79,30 +82,57 @@ final class MainTabBarController: UIViewController {
     private func showViewController(at index: Int) {
         guard index < viewControllers.count else { return }
 
+        if currentIndex == index {
+            let current = viewControllers[index]
+            customTabBar.selectedIndex = index
+            setTabBarVisible(true, animated: false)
+            configureTabBarVisibilityHandling(for: current)
+            return
+        }
+
+        attachViewControllersIfNeeded()
+
         if currentIndex < viewControllers.count {
-            let current = viewControllers[currentIndex]
-            current.willMove(toParent: nil)
-            current.view.removeFromSuperview()
-            current.removeFromParent()
+            viewControllers[currentIndex].view.isHidden = true
         }
 
         let newVC = viewControllers[index]
-        addChild(newVC)
-        newVC.view.translatesAutoresizingMaskIntoConstraints = false
-        view.insertSubview(newVC.view, belowSubview: customTabBar)
-
-        NSLayoutConstraint.activate([
-            newVC.view.topAnchor.constraint(equalTo: view.topAnchor),
-            newVC.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            newVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            newVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-        ])
-        newVC.didMove(toParent: self)
+        newVC.view.isHidden = false
+        view.bringSubviewToFront(customTabBar)
 
         currentIndex = index
         customTabBar.selectedIndex = index
         setTabBarVisible(true, animated: false)
         configureTabBarVisibilityHandling(for: newVC)
+    }
+
+    private func attachViewControllersIfNeeded() {
+        guard viewControllers.allSatisfy({ $0.parent === self }) == false else {
+            for viewController in viewControllers {
+                viewController.view.isHidden = true
+            }
+            return
+        }
+
+        for (index, viewController) in viewControllers.enumerated() {
+            guard viewController.parent == nil else {
+                viewController.view.isHidden = true
+                continue
+            }
+
+            addChild(viewController)
+            viewController.view.translatesAutoresizingMaskIntoConstraints = false
+            viewController.view.isHidden = index != currentIndex
+            view.insertSubview(viewController.view, belowSubview: customTabBar)
+
+            NSLayoutConstraint.activate([
+                viewController.view.topAnchor.constraint(equalTo: view.topAnchor),
+                viewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                viewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                viewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            ])
+            viewController.didMove(toParent: self)
+        }
     }
 
     func setTabBarVisible(_ visible: Bool, animated: Bool = true) {

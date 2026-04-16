@@ -9,14 +9,15 @@ import UIKit
 final class ENVITabBar: UIView {
 
     struct Tab {
-        let iconName: String       // SF Symbol name
-        let isLogoCenter: Bool     // true for the ENVI logo center tab
+        let iconName: String?
+        let title: String?
+        let isLogoCenter: Bool
     }
 
     static let defaultTabs: [Tab] = [
-        Tab(iconName: "square.grid.2x2", isLogoCenter: false),   // For You / Gallery
-        Tab(iconName: "sparkles", isLogoCenter: true),             // World Explorer (ENVI logo — placeholder SF Symbol until custom asset)
-        Tab(iconName: "person.crop.circle", isLogoCenter: false),  // Profile
+        Tab(iconName: "house.fill", title: nil, isLogoCenter: false),
+        Tab(iconName: nil, title: "ENVI", isLogoCenter: true),
+        Tab(iconName: "person.crop.circle.fill", title: nil, isLogoCenter: false),
     ]
 
     var selectedIndex: Int = 0 {
@@ -28,7 +29,10 @@ final class ENVITabBar: UIView {
     private let tabs: [Tab]
     private var buttons: [UIButton] = []
     private var activeCircles: [UIView] = []
+    private var titleLabels: [UILabel] = []
     private let pillBackground = UIView()
+    private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+    private let tintOverlay = UIView()
     private let stackView = UIStackView()
 
     // Sketch spec: #4A60B2
@@ -43,14 +47,36 @@ final class ENVITabBar: UIView {
 
     required init?(coder: NSCoder) { fatalError() }
 
+    override var intrinsicContentSize: CGSize {
+        CGSize(width: 164, height: 64)
+    }
+
     private func setupUI() {
-        // Pill background — Sketch: 164x64, fill #4A60B2, centered
-        pillBackground.backgroundColor = pillColor
-        pillBackground.layer.cornerRadius = 32 // half of 64pt height
+        backgroundColor = .clear
+        clipsToBounds = false
+
+        pillBackground.backgroundColor = .clear
+        pillBackground.layer.cornerRadius = 32
+        pillBackground.layer.cornerCurve = .continuous
+        pillBackground.clipsToBounds = true
+        pillBackground.layer.borderWidth = 1
+        pillBackground.layer.borderColor = UIColor.white.withAlphaComponent(0.10).cgColor
+        pillBackground.layer.shadowColor = UIColor.black.cgColor
+        pillBackground.layer.shadowOpacity = 0.24
+        pillBackground.layer.shadowRadius = 20
+        pillBackground.layer.shadowOffset = CGSize(width: 0, height: 10)
         pillBackground.translatesAutoresizingMaskIntoConstraints = false
         addSubview(pillBackground)
 
-        // Stack for icons
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        blurView.isUserInteractionEnabled = false
+        pillBackground.addSubview(blurView)
+
+        tintOverlay.backgroundColor = pillColor.withAlphaComponent(0.70)
+        tintOverlay.translatesAutoresizingMaskIntoConstraints = false
+        tintOverlay.isUserInteractionEnabled = false
+        pillBackground.addSubview(tintOverlay)
+
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
         stackView.alignment = .center
@@ -58,29 +84,48 @@ final class ENVITabBar: UIView {
         pillBackground.addSubview(stackView)
 
         for (index, tab) in tabs.enumerated() {
-            // Container for active circle + icon
             let container = UIView()
             container.translatesAutoresizingMaskIntoConstraints = false
 
-            // Active circle (white, behind icon)
             let circle = UIView()
             circle.backgroundColor = .white
             circle.layer.cornerRadius = activeCircleSize / 2
             circle.translatesAutoresizingMaskIntoConstraints = false
+            circle.isUserInteractionEnabled = false
             circle.alpha = 0
+            circle.transform = CGAffineTransform(scaleX: 0.72, y: 0.72)
             container.addSubview(circle)
             activeCircles.append(circle)
 
-            // Icon button
             let button = UIButton(type: .system)
-            let config = UIImage.SymbolConfiguration(pointSize: tab.isLogoCenter ? 24 : 20, weight: .medium)
-            button.setImage(UIImage(systemName: tab.iconName, withConfiguration: config), for: .normal)
-            button.tintColor = UIColor.white.withAlphaComponent(0.6)
             button.tag = index
             button.addTarget(self, action: #selector(tabTapped(_:)), for: .touchUpInside)
             button.translatesAutoresizingMaskIntoConstraints = false
+            button.adjustsImageWhenHighlighted = false
+            button.tintColor = UIColor.white.withAlphaComponent(0.64)
+
+            if let iconName = tab.iconName {
+                let config = UIImage.SymbolConfiguration(
+                    pointSize: tab.isLogoCenter ? 22 : 19,
+                    weight: tab.isLogoCenter ? .bold : .medium
+                )
+                button.setImage(UIImage(systemName: iconName, withConfiguration: config), for: .normal)
+            } else {
+                button.setTitle(nil, for: .normal)
+            }
             container.addSubview(button)
             buttons.append(button)
+
+            let titleLabel = UILabel()
+            titleLabel.translatesAutoresizingMaskIntoConstraints = false
+            titleLabel.isUserInteractionEnabled = false
+            titleLabel.text = tab.title
+            titleLabel.textAlignment = .center
+            titleLabel.font = .spaceMonoBold(tab.isLogoCenter ? 13 : 11)
+            titleLabel.textColor = UIColor.white.withAlphaComponent(0.9)
+            titleLabel.alpha = tab.title == nil ? 0 : 1
+            container.addSubview(titleLabel)
+            titleLabels.append(titleLabel)
 
             NSLayoutConstraint.activate([
                 circle.centerXAnchor.constraint(equalTo: container.centerXAnchor),
@@ -91,12 +136,13 @@ final class ENVITabBar: UIView {
                 button.centerYAnchor.constraint(equalTo: container.centerYAnchor),
                 button.widthAnchor.constraint(equalToConstant: 44),
                 button.heightAnchor.constraint(equalToConstant: 44),
+                titleLabel.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+                titleLabel.centerYAnchor.constraint(equalTo: container.centerYAnchor),
             ])
 
             stackView.addArrangedSubview(container)
         }
 
-        // Pill: 164pt wide, 64pt tall, centered horizontally
         NSLayoutConstraint.activate([
             pillBackground.centerXAnchor.constraint(equalTo: centerXAnchor),
             pillBackground.widthAnchor.constraint(equalToConstant: 164),
@@ -104,10 +150,20 @@ final class ENVITabBar: UIView {
             pillBackground.topAnchor.constraint(equalTo: topAnchor),
             pillBackground.bottomAnchor.constraint(equalTo: bottomAnchor),
 
+            blurView.topAnchor.constraint(equalTo: pillBackground.topAnchor),
+            blurView.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),
+            blurView.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor),
+
+            tintOverlay.topAnchor.constraint(equalTo: pillBackground.topAnchor),
+            tintOverlay.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),
+            tintOverlay.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor),
+            tintOverlay.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor),
+
             stackView.topAnchor.constraint(equalTo: pillBackground.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),
-            stackView.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor, constant: 8),
-            stackView.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor, constant: -8),
+            stackView.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor, constant: -10),
         ])
 
         updateSelection()
@@ -127,18 +183,21 @@ final class ENVITabBar: UIView {
         for (index, button) in buttons.enumerated() {
             let isSelected = index == selectedIndex
             let tab = tabs[index]
-            let config = UIImage.SymbolConfiguration(
-                pointSize: tab.isLogoCenter ? 24 : 20,
-                weight: isSelected ? .bold : .medium
-            )
-            button.setImage(UIImage(systemName: tab.iconName, withConfiguration: config), for: .normal)
+            if let iconName = tab.iconName {
+                let config = UIImage.SymbolConfiguration(
+                    pointSize: tab.isLogoCenter ? 22 : 19,
+                    weight: isSelected ? .bold : .medium
+                )
+                button.setImage(UIImage(systemName: iconName, withConfiguration: config), for: .normal)
+            }
 
-            // Active: dark icon on white circle. Inactive: white/0.6 icon, no circle.
-            button.tintColor = isSelected ? pillColor : UIColor.white.withAlphaComponent(0.6)
+            button.tintColor = isSelected ? pillColor : UIColor.white.withAlphaComponent(0.64)
+            titleLabels[index].textColor = isSelected ? pillColor : UIColor.white.withAlphaComponent(0.9)
+            titleLabels[index].alpha = tab.title == nil ? 0 : 1
 
             UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseInOut) {
                 self.activeCircles[index].alpha = isSelected ? 1 : 0
-                self.activeCircles[index].transform = isSelected ? .identity : CGAffineTransform(scaleX: 0.6, y: 0.6)
+                self.activeCircles[index].transform = isSelected ? .identity : CGAffineTransform(scaleX: 0.72, y: 0.72)
             }
         }
     }

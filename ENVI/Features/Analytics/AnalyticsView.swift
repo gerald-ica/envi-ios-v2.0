@@ -8,58 +8,20 @@ struct AnalyticsView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: ENVISpacing.xl) {
-                // MARK: - Title + Badge
-                HStack(alignment: .center) {
-                    Text("ANALYTICS")
-                        .font(.spaceMonoBold(28))
-                        .tracking(-1.5)
-                        .foregroundColor(ENVITheme.text(for: colorScheme))
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 18) {
+                header
 
-                    Spacer()
+                platformChips
 
-                    Text("LAST 7 DAYS")
-                        .font(.spaceMonoBold(10))
-                        .tracking(2.0)
-                        .foregroundColor(ENVITheme.text(for: colorScheme))
-                        .padding(.horizontal, ENVISpacing.sm)
-                        .padding(.vertical, ENVISpacing.xs)
-                        .background(ENVITheme.surfaceHigh(for: colorScheme))
-                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                }
-                .padding(.horizontal, ENVISpacing.xl)
-
-                // Date range subtitle
-                Text(viewModel.dateRange)
-                    .font(.interRegular(13))
-                    .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                // MARK: - Platform Filter Chips
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: ENVISpacing.sm) {
-                        ForEach(viewModel.platforms, id: \.self) { platform in
-                            ENVIChip(
-                                title: viewModel.platformLabel(platform),
-                                isSelected: viewModel.selectedPlatform == platform
-                            ) {
-                                viewModel.selectedPlatform = platform
-                            }
-                        }
-                    }
-                    .padding(.horizontal, ENVISpacing.xl)
-                }
-
-                // Loading / Error
                 if viewModel.isLoading {
-                    HStack {
+                    HStack(spacing: 10) {
                         ProgressView()
                         Text("Loading analytics...")
                             .font(.interRegular(13))
                             .foregroundColor(ENVITheme.textLight(for: colorScheme))
                     }
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
                 }
 
                 if let error = viewModel.loadErrorMessage {
@@ -72,48 +34,44 @@ struct AnalyticsView: View {
                         }
                         .font(.interMedium(13))
                     }
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
                 }
 
-                // MARK: - KPI Cards (green dot + green delta)
-                HStack(spacing: ENVISpacing.md) {
+                HStack(spacing: 8) {
                     KPICardView(kpi: viewModel.data.reach)
                     KPICardView(kpi: viewModel.data.engagement)
                     KPICardView(kpi: viewModel.data.engagementRate)
                 }
-                .padding(.horizontal, ENVISpacing.xl)
+                .padding(.horizontal, 24)
 
-                // MARK: - Engagement Bar Chart
                 EngagementChartView(data: viewModel.data.dailyEngagement)
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
 
-                // MARK: - Advanced Analytics (D20)
                 PerformanceReportView(viewModel: advancedViewModel)
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
 
                 AudienceDemographicsView(viewModel: advancedViewModel)
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
 
                 ContentLeaderboardView(viewModel: advancedViewModel)
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
 
                 PostTimeHeatmapView(viewModel: advancedViewModel)
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
 
                 CreatorGrowthSectionView(growth: viewModel.growth)
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
 
                 RetentionCohortView(cohorts: viewModel.cohorts)
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
 
                 SourceAttributionView(attributions: viewModel.attribution)
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
 
-                // MARK: - Content Calendar
                 ContentCalendarView(days: viewModel.displayedCalendarDays)
-                    .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.horizontal, 24)
             }
-            .padding(.top, ENVISpacing.lg)
+            .padding(.top, 24)
             .padding(.bottom, 100)
         }
         .background(ENVITheme.background(for: colorScheme))
@@ -121,6 +79,51 @@ struct AnalyticsView: View {
         .refreshable {
             await viewModel.reload()
             await advancedViewModel.loadAll()
+        }
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("ANALYTICS")
+                        .font(.spaceMonoBold(34))
+                        .tracking(-1.7)
+                        .foregroundColor(ENVITheme.text(for: colorScheme))
+
+                    Text(viewModel.dateRange)
+                        .font(.interRegular(13))
+                        .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                }
+
+                Spacer()
+
+                Text("LAST 7 DAYS")
+                    .font(.spaceMonoBold(10))
+                    .tracking(1.8)
+                    .foregroundColor(ENVITheme.text(for: colorScheme))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color.white.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            }
+        }
+        .padding(.horizontal, 24)
+    }
+
+    private var platformChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(viewModel.platforms, id: \.self) { platform in
+                    ENVIChip(
+                        title: viewModel.platformLabel(platform),
+                        isSelected: viewModel.selectedPlatform == platform
+                    ) {
+                        viewModel.selectedPlatform = platform
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
         }
     }
 }

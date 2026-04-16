@@ -14,14 +14,9 @@ enum ExploreMode: String, CaseIterable {
 struct ChatExploreView: View {
     @State private var selectedMode: ExploreMode = .explore
     @State private var seededChatPrompt: String?
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(spacing: 0) {
-            segmentedControl
-            divider
-
-            // Content area with crossfade + subtle slide
+        ZStack(alignment: .topTrailing) {
             ZStack {
                 if selectedMode == .explore {
                     WorldExplorerView(onSuggestionClick: { prompt in
@@ -48,22 +43,30 @@ struct ChatExploreView: View {
             }
             .animation(.easeInOut(duration: 0.3), value: selectedMode)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            modeToggle
+                .padding(.top, 52)
+                .padding(.trailing, 58)
         }
-        .background(ENVITheme.background(for: colorScheme))
+        .background(Color.black)
         .preferredColorScheme(.dark)
     }
 
-    // MARK: - Segmented Control
+    // MARK: - Mode Toggle
 
-    private var segmentedControl: some View {
+    private var modeToggle: some View {
         HStack(spacing: 0) {
             ForEach(ExploreMode.allCases, id: \.self) { mode in
                 segmentButton(for: mode)
             }
         }
-        .padding(.horizontal, ENVISpacing.lg)
-        .padding(.top, ENVISpacing.sm)
-        .padding(.bottom, ENVISpacing.md)
+        .padding(4)
+        .background(Color.white.opacity(0.08))
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
     }
 
     private func segmentButton(for mode: ExploreMode) -> some View {
@@ -75,30 +78,18 @@ struct ChatExploreView: View {
             }
         } label: {
             Text(mode.rawValue)
-                .font(.custom("SpaceMono-Regular", size: 11))
-                .tracking(11 * 0.15) // 0.15em relative to font size
-                .foregroundColor(isSelected ? .white : .white.opacity(0.5))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, ENVISpacing.sm)
+                .font(.spaceMonoBold(11))
+                .tracking(1.2)
+                .foregroundColor(isSelected ? .black : .white.opacity(0.62))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 .background(
-                    Group {
-                        if isSelected {
-                            RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                                .fill(ENVITheme.Dark.surfaceHigh)
-                        }
-                    }
+                    Capsule()
+                        .fill(isSelected ? Color.white : Color.clear)
                 )
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-
-    // MARK: - Divider
-
-    private var divider: some View {
-        Rectangle()
-            .fill(Color.white.opacity(0.08))
-            .frame(height: 0.5)
     }
 }
 

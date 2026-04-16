@@ -9,16 +9,28 @@ struct ConnectedPlatformsView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.md) {
-            Text("CONNECTED PLATFORMS")
-                .font(.spaceMono(11))
-                .tracking(0.88)
-                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader
 
-            ForEach(allPlatformConnections) { connection in
-                platformRow(for: connection)
-                    .padding(.vertical, ENVISpacing.xs)
+            VStack(spacing: 0) {
+                ForEach(Array(allPlatformConnections.enumerated()), id: \.element.id) { index, connection in
+                    platformRow(for: connection)
+
+                    if index < allPlatformConnections.count - 1 {
+                        Divider()
+                            .overlay(ENVITheme.textLight(for: colorScheme).opacity(0.12))
+                            .padding(.leading, 52)
+                    }
+                }
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 4)
+            .background(ENVITheme.surfaceLow(for: colorScheme))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(ENVITheme.textLight(for: colorScheme).opacity(0.08), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
     }
 
@@ -36,74 +48,28 @@ struct ConnectedPlatformsView: View {
         }
     }
 
+    private var sectionHeader: some View {
+        MainAppMonoLabel(title: "CONNECTED PLATFORMS")
+    }
+
     // MARK: - Subviews
 
     @ViewBuilder
     private func platformRow(for connection: PlatformConnection) -> some View {
-        HStack(spacing: ENVISpacing.md) {
-            // Platform icon
-            Image(systemName: connection.platform.iconName)
-                .font(.system(size: 18, weight: .medium))
-                .foregroundColor(connection.platform.brandColor)
-                .frame(width: 36, height: 36)
-                .background(ENVITheme.surfaceHigh(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(connection.platform.rawValue)
-                    .font(.interSemiBold(15))
-                    .foregroundColor(ENVITheme.text(for: colorScheme))
-
-                if let handle = connection.handle {
-                    Text(handle)
-                        .font(.interRegular(12))
-                        .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                }
-
-                // Token expiry warning
-                if connection.isConnected, connection.isTokenExpiringSoon {
-                    tokenExpiryWarning(for: connection)
-                }
-            }
-
-            Spacer()
-
-            // Action buttons
+        MainAppConnectionRow(
+            icon: connection.platform.iconName,
+            title: connection.platform.rawValue,
+            badge: connection.isConnected ? "CONNECTED" : "CONNECT",
+            badgeSelected: connection.isConnected
+        ) {
             if connection.isConnected {
-                HStack(spacing: ENVISpacing.xs) {
-                    // Refresh button when token is expiring
-                    if connection.isTokenExpiringSoon {
-                        Button {
-                            onRefreshTap?(connection.platform)
-                        } label: {
-                            Image(systemName: "arrow.clockwise")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(ENVITheme.warning)
-                        }
-                        .buttonStyle(.plain)
-                    }
-
-                    // Disconnect button
-                    Button {
-                        onDisconnectTap?(connection.platform)
-                    } label: {
-                        ENVIBadge(
-                            text: "Disconnect",
-                            color: ENVITheme.error
-                        )
-                    }
-                    .buttonStyle(.plain)
+                if connection.isTokenExpiringSoon {
+                    onRefreshTap?(connection.platform)
+                } else {
+                    onDisconnectTap?(connection.platform)
                 }
             } else {
-                Button {
-                    onConnectTap?(connection.platform)
-                } label: {
-                    ENVIBadge(
-                        text: "Connect",
-                        color: ENVITheme.Dark.surfaceHigh
-                    )
-                }
-                .buttonStyle(.plain)
+                onConnectTap?(connection.platform)
             }
         }
     }

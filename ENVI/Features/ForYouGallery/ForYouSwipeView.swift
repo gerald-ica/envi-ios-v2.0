@@ -7,7 +7,6 @@ import SwiftUI
 struct ForYouSwipeView: View {
 
     @ObservedObject var viewModel: ForYouGalleryViewModel
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         ZStack {
@@ -28,7 +27,6 @@ struct ForYouSwipeView: View {
                 errorState(message: message)
             }
 
-            // Overlay a spinner when isLoading but we already have items
             if viewModel.isLoading && !viewModel.forYouItems.isEmpty {
                 VStack {
                     ProgressView()
@@ -47,28 +45,37 @@ struct ForYouSwipeView: View {
     // MARK: - Card Stack
 
     private var cardStack: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 0) {
-                // Instruction text
-                Text("TAP THE CONTENT PIECES. AND EXPLORE")
-                    .font(.spaceMonoBold(11))
-                    .tracking(1.5)
-                    .foregroundColor(.white.opacity(0.5))
-                    .multilineTextAlignment(.center)
-                    .padding(.top, ENVISpacing.md)
-                    .padding(.bottom, ENVISpacing.lg)
+        GeometryReader { geo in
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
+                    Text("[ TAP THE CONTENT PIECES TO EXPAND ]")
+                        .font(.spaceMonoBold(11))
+                        .tracking(1.5)
+                        .foregroundColor(.white.opacity(0.46))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 14)
+                        .padding(.bottom, 16)
 
-                LazyVStack(spacing: 0) {
-                    ForEach(viewModel.forYouItems) { item in
-                        SwipeableCardView(
-                            item: item,
-                            onApprove: { viewModel.approve(item) },
-                            onDisapprove: { viewModel.disapprove(item.id) }
-                        )
+                    LazyVStack(spacing: 0) {
+                        ForEach(Array(viewModel.forYouItems.enumerated()), id: \.element.id) { index, item in
+                            SwipeableCardView(
+                                item: item,
+                                cardHeight: min(480, max(430, geo.size.height * 0.64)),
+                                dismissDistance: geo.size.width,
+                                onApprove: { viewModel.approve(item) },
+                                onDisapprove: { viewModel.disapprove(item.id) },
+                                onBookmark: { viewModel.bookmarkCard(id: item.id) }
+                            )
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, index == viewModel.forYouItems.count - 1 ? 0 : -28)
+                            .padding(.top, index == 0 ? 0 : 4)
+                            .zIndex(Double(viewModel.forYouItems.count - index))
+                        }
                     }
                 }
+                .padding(.bottom, 136)
             }
-            .padding(.bottom, 100) // Space for tab bar
         }
     }
 
@@ -79,12 +86,13 @@ struct ForYouSwipeView: View {
             ProgressView()
                 .tint(.white)
                 .scaleEffect(1.2)
-            Text("Analyzing your content...")
-                .font(.interSemiBold(15))
-                .foregroundColor(.white.opacity(0.7))
-            Text("Scanning your camera roll to find the best matches")
+            Text("ANALYZING YOUR CONTENT")
+                .font(.spaceMonoBold(13))
+                .tracking(1.8)
+                .foregroundColor(.white.opacity(0.72))
+            Text("Scanning your camera roll to find the strongest matches.")
                 .font(.interRegular(13))
-                .foregroundColor(.white.opacity(0.4))
+                .foregroundColor(.white.opacity(0.44))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, ENVISpacing.xxxl)
         }
@@ -95,12 +103,13 @@ struct ForYouSwipeView: View {
             ProgressView()
                 .tint(.white)
                 .scaleEffect(1.2)
-            Text("Matching templates...")
-                .font(.interSemiBold(15))
-                .foregroundColor(.white.opacity(0.7))
-            Text("Finding the best content pieces from your library")
+            Text("MATCHING TEMPLATES")
+                .font(.spaceMonoBold(13))
+                .tracking(1.8)
+                .foregroundColor(.white.opacity(0.72))
+            Text("Finding the best content pieces from your library.")
                 .font(.interRegular(13))
-                .foregroundColor(.white.opacity(0.4))
+                .foregroundColor(.white.opacity(0.44))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, ENVISpacing.xxxl)
         }
@@ -111,12 +120,13 @@ struct ForYouSwipeView: View {
             Image(systemName: "sparkles")
                 .font(.system(size: 40))
                 .foregroundColor(.white.opacity(0.3))
-            Text("No content pieces yet")
-                .font(.interMedium(15))
-                .foregroundColor(.white.opacity(0.5))
-            Text("Add photos to your camera roll or wait for classification to complete")
+            Text("NO CONTENT PIECES YET")
+                .font(.spaceMonoBold(13))
+                .tracking(1.5)
+                .foregroundColor(.white.opacity(0.55))
+            Text("Add photos to your camera roll or wait for classification to complete.")
                 .font(.interRegular(13))
-                .foregroundColor(.white.opacity(0.35))
+                .foregroundColor(.white.opacity(0.38))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, ENVISpacing.xxxl)
             Button("Refresh") {
@@ -159,8 +169,11 @@ struct ForYouSwipeView: View {
 /// Individual feed card with horizontal swipe gesture for approve/disapprove.
 private struct SwipeableCardView: View {
     let item: ContentItem
+    let cardHeight: CGFloat
+    let dismissDistance: CGFloat
     let onApprove: () -> Void
     let onDisapprove: () -> Void
+    let onBookmark: () -> Void
 
     @State private var dragOffset: CGFloat = 0
     @State private var showDetail = false
@@ -170,21 +183,31 @@ private struct SwipeableCardView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Full-bleed image
             cardImage
 
-            // Overlay gradient
-            ENVITheme.cardOverlayGradient
+            LinearGradient(
+                colors: [
+                    .clear,
+                    Color.black.opacity(0.26),
+                    Color.black.opacity(0.84)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
 
-            // Swipe indicator overlays
             swipeIndicators
 
-            // Content overlay
             cardContent
         }
         .frame(maxWidth: .infinity)
-        .frame(height: UIScreen.main.bounds.height * 0.7)
+        .frame(height: cardHeight)
         .clipped()
+        .background(ENVITheme.Dark.surfaceLow.opacity(0.92))
+        .overlay(
+            RoundedRectangle(cornerRadius: 34, style: .continuous)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
         .offset(x: dragOffset)
         .rotationEffect(.degrees(Double(dragOffset) / 30), anchor: .bottom)
         .gesture(swipeGesture)
@@ -192,6 +215,7 @@ private struct SwipeableCardView: View {
         .fullScreenCover(isPresented: $showDetail) {
             FeedDetailView(item: item, onApprove: onApprove)
         }
+        .shadow(color: .black.opacity(0.5), radius: 24, y: 12)
     }
 
     private var cardImage: some View {
@@ -201,18 +225,23 @@ private struct SwipeableCardView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(maxWidth: .infinity)
-                    .frame(height: UIScreen.main.bounds.height * 0.7)
+                    .frame(height: cardHeight)
                     .clipped()
             } else {
-                Rectangle()
-                    .fill(ENVITheme.Dark.surfaceLow)
+                LinearGradient(
+                    colors: [
+                        ENVITheme.Dark.surfaceLow,
+                        Color.black.opacity(0.95)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
             }
         }
     }
 
     @ViewBuilder
     private var swipeIndicators: some View {
-        // Approve indicator (right swipe)
         if dragOffset > 30 {
             HStack {
                 VStack(spacing: ENVISpacing.xs) {
@@ -230,7 +259,6 @@ private struct SwipeableCardView: View {
             }
         }
 
-        // Disapprove indicator (left swipe)
         if dragOffset < -30 {
             HStack {
                 Spacer()
@@ -250,47 +278,61 @@ private struct SwipeableCardView: View {
     }
 
     private var cardContent: some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.sm) {
+        VStack(alignment: .leading, spacing: ENVISpacing.md) {
             Spacer()
 
-            // Caption
-            Text(item.caption)
-                .font(.interSemiBold(18))
-                .foregroundColor(.white)
-                .lineLimit(3)
-
-            // Platform badge + stats
-            HStack(spacing: ENVISpacing.md) {
-                // Platform icon
+            HStack(alignment: .top, spacing: ENVISpacing.sm) {
                 platformBadge
 
                 Spacer()
 
-                // Engagement stats
-                HStack(spacing: ENVISpacing.lg) {
-                    statLabel(icon: "heart.fill", value: formatCount(item.likes))
-                    statLabel(icon: "bubble.left.fill", value: formatCount(item.comments))
-                    statLabel(icon: "arrow.turn.up.right", value: formatCount(item.shares))
+                Button(action: onBookmark) {
+                    Image(systemName: item.isBookmarked ? "bookmark.fill" : "bookmark")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(width: 34, height: 34)
+                        .background(Color.white.opacity(0.08))
+                        .clipShape(Circle())
                 }
+                .buttonStyle(.plain)
             }
 
-            // Creator info
+            Text(item.caption)
+                .font(.spaceMonoBold(18))
+                .tracking(-0.2)
+                .foregroundColor(.white)
+                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let bodyText = item.bodyText {
+                Text(bodyText)
+                    .font(.interRegular(14))
+                    .foregroundColor(.white.opacity(0.65))
+                    .lineLimit(3)
+            }
+
+            HStack(spacing: ENVISpacing.sm) {
+                metricPill(title: "REACH", value: item.estimatedReach)
+                metricPill(title: "TIME", value: item.bestTime)
+                metricPill(title: "SCORE", value: "\(Int(item.confidenceScore * 100))%")
+            }
+
             HStack(spacing: ENVISpacing.sm) {
                 Circle()
-                    .fill(Color.white.opacity(0.3))
-                    .frame(width: 28, height: 28)
+                    .fill(Color.white.opacity(0.18))
+                    .frame(width: 32, height: 32)
                     .overlay(
                         Text(String(item.creatorName.prefix(1)))
-                            .font(.interSemiBold(12))
+                            .font(.interSemiBold(13))
                             .foregroundColor(.white)
                     )
 
                 VStack(alignment: .leading, spacing: 0) {
                     Text(item.creatorName)
-                        .font(.interSemiBold(13))
+                        .font(.interSemiBold(14))
                         .foregroundColor(.white)
                     Text(item.creatorHandle)
-                        .font(.interRegular(11))
+                        .font(.interRegular(12))
                         .foregroundColor(.white.opacity(0.6))
                 }
             }
@@ -300,27 +342,42 @@ private struct SwipeableCardView: View {
 
     private var platformBadge: some View {
         HStack(spacing: ENVISpacing.xs) {
-            Image(systemName: item.platform.systemIconName)
-                .font(.system(size: 14))
+            Image(systemName: item.platform.iconName)
+                .font(.system(size: 13, weight: .semibold))
             Text(item.platform.rawValue)
-                .font(.spaceMonoBold(11))
-                .tracking(0.5)
+                .font(.spaceMonoBold(10))
+                .tracking(1.4)
         }
         .foregroundColor(.white)
-        .padding(.horizontal, ENVISpacing.sm)
-        .padding(.vertical, ENVISpacing.xs)
-        .background(Color.white.opacity(0.2))
-        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(Color.white.opacity(0.08))
+        .overlay(
+            Capsule()
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+        .clipShape(Capsule())
     }
 
-    private func statLabel(icon: String, value: String) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.system(size: 11))
+    private func metricPill(title: String, value: String) -> some View {
+        HStack(spacing: ENVISpacing.xs) {
+            Text(title)
+                .font(.spaceMonoBold(9))
+                .tracking(1.2)
+                .foregroundColor(.white.opacity(0.45))
+
             Text(value)
-                .font(.interMedium(11))
+                .font(.interSemiBold(12))
+                .foregroundColor(.white)
         }
-        .foregroundColor(.white.opacity(0.8))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(Color.white.opacity(0.06))
+        .overlay(
+            Capsule()
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+        .clipShape(Capsule())
     }
 
     // MARK: - Swipe Gesture
@@ -332,53 +389,24 @@ private struct SwipeableCardView: View {
             }
             .onEnded { value in
                 if value.translation.width > swipeThreshold {
-                    // Approve
                     withAnimation(.easeOut(duration: 0.3)) {
-                        dragOffset = UIScreen.main.bounds.width
+                        dragOffset = dismissDistance
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         onApprove()
                     }
                 } else if value.translation.width < -swipeThreshold {
-                    // Disapprove
                     withAnimation(.easeOut(duration: 0.3)) {
-                        dragOffset = -UIScreen.main.bounds.width
+                        dragOffset = -dismissDistance
                     }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         onDisapprove()
                     }
                 } else {
-                    // Snap back
                     withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                         dragOffset = 0
                     }
                 }
             }
-    }
-
-    // MARK: - Helpers
-
-    private func formatCount(_ count: Int) -> String {
-        if count >= 1_000_000 {
-            return String(format: "%.1fM", Double(count) / 1_000_000)
-        } else if count >= 1_000 {
-            return String(format: "%.1fK", Double(count) / 1_000)
-        }
-        return "\(count)"
-    }
-}
-
-// MARK: - SocialPlatform Extension
-
-private extension SocialPlatform {
-    var systemIconName: String {
-        switch self {
-        case .instagram: return "camera.fill"
-        case .tiktok:    return "play.rectangle.fill"
-        case .x:         return "at"
-        case .threads:   return "at.circle"
-        case .linkedin:  return "briefcase.fill"
-        case .youtube:   return "play.circle.fill"
-        }
     }
 }

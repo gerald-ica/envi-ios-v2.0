@@ -68,7 +68,7 @@ public actor BackgroundTaskBudget {
 
     public init(
         defaults: UserDefaults = .standard,
-        now: @Sendable @escaping () -> Date = Date.init
+        now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.defaults = defaults
         self.now = now

@@ -248,7 +248,6 @@ final class ForYouGalleryViewModel: ObservableObject {
         index: Int
     ) -> ContentItem {
         let template = populated.template
-        let firstAsset = populated.filledSlots.first?.matchedAsset
 
         // Determine platform from template suggestion or default
         let platform = template.suggestedPlatforms.first ?? .instagram
@@ -256,10 +255,9 @@ final class ForYouGalleryViewModel: ObservableObject {
         // Build caption from template name + category
         let caption = "\(template.name) — \(template.category.displayName)"
 
-        // Use the first matched asset's local identifier as image reference
-        // The UI will need to load from PHAsset, but for now we use imageName
-        // as nil (the card shows a placeholder or loads from Photos)
-        let imageName: String? = nil
+        // Keep feed cards visually populated until PHAsset thumbnail loading is
+        // wired into the stacked-card UI.
+        let imageName = FeedViewModel.imageNames[index % FeedViewModel.imageNames.count]
 
         return ContentItem(
             id: stableID,
