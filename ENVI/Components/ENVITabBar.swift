@@ -4,23 +4,27 @@ import UIKit
 /// iOS 26: uses `UIGlassEffect` for the native Liquid Glass look; falls back to
 /// `UIBlurEffect(.systemUltraThinMaterialDark)` on iOS 25 and below.
 ///
-/// - Tab 0: Home/Feed icon (house)
-/// - Tab 1: ENVI logo (center)
-/// - Tab 2: Profile icon (person)
+/// Icons (from Sketch symbols → asset files):
+/// - Tab 0: `shape-15` (home/feed bitmap), 30×30
+/// - Tab 1: `envi-logo` (center), 30×24.6
+/// - Tab 2: `person.fill` SF Symbol (profile placeholder), 19pt
 ///
-/// Active tab gets a white 45×45 circle behind the icon; tab tint inverts to
-/// pill color (#191919) when selected.
+/// When a tab is selected, a 45×45 white circle appears behind its icon and the
+/// icon tints to `#191919` (pill color) for contrast on the white circle.
 final class ENVITabBar: UIView {
 
     struct Tab {
-        let iconName: String?
-        let logoImageName: String?
+        let iconName: String?        // SF Symbol name (used if imageName is nil)
+        let imageName: String?       // Bundled image (from SymbolsIconsDecor)
+        let iconPointSize: CGFloat   // For SF Symbols
+        let imageWidth: CGFloat      // For bitmap images
+        let imageHeight: CGFloat
     }
 
     static let defaultTabs: [Tab] = [
-        Tab(iconName: "house.fill", logoImageName: nil),
-        Tab(iconName: nil, logoImageName: "envi-logo"),
-        Tab(iconName: "person.crop.circle.fill", logoImageName: nil),
+        Tab(iconName: nil, imageName: "shape-15", iconPointSize: 0, imageWidth: 22, imageHeight: 22),
+        Tab(iconName: nil, imageName: "envi-logo", iconPointSize: 0, imageWidth: 26, imageHeight: 21),
+        Tab(iconName: "person.fill", imageName: nil, iconPointSize: 19, imageWidth: 0, imageHeight: 0),
     ]
 
     var selectedIndex: Int = 0 {
@@ -31,13 +35,14 @@ final class ENVITabBar: UIView {
 
     private let tabs: [Tab]
     private var buttons: [UIButton] = []
+    private var iconViews: [UIImageView] = []
     private var activeCircles: [UIView] = []
     private let pillBackground = UIView()
     private let glassContainer = UIView()
     private let pillTint = UIView()
     private let stackView = UIStackView()
 
-    // Sketch spec: pill background #191919 (near-black) with glass overlay.
+    // Sketch spec: pill background #191919 (near-black).
     private let pillColor = UIColor(red: 0x19 / 255.0, green: 0x19 / 255.0, blue: 0x19 / 255.0, alpha: 1.0)
     private let activeCircleSize: CGFloat = 45
 
@@ -56,6 +61,13 @@ final class ENVITabBar: UIView {
     private func setupUI() {
         backgroundColor = .clear
         clipsToBounds = false
+        isUserInteractionEnabled = true
+
+        // Drop shadow on the outer view's layer so it's not clipped by pill.
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.35
+        layer.shadowRadius = 24
+        layer.shadowOffset = CGSize(width: 0, height: 12)
 
         pillBackground.backgroundColor = .clear
         pillBackground.layer.cornerRadius = 32
@@ -66,19 +78,12 @@ final class ENVITabBar: UIView {
         pillBackground.translatesAutoresizingMaskIntoConstraints = false
         addSubview(pillBackground)
 
-        // Drop shadow on a sibling container so it's not clipped.
-        layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.35
-        layer.shadowRadius = 24
-        layer.shadowOffset = CGSize(width: 0, height: 12)
-
         glassContainer.translatesAutoresizingMaskIntoConstraints = false
         glassContainer.isUserInteractionEnabled = false
         pillBackground.addSubview(glassContainer)
-
         installGlass(on: glassContainer)
 
-        // Tint overlay sits above glass to give the pill its #191919 read.
+        // Tint overlay sits above glass — must not absorb taps.
         pillTint.backgroundColor = pillColor.withAlphaComponent(0.62)
         pillTint.translatesAutoresizingMaskIntoConstraints = false
         pillTint.isUserInteractionEnabled = false
@@ -86,13 +91,15 @@ final class ENVITabBar: UIView {
 
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
-        stackView.alignment = .center
+        stackView.alignment = .fill
+        stackView.spacing = 0
         stackView.translatesAutoresizingMaskIntoConstraints = false
         pillBackground.addSubview(stackView)
 
         for (index, tab) in tabs.enumerated() {
             let container = UIView()
             container.translatesAutoresizingMaskIntoConstraints = false
+            container.isUserInteractionEnabled = true
 
             let circle = UIView()
             circle.backgroundColor = .white
@@ -104,36 +111,47 @@ final class ENVITabBar: UIView {
             container.addSubview(circle)
             activeCircles.append(circle)
 
-            let button = UIButton(type: .system)
+            // Image view sits above the active circle.
+            let iconView = UIImageView()
+            iconView.translatesAutoresizingMaskIntoConstraints = false
+            iconView.contentMode = .scaleAspectFit
+            iconView.isUserInteractionEnabled = false
+            iconView.tintColor = .white
+            if let imageName = tab.imageName, let image = UIImage(named: imageName) {
+                iconView.image = image.withRenderingMode(.alwaysTemplate)
+            } else if let systemName = tab.iconName {
+                let config = UIImage.SymbolConfiguration(pointSize: tab.iconPointSize, weight: .medium)
+                iconView.image = UIImage(systemName: systemName, withConfiguration: config)?
+                    .withRenderingMode(.alwaysTemplate)
+            }
+            container.addSubview(iconView)
+            iconViews.append(iconView)
+
+            // Single full-container button captures all taps reliably.
+            let button = UIButton(type: .custom)
+            button.backgroundColor = .clear
             button.tag = index
             button.addTarget(self, action: #selector(tabTapped(_:)), for: .touchUpInside)
             button.translatesAutoresizingMaskIntoConstraints = false
-            button.adjustsImageWhenHighlighted = false
-            button.tintColor = .white
-
-            if let iconName = tab.iconName {
-                let config = UIImage.SymbolConfiguration(pointSize: 19, weight: .medium)
-                button.setImage(UIImage(systemName: iconName, withConfiguration: config), for: .normal)
-            } else if let logoName = tab.logoImageName, let logo = UIImage(named: logoName) {
-                let tinted = logo.withRenderingMode(.alwaysTemplate)
-                button.setImage(tinted, for: .normal)
-                button.imageView?.contentMode = .scaleAspectFit
-                button.contentHorizontalAlignment = .fill
-                button.contentVerticalAlignment = .fill
-                button.imageEdgeInsets = UIEdgeInsets(top: 7, left: 7, bottom: 7, right: 7)
-            }
             container.addSubview(button)
             buttons.append(button)
+
+            let iconWidth = tab.imageName != nil ? tab.imageWidth : 26
+            let iconHeight = tab.imageName != nil ? tab.imageHeight : 26
 
             NSLayoutConstraint.activate([
                 circle.centerXAnchor.constraint(equalTo: container.centerXAnchor),
                 circle.centerYAnchor.constraint(equalTo: container.centerYAnchor),
                 circle.widthAnchor.constraint(equalToConstant: activeCircleSize),
                 circle.heightAnchor.constraint(equalToConstant: activeCircleSize),
-                button.centerXAnchor.constraint(equalTo: container.centerXAnchor),
-                button.centerYAnchor.constraint(equalTo: container.centerYAnchor),
-                button.widthAnchor.constraint(equalToConstant: 44),
-                button.heightAnchor.constraint(equalToConstant: 44),
+                iconView.centerXAnchor.constraint(equalTo: container.centerXAnchor),
+                iconView.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+                iconView.widthAnchor.constraint(equalToConstant: iconWidth),
+                iconView.heightAnchor.constraint(equalToConstant: iconHeight),
+                button.topAnchor.constraint(equalTo: container.topAnchor),
+                button.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+                button.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+                button.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             ])
 
             stackView.addArrangedSubview(container)
@@ -158,37 +176,32 @@ final class ENVITabBar: UIView {
 
             stackView.topAnchor.constraint(equalTo: pillBackground.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),
-            stackView.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor, constant: 10),
-            stackView.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor, constant: -10),
+            stackView.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor),
         ])
 
         updateSelection()
     }
 
     /// Installs iOS 26 `UIGlassEffect` if available, else falls back to blur.
+    /// The visual effect view is explicitly non-interactive so it never eats taps.
     private func installGlass(on container: UIView) {
+        let effectView: UIVisualEffectView
         if #available(iOS 26.0, *) {
             let effect = UIGlassEffect()
-            effect.tintColor = .clear
             effect.isInteractive = false
-            let view = UIVisualEffectView(effect: effect)
-            view.translatesAutoresizingMaskIntoConstraints = false
-            container.addSubview(view)
-            pinEdges(view, to: container)
+            effectView = UIVisualEffectView(effect: effect)
         } else {
-            let view = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-            view.translatesAutoresizingMaskIntoConstraints = false
-            container.addSubview(view)
-            pinEdges(view, to: container)
+            effectView = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
         }
-    }
-
-    private func pinEdges(_ child: UIView, to parent: UIView) {
+        effectView.translatesAutoresizingMaskIntoConstraints = false
+        effectView.isUserInteractionEnabled = false
+        container.addSubview(effectView)
         NSLayoutConstraint.activate([
-            child.topAnchor.constraint(equalTo: parent.topAnchor),
-            child.bottomAnchor.constraint(equalTo: parent.bottomAnchor),
-            child.leadingAnchor.constraint(equalTo: parent.leadingAnchor),
-            child.trailingAnchor.constraint(equalTo: parent.trailingAnchor),
+            effectView.topAnchor.constraint(equalTo: container.topAnchor),
+            effectView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            effectView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            effectView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
         ])
     }
 
@@ -202,12 +215,11 @@ final class ENVITabBar: UIView {
     }
 
     private func updateSelection() {
-        for (index, button) in buttons.enumerated() {
+        for (index, iconView) in iconViews.enumerated() {
             let isSelected = index == selectedIndex
 
-            // When selected, the active white circle appears behind the icon —
-            // tint the icon to pill color (#191919) so it reads on white.
-            button.tintColor = isSelected ? pillColor : .white
+            // Icon color: pill color when on white active circle, white otherwise.
+            iconView.tintColor = isSelected ? pillColor : .white
 
             UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseInOut) {
                 self.activeCircles[index].alpha = isSelected ? 1 : 0
