@@ -105,7 +105,7 @@ struct TeamMemberView: View {
                             .padding(.horizontal, ENVISpacing.xs)
                             .padding(.vertical, 2)
                             .background(ENVITheme.warning.opacity(0.12))
-                            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.xs))
+                            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
                     }
                 }
 

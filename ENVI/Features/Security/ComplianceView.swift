@@ -54,7 +54,7 @@ struct ComplianceView: View {
                 ENVIFilterChip(title: "All", isSelected: viewModel.complianceStatusFilter == nil) {
                     viewModel.complianceStatusFilter = nil
                 }
-                ForEach(ComplianceStatus.allCases) { status in
+                ForEach(SecurityComplianceStatus.allCases) { status in
                     ENVIFilterChip(title: status.displayName, isSelected: viewModel.complianceStatusFilter == status) {
                         viewModel.complianceStatusFilter = status
                     }
@@ -152,11 +152,11 @@ struct ComplianceView: View {
         }
     }
 
-    private func statusBadge(_ status: ComplianceStatus) -> some View {
+    private func statusBadge(_ status: SecurityComplianceStatus) -> some View {
         ENVIStatusBadge(text: status.displayName, color: statusColor(for: status))
     }
 
-    private func statusColor(for status: ComplianceStatus) -> Color {
+    private func statusColor(for status: SecurityComplianceStatus) -> Color {
         switch status {
         case .passed:   return ENVITheme.success
         case .failed:   return ENVITheme.error
@@ -165,7 +165,7 @@ struct ComplianceView: View {
         }
     }
 
-    private func findingIcon(for status: ComplianceStatus) -> String {
+    private func findingIcon(for status: SecurityComplianceStatus) -> String {
         switch status {
         case .passed:   return "checkmark.circle.fill"
         case .failed:   return "exclamationmark.triangle.fill"

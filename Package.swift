@@ -48,6 +48,9 @@ let package = Package(
             resources: [
                 .process("Resources/Fonts"),
                 .process("Resources/Images"),
+            ],
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
             ]
         ),
         .testTarget(

@@ -33,7 +33,7 @@ import Combine
 // concrete type with the same signatures, we adopt it by adding:
 //   extension MediaClassifier: MediaClassifierProtocol {}
 // in that file (or this one) — no code change here required.
-public protocol MediaClassifierProtocol: AnyObject {
+protocol MediaClassifierProtocol: AnyObject {
     func classifyBatch(
         _ assets: [PHAsset],
         progress: ((Int, Int) -> Void)?
@@ -49,7 +49,7 @@ public protocol MediaClassifierProtocol: AnyObject {
 
 /// Abstracts `PhotoLibraryManager.fetchRecentMedia` so tests can inject
 /// a mock library without touching the Photos framework.
-public protocol PHAssetProviding: AnyObject {
+protocol PHAssetProviding: AnyObject {
     func fetchRecentMedia(limit: Int, mediaTypes: [PHAssetMediaType]) -> [PHAsset]
     func totalMediaCount() -> Int
 }
@@ -60,8 +60,8 @@ extension PhotoLibraryManager: PHAssetProviding {}
 
 /// Snapshot of the coordinator's current scanning state — published for
 /// the onboarding UI (Phase 5) and the Template tab loading spinner.
-public struct MediaScanProgress: Equatable {
-    public enum Phase: Equatable {
+struct MediaScanProgress: Equatable {
+    enum Phase: Equatable {
         case idle
         case onboarding
         case background
@@ -71,21 +71,21 @@ public struct MediaScanProgress: Equatable {
         case completed
     }
 
-    public enum PauseReason: Equatable {
+    enum PauseReason: Equatable {
         case thermal
         case expired
     }
 
-    public var phase: Phase
-    public var completed: Int
-    public var total: Int
+    var phase: Phase
+    var completed: Int
+    var total: Int
 
-    public static let idle = MediaScanProgress(phase: .idle, completed: 0, total: 0)
+    static let idle = MediaScanProgress(phase: .idle, completed: 0, total: 0)
 }
 
 // MARK: - MediaScanCoordinator
 
-public final class MediaScanCoordinator: ObservableObject {
+final class MediaScanCoordinator: ObservableObject {
 
     // MARK: Published state
 
@@ -93,30 +93,30 @@ public final class MediaScanCoordinator: ObservableObject {
 
     // MARK: Dependencies
 
-    private let classifier: MediaClassifierProtocol
-    private let cache: ClassificationCache
-    private let library: PHAssetProviding
-    private let defaults: UserDefaults
+    let classifier: MediaClassifierProtocol
+    let cache: ClassificationCache
+    let library: PHAssetProviding
+    let defaults: UserDefaults
 
     // MARK: Tunables
 
     /// Size of the onboarding "quick wins" batch.
-    public static let onboardingBatchSize: Int = 500
+    static let onboardingBatchSize: Int = 500
 
     /// Size of each background sweep chunk.
-    public static let backgroundChunkSize: Int = 100
+    static let backgroundChunkSize: Int = 100
 
     /// BGTask identifier — must match Info.plist
     /// `BGTaskSchedulerPermittedIdentifiers`.
-    public static let backgroundTaskIdentifier = "com.envi.mediaclassifier.fullscan"
+    static let backgroundTaskIdentifier = "com.envi.mediaclassifier.fullscan"
 
     /// UserDefaults key persisting the last PHAsset.localIdentifier a
     /// background sweep has finished. Allows resuming across launches.
-    public static let lastScannedIDKey = "MediaScanCoordinator.lastScannedID"
+    static let lastScannedIDKey = "MediaScanCoordinator.lastScannedID"
 
     // MARK: Init
 
-    public init(
+    init(
         classifier: MediaClassifierProtocol,
         cache: ClassificationCache,
         library: PHAssetProviding = PhotoLibraryManager.shared,

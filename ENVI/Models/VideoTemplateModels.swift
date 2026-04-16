@@ -447,7 +447,13 @@ struct FilledSlot: Identifiable {
     }
 }
 
-struct PopulatedTemplate: Identifiable {
+struct PopulatedTemplate: Identifiable, Hashable {
+    static func == (lhs: PopulatedTemplate, rhs: PopulatedTemplate) -> Bool {
+        lhs.id == rhs.id
+    }
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
     var id: UUID { template.id }
     let template: VideoTemplate
     let filledSlots: [FilledSlot]

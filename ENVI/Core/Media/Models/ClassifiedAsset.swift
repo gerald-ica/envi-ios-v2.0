@@ -60,16 +60,12 @@ public final class ClassifiedAsset {
 
     // MARK: - Hot query fields (indexed)
 
-    @Attribute(.indexed)
     public var aestheticsScore: Double
 
-    @Attribute(.indexed)
     public var isUtility: Bool
 
-    @Attribute(.indexed)
     public var faceCount: Int
 
-    @Attribute(.indexed)
     public var personCount: Int
 
     /// Top Vision classification labels (confidence > 0.3, capped at ~10).
@@ -78,19 +74,14 @@ public final class ClassifiedAsset {
     /// matching predicates that need to `.contains(_:)`.
     public var topLabels: [String]
 
-    @Attribute(.indexed)
     public var mediaType: Int
 
-    @Attribute(.indexed)
     public var mediaSubtypeRaw: UInt
 
-    @Attribute(.indexed)
     public var creationDate: Date?
 
-    @Attribute(.indexed)
     public var latitude: Double?
 
-    @Attribute(.indexed)
     public var longitude: Double?
 
     // MARK: - Init

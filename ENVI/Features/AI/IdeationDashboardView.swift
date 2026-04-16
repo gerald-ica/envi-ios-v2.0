@@ -34,7 +34,7 @@ struct IdeationDashboardView: View {
 
             Image(systemName: "sparkles")
                 .font(.system(size: 20, weight: .medium))
-                .foregroundColor(ENVITheme.accent)
+                .foregroundColor(ENVITheme.Dark.accent)
         }
         .padding(.horizontal, ENVISpacing.xl)
         .padding(.vertical, ENVISpacing.lg)
@@ -297,7 +297,7 @@ struct IdeationDashboardView: View {
                     }) {
                         Text("Save")
                             .font(.interMedium(12))
-                            .foregroundColor(ENVITheme.accent)
+                            .foregroundColor(ENVITheme.Dark.accent)
                     }
                 }
             }

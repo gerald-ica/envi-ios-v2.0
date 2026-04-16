@@ -126,10 +126,18 @@ final class APIClient {
         }
     }
 
+    func requestVoid(
+        endpoint: String,
+        method: HTTPMethod = .post,
+        requiresAuth: Bool = true
+    ) async throws {
+        try await requestVoid(endpoint: endpoint, method: method, body: Optional<String>.none, requiresAuth: requiresAuth)
+    }
+
     func requestVoid<Body: Encodable>(
         endpoint: String,
         method: HTTPMethod = .post,
-        body: Body? = nil,
+        body: Body?,
         requiresAuth: Bool = true
     ) async throws {
         let url = baseURL.appendingPathComponent(endpoint)

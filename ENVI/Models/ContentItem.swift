@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents a content card in the feed.
-struct ContentItem: Identifiable {
+struct ContentItem: Identifiable, Codable {
     let id: UUID
     let type: ContentType
     let creatorName: String
@@ -25,7 +25,7 @@ struct ContentItem: Identifiable {
 
     var isBookmarked: Bool = false
 
-    enum ContentType: String {
+    enum ContentType: String, Codable {
         case photo
         case video
         case carousel

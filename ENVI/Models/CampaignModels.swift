@@ -44,7 +44,7 @@ enum SprintColumn: String, Codable, CaseIterable, Identifiable {
 
 // MARK: - Approval Status
 
-enum ApprovalStatus: String, Codable, CaseIterable {
+enum BriefApprovalStatus: String, Codable, CaseIterable {
     case pending
     case approved
     case revisionRequested
@@ -220,7 +220,7 @@ struct CreativeBrief: Identifiable, Codable {
     let id: UUID
     var campaignID: UUID
     var template: String
-    var approvalStatus: ApprovalStatus
+    var approvalStatus: BriefApprovalStatus
     var clientNotes: String
     let createdAt: Date
 
@@ -228,7 +228,7 @@ struct CreativeBrief: Identifiable, Codable {
         id: UUID = UUID(),
         campaignID: UUID,
         template: String = "",
-        approvalStatus: ApprovalStatus = .pending,
+        approvalStatus: BriefApprovalStatus = .pending,
         clientNotes: String = "",
         createdAt: Date = Date()
     ) {

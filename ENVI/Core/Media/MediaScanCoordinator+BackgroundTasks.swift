@@ -29,7 +29,7 @@ import Foundation
 import Photos
 import BackgroundTasks
 
-public extension MediaScanCoordinator {
+extension MediaScanCoordinator {
 
     // MARK: - Budget (Phase 6, Task 3)
 

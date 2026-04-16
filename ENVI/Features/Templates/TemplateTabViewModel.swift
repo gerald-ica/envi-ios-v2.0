@@ -25,17 +25,17 @@ import Combine
 
 @MainActor
 @Observable
-public final class TemplateTabViewModel {
+final class TemplateTabViewModel {
 
     // MARK: - Published state (via @Observable — no @Published needed)
 
-    public private(set) var populatedTemplates: [PopulatedTemplate] = []
-    public private(set) var trending: [PopulatedTemplate] = []
-    public private(set) var byCategory: [VideoTemplateCategory: [PopulatedTemplate]] = [:]
-    public private(set) var isLoading: Bool = false
-    public private(set) var scanProgress: MediaScanProgress = .idle
-    public private(set) var error: Error?
-    public private(set) var selectedCategory: VideoTemplateCategory? = nil  // nil = "All"
+    private(set) var populatedTemplates: [PopulatedTemplate] = []
+    private(set) var trending: [PopulatedTemplate] = []
+    private(set) var byCategory: [VideoTemplateCategory: [PopulatedTemplate]] = [:]
+    private(set) var isLoading: Bool = false
+    private(set) var scanProgress: MediaScanProgress = .idle
+    private(set) var error: Error?
+    private(set) var selectedCategory: VideoTemplateCategory? = nil  // nil = "All"
 
     // MARK: - Selection handoff (AsyncStream)
     //
@@ -43,7 +43,7 @@ public final class TemplateTabViewModel {
     // consumes via `for await populated in vm.selections { ... }` and
     // drives navigationDestination. Keeps the VM presentation-agnostic.
 
-    public var selections: AsyncStream<PopulatedTemplate> { selectionStream }
+    var selections: AsyncStream<PopulatedTemplate> { selectionStream }
     private let selectionStream: AsyncStream<PopulatedTemplate>
     private let selectionContinuation: AsyncStream<PopulatedTemplate>.Continuation
 
@@ -60,7 +60,7 @@ public final class TemplateTabViewModel {
 
     // MARK: - Init
 
-    public init(
+    init(
         repo: VideoTemplateRepository,
         matcher: TemplateMatchEngine = TemplateMatchEngine(),
         ranker: TemplateRanker = TemplateRanker(),
@@ -104,7 +104,7 @@ public final class TemplateTabViewModel {
     ///
     /// On repo failure: sets `error`, keeps existing templates visible.
     /// On scan failure: logs, still proceeds with existing cache state.
-    public func refresh() async {
+    func refresh() async {
         isLoading = true
         defer { isLoading = false }
 
@@ -147,14 +147,14 @@ public final class TemplateTabViewModel {
     }
 
     /// Filters the visible templates by category (nil = "All").
-    public func selectCategory(_ category: VideoTemplateCategory?) {
+    func selectCategory(_ category: VideoTemplateCategory?) {
         self.selectedCategory = category
     }
 
     /// Swaps a slot's matched asset in a populated template.
     /// Delegates to `TemplateMatchEngine.swap` (actor-isolated) and
     /// re-publishes the mutated template in-place.
-    public func swap(
+    func swap(
         slot: TemplateSlot,
         in populated: PopulatedTemplate,
         to asset: ClassifiedAsset
@@ -165,7 +165,7 @@ public final class TemplateTabViewModel {
 
     /// Emits a chosen template into the selection AsyncStream for a
     /// coordinator to pick up (Phase 5 will present preview UI).
-    public func select(_ populated: PopulatedTemplate) {
+    func select(_ populated: PopulatedTemplate) {
         selectionContinuation.yield(populated)
     }
 
@@ -189,7 +189,7 @@ public final class TemplateTabViewModel {
     /// app code — go through this factory so the feature flag is
     /// always honored. Tests may continue to construct the VM
     /// directly with an injected repo.
-    public static func makeDefault(
+    static func makeDefault(
         cache: ClassificationCache,
         index: EmbeddingIndex,
         scanner: MediaScanCoordinator

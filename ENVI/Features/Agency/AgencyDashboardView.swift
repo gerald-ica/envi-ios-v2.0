@@ -139,11 +139,11 @@ struct AgencyDashboardView: View {
             }
 
             GeometryReader { geometry in
-                RoundedRectangle(cornerRadius: ENVIRadius.xs)
+                RoundedRectangle(cornerRadius: ENVIRadius.sm)
                     .fill(ENVITheme.text(for: colorScheme).opacity(0.15))
                     .frame(width: geometry.size.width)
                     .overlay(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: ENVIRadius.xs)
+                        RoundedRectangle(cornerRadius: ENVIRadius.sm)
                             .fill(ENVITheme.text(for: colorScheme))
                             .frame(width: max(4, geometry.size.width * CGFloat(amount / maxAmount)))
                     }

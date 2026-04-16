@@ -28,7 +28,7 @@ final class OracleAPIClient {
         )
     }
 
-    private func mapTrend(_ trend: String) -> MetricTrend {
+    private func mapTrend(_ trend: String) -> ChatMetricTrend {
         switch trend.lowercased() {
         case "up":
             return .up

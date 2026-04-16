@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Metric Trend
 
-enum MetricTrend {
+enum ChatMetricTrend {
     case up
     case down
     case neutral
@@ -15,7 +15,7 @@ struct ThreadMetric: Identifiable {
     let label: String
     let value: String
     let change: String
-    let trend: MetricTrend
+    let trend: ChatMetricTrend
 }
 
 // MARK: - Chat Thread

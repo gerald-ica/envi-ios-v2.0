@@ -48,7 +48,7 @@ public enum MediaClassifierError: Error {
 
 // MARK: - MediaClassifier
 
-public actor MediaClassifier {
+actor MediaClassifier {
 
     // MARK: Dependencies
 
@@ -65,7 +65,7 @@ public actor MediaClassifier {
 
     // MARK: Init
 
-    public init(
+    init(
         cache: ClassificationCache,
         visionEngine: VisionAnalysisEngine = .shared,
         geocodeCache: ReverseGeocodeCache = .shared,
@@ -98,7 +98,7 @@ public actor MediaClassifier {
     /// `priority` is advisory — it's applied to the downstream Vision
     /// TaskGroup via `Task.detached(priority:)` when this is called inside
     /// a batch.
-    public func classify(_ asset: PHAsset, priority: TaskPriority = .medium) async throws -> ClassifiedAsset {
+    func classify(_ asset: PHAsset, priority: TaskPriority = .medium) async throws -> ClassifiedAsset {
         _ = priority // retained in signature for API stability / future use
         if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
             return fresh
@@ -108,7 +108,7 @@ public actor MediaClassifier {
 
     /// Re-classifies an asset if the cached entry is stale (version mismatch)
     /// or missing. Returns the fresh entry either way.
-    public func rescanIfStale(_ asset: PHAsset) async throws -> ClassifiedAsset {
+    func rescanIfStale(_ asset: PHAsset) async throws -> ClassifiedAsset {
         if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
             return fresh
         }
@@ -118,7 +118,7 @@ public actor MediaClassifier {
     /// Classifies a batch in parallel with a cap on concurrent tasks.
     /// Failures are stashed on `failures` and absent from the returned
     /// array — the batch never throws.
-    public func classifyBatch(
+    func classifyBatch(
         _ assets: [PHAsset],
         progress: ((Int, Int) -> Void)? = nil
     ) async -> [ClassifiedAsset] {
@@ -200,7 +200,7 @@ public actor MediaClassifier {
     }
 
     /// Clears the in-memory failure log (test hook / caller-controlled reset).
-    public func resetFailures() {
+    func resetFailures() {
         failures.removeAll()
     }
 

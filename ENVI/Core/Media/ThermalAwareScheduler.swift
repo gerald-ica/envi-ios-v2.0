@@ -331,9 +331,8 @@ public actor ThermalAwareScheduler {
 // with a raw-event escape hatch used exclusively by this scheduler.
 #if canImport(FirebaseAnalytics)
 import FirebaseAnalytics
+import FirebaseCore
 extension TelemetryManager {
-    /// Raw-event escape hatch for subsystems that log events outside the
-    /// curated `Event` catalog (thermal scheduler, background task budget).
     func track(rawEvent: String, parameters: [String: Any]?) {
         guard FirebaseApp.app() != nil else { return }
         Analytics.logEvent(rawEvent, parameters: parameters)
