@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Month calendar view showing content activity with colored dots.
+/// Shared across: Analytics tab (16), Feed Detail (11a/11b), Campaigns & Planning.
 struct ContentCalendarView: View {
     let days: [AnalyticsData.CalendarDay]
     @Environment(\.colorScheme) private var colorScheme

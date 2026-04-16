@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Discover/trending content grid shown on the Explore tab.
+/// Shared across: Main App Feed (10), Library & Search page.
 struct ExploreGridView: View {
     @Environment(\.colorScheme) private var colorScheme
 

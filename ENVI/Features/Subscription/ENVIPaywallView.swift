@@ -4,6 +4,7 @@ import RevenueCatUI
 
 /// Presents the RevenueCat remote paywall configured in the dashboard.
 /// Falls back to a manual paywall if no remote template is configured.
+/// Shared across: Main App Profile → Aura, Secondary Screens page (21).
 struct ENVIPaywallView: View {
 
     @ObservedObject private var purchaseManager = PurchaseManager.shared

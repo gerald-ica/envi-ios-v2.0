@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Settings section of the Profile screen with NavigationLink to Analytics.
+/// Shared across: Main App Profile (17), Secondary Screens page (18).
 struct ProfileSettingsSection: View {
     let items: [ProfileViewModel.SettingsItem]
     @Environment(\.colorScheme) private var colorScheme

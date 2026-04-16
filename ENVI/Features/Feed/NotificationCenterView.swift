@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Activity-style notification center presented as a sheet from the feed.
+/// Shared across: Main App Feed (bell icon), Billing & Settings page.
 struct NotificationCenterView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.dismiss) private var dismiss
