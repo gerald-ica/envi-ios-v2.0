@@ -180,7 +180,7 @@ private struct SwipeableCardView: View {
     private let swipeThreshold: CGFloat = 120
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .topTrailing) {
             cardImage
 
             LinearGradient(
@@ -195,12 +195,18 @@ private struct SwipeableCardView: View {
 
             swipeIndicators
 
+            // Sketch: AI SCORE PREVIEWS 77×78 at (269, 12) — 3 stacked pills.
+            aiScorePreviews
+                .padding(.top, 12)
+                .padding(.trailing, 12)
+
             cardContent
         }
         .frame(maxWidth: .infinity)
         .frame(height: cardHeight)
         .clipped()
-        .background(ENVITheme.Dark.surfaceLow.opacity(0.92))
+        // Sketch Content Card fill #4A60B2 — visible only when no image.
+        .background(Color(hex: "#4A60B2"))
         .overlay(
             RoundedRectangle(cornerRadius: 34, style: .continuous)
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
@@ -275,25 +281,34 @@ private struct SwipeableCardView: View {
         }
     }
 
+    /// Sketch: AI SCORE PREVIEWS — 3 grey translucent pills stacked
+    /// vertically at the top-right of the card.
+    private var aiScorePreviews: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            scorePill(icon: "sparkles", text: "\(Int(item.confidenceScore * 100))%")
+            scorePill(icon: "clock.fill", text: item.bestTime)
+            scorePill(icon: "chart.bar.fill", text: item.estimatedReach)
+        }
+    }
+
+    private func scorePill(icon: String, text: String) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundColor(.white)
+            Text(text)
+                .font(.interSemiBold(11))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color(hex: "#8B8B8B").opacity(0.75))
+        .clipShape(Capsule())
+    }
+
     private var cardContent: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.md) {
             Spacer()
-
-            HStack(alignment: .top, spacing: ENVISpacing.sm) {
-                platformBadge
-
-                Spacer()
-
-                Button(action: onBookmark) {
-                    Image(systemName: item.isBookmarked ? "bookmark.fill" : "bookmark")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.white)
-                        .frame(width: 34, height: 34)
-                        .background(Color.white.opacity(0.08))
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-            }
 
             Text(item.caption)
                 .font(.spaceMonoBold(18))
@@ -306,33 +321,27 @@ private struct SwipeableCardView: View {
                 Text(bodyText)
                     .font(.interRegular(14))
                     .foregroundColor(.white.opacity(0.65))
-                    .lineLimit(3)
+                    .lineLimit(2)
             }
 
-            HStack(spacing: ENVISpacing.sm) {
-                metricPill(title: "REACH", value: item.estimatedReach)
-                metricPill(title: "TIME", value: item.bestTime)
-                metricPill(title: "SCORE", value: "\(Int(item.confidenceScore * 100))%")
-            }
+            // Sketch: Platform Badge (bottom-left) + handle + bookmark (bottom-right)
+            HStack(alignment: .center, spacing: ENVISpacing.sm) {
+                platformBadge
 
-            HStack(spacing: ENVISpacing.sm) {
-                Circle()
-                    .fill(Color.white.opacity(0.18))
-                    .frame(width: 32, height: 32)
-                    .overlay(
-                        Text(String(item.creatorName.prefix(1)))
-                            .font(.interSemiBold(13))
-                            .foregroundColor(.white)
-                    )
+                Text(item.creatorHandle)
+                    .font(.interRegular(13))
+                    .foregroundColor(.white.opacity(0.72))
+                    .lineLimit(1)
 
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(item.creatorName)
-                        .font(.interSemiBold(14))
+                Spacer()
+
+                Button(action: onBookmark) {
+                    Image(systemName: item.isBookmarked ? "bookmark.fill" : "bookmark")
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.white)
-                    Text(item.creatorHandle)
-                        .font(.interRegular(12))
-                        .foregroundColor(.white.opacity(0.6))
+                        .frame(width: 24, height: 24)
                 }
+                .buttonStyle(.plain)
             }
         }
         .padding(ENVISpacing.xl)
@@ -350,27 +359,6 @@ private struct SwipeableCardView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 7)
         .background(Color.white.opacity(0.08))
-        .overlay(
-            Capsule()
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
-        .clipShape(Capsule())
-    }
-
-    private func metricPill(title: String, value: String) -> some View {
-        HStack(spacing: ENVISpacing.xs) {
-            Text(title)
-                .font(.spaceMonoBold(9))
-                .tracking(1.2)
-                .foregroundColor(.white.opacity(0.45))
-
-            Text(value)
-                .font(.interSemiBold(12))
-                .foregroundColor(.white)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .background(Color.white.opacity(0.06))
         .overlay(
             Capsule()
                 .stroke(Color.white.opacity(0.08), lineWidth: 1)
