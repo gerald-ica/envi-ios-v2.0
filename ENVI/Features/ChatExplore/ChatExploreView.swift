@@ -14,9 +14,11 @@ enum ExploreMode: String, CaseIterable {
 struct ChatExploreView: View {
     @State private var selectedMode: ExploreMode = .explore
     @State private var seededChatPrompt: String?
+    @State private var showHistory = false
+    @State private var showSettings = false
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack(alignment: .top) {
             ZStack {
                 if selectedMode == .explore {
                     WorldExplorerView(onSuggestionClick: { prompt in
@@ -44,12 +46,46 @@ struct ChatExploreView: View {
             .animation(.easeInOut(duration: 0.3), value: selectedMode)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            modeToggle
+            // Sketch "13 - AI Chat" header row: Chat History (left),
+            // EXPLORE/CHAT toggle (center-right), Settings (right).
+            headerRow
                 .padding(.top, 52)
-                .padding(.trailing, 58)
+                .padding(.horizontal, 22)
         }
         .background(AppBackground(imageName: "chat-home-bg"))
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showHistory) {
+            ChatHistorySheet()
+        }
+        .sheet(isPresented: $showSettings) {
+            ContentLibrarySettingsView()
+        }
+    }
+
+    // MARK: - Header Row
+
+    private var headerRow: some View {
+        HStack(spacing: ENVISpacing.md) {
+            Button { showHistory = true } label: {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .frame(width: 24, height: 24)
+            }
+
+            Spacer()
+
+            modeToggle
+
+            Spacer()
+
+            Button { showSettings = true } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white.opacity(0.7))
+                    .frame(width: 24, height: 24)
+            }
+        }
     }
 
     // MARK: - Mode Toggle
@@ -90,6 +126,47 @@ struct ChatExploreView: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Chat History Sheet
+
+/// Placeholder chat-history sheet. Listing the user's prior threads
+/// lives in a larger piece of scope; for now this displays an empty
+/// state so the Sketch-spec header icon has a real destination.
+private struct ChatHistorySheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: ENVISpacing.xl) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.system(size: 40, weight: .light))
+                        .foregroundColor(.white.opacity(0.4))
+                    Text("NO PAST CHATS YET")
+                        .font(.spaceMonoBold(12))
+                        .tracking(1.8)
+                        .foregroundColor(.white.opacity(0.55))
+                    Text("Your recent ENVI conversations will appear here.")
+                        .font(.interRegular(13))
+                        .foregroundColor(.white.opacity(0.4))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, ENVISpacing.xxxl)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 120)
+            }
+            .background(Color.black)
+            .navigationTitle("Chat History")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
     }
 }
 
