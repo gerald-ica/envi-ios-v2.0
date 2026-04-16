@@ -284,11 +284,11 @@ Phases execute in numeric order within each milestone.
 | 3. Media ingest + content backbone | v1.0 | ✓ | Complete | 2026-04-06 |
 | 4. AI + publishing minimum loop | v1.0 | ✓ | Complete | 2026-04-06 |
 | 5. Editor, billing, and launch quality | v1.0 | ✓ | Complete | 2026-04-06 |
-| 6. connector-foundation | v1.1 | 0/7 | Not started | - |
-| 7. oauth-broker-service | v1.1 | 0/7 | Not started | - |
-| 8. tiktok-sandbox-connector | v1.1 | 0/7 | Not started | - |
-| 9. x-twitter-connector | v1.1 | 0/6 | Not started | - |
-| 10. meta-family-connector | v1.1 | 0/8 | Not started | - |
-| 11. linkedin-connector | v1.1 | 0/5 | Not started | - |
-| 12. publish-lifecycle-hardening | v1.1 | 0/7 | Not started | - |
-| 13. analytics-insights-readpath | v1.1 | 0/6 | Not started | - |
+| 6. connector-foundation | v1.1 | 7/7 | Implemented | 2026-04-16 |
+| 7. oauth-broker-service | v1.1 | 7/7 | Implemented | 2026-04-16 |
+| 8. tiktok-sandbox-connector | v1.1 | 7/7 | Implemented | 2026-04-16 |
+| 9. x-twitter-connector | v1.1 | 6/6 | Implemented | 2026-04-16 |
+| 10. meta-family-connector | v1.1 | 8/8 | Implemented | 2026-04-16 |
+| 11. linkedin-connector | v1.1 | 5/5 | Implemented | 2026-04-16 |
+| 12. publish-lifecycle-hardening | v1.1 | 7/7 | Implemented | 2026-04-16 |
+| 13. analytics-insights-readpath | v1.1 | 6/6 | Implemented | 2026-04-16 |

@@ -3,11 +3,30 @@
 ## Current Position
 
 Milestone: **v1.1 Real Social Connectors**
-Phase: **7 of 8** (oauth-broker-service)
-Plan: `.planning/phases/07-oauth-broker-service/PLAN.md`
-Status: Executed — ready for verification (`npm run build && npm test` + `xcodebuild test`)
-Last activity: 2026-04-16 — Phase 7 implementation landed
-Progress: ██░░░░░░░░ 25%
+Phase: **8 of 8 complete** (Phases 6–13 all implemented)
+Status: **Implementation complete — awaiting verification + human-gated blockers**
+Last activity: 2026-04-16 — Phase 13 analytics read-path landed
+Progress: ██████████ 100% (implementation)
+
+### Remaining work before non-local deploy
+
+**Human-gated blockers (hard blockers for staging deploy):**
+1. **Rotate all 11 provider secrets** per `docs/ops/secret-rotation-checklist.md` (2026-04-16 plaintext exposure incident)
+2. **Register 6 sandbox redirect URIs** per `docs/ops/06-06-sandbox-redirect-checklist.md`
+3. **Provision `oauth-state-signing-key`** in Secret Manager (Phase 7)
+4. **TikTok Sandbox tester allowlist** — add ENVI team members before integration test
+5. **FB App Review** — `pages_manage_posts` scope; `FeatureFlags.canConnectFacebook` stays `false` until approved
+6. **LinkedIn MDP approval** — org scopes locked until email approval arrives (1-5 business days)
+7. **Link FirebaseFirestore SPM product** to ENVI target — Phase 13 Firestore-backed repos are `#if canImport` gated
+
+**Verification commands (run in order):**
+```bash
+cd functions && npm install && npm run build && npm test
+cd .. && xcodebuild -scheme ENVI -destination 'platform=iOS Simulator,name=iPhone 16 Pro' build
+xcodebuild test -scheme ENVI -destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+firebase emulators:start --only functions,firestore
+firebase deploy --only functions,firestore:rules,firestore:indexes
+```
 
 ## Accumulated Context
 
