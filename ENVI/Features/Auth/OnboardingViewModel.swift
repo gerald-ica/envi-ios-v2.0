@@ -95,7 +95,7 @@ final class OnboardingViewModel: ObservableObject {
     }
 
     var isWhereFromValid: Bool {
-        locationAuthorizationStatus.isAuthorized
+        !location.trimmingCharacters(in: .whitespaces).isEmpty || selectedLocation != nil
     }
 
     var isPhotosAccessValid: Bool {
