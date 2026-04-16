@@ -7,7 +7,10 @@ enum PurchaseConstants {
     // MARK: - API Keys
 
     /// RevenueCat public Apple API key (sandbox / test)
-    static let apiKey = "test_nvJRNOGrqcngcvhnIXEVVGMaAJM"
+    static let apiKey = "sk_hoeiPqynPTZFQYNrJloynICTIJEsD"
+
+    /// RevenueCat Stripe SDK key (for web/cross-platform billing)
+    static let stripeSDKKey = "strp_PYrioztBJShaIxHdwLUvkAHByBb"
 
     // MARK: - Entitlements
 

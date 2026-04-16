@@ -687,6 +687,7 @@
 		99F98260BA131518F989DFA0 /* RelatedQuestionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelatedQuestionsView.swift; sourceTree = "<group>"; };
 		9A98C9D253AA5B43BF86FF5E /* UpgradePromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradePromptView.swift; sourceTree = "<group>"; };
 		9CA0EB30B461EFEB2C930034 /* ContentPieceAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPieceAssembler.swift; sourceTree = "<group>"; };
+		9D3D716B931F08E8AADB7004 /* ENVI.Debug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ENVI.Debug.entitlements; sourceTree = "<group>"; };
 		9E0F94353A372A41FFD582BF /* envi-mark.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "envi-mark.jpg"; sourceTree = "<group>"; };
 		A021004F36A3CBFA8A75D05A /* MetadataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataModels.swift; sourceTree = "<group>"; };
 		A04BFF9FE2599AF2204FF6D7 /* SearchViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewModel.swift; sourceTree = "<group>"; };
@@ -1616,6 +1617,7 @@
 		D8824D3D79AE1ADD9CCBD8A8 /* ENVI */ = {
 			isa = PBXGroup;
 			children = (
+				9D3D716B931F08E8AADB7004 /* ENVI.Debug.entitlements */,
 				00D48F916AC097848DB9A744 /* ENVI.entitlements */,
 				EFBA69FBBF17A513721CBE3C /* App */,
 				2380D914A92F4EEA751252D5 /* Components */,
@@ -1865,7 +1867,6 @@
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					02F75898D3F5656C6FA4BCB6 = {
-						DevelopmentTeam = ZM82DY7PG2;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -2480,11 +2481,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = YES;
-				CODE_SIGN_ENTITLEMENTS = ENVI/ENVI.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ENVI/ENVI.Debug.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZM82DY7PG2;
+				DEVELOPMENT_TEAM = W5687Z6R55;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ENVI/SupportingFiles/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
@@ -2500,7 +2501,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.weareinformal.envi.staging;
+				PRODUCT_BUNDLE_IDENTIFIER = com.geraldwelly.envi.debug;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
