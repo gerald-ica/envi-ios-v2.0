@@ -3,11 +3,11 @@
 ## Current Position
 
 Milestone: **v1.1 Real Social Connectors**
-Phase: **6 of 8** (connector-foundation)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-04-16 — Milestone v1.1 created
-Progress: ░░░░░░░░░░ 0%
+Phase: **7 of 8** (oauth-broker-service)
+Plan: `.planning/phases/07-oauth-broker-service/PLAN.md`
+Status: Executed — ready for verification (`npm run build && npm test` + `xcodebuild test`)
+Last activity: 2026-04-16 — Phase 7 implementation landed
+Progress: ██░░░░░░░░ 25%
 
 ## Accumulated Context
 
@@ -43,6 +43,7 @@ Progress: ░░░░░░░░░░ 0%
 
 - 2026-04-06: Milestone v1.0 Foundation shipped (Phases 1-5), OAuth scaffolding mocked.
 - 2026-04-16: Milestone v1.1 Real Social Connectors created, 8 phases (Phases 6-13). Focus: replace mocks with real broker + 6 provider integrations + insights read-path.
+- 2026-04-16: Phase 7 OAuth broker infrastructure shipped. `functions/src/oauth/` — adapter interface + registry + start/callback/refresh/disconnect/status handlers. iOS: `SocialOAuthManager.useMockOAuth` removed, replaced with `FeatureFlags.connectorsUseMockOAuth` (DEBUG default: true). `ProviderOAuthAdapter` interface locked — Phase 8+ wires concrete adapters.
 
 ## Session Continuity
 

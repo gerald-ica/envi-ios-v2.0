@@ -59,6 +59,28 @@ For each row in the table:
   - YYYY-MM-DD: Rotated all 11 staging secrets. Last 4 of new values recorded in 1Password vault `envi-connector-secrets`.
   ```
 
+## Phase 07 addition — `oauth-state-signing-key`
+
+The broker signs the OAuth `state` parameter with an HMAC-SHA256 key
+stored in Secret Manager under `oauth-state-signing-key` (no `staging-`
+prefix — the same key covers both environments but we maintain separate
+SM entries per project).
+
+- **Value format:** 64+ character random string. Generate via
+  `openssl rand -base64 48`. Store ONLY in Secret Manager; never in a
+  password manager, never in a repo, never in chat.
+- **Rotation cadence:** quarterly, or immediately on suspected compromise.
+- **Overlap window:** rotating this key invalidates every in-flight state
+  JWT (max 10 minutes, per `PKCE_TTL_SECONDS`). To avoid dropping user
+  flows, run the rotation twice with a 15-minute gap: (1) add v+1, (2)
+  wait 15 min so containers hot-cycle to the new version for NEW tokens
+  while in-flight requests drain, (3) disable v.
+- **Rotation steps:** identical to the per-secret procedure above, with
+  one additional check: search Cloud Logging for
+  `STATE_INVALID` / `STATE_EXPIRED` rate in the hour after rotation.
+  A spike above baseline (>5×) indicates container cycling hasn't
+  completed — extend the overlap window before disabling v-1.
+
 ## 2026-04-16 incident record
 
 - **Trigger:** Secrets pasted in plaintext during planning chat.

@@ -1,10 +1,77 @@
 import Foundation
 
+/// Entry point for social-connector OAuth flows.
+///
+/// Phase 07 reshaped the internals but preserved the public shape:
+///   - `connect(platform:)`
+///   - `disconnect(platform:)`
+///   - `refreshToken(platform:)`
+///   - `connectionStatus(platform:)`
+///
+/// What changed in Phase 07
+/// ------------------------
+/// - The static `useMockOAuth: Bool` flag was removed. Mock vs. real is
+///   now driven by `FeatureFlags.shared.connectorsUseMockOAuth` so we
+///   can flip behaviour via Remote Config without a resubmission.
+/// - The real path hits the Cloud Functions broker (Phase 07):
+///     `POST /oauth/{slug}/start` → `ASWebAuthenticationSession` →
+///     provider 302 → Functions exchange + KMS persist →
+///     `GET /oauth/{slug}/status` on the way back in.
+/// - `OAuthSession` is now injectable in `init` so tests can swap in a
+///   recording stub. A singleton `.shared` is still available and uses
+///   the real `ASWebAuthenticationSessionAdapter`.
 final class SocialOAuthManager {
-    static let shared = SocialOAuthManager()
-    static var useMockOAuth: Bool = true
 
-    private init() {}
+    /// Process-wide singleton. Backed by the real web auth adapter; prefer
+    /// `SocialOAuthManager(session:apiClient:)` from tests.
+    static let shared = SocialOAuthManager(
+        apiClient: SocialOAuthManager.makeDefaultAPIClient()
+    )
+
+    private let apiClient: APIClient
+    private let sessionFactory: @MainActor () -> OAuthSession
+    private let callbackScheme: String
+    private let featureFlagGate: @Sendable () async -> Bool
+
+    /// Builds an APIClient whose JSONDecoder uses ISO-8601 for `Date` fields.
+    /// The broker emits `tokenExpiresAt` / `lastRefreshedAt` as ISO-8601
+    /// strings (see `status.ts#timestampToIso`), so decoding into
+    /// `PlatformConnection.tokenExpiresAt: Date?` needs an explicit strategy.
+    ///
+    /// Scoped to the manager rather than flipping `APIClient`'s default so
+    /// we don't disturb the 16+ other repositories in the app that parse
+    /// server-derived dates with their own conventions.
+    private static func makeDefaultAPIClient() -> APIClient {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return APIClient(decoder: decoder)
+    }
+
+    /// - Parameters:
+    ///   - apiClient: API client used for broker calls. Tests inject a
+    ///     URLSession-backed stub.
+    ///   - sessionFactory: Produces a fresh `OAuthSession` per connect
+    ///     attempt. The default builds an `ASWebAuthenticationSessionAdapter`
+    ///     on the main actor.
+    ///   - callbackScheme: Custom URL scheme the provider redirects back to
+    ///     (matches `CFBundleURLSchemes` in Info.plist).
+    ///   - featureFlagGate: Override the mock/real gate. Defaults to
+    ///     `FeatureFlags.shared.connectorsUseMockOAuth` (main-actor read).
+    init(
+        apiClient: APIClient = .shared,
+        sessionFactory: @escaping @MainActor () -> OAuthSession = {
+            ASWebAuthenticationSessionAdapter()
+        },
+        callbackScheme: String = "enviapp",
+        featureFlagGate: @escaping @Sendable () async -> Bool = {
+            await MainActor.run { FeatureFlags.shared.connectorsUseMockOAuth }
+        }
+    ) {
+        self.apiClient = apiClient
+        self.sessionFactory = sessionFactory
+        self.callbackScheme = callbackScheme
+        self.featureFlagGate = featureFlagGate
+    }
 
     // MARK: - Errors
 
@@ -13,6 +80,7 @@ final class SocialOAuthManager {
         case connectionFailed(SocialPlatform)
         case tokenExpired(SocialPlatform)
         case disconnectFailed(SocialPlatform)
+        case userCancelled(SocialPlatform)
 
         var errorDescription: String? {
             switch self {
@@ -24,6 +92,8 @@ final class SocialOAuthManager {
                 return "\(platform.rawValue) token has expired. Please reconnect."
             case .disconnectFailed(let platform):
                 return "Failed to disconnect \(platform.rawValue)."
+            case .userCancelled(let platform):
+                return "You cancelled the \(platform.rawValue) sign-in."
             }
         }
     }
@@ -31,7 +101,7 @@ final class SocialOAuthManager {
     // MARK: - Connect
 
     func connect(platform: SocialPlatform) async throws -> PlatformConnection {
-        if Self.useMockOAuth {
+        if await featureFlagGate() {
             try await Task.sleep(for: .seconds(1))
             return PlatformConnection(
                 platform: platform,
@@ -44,34 +114,71 @@ final class SocialOAuthManager {
             )
         }
 
-        let response: OAuthConnectionResponse = try await APIClient.shared.request(
-            endpoint: "oauth/\(platform.apiSlug)/connect",
-            method: .post,
-            body: Optional<String>.none,
-            requiresAuth: true
-        )
+        // 1. Ask the broker to mint a PKCE + state package and hand us an
+        //    authorization URL. The broker persists the PKCE verifier
+        //    keyed by the `stateToken` returned here.
+        let startResponse: OAuthStartResponse
+        do {
+            startResponse = try await apiClient.request(
+                endpoint: "oauth/\(platform.apiSlug)/start",
+                method: .post,
+                body: Optional<String>.none,
+                requiresAuth: true
+            )
+        } catch {
+            throw OAuthError.connectionFailed(platform)
+        }
+
+        guard let authURL = URL(string: startResponse.authorizationUrl) else {
+            throw OAuthError.invalidResponse
+        }
+
+        // 2. Drive the system web auth session. On iOS this surfaces the
+        //    provider's sign-in UI inside an SFSafariViewController-style
+        //    sheet that the provider can share cookies with.
+        do {
+            _ = try await runSession(authorizationURL: authURL)
+        } catch OAuthSessionError.userCancelled {
+            throw OAuthError.userCancelled(platform)
+        } catch {
+            throw OAuthError.connectionFailed(platform)
+        }
+
+        // 3. By this point the broker has already written the encrypted
+        //    token set to Firestore via its `callback` handler. Fetch the
+        //    status to learn the user's handle, scopes, expiry, etc.
+        let statusResponse: OAuthConnectionResponse
+        do {
+            statusResponse = try await apiClient.request(
+                endpoint: "oauth/\(platform.apiSlug)/status",
+                method: .get,
+                requiresAuth: true
+            )
+        } catch {
+            throw OAuthError.connectionFailed(platform)
+        }
 
         return PlatformConnection(
             platform: platform,
-            isConnected: true,
-            handle: response.handle,
-            followerCount: response.followerCount,
-            tokenExpiresAt: response.tokenExpiresAt,
-            lastRefreshedAt: Date(),
-            scopes: response.scopes ?? []
+            isConnected: statusResponse.isConnected ?? true,
+            handle: statusResponse.handle,
+            followerCount: statusResponse.followerCount,
+            tokenExpiresAt: statusResponse.tokenExpiresAt,
+            lastRefreshedAt: statusResponse.lastRefreshedAt ?? Date(),
+            scopes: statusResponse.scopes ?? []
         )
     }
 
     // MARK: - Disconnect
 
     func disconnect(platform: SocialPlatform) async throws {
-        if Self.useMockOAuth {
+        if await featureFlagGate() {
             try await Task.sleep(for: .milliseconds(500))
             return
         }
 
         do {
-            try await APIClient.shared.requestVoid(
+            try await apiClient.requestVoid(
                 endpoint: "oauth/\(platform.apiSlug)/disconnect",
                 method: .post,
                 body: Optional<String>.none,
@@ -85,7 +192,7 @@ final class SocialOAuthManager {
     // MARK: - Refresh Token
 
     func refreshToken(platform: SocialPlatform) async throws -> PlatformConnection {
-        if Self.useMockOAuth {
+        if await featureFlagGate() {
             try await Task.sleep(for: .milliseconds(500))
             return PlatformConnection(
                 platform: platform,
@@ -101,7 +208,7 @@ final class SocialOAuthManager {
         let response: OAuthConnectionResponse
 
         do {
-            response = try await APIClient.shared.request(
+            response = try await apiClient.request(
                 endpoint: "oauth/\(platform.apiSlug)/refresh",
                 method: .post,
                 body: Optional<String>.none,
@@ -113,11 +220,11 @@ final class SocialOAuthManager {
 
         return PlatformConnection(
             platform: platform,
-            isConnected: true,
+            isConnected: response.isConnected ?? true,
             handle: response.handle,
             followerCount: response.followerCount,
             tokenExpiresAt: response.tokenExpiresAt,
-            lastRefreshedAt: Date(),
+            lastRefreshedAt: response.lastRefreshedAt ?? Date(),
             scopes: response.scopes ?? []
         )
     }
@@ -125,7 +232,7 @@ final class SocialOAuthManager {
     // MARK: - Connection Status
 
     func connectionStatus(platform: SocialPlatform) async throws -> PlatformConnection {
-        if Self.useMockOAuth {
+        if await featureFlagGate() {
             return PlatformConnection(
                 platform: platform,
                 isConnected: true,
@@ -137,7 +244,7 @@ final class SocialOAuthManager {
             )
         }
 
-        let response: OAuthConnectionResponse = try await APIClient.shared.request(
+        let response: OAuthConnectionResponse = try await apiClient.request(
             endpoint: "oauth/\(platform.apiSlug)/status",
             method: .get,
             requiresAuth: true
@@ -151,6 +258,23 @@ final class SocialOAuthManager {
             tokenExpiresAt: response.tokenExpiresAt,
             lastRefreshedAt: response.lastRefreshedAt,
             scopes: response.scopes ?? []
+        )
+    }
+
+    // MARK: - Private
+
+    /// Hop to the main actor to run the injected `OAuthSession`. The
+    /// session factory produces a fresh instance per connect attempt;
+    /// `ASWebAuthenticationSession` is UIKit-backed so the factory must
+    /// run on main. Once we have a session, its `start(...)` call handles
+    /// its own actor isolation — the protocol doesn't pin us to main.
+    private func runSession(authorizationURL: URL) async throws -> URL {
+        let scheme = callbackScheme
+        let factory = sessionFactory
+        let session: OAuthSession = await MainActor.run { factory() }
+        return try await session.start(
+            authorizationURL: authorizationURL,
+            callbackScheme: scheme
         )
     }
 
@@ -179,8 +303,16 @@ final class SocialOAuthManager {
     }
 }
 
-// MARK: - API Response
+// MARK: - API Responses
 
+/// Broker `/oauth/:provider/start` response.
+private struct OAuthStartResponse: Decodable {
+    let authorizationUrl: String
+    let stateToken: String
+}
+
+/// Shared shape returned by `/status` and `/refresh`. Kept permissive
+/// (all optional) so minor broker additions don't break decoding.
 private struct OAuthConnectionResponse: Decodable {
     let handle: String?
     let followerCount: Int?
@@ -188,4 +320,5 @@ private struct OAuthConnectionResponse: Decodable {
     let tokenExpiresAt: Date?
     let lastRefreshedAt: Date?
     let scopes: [String]?
+    let requiresReauth: Bool?
 }

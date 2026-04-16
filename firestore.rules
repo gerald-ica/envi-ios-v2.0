@@ -1,6 +1,12 @@
 rules_version = '2';
 
-// ENVI Firestore security rules — v1.1 connector foundation (Phase 06-03).
+// ENVI Firestore security rules — v1.1 connector foundation.
+//
+// Phase 06-03: base per-user read on `users/{uid}/connections/{provider}`.
+// Phase 07:    admin-only collections for the OAuth broker:
+//   - oauth_pending/{stateToken}                          — PKCE verifiers
+//   - users/{uid}/connections/{provider}/rotationHistory — refresh hashes
+//   - securityEvents/{eventId}                            — audit trail
 //
 // Design principles:
 //   - Every write to `users/{uid}/connections/**` goes through the Admin SDK
@@ -34,7 +40,28 @@ service cloud.firestore {
                       && request.auth.uid == uid
                       && provider in ["tiktok", "x", "instagram", "facebook", "threads", "linkedin"];
         allow write: if false;  // Admin SDK only
+
+        // Rotation history — never exposed to the client. Admin SDK only.
+        match /rotationHistory/{hash} {
+          allow read, write: if false;
+        }
       }
+    }
+
+    // -------------------------------------------------------------------
+    // Phase 07: PKCE pending records. Opaque to clients — the broker is
+    // the only reader/writer. TTL is declared via firestore.indexes.json.
+    // -------------------------------------------------------------------
+    match /oauth_pending/{stateToken} {
+      allow read, write: if false;  // Admin SDK only
+    }
+
+    // -------------------------------------------------------------------
+    // Phase 07: security audit events (refresh-token reuse, etc).
+    // Not user-visible; admin/monitoring tooling reads via server SDK.
+    // -------------------------------------------------------------------
+    match /securityEvents/{eventId} {
+      allow read, write: if false;
     }
 
     // Default deny for any path not matched above.

@@ -63,6 +63,28 @@ public final class FeatureFlags {
         #endif
     }()
 
+    // MARK: - Connectors (Phase 07)
+
+    /// Controls the OAuth code path used by `SocialOAuthManager`.
+    ///
+    /// - `true`  (default in DEBUG): the mock code path runs — deterministic
+    ///   latency + fake handles, no network. Preserves SwiftUI previews and
+    ///   unit-test determinism without wiring a Functions emulator.
+    /// - `false` (default in release): real round-trip via the Cloud
+    ///   Functions OAuth broker (Phase 07) — `POST /oauth/:provider/start`,
+    ///   `ASWebAuthenticationSession`, `GET /oauth/:provider/status`.
+    ///
+    /// Remote Config key: `"connectorsUseMockOAuth"`. Setting it at runtime
+    /// lets us flip the mock path on in prod as an emergency brake if a
+    /// broker deploy breaks (e.g. provider outage, secret rotation gap).
+    public var connectorsUseMockOAuth: Bool = {
+        #if DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }()
+
     // MARK: - Init
 
     /// Private to enforce singleton use. Tests that need an isolated
@@ -102,10 +124,19 @@ public final class FeatureFlags {
 
     #if canImport(FirebaseRemoteConfig)
     private func applyRemoteConfigValues(from rc: RemoteConfig) {
-        let key = "templateCatalogSource"
-        let value = rc.configValue(forKey: key).stringValue
-        if !value.isEmpty {
-            self.templateCatalogSource = value
+        let catalogKey = "templateCatalogSource"
+        let catalogValue = rc.configValue(forKey: catalogKey).stringValue
+        if !catalogValue.isEmpty {
+            self.templateCatalogSource = catalogValue
+        }
+
+        let mockOAuthKey = "connectorsUseMockOAuth"
+        let mockOAuthValue = rc.configValue(forKey: mockOAuthKey)
+        // Only override when Remote Config actually carries a value —
+        // `.stringValue` on a missing key returns "" so we check the raw
+        // data length as well.
+        if mockOAuthValue.dataValue.count > 0 {
+            self.connectorsUseMockOAuth = mockOAuthValue.boolValue
         }
     }
     #endif
