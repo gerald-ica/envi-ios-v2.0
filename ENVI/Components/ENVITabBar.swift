@@ -1,23 +1,24 @@
 import UIKit
 
 /// 3-pill floating tab bar matching Sketch "Main App" Tab Pill Bar symbol (164×64).
-/// iOS 26: uses `UIGlassEffect` for the native Liquid Glass look; falls back to
-/// `UIBlurEffect(.systemUltraThinMaterialDark)` on iOS 25 and below.
 ///
-/// Icons (from Sketch symbols → asset files):
+/// Per Sketch spec:
+/// - Pill fill: `#4A5FB2` (the "purple aura")
+/// - Inner white glow at top edge: shadow #FFFFFF@72% blur=8 offset=(0,4) — creates
+///   a luminous highlight that reads as a translucent aura
 /// - Tab 0: `shape-15` (home/feed bitmap), 30×30
 /// - Tab 1: `envi-logo` (center), 30×24.6
-/// - Tab 2: `person.fill` SF Symbol (profile placeholder), 19pt
+/// - Tab 2: `person.fill` SF Symbol (profile placeholder)
 ///
 /// When a tab is selected, a 45×45 white circle appears behind its icon and the
-/// icon tints to `#191919` (pill color) for contrast on the white circle.
+/// icon tints to the pill color for contrast on the white circle.
 final class ENVITabBar: UIView {
 
     struct Tab {
-        let iconName: String?        // SF Symbol name (used if imageName is nil)
-        let imageName: String?       // Bundled image (from SymbolsIconsDecor)
-        let iconPointSize: CGFloat   // For SF Symbols
-        let imageWidth: CGFloat      // For bitmap images
+        let iconName: String?
+        let imageName: String?
+        let iconPointSize: CGFloat
+        let imageWidth: CGFloat
         let imageHeight: CGFloat
     }
 
@@ -38,12 +39,11 @@ final class ENVITabBar: UIView {
     private var iconViews: [UIImageView] = []
     private var activeCircles: [UIView] = []
     private let pillBackground = UIView()
-    private let glassContainer = UIView()
-    private let pillTint = UIView()
+    private let topGlow = CAGradientLayer()
     private let stackView = UIStackView()
 
-    // Sketch spec: pill background #191919 (near-black).
-    private let pillColor = UIColor(red: 0x19 / 255.0, green: 0x19 / 255.0, blue: 0x19 / 255.0, alpha: 1.0)
+    // Sketch spec: pill fill #4A5FB2 (purple aura).
+    private let pillColor = UIColor(red: 0x4A / 255.0, green: 0x5F / 255.0, blue: 0xB2 / 255.0, alpha: 1.0)
     private let activeCircleSize: CGFloat = 45
 
     init(tabs: [Tab] = ENVITabBar.defaultTabs) {
@@ -58,36 +58,42 @@ final class ENVITabBar: UIView {
         CGSize(width: 164, height: 64)
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        // Inner top glow — matches Sketch inner shadow #FFFFFF@72% blur=8 offset=(0,4).
+        topGlow.frame = CGRect(x: 0, y: 0, width: pillBackground.bounds.width, height: 14)
+    }
+
     private func setupUI() {
         backgroundColor = .clear
         clipsToBounds = false
         isUserInteractionEnabled = true
 
-        // Drop shadow on the outer view's layer so it's not clipped by pill.
+        // Outer drop shadow on self — not clipped by pill.
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.35
-        layer.shadowRadius = 24
+        layer.shadowOpacity = 0.32
+        layer.shadowRadius = 22
         layer.shadowOffset = CGSize(width: 0, height: 12)
 
-        pillBackground.backgroundColor = .clear
+        pillBackground.backgroundColor = pillColor
         pillBackground.layer.cornerRadius = 32
         pillBackground.layer.cornerCurve = .continuous
         pillBackground.clipsToBounds = true
         pillBackground.layer.borderWidth = 1
-        pillBackground.layer.borderColor = UIColor.white.withAlphaComponent(0.14).cgColor
+        pillBackground.layer.borderColor = UIColor.white.withAlphaComponent(0.16).cgColor
         pillBackground.translatesAutoresizingMaskIntoConstraints = false
         addSubview(pillBackground)
 
-        glassContainer.translatesAutoresizingMaskIntoConstraints = false
-        glassContainer.isUserInteractionEnabled = false
-        pillBackground.addSubview(glassContainer)
-        installGlass(on: glassContainer)
-
-        // Tint overlay sits above glass — must not absorb taps.
-        pillTint.backgroundColor = pillColor.withAlphaComponent(0.62)
-        pillTint.translatesAutoresizingMaskIntoConstraints = false
-        pillTint.isUserInteractionEnabled = false
-        pillBackground.addSubview(pillTint)
+        // Top edge glow: white → clear vertical gradient clipped by pill corners.
+        // This creates the Sketch's luminous aura effect along the top rim.
+        topGlow.colors = [
+            UIColor.white.withAlphaComponent(0.72).cgColor,
+            UIColor.white.withAlphaComponent(0.00).cgColor,
+        ]
+        topGlow.locations = [0.0, 1.0]
+        topGlow.startPoint = CGPoint(x: 0.5, y: 0)
+        topGlow.endPoint = CGPoint(x: 0.5, y: 1)
+        pillBackground.layer.addSublayer(topGlow)
 
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
@@ -111,7 +117,6 @@ final class ENVITabBar: UIView {
             container.addSubview(circle)
             activeCircles.append(circle)
 
-            // Image view sits above the active circle.
             let iconView = UIImageView()
             iconView.translatesAutoresizingMaskIntoConstraints = false
             iconView.contentMode = .scaleAspectFit
@@ -127,7 +132,6 @@ final class ENVITabBar: UIView {
             container.addSubview(iconView)
             iconViews.append(iconView)
 
-            // Single full-container button captures all taps reliably.
             let button = UIButton(type: .custom)
             button.backgroundColor = .clear
             button.tag = index
@@ -164,16 +168,6 @@ final class ENVITabBar: UIView {
             pillBackground.topAnchor.constraint(equalTo: topAnchor),
             pillBackground.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            glassContainer.topAnchor.constraint(equalTo: pillBackground.topAnchor),
-            glassContainer.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),
-            glassContainer.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor),
-            glassContainer.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor),
-
-            pillTint.topAnchor.constraint(equalTo: pillBackground.topAnchor),
-            pillTint.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),
-            pillTint.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor),
-            pillTint.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor),
-
             stackView.topAnchor.constraint(equalTo: pillBackground.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),
             stackView.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor),
@@ -181,28 +175,6 @@ final class ENVITabBar: UIView {
         ])
 
         updateSelection()
-    }
-
-    /// Installs iOS 26 `UIGlassEffect` if available, else falls back to blur.
-    /// The visual effect view is explicitly non-interactive so it never eats taps.
-    private func installGlass(on container: UIView) {
-        let effectView: UIVisualEffectView
-        if #available(iOS 26.0, *) {
-            let effect = UIGlassEffect()
-            effect.isInteractive = false
-            effectView = UIVisualEffectView(effect: effect)
-        } else {
-            effectView = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
-        }
-        effectView.translatesAutoresizingMaskIntoConstraints = false
-        effectView.isUserInteractionEnabled = false
-        container.addSubview(effectView)
-        NSLayoutConstraint.activate([
-            effectView.topAnchor.constraint(equalTo: container.topAnchor),
-            effectView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            effectView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            effectView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-        ])
     }
 
     @objc private func tabTapped(_ sender: UIButton) {
@@ -217,8 +189,6 @@ final class ENVITabBar: UIView {
     private func updateSelection() {
         for (index, iconView) in iconViews.enumerated() {
             let isSelected = index == selectedIndex
-
-            // Icon color: pill color when on white active circle, white otherwise.
             iconView.tintColor = isSelected ? pillColor : .white
 
             UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseInOut) {

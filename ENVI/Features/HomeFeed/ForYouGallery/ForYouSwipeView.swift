@@ -282,19 +282,52 @@ private struct SwipeableCardView: View {
     }
 
     /// Sketch: AI SCORE PREVIEWS — 3 grey translucent pills stacked
-    /// vertically at the top-right of the card.
+    /// vertically at the top-right of the card. Icons are the exact
+    /// bitmaps from the Sketch symbols:
+    /// - Confidence: envi-ai-confidence.png (14×10)
+    /// - Best time:  shape-01.png           (15×15)
+    /// - Reach:      eye.fill SF Symbol     (Sketch uses a vector path)
     private var aiScorePreviews: some View {
         VStack(alignment: .trailing, spacing: 6) {
-            scorePill(icon: "sparkles", text: "\(Int(item.confidenceScore * 100))%")
-            scorePill(icon: "clock.fill", text: item.bestTime)
-            scorePill(icon: "chart.bar.fill", text: item.estimatedReach)
+            scorePill(
+                bitmap: "envi-ai-confidence",
+                size: CGSize(width: 14, height: 10),
+                text: "\(Int(item.confidenceScore * 100))%"
+            )
+            scorePill(
+                bitmap: "shape-01",
+                size: CGSize(width: 15, height: 15),
+                text: item.bestTime
+            )
+            scorePill(
+                systemName: "eye.fill",
+                text: item.estimatedReach
+            )
         }
     }
 
-    private func scorePill(icon: String, text: String) -> some View {
+    private func scorePill(bitmap: String, size: CGSize, text: String) -> some View {
         HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.system(size: 9, weight: .semibold))
+            Image(bitmap)
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: size.width, height: size.height)
+                .foregroundColor(.white)
+            Text(text)
+                .font(.interSemiBold(11))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(Color(hex: "#8B8B8B").opacity(0.75))
+        .clipShape(Capsule())
+    }
+
+    private func scorePill(systemName: String, text: String) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: systemName)
+                .font(.system(size: 10, weight: .semibold))
                 .foregroundColor(.white)
             Text(text)
                 .font(.interSemiBold(11))
