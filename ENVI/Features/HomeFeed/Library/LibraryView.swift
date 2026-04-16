@@ -1,226 +1,185 @@
 import SwiftUI
 import PhotosUI
 
-/// Main library screen with filter chips, template carousel, and masonry grid.
+/// Main Library screen — matches Sketch artboard "12 - Library" (393×852).
+///
+/// Header: Search pill + "For you / Gallery" segmented switch + Content
+/// Calendar icon (same pattern as the Feed tab). Body: two named
+/// sections — "SAVED TEMPLATES" (carousel) and "SOCIAL MEDIA ARSENAL"
+/// (masonry grid of approved items). A floating upload FAB at the
+/// bottom-right opens PHPicker. Tapping the search icon presents an
+/// inline dark search sheet ("Try 'OOTD short form video'").
 struct LibraryView: View {
+
     @StateObject private var viewModel = LibraryViewModel()
-    @StateObject private var damViewModel = LibraryDAMViewModel()
     @State private var showMediaPicker = false
     @State private var showCalendar = false
+    @State private var showSearch = false
+    @State private var segmentIndex = 0
+
     @Environment(\.colorScheme) private var colorScheme
+
+    private let segments = ["For You", "Gallery"]
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
-                    // Title
-                    Text("LIBRARY")
-                        .font(.spaceMonoBold(28))
-                        .tracking(-1.5)
-                        .foregroundColor(ENVITheme.text(for: colorScheme))
-                        .padding(.horizontal, ENVISpacing.xl)
+            AppBackground(imageName: "library-bg")
 
-                    // Filter chips
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: ENVISpacing.sm) {
-                            ForEach(LibraryViewModel.FilterType.allCases, id: \.self) { filter in
-                                ENVIChip(
-                                    title: filter.rawValue,
-                                    isSelected: viewModel.selectedFilter == filter
-                                ) {
-                                    viewModel.selectedFilter = filter
-                                }
-                            }
-                        }
-                        .padding(.horizontal, ENVISpacing.xl)
+            VStack(spacing: 0) {
+                header
+                    .padding(.top, ENVISpacing.sm)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, ENVISpacing.sm)
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: ENVISpacing.xl) {
+                        savedTemplates
+                        socialMediaArsenal
                     }
-
-                    // Search
-                    HStack(spacing: ENVISpacing.sm) {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                        TextField("Search library", text: $viewModel.searchQuery)
-                            .textInputAutocapitalization(.never)
-                            .disableAutocorrection(true)
-                            .foregroundColor(ENVITheme.text(for: colorScheme))
-                    }
-                    .padding(.horizontal, ENVISpacing.md)
-                    .padding(.vertical, ENVISpacing.sm)
-                    .background(ENVITheme.surfaceLow(for: colorScheme))
-                    .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                    // Templates
-                    TemplateCarousel(
-                        templates: viewModel.templates,
-                        onApply: { template in
-                            viewModel.applyTemplate(template)
-                        },
-                        onDuplicate: { template in
-                            Task { await viewModel.duplicateTemplate(template) }
-                        },
-                        onDelete: { template in
-                            Task { await viewModel.deleteTemplate(template) }
-                        }
-                    )
-
-                    if viewModel.isApplyingTemplateOperation {
-                        HStack {
-                            ProgressView()
-                            Text("Updating templates...")
-                                .font(.interRegular(12))
-                                .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                        }
-                        .padding(.horizontal, ENVISpacing.xl)
-                    }
-
-                    if let templateError = viewModel.templateOperationErrorMessage {
-                        Text(templateError)
-                            .font(.interRegular(12))
-                            .foregroundColor(.red)
-                            .padding(.horizontal, ENVISpacing.xl)
-                    }
-
-                    // Calendar shortcut
-                    Button {
-                        showCalendar = true
-                    } label: {
-                        HStack(spacing: ENVISpacing.sm) {
-                            Image(systemName: "calendar")
-                                .font(.system(size: 14, weight: .medium))
-                            Text("OPEN CALENDAR")
-                                .font(.spaceMonoBold(11))
-                                .tracking(1.5)
-                        }
-                        .foregroundColor(colorScheme == .dark ? .black : .white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, ENVISpacing.md)
-                        .background(ENVITheme.text(for: colorScheme))
-                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                    ContentPlanningSectionView(
-                        items: $viewModel.contentPlan,
-                        isLoading: viewModel.isLoadingPlan,
-                        errorMessage: viewModel.planErrorMessage,
-                        onRetry: {
-                            Task { await viewModel.reloadContentPlan() }
-                        },
-                        onAdd: {
-                            viewModel.isShowingPlanEditor = true
-                        },
-                        onEdit: { item in
-                            viewModel.editingPlanItem = item
-                        },
-                        onDelete: { item in
-                            Task { await viewModel.deletePlanItem(item) }
-                        },
-                        onStatusToggle: { item in
-                            let next: ContentPlanItem.Status
-                            switch item.status {
-                            case .draft: next = .ready
-                            case .ready: next = .scheduled
-                            case .scheduled: next = .draft
-                            }
-                            Task { await viewModel.updatePlanItem(item, status: next) }
-                        },
-                        onMove: { source, destination in
-                            viewModel.reorderPlanItems(from: source, to: destination)
-                        }
-                    )
-                    .padding(.horizontal, ENVISpacing.xl)
-
-                    if let planError = viewModel.planOperationErrorMessage {
-                        Text(planError)
-                            .font(.interRegular(12))
-                            .foregroundColor(.red)
-                            .padding(.horizontal, ENVISpacing.xl)
-                    }
-
-                    // DAM: Folders
-                    FolderBrowserView(viewModel: damViewModel)
-
-                    // DAM: Smart Collections
-                    SmartCollectionView(viewModel: damViewModel)
-
-                    // DAM: Storage Quota
-                    StorageQuotaView(viewModel: damViewModel)
-
-                    if viewModel.isLoading {
-                        HStack {
-                            ProgressView()
-                            Text("Loading library...")
-                                .font(.interRegular(13))
-                                .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                        }
-                        .padding(.horizontal, ENVISpacing.xl)
-                    }
-
-                    if let error = viewModel.loadErrorMessage {
-                        VStack(alignment: .leading, spacing: ENVISpacing.sm) {
-                            Text(error)
-                                .font(.interMedium(13))
-                                .foregroundColor(.red)
-                            Button("Retry") {
-                                Task { await viewModel.reloadLibrary() }
-                            }
-                            .font(.interMedium(13))
-                        }
-                        .padding(.horizontal, ENVISpacing.xl)
-                    }
-
-                    // Masonry grid
-                    MasonryGridView(items: viewModel.filteredItems)
-                        .padding(.horizontal, ENVISpacing.xl)
+                    .padding(.top, ENVISpacing.md)
+                    .padding(.bottom, 120)
                 }
-                .padding(.top, ENVISpacing.lg)
-                .padding(.bottom, 100) // space for tab bar
             }
 
-            // FAB
-            Button(action: { showMediaPicker = true }) {
-                Image(systemName: "plus")
-                    .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.black)
-                    .frame(width: 56, height: 56)
-                    .background(Color.white)
-                    .clipShape(Circle())
-                    .enviElevatedShadow()
-            }
-            .padding(.trailing, ENVISpacing.xl)
-            .padding(.bottom, 90)
+            uploadFAB
+                .padding(.trailing, 24)
+                .padding(.bottom, 96)
         }
-        .background(ENVITheme.background(for: colorScheme))
-        .sheet(item: $viewModel.templateToApply) { template in
-            ExportSheetView(
-                composer: ExportComposerFactory.make(template: template)
-            )
-        }
-        .sheet(isPresented: $viewModel.isShowingPlanEditor) {
-            PlanItemEditorSheet(existingItem: nil) { title, platform, scheduledAt in
-                Task { await viewModel.createPlanItem(title: title, platform: platform, scheduledAt: scheduledAt) }
-            }
-        }
-        .sheet(item: $viewModel.editingPlanItem) { item in
-            PlanItemEditorSheet(existingItem: item) { title, platform, scheduledAt in
-                Task { await viewModel.updatePlanItem(item, title: title, platform: platform, scheduledAt: scheduledAt) }
-            }
-        }
+        .preferredColorScheme(.dark)
         .sheet(isPresented: $showMediaPicker) {
             MediaPickerView { assetIdentifiers in
                 guard !assetIdentifiers.isEmpty else { return }
                 ContentPieceAssembler.shared.enqueueForAssembly(mediaIDs: assetIdentifiers)
             }
         }
+        .sheet(isPresented: $showSearch) {
+            LibrarySearchSheet(query: $viewModel.searchQuery)
+        }
         .fullScreenCover(isPresented: $showCalendar) {
             ContentCalendarFullView()
         }
+        .sheet(item: $viewModel.templateToApply) { template in
+            ExportSheetView(composer: ExportComposerFactory.make(template: template))
+        }
+    }
+
+    // MARK: - Header
+
+    private var header: some View {
+        HStack(spacing: ENVISpacing.md) {
+            MainAppSearchPill { showSearch = true }
+
+            Spacer(minLength: 0)
+
+            MainAppTopSegmentSwitch(
+                options: segments,
+                selectedIndex: segmentIndex
+            ) { idx in
+                withAnimation(.easeInOut(duration: 0.2)) { segmentIndex = idx }
+            }
+
+            Spacer(minLength: 0)
+
+            MainAppContentCalendarIcon { showCalendar = true }
+        }
+    }
+
+    // MARK: - Sections
+
+    private var savedTemplates: some View {
+        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+            sectionLabel("SAVED TEMPLATES")
+                .padding(.horizontal, 20)
+
+            TemplateCarousel(
+                templates: viewModel.templates,
+                onApply: { viewModel.applyTemplate($0) },
+                onDuplicate: { t in Task { await viewModel.duplicateTemplate(t) } },
+                onDelete: { t in Task { await viewModel.deleteTemplate(t) } }
+            )
+        }
+    }
+
+    private var socialMediaArsenal: some View {
+        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+            sectionLabel("SOCIAL MEDIA ARSENAL")
+                .padding(.horizontal, 20)
+
+            MasonryGridView(items: viewModel.filteredItems)
+                .padding(.horizontal, 20)
+        }
+    }
+
+    private func sectionLabel(_ title: String) -> some View {
+        Text(title)
+            .font(.spaceMonoBold(11))
+            .tracking(2.0)
+            .foregroundColor(.white.opacity(0.55))
+    }
+
+    // MARK: - Upload FAB
+
+    private var uploadFAB: some View {
+        Button(action: { showMediaPicker = true }) {
+            Image(systemName: "arrow.up.to.line")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundColor(.black)
+                .frame(width: 56, height: 56)
+                .background(Color.white)
+                .clipShape(Circle())
+                .enviElevatedShadow()
+        }
+        .buttonStyle(.plain)
     }
 }
 
-// MARK: - PHPicker Wrapper
+// MARK: - Search sheet
+
+private struct LibrarySearchSheet: View {
+    @Binding var query: String
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            Color.black.ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                HStack(spacing: 12) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.6))
+
+                    TextField(
+                        "",
+                        text: $query,
+                        prompt: Text("Try \"OOTD short form video\"")
+                            .foregroundColor(.white.opacity(0.4))
+                    )
+                    .font(.interRegular(14))
+                    .foregroundColor(.white)
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
+
+                    Button("Cancel") { dismiss() }
+                        .font(.spaceMonoBold(11))
+                        .tracking(1.2)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .padding(.horizontal, 16)
+                .frame(height: 48)
+                .background(Color(hex: "#191919"))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+
+                Spacer()
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+// MARK: - PHPicker wrapper
 
 /// UIViewControllerRepresentable wrapping PHPickerViewController for importing media.
 struct MediaPickerView: UIViewControllerRepresentable {
