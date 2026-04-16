@@ -129,7 +129,7 @@ class SocialOAuthManager {
     func connect(platform: SocialPlatform) async throws -> PlatformConnection {
         if await featureFlagGate() {
             try await Task.sleep(for: .seconds(1))
-            return PlatformConnection(
+            let connection = PlatformConnection(
                 platform: platform,
                 isConnected: true,
                 handle: mockHandle(for: platform),
@@ -138,26 +138,44 @@ class SocialOAuthManager {
                 lastRefreshedAt: Date(),
                 scopes: mockScopes(for: platform)
             )
+            // Phase 12 — even in mock mode, emit the canonical success event
+            // so downstream dashboards and QA fixtures behave identically.
+            TelemetryManager.shared.trackOAuth(
+                .oauthConnectSuccess,
+                platform: platform.apiSlug
+            )
+            return connection
         }
 
-        // Phase 08 — route TikTok through its dedicated connector when the
-        // feature flag is on. The connector delegates back to this class
-        // via `connectViaBroker(platform:)` (the `bypassConnectorRoute`
-        // internal entry point), so no recursion.
-        if platform == .tiktok,
-           await useTikTokConnectorFlag() {
-            return try await TikTokConnector.shared.connect()
+        do {
+            let connection: PlatformConnection
+            // Phase 08 — route TikTok through its dedicated connector when the
+            // feature flag is on. The connector delegates back to this class
+            // via `connectViaBroker(platform:)` (the `bypassConnectorRoute`
+            // internal entry point), so no recursion.
+            if platform == .tiktok, await useTikTokConnectorFlag() {
+                connection = try await TikTokConnector.shared.connect()
+            } else if platform == .x, await useXConnectorFlag() {
+                // Phase 09 — same pattern for X. `XTwitterConnector.connect()`
+                // calls `connectViaBroker(platform: .x)` directly to avoid
+                // looping back through this dispatch.
+                connection = try await XTwitterConnector.shared.connect()
+            } else {
+                connection = try await connectViaBroker(platform: platform)
+            }
+            TelemetryManager.shared.trackOAuth(
+                .oauthConnectSuccess,
+                platform: platform.apiSlug
+            )
+            return connection
+        } catch {
+            TelemetryManager.shared.trackOAuth(
+                .oauthConnectFailure,
+                platform: platform.apiSlug,
+                error: Self.sanitizedErrorCode(error)
+            )
+            throw error
         }
-
-        // Phase 09 — same pattern for X. `XTwitterConnector.connect()` calls
-        // `connectViaBroker(platform: .x)` directly to avoid looping back
-        // through this dispatch.
-        if platform == .x,
-           await useXConnectorFlag() {
-            return try await XTwitterConnector.shared.connect()
-        }
-
-        return try await connectViaBroker(platform: platform)
     }
 
     /// Internal entry point used both by `connect(platform:)` (when no
@@ -229,6 +247,10 @@ class SocialOAuthManager {
     func disconnect(platform: SocialPlatform) async throws {
         if await featureFlagGate() {
             try await Task.sleep(for: .milliseconds(500))
+            TelemetryManager.shared.trackOAuth(
+                .oauthDisconnect,
+                platform: platform.apiSlug
+            )
             return
         }
 
@@ -239,7 +261,19 @@ class SocialOAuthManager {
                 body: Optional<String>.none,
                 requiresAuth: true
             )
+            TelemetryManager.shared.trackOAuth(
+                .oauthDisconnect,
+                platform: platform.apiSlug
+            )
         } catch {
+            // Phase 12 — disconnect failure is rare but observable. We still
+            // emit a disconnect event tagged with the error so dashboards can
+            // distinguish user-initiated vs. server-side successes.
+            TelemetryManager.shared.trackOAuth(
+                .oauthDisconnect,
+                platform: platform.apiSlug,
+                error: Self.sanitizedErrorCode(error)
+            )
             throw OAuthError.disconnectFailed(platform)
         }
     }
@@ -249,6 +283,10 @@ class SocialOAuthManager {
     func refreshToken(platform: SocialPlatform) async throws -> PlatformConnection {
         if await featureFlagGate() {
             try await Task.sleep(for: .milliseconds(500))
+            TelemetryManager.shared.trackOAuth(
+                .oauthRefreshSuccess,
+                platform: platform.apiSlug
+            )
             return PlatformConnection(
                 platform: platform,
                 isConnected: true,
@@ -270,9 +308,18 @@ class SocialOAuthManager {
                 requiresAuth: true
             )
         } catch {
+            TelemetryManager.shared.trackOAuth(
+                .oauthRefreshFailure,
+                platform: platform.apiSlug,
+                error: Self.sanitizedErrorCode(error)
+            )
             throw OAuthError.tokenExpired(platform)
         }
 
+        TelemetryManager.shared.trackOAuth(
+            .oauthRefreshSuccess,
+            platform: platform.apiSlug
+        )
         return PlatformConnection(
             platform: platform,
             isConnected: response.isConnected ?? true,
@@ -282,6 +329,25 @@ class SocialOAuthManager {
             lastRefreshedAt: response.lastRefreshedAt ?? Date(),
             scopes: response.scopes ?? []
         )
+    }
+
+    // MARK: - Telemetry Helpers
+
+    /// Reduces an arbitrary Swift error to a short sanitized code. Keeps raw
+    /// provider error bodies out of analytics (no-PII rule).
+    fileprivate static func sanitizedErrorCode(_ error: Error) -> String {
+        switch error {
+        case OAuthError.userCancelled: return "user_cancelled"
+        case OAuthError.tokenExpired:  return "auth_expired"
+        case OAuthError.invalidResponse: return "invalid_response"
+        case OAuthError.connectionFailed: return "connection_failed"
+        case OAuthError.disconnectFailed: return "disconnect_failed"
+        default:
+            let raw = String(describing: type(of: error))
+            // Defense-in-depth: never emit an arbitrary string longer than
+            // 32 chars into analytics parameters.
+            return String(raw.prefix(32))
+        }
     }
 
     // MARK: - Connection Status

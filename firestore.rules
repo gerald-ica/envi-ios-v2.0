@@ -64,6 +64,34 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // -------------------------------------------------------------------
+    // Phase 12: publish jobs. Clients may READ their own jobs (scoped by
+    // `uid`). All writes are Admin SDK only — the dispatcher Callable
+    // creates the doc, workers update per-platform status, and the DLQ
+    // replay callable flips status back to queued.
+    // -------------------------------------------------------------------
+    match /publish_jobs/{jobId} {
+      allow read: if request.auth != null
+                    && request.auth.uid == resource.data.uid;
+      allow write: if false;
+    }
+
+    // -------------------------------------------------------------------
+    // Phase 12: DLQ mirror. Ops-only; never exposed to clients.
+    // -------------------------------------------------------------------
+    match /publish_dlq/{jobId}/{document=**} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------
+    // Phase 12: server-side telemetry mirror. Cloud Functions workers
+    // write to this collection; analytics pipeline reads via server SDK.
+    // Never exposed to clients.
+    // -------------------------------------------------------------------
+    match /telemetry_events/{eventId} {
+      allow read, write: if false;
+    }
+
     // Default deny for any path not matched above.
     match /{document=**} {
       allow read, write: if false;

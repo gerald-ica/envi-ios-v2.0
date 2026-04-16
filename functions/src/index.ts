@@ -97,3 +97,26 @@ export {
 } from "./oauth/metaRoutes";
 
 export { refreshMetaTokens } from "./crons/refreshMetaTokens";
+
+/**
+ * Phase 12 surface (publish lifecycle hardening):
+ *   - publishDispatch              callable — create job + fan-out Pub/Sub
+ *   - publishWorker{Tiktok,X,...}  onMessagePublished — one per platform
+ *   - replayDLQ                    callable — admin-only DLQ replay
+ *   - dispatchScheduled            scheduled — cron for future-dated jobs
+ *   - refreshTokens                scheduled — daily OAuth refresh cron
+ *   - instagramWebhook /
+ *     facebookWebhook              onRequest — Meta webhook receivers
+ */
+export { publishDispatch } from "./publish/dispatch";
+export { publishWorkerTikTok } from "./publish/workers/tiktokWorker";
+export { publishWorkerX } from "./publish/workers/xWorker";
+export { publishWorkerInstagram } from "./publish/workers/instagramWorker";
+export { publishWorkerFacebook } from "./publish/workers/facebookWorker";
+export { publishWorkerThreads } from "./publish/workers/threadsWorker";
+export { publishWorkerLinkedIn } from "./publish/workers/linkedinWorker";
+export { replayDLQ } from "./publish/replayDLQ";
+export { dispatchScheduled } from "./crons/dispatchScheduled";
+export { refreshTokens } from "./crons/refreshTokens";
+export { instagramWebhook } from "./webhooks/instagram";
+export { facebookWebhook } from "./webhooks/facebook";

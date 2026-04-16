@@ -24,6 +24,16 @@ struct ProfileSettingsSection: View {
                 }
             }
 
+            // Phase 12 — full-screen Connected Accounts destination. Replaces
+            // the existing compact ConnectedPlatformsView widget for users
+            // who want per-platform badge states (reconnect / expiring /
+            // connected / connect) and disconnect confirmation.
+            NavigationLink {
+                ConnectedAccountsView()
+            } label: {
+                settingsRow(icon: "link", title: "Connected Accounts")
+            }
+
             // View Analytics — NavigationLink pushing AnalyticsView
             NavigationLink {
                 AnalyticsView()

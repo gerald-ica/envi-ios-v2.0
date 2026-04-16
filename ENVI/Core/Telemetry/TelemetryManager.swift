@@ -40,6 +40,25 @@ final class TelemetryManager {
         case platformConnected = "platform_connected"
         case platformDisconnected = "platform_disconnected"
 
+        // OAuth Lifecycle — Phase 12
+        // Fired by `SocialOAuthManager.connect/disconnect/refreshToken`.
+        // Parameters are enforced no-PII: platform slug + sanitized error
+        // code only. Never log handles, tokens, captions, media URIs.
+        case oauthConnectSuccess  = "oauth_connect_success"
+        case oauthConnectFailure  = "oauth_connect_failure"
+        case oauthDisconnect      = "oauth_disconnect"
+        case oauthRefreshSuccess  = "oauth_refresh_success"
+        case oauthRefreshFailure  = "oauth_refresh_failure"
+
+        // Publish Dispatcher — Phase 12
+        // `publishDispatch` fires client-side when the job is accepted by
+        // the dispatcher Callable. `publishProviderSuccess`/`Failure` fire
+        // server-side from each platform worker (see
+        // `functions/src/publish/workers/*`).
+        case publishDispatch         = "publish_dispatch"
+        case publishProviderSuccess  = "publish_provider_success"
+        case publishProviderFailure  = "publish_provider_failure"
+
         // Library & Planning
         case libraryOpened = "library_opened"
         case librarySearched = "library_searched"
@@ -124,6 +143,41 @@ final class TelemetryManager {
             "job_id": jobID,
             "platforms": platforms.joined(separator: ",")
         ])
+    }
+
+    // MARK: - OAuth / Publish Telemetry (Phase 12)
+    //
+    // Strict no-PII policy: only platform slug, sanitized error code, job_id,
+    // and attempt count are permitted. Do NOT add handles, tokens, captions,
+    // media URIs, or raw provider error bodies.
+
+    /// Fire an OAuth lifecycle event. `platform` is the lowercased
+    /// `SocialPlatform.apiSlug`. `error` is a sanitized code
+    /// (`rate_limited`, `auth_expired`, `unknown`, …) — never a raw provider
+    /// body.
+    func trackOAuth(_ event: Event, platform: String, error: String? = nil) {
+        var params: [String: Any] = ["platform": platform]
+        if let error { params["error"] = error }
+        track(event, parameters: params)
+    }
+
+    /// Fire a per-provider publish event. `jobID` matches the Firestore doc
+    /// under `publish_jobs/{jobID}`. `attempt` is 1-indexed and comes from
+    /// the worker's stored attempt count (not Pub/Sub delivery count).
+    func trackPublishProvider(
+        _ event: Event,
+        jobID: String,
+        platform: String,
+        attempt: Int,
+        error: String? = nil
+    ) {
+        var params: [String: Any] = [
+            "job_id": jobID,
+            "platform": platform,
+            "attempt": attempt
+        ]
+        if let error { params["error"] = error }
+        track(event, parameters: params)
     }
 
     // MARK: - User Properties

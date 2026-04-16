@@ -56,22 +56,45 @@ struct ConnectedPlatformsView: View {
 
     @ViewBuilder
     private func platformRow(for connection: PlatformConnection) -> some View {
-        MainAppConnectionRow(
-            icon: connection.platform.iconName,
-            title: connection.platform.rawValue,
-            badge: connection.isConnected ? "CONNECTED" : "CONNECT",
-            badgeSelected: connection.isConnected
-        ) {
-            if connection.isConnected {
-                if connection.isTokenExpiringSoon {
-                    onRefreshTap?(connection.platform)
+        VStack(alignment: .leading, spacing: 2) {
+            MainAppConnectionRow(
+                icon: connection.platform.iconName,
+                title: connection.platform.rawValue,
+                badge: connection.isConnected ? "CONNECTED" : "CONNECT",
+                badgeSelected: connection.isConnected
+            ) {
+                if connection.isConnected {
+                    if connection.isTokenExpiringSoon {
+                        onRefreshTap?(connection.platform)
+                    } else {
+                        onDisconnectTap?(connection.platform)
+                    }
                 } else {
-                    onDisconnectTap?(connection.platform)
+                    onConnectTap?(connection.platform)
                 }
-            } else {
-                onConnectTap?(connection.platform)
+            }
+
+            // Phase 12 — compact last-sync subtitle. Only rendered when the
+            // platform is connected AND we have a timestamp to display; the
+            // full Connected Accounts screen shows the same data + more
+            // explicit badge states.
+            if connection.isConnected, let lastSyncAt = connection.lastSyncAt {
+                Text("Last sync: \(Self.relativeSyncLabel(for: lastSyncAt))")
+                    .font(.spaceMono(10))
+                    .tracking(0.4)
+                    .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                    .padding(.leading, 64)  // aligns past icon frame
+                    .padding(.bottom, 4)
             }
         }
+    }
+
+    private static func relativeSyncLabel(for date: Date) -> String {
+        let seconds = Date().timeIntervalSince(date)
+        if seconds < 60 { return "just now" }
+        if seconds < 3600 { return "\(Int(seconds / 60))m ago" }
+        if seconds < 86400 { return "\(Int(seconds / 3600))h ago" }
+        return "\(Int(seconds / 86400))d ago"
     }
 
     @ViewBuilder
