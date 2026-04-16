@@ -13,13 +13,15 @@ struct EngagementChartView: View {
                 .tracking(0.88)
                 .foregroundColor(ENVITheme.textLight(for: colorScheme))
 
+            // Sketch "16 - Analytics" uses flat, solid white bars with a
+            // slim 1pt radius — no gradient, no iOS-style rounding.
             Chart(data) { metric in
                 BarMark(
                     x: .value("Day", metric.day),
                     y: .value("Engagement", metric.value)
                 )
-                .foregroundStyle(ENVITheme.text(for: colorScheme).gradient)
-                .cornerRadius(4)
+                .foregroundStyle(ENVITheme.text(for: colorScheme))
+                .cornerRadius(1)
             }
             .chartYAxis {
                 AxisMarks(position: .leading) { _ in
