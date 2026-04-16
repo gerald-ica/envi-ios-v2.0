@@ -136,51 +136,6 @@ struct MainAppSearchBar: View {
     }
 }
 
-struct MainAppDivider: View {
-    var body: some View {
-        Rectangle()
-            .fill(MainAppSketch.divider)
-            .frame(height: 1)
-    }
-}
-
-struct MainAppKPIBox: View {
-    let label: String
-    let value: String
-    let delta: String?
-    var icon: String = "sparkles"
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(MainAppSketch.text)
-                Text(label)
-                    .font(.spaceMonoBold(11))
-                    .tracking(0.9)
-                    .foregroundColor(MainAppSketch.textSecondary)
-            }
-
-            Text(value)
-                .font(.spaceMonoBold(26))
-                .tracking(-0.8)
-                .foregroundColor(MainAppSketch.text)
-
-            if let delta {
-                Text(delta)
-                    .font(.interRegular(13))
-                    .foregroundColor(MainAppSketch.textSecondary)
-            }
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 10)
-        .frame(width: MainAppSketch.kpiCardWidth, height: MainAppSketch.kpiCardHeight, alignment: .topLeading)
-        .background(Color(hex: "#1E1E22"))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-}
-
 struct MainAppProfileStatBox: View {
     let value: String
     let label: String
