@@ -2,6 +2,17 @@ import SwiftUI
 import SceneKit
 import PhotosUI
 
+// MARK: - Future Migration Note
+// TODO: Migrate from SceneKit → RealityKit when targeting iOS 18+.
+// RealityKit provides better performance, native visionOS support, and modern rendering.
+// The HelixSceneController should be rewritten as a RealityKit Entity hierarchy.
+// Key migration points:
+// - Replace SCNView/SCNScene with RealityView
+// - Replace SCNNode with Entity + ModelComponent
+// - Replace SCNMaterial with PhysicallyBasedMaterial or UnlitMaterial
+// - Replace SCNSceneRendererDelegate with RealityKit System for frame updates
+// - Replace SCNBillboardConstraint with BillboardComponent
+
 // MARK: - Content Library
 
 /// Static content library matching the React original's CONTENT_PIECES and CONTENT_IMAGES.
@@ -83,8 +94,8 @@ struct WorldExplorerView: View {
 
     var body: some View {
         ZStack {
-            // Background
-            (lightMode ? Color(hex: "#F0F0F0") : Color.black)
+            // Background — kept transparent so the SceneKit 3D helix renders through
+            Color.clear
                 .ignoresSafeArea()
 
             // 3D Scene
@@ -233,7 +244,7 @@ struct WorldExplorerView: View {
             .padding(.bottom, ENVISpacing.xl)
 
             Text("YOUR CONTENT\nTIMELINE")
-                .font(.interBlack(28))
+                .font(.spaceMonoBold(28))
                 .tracking(-0.5)
                 .lineSpacing(0)
                 .foregroundColor(lightMode ? .black : .white)
@@ -555,8 +566,8 @@ struct WorldExplorerView: View {
             .background(
                 LinearGradient(
                     colors: lightMode
-                        ? [Color(hex: "#F0F0F0"), Color(hex: "#F0F0F0").opacity(0.8), .clear]
-                        : [.black, .black.opacity(0.8), .clear],
+                        ? [Color(hex: "#F0F0F0").opacity(0.85), Color(hex: "#F0F0F0").opacity(0.6), .clear]
+                        : [.black.opacity(0.85), .black.opacity(0.6), .clear],
                     startPoint: .bottom,
                     endPoint: .top
                 )

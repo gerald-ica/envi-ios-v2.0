@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Main analytics dashboard screen.
+/// Main analytics dashboard screen matching Sketch frame "16 - Analytics".
+/// Now pushed from Profile (no longer a standalone tab).
 struct AnalyticsView: View {
     @StateObject private var viewModel = AnalyticsViewModel()
     @StateObject private var advancedViewModel = AdvancedAnalyticsViewModel()
@@ -9,8 +10,8 @@ struct AnalyticsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: ENVISpacing.xl) {
-                // Title row
-                HStack {
+                // MARK: - Title + Badge
+                HStack(alignment: .center) {
                     Text("ANALYTICS")
                         .font(.spaceMonoBold(28))
                         .tracking(-1.5)
@@ -18,17 +19,24 @@ struct AnalyticsView: View {
 
                     Spacer()
 
-                    ENVIBadge(text: "Last 7 Days")
+                    Text("LAST 7 DAYS")
+                        .font(.spaceMonoBold(10))
+                        .tracking(2.0)
+                        .foregroundColor(ENVITheme.text(for: colorScheme))
+                        .padding(.horizontal, ENVISpacing.sm)
+                        .padding(.vertical, ENVISpacing.xs)
+                        .background(ENVITheme.surfaceHigh(for: colorScheme))
+                        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
                 }
                 .padding(.horizontal, ENVISpacing.xl)
 
-                // Date range
+                // Date range subtitle
                 Text(viewModel.dateRange)
                     .font(.interRegular(13))
                     .foregroundColor(ENVITheme.textLight(for: colorScheme))
                     .padding(.horizontal, ENVISpacing.xl)
 
-                // Platform filters
+                // MARK: - Platform Filter Chips
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: ENVISpacing.sm) {
                         ForEach(viewModel.platforms, id: \.self) { platform in
@@ -43,6 +51,7 @@ struct AnalyticsView: View {
                     .padding(.horizontal, ENVISpacing.xl)
                 }
 
+                // Loading / Error
                 if viewModel.isLoading {
                     HStack {
                         ProgressView()
@@ -66,7 +75,7 @@ struct AnalyticsView: View {
                     .padding(.horizontal, ENVISpacing.xl)
                 }
 
-                // KPI Cards
+                // MARK: - KPI Cards (green dot + green delta)
                 HStack(spacing: ENVISpacing.md) {
                     KPICardView(kpi: viewModel.data.reach)
                     KPICardView(kpi: viewModel.data.engagement)
@@ -74,23 +83,20 @@ struct AnalyticsView: View {
                 }
                 .padding(.horizontal, ENVISpacing.xl)
 
-                // Engagement Chart
+                // MARK: - Engagement Bar Chart
                 EngagementChartView(data: viewModel.data.dailyEngagement)
                     .padding(.horizontal, ENVISpacing.xl)
 
-                // Performance Report (D20 — Advanced Analytics)
+                // MARK: - Advanced Analytics (D20)
                 PerformanceReportView(viewModel: advancedViewModel)
                     .padding(.horizontal, ENVISpacing.xl)
 
-                // Audience Demographics (D20)
                 AudienceDemographicsView(viewModel: advancedViewModel)
                     .padding(.horizontal, ENVISpacing.xl)
 
-                // Content Leaderboard (D20)
                 ContentLeaderboardView(viewModel: advancedViewModel)
                     .padding(.horizontal, ENVISpacing.xl)
 
-                // Post Time Heatmap (D20)
                 PostTimeHeatmapView(viewModel: advancedViewModel)
                     .padding(.horizontal, ENVISpacing.xl)
 
@@ -103,7 +109,7 @@ struct AnalyticsView: View {
                 SourceAttributionView(attributions: viewModel.attribution)
                     .padding(.horizontal, ENVISpacing.xl)
 
-                // Content Calendar
+                // MARK: - Content Calendar
                 ContentCalendarView(days: viewModel.displayedCalendarDays)
                     .padding(.horizontal, ENVISpacing.xl)
             }
@@ -111,6 +117,7 @@ struct AnalyticsView: View {
             .padding(.bottom, 100)
         }
         .background(ENVITheme.background(for: colorScheme))
+        .navigationBarTitleDisplayMode(.inline)
         .refreshable {
             await viewModel.reload()
             await advancedViewModel.loadAll()
@@ -119,6 +126,8 @@ struct AnalyticsView: View {
 }
 
 #Preview {
-    AnalyticsView()
-        .preferredColorScheme(.dark)
+    NavigationStack {
+        AnalyticsView()
+    }
+    .preferredColorScheme(.dark)
 }

@@ -52,11 +52,10 @@ final class MainTabBarController: UIViewController {
     /// Gallery: masonry grid of the user's approved content arsenal.
     @MainActor
     private func makeForYouGalleryViewController() -> UIViewController {
-        // Use FeedViewController for now — Phase B agents will replace with ForYouGalleryView
-        let feedVC = FeedViewController()
-        let feedNav = UINavigationController(rootViewController: feedVC)
-        feedNav.setNavigationBarHidden(true, animated: false)
-        return feedNav
+        let containerView = ForYouGalleryContainerView()
+        let hostingVC = UIHostingController(rootView: containerView)
+        hostingVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        return hostingVC
     }
 
     // MARK: - Tab Bar
