@@ -175,6 +175,52 @@ public final class TemplateTabViewModel {
         _ = await scanner.lazyRescan()
     }
 
+    // MARK: - Factory (Phase 4 — Task 4)
+
+    /// Builds a `TemplateTabViewModel` wired with the repository
+    /// selected by `FeatureFlags.shared.templateCatalogSource`.
+    ///
+    /// - `"lynx"` → `TemplateCatalogClient` (server manifest + Lynx bundle)
+    /// - `"mock"` → `MockVideoTemplateRepository` (offline dev + tests)
+    /// - anything else → assertion in DEBUG, fallback to mock in release
+    ///   (fail-open emergency rollback path).
+    ///
+    /// Callers should not `TemplateTabViewModel(...)` directly from
+    /// app code — go through this factory so the feature flag is
+    /// always honored. Tests may continue to construct the VM
+    /// directly with an injected repo.
+    public static func makeDefault(
+        cache: ClassificationCache,
+        index: EmbeddingIndex,
+        scanner: MediaScanCoordinator
+    ) -> TemplateTabViewModel {
+        let repo: VideoTemplateRepository = resolveRepository(
+            for: FeatureFlags.shared.templateCatalogSource
+        )
+        return TemplateTabViewModel(
+            repo: repo,
+            cache: cache,
+            index: index,
+            scanner: scanner
+        )
+    }
+
+    /// Visible for testing — returns the repo instance that would be
+    /// selected for a given flag value. Mirrors `makeDefault`'s
+    /// switch so tests can assert the selection without building the
+    /// full VM graph (which requires ClassificationCache + scanner).
+    static func resolveRepository(for source: String) -> VideoTemplateRepository {
+        switch source {
+        case "lynx":
+            return TemplateCatalogClient()
+        case "mock":
+            return MockVideoTemplateRepository()
+        default:
+            assertionFailure("Unknown templateCatalogSource: \(source)")
+            return MockVideoTemplateRepository()
+        }
+    }
+
     private func replace(populated: PopulatedTemplate) {
         if let idx = populatedTemplates.firstIndex(where: { $0.id == populated.id }) {
             populatedTemplates[idx] = populated
