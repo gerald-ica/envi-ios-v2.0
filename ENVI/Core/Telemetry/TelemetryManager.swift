@@ -75,6 +75,23 @@ final class TelemetryManager {
         case screenViewed = "screen_viewed"
         case oracleThreadStarted = "oracle_thread_started"
         case oracleMessageSent = "oracle_message_sent"
+
+        // Media Scan (Phase 6, Task 3) — background classification pipeline.
+        // No PII: only counts, durations, coarse state strings.
+        case mediaScanStarted = "media_scan_started"
+        case mediaScanCompleted = "media_scan_completed"
+        case mediaScanThermalPause = "media_scan_thermal_pause"
+        case mediaScanThermalResume = "media_scan_thermal_resume"
+        case mediaScanFailedAssets = "media_scan_failed_assets"
+
+        // Template Tab (Phase 6, Task 3) — user-facing template flow.
+        case templateTabOpened = "template_tab_opened"
+        case templateSelected = "template_selected"
+        case templateSlotSwapped = "template_slot_swapped"
+        case templateExported = "template_exported"
+
+        // Embedding index lifecycle.
+        case embeddingIndexRebuilt = "embedding_index_rebuilt"
     }
 
     // MARK: - Core Tracking
@@ -119,5 +136,80 @@ final class TelemetryManager {
     func setUserID(_ uid: String?) {
         guard FirebaseApp.app() != nil else { return }
         Analytics.setUserID(uid)
+    }
+
+    // MARK: - Media Scan Telemetry (Phase 6, Task 3)
+    //
+    // Strict no-PII policy: never log PHAsset.localIdentifiers, filenames,
+    // locations, or any per-asset content. Events capture only counts,
+    // durations, template IDs (which are catalog-public), and coarse
+    // state strings (e.g. thermal state enum names).
+
+    func logMediaScanStarted(assetCount: Int, scanType: String) {
+        track(.mediaScanStarted, parameters: [
+            "asset_count": assetCount,
+            "scan_type": scanType
+        ])
+    }
+
+    func logMediaScanCompleted(assetCount: Int, duration: TimeInterval, scanType: String) {
+        track(.mediaScanCompleted, parameters: [
+            "asset_count": assetCount,
+            "duration_ms": Int(duration * 1000),
+            "scan_type": scanType
+        ])
+    }
+
+    func logMediaScanThermalPause(state: String) {
+        track(.mediaScanThermalPause, parameters: [
+            "thermal_state": state
+        ])
+    }
+
+    func logMediaScanThermalResume() {
+        track(.mediaScanThermalResume, parameters: nil)
+    }
+
+    func logMediaScanFailedAssets(count: Int, reasonsSummary: String) {
+        track(.mediaScanFailedAssets, parameters: [
+            "failed_count": count,
+            "reasons": reasonsSummary
+        ])
+    }
+
+    // MARK: - Template Tab Telemetry
+
+    func logTemplateTabOpened() {
+        track(.templateTabOpened, parameters: nil)
+    }
+
+    func logTemplateSelected(templateID: String, fillRate: Double) {
+        track(.templateSelected, parameters: [
+            "template_id": templateID,
+            "fill_rate": fillRate
+        ])
+    }
+
+    func logTemplateSlotSwapped(templateID: String, slotID: String) {
+        track(.templateSlotSwapped, parameters: [
+            "template_id": templateID,
+            "slot_id": slotID
+        ])
+    }
+
+    func logTemplateExported(templateID: String, durationToExport: TimeInterval) {
+        track(.templateExported, parameters: [
+            "template_id": templateID,
+            "export_duration_ms": Int(durationToExport * 1000)
+        ])
+    }
+
+    // MARK: - Embedding Index
+
+    func logEmbeddingIndexRebuilt(assetCount: Int, duration: TimeInterval) {
+        track(.embeddingIndexRebuilt, parameters: [
+            "asset_count": assetCount,
+            "duration_ms": Int(duration * 1000)
+        ])
     }
 }

@@ -125,56 +125,71 @@ public actor MediaClassifier {
         guard !assets.isEmpty else { return [] }
 
         let total = assets.count
-        let maxConcurrent = max(1, ProcessInfo.processInfo.activeProcessorCount)
+        let scheduler = ThermalAwareScheduler.shared
+        await scheduler.beginObserving()
+
         var results: [ClassifiedAsset] = []
         results.reserveCapacity(total)
         var completed = 0
 
-        await withTaskGroup(of: (PHAsset, Result<ClassifiedAsset, Error>).self) { group in
-            var index = 0
-            // Seed up to maxConcurrent tasks.
-            while index < min(maxConcurrent, total) {
-                let asset = assets[index]
-                group.addTask { [weak self] in
-                    guard let self else {
-                        return (asset, .failure(MediaClassifierError.cacheFailure(CancellationError())))
-                    }
-                    do {
-                        let result = try await self.classify(asset, priority: .medium)
-                        return (asset, .success(result))
-                    } catch {
-                        return (asset, .failure(error))
-                    }
-                }
-                index += 1
-            }
+        // Process the batch in thermal-aware chunks. Before each chunk we
+        // await the scheduler's work slot (blocks on .none) and then ask
+        // for the chunk size that matches the current budget.
+        var cursor = 0
+        while cursor < total {
+            await scheduler.waitForWorkSlot()
+            let chunkSize = max(1, await scheduler.batchSize(for: .classifyBatch))
+            let end = min(cursor + chunkSize, total)
+            let chunk = Array(assets[cursor..<end])
+            cursor = end
 
-            while let finished = await group.next() {
-                let (asset, outcome) = finished
-                switch outcome {
-                case .success(let classified):
-                    results.append(classified)
-                case .failure(let err):
-                    failures[asset.localIdentifier] = err
-                }
-                completed += 1
-                if progress != nil, (completed % 10 == 0 || completed == total) {
-                    progress?(completed, total)
-                }
-
-                // Schedule next asset.
-                if index < total {
-                    let next = assets[index]
-                    index += 1
+            let maxConcurrent = max(1, min(chunk.count, ProcessInfo.processInfo.activeProcessorCount))
+            await withTaskGroup(of: (PHAsset, Result<ClassifiedAsset, Error>).self) { group in
+                var index = 0
+                // Seed up to maxConcurrent tasks.
+                while index < min(maxConcurrent, chunk.count) {
+                    let asset = chunk[index]
                     group.addTask { [weak self] in
                         guard let self else {
-                            return (next, .failure(MediaClassifierError.cacheFailure(CancellationError())))
+                            return (asset, .failure(MediaClassifierError.cacheFailure(CancellationError())))
                         }
                         do {
-                            let result = try await self.classify(next, priority: .medium)
-                            return (next, .success(result))
+                            let result = try await self.classify(asset, priority: .medium)
+                            return (asset, .success(result))
                         } catch {
-                            return (next, .failure(error))
+                            return (asset, .failure(error))
+                        }
+                    }
+                    index += 1
+                }
+
+                while let finished = await group.next() {
+                    let (asset, outcome) = finished
+                    switch outcome {
+                    case .success(let classified):
+                        results.append(classified)
+                    case .failure(let err):
+                        failures[asset.localIdentifier] = err
+                    }
+                    completed += 1
+                    if progress != nil, (completed % 10 == 0 || completed == total) {
+                        progress?(completed, total)
+                    }
+
+                    // Schedule next asset from the current chunk.
+                    if index < chunk.count {
+                        let next = chunk[index]
+                        index += 1
+                        group.addTask { [weak self] in
+                            guard let self else {
+                                return (next, .failure(MediaClassifierError.cacheFailure(CancellationError())))
+                            }
+                            do {
+                                let result = try await self.classify(next, priority: .medium)
+                                return (next, .success(result))
+                            } catch {
+                                return (next, .failure(error))
+                            }
                         }
                     }
                 }

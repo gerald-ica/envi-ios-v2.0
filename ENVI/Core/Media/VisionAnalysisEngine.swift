@@ -79,6 +79,22 @@ struct VisionAnalysis: Codable, Equatable {
 
     /// How many frames were analyzed (1 for photos, up to 3 for video keyframes).
     var framesAnalyzed: Int = 1
+
+    // MARK: iOS 26 additions
+    //
+    // Both fields are optional so existing on-disk `ClassificationCache` JSON blobs
+    // (encoded without these keys) decode cleanly. Populated only when analysis runs
+    // on iOS 26+; on older OSes they stay `nil` and the caller treats them as unknown.
+
+    /// `true` when `RecognizeDocumentsRequest` returns at least one document observation.
+    /// A stronger signal than `isUtility` for filtering receipts, screenshots, and
+    /// scanned pages out of template suggestions. `nil` when unavailable.
+    var documentDetected: Bool?
+
+    /// `true` when `DetectCameraLensSmudgeRequest` finds a smudge with confidence > 0.5.
+    /// Used to filter blurry lens-smudge photos from the template matcher. `nil` when
+    /// unavailable.
+    var cameraLensSmudged: Bool?
 }
 
 /// `CGRect` is not `Codable`. Use this small shim to keep `VisionAnalysis` pure-Codable.
@@ -221,192 +237,14 @@ actor VisionAnalysisEngine {
 
     // MARK: - Batch Runner
 
-    /// Run all 9 Vision requests on one image, in parallel, via `TaskGroup`.
+    /// Runs all Vision requests against `cgImage` via `BatchedVisionRequests`, which
+    /// coalesces them into a single `VNImageRequestHandler.perform(_:)` call for a
+    /// 1.5x+ speedup over the previous 9-handler-per-image implementation.
     ///
-    /// Each sub-task creates its own `VNImageRequestHandler` — per Apple, handlers
-    /// are cheap and are safe to use from a single queue but NOT safe to share
-    /// across concurrent requests. Spawning one per task is the recommended shape.
+    /// The `CGImage` is not retained past this call — `BatchedVisionRequests.analyze`
+    /// completes its handler synchronously before returning.
     private func runBatch(on cgImage: CGImage, orientation: CGImagePropertyOrientation) async throws -> VisionAnalysis {
-        // Capture image dimensions for anything we need; don't retain the image past this function.
-        let image = cgImage
-
-        return await withTaskGroup(of: PartialResult.self) { group in
-
-            group.addTask { await Self.runClassification(on: image, orientation: orientation) }
-            group.addTask { await Self.runFaceRectangles(on: image, orientation: orientation) }
-            group.addTask { await Self.runHumanRectangles(on: image, orientation: orientation) }
-            group.addTask { await Self.runSaliency(on: image, orientation: orientation) }
-            group.addTask { await Self.runFeaturePrint(on: image, orientation: orientation) }
-            group.addTask { await Self.runAnimals(on: image, orientation: orientation) }
-            group.addTask { await Self.runHorizon(on: image, orientation: orientation) }
-
-            if #available(iOS 18.0, *) {
-                group.addTask { await Self.runAesthetics(on: image, orientation: orientation) }
-            }
-
-            var analysis = VisionAnalysis()
-            // Face quality runs as a follow-up: we need the face observations first.
-            var pendingFaceRects: [VNFaceObservation] = []
-
-            for await partial in group {
-                switch partial {
-                case .classification(let labels):
-                    analysis.classifications = labels
-                case .faces(let observations):
-                    pendingFaceRects = observations
-                    analysis.faces = observations.map {
-                        VisionAnalysis.FaceObservation(boundingBox: CodableRect($0.boundingBox), captureQuality: nil)
-                    }
-                case .humans(let rects):
-                    analysis.humanBoundingBoxes = rects.map { CodableRect($0) }
-                case .saliency(let rect):
-                    analysis.salientRegion = rect.map { CodableRect($0) }
-                case .featurePrint(let data):
-                    analysis.featurePrintData = data
-                case .animals(let labels):
-                    analysis.animalLabels = labels
-                case .horizon(let angle):
-                    analysis.horizonAngle = angle
-                case .aesthetics(let score, let isUtility):
-                    analysis.aestheticsScore = score
-                    analysis.isUtility = isUtility
-                }
-            }
-
-            // Follow-up: run DetectFaceCaptureQuality now that we have face rectangles.
-            if !pendingFaceRects.isEmpty {
-                let qualities = await Self.runFaceCaptureQuality(on: image, orientation: orientation, faces: pendingFaceRects)
-                for (idx, quality) in qualities.enumerated() where idx < analysis.faces.count {
-                    analysis.faces[idx].captureQuality = quality
-                }
-            }
-
-            return analysis
-        }
-    }
-
-    // MARK: - Per-request helpers
-
-    private enum PartialResult {
-        case classification([VisionAnalysis.ClassificationLabel])
-        case faces([VNFaceObservation])
-        case humans([CGRect])
-        case saliency(CGRect?)
-        case featurePrint(Data?)
-        case animals([VisionAnalysis.ClassificationLabel])
-        case horizon(Float?)
-        case aesthetics(Float?, Bool?)
-    }
-
-    private static func makeHandler(_ image: CGImage, _ orientation: CGImagePropertyOrientation) -> VNImageRequestHandler {
-        VNImageRequestHandler(cgImage: image, orientation: orientation, options: [:])
-    }
-
-    private static func perform<T: VNRequest>(_ request: T, on image: CGImage, orientation: CGImagePropertyOrientation) async -> T? {
-        await withCheckedContinuation { (continuation: CheckedContinuation<T?, Never>) in
-            let handler = makeHandler(image, orientation)
-            do {
-                try handler.perform([request])
-                continuation.resume(returning: request)
-            } catch {
-                continuation.resume(returning: nil)
-            }
-        }
-    }
-
-    // 1. Classify image — top 10 labels w/ confidence > 0.3
-    private static func runClassification(on image: CGImage, orientation: CGImagePropertyOrientation) async -> PartialResult {
-        let request = VNClassifyImageRequest()
-        guard let completed = await perform(request, on: image, orientation: orientation),
-              let observations = completed.results
-        else { return .classification([]) }
-        let filtered = observations
-            .filter { $0.confidence > 0.3 }
-            .prefix(10)
-            .map { VisionAnalysis.ClassificationLabel(identifier: $0.identifier, confidence: $0.confidence) }
-        return .classification(Array(filtered))
-    }
-
-    // 2. Aesthetics + isUtility (iOS 18+)
-    @available(iOS 18.0, *)
-    private static func runAesthetics(on image: CGImage, orientation: CGImagePropertyOrientation) async -> PartialResult {
-        let request = VNCalculateImageAestheticsScoresRequest()
-        guard let completed = await perform(request, on: image, orientation: orientation),
-              let observation = completed.results?.first as? VNImageAestheticsScoresObservation
-        else { return .aesthetics(nil, nil) }
-        return .aesthetics(observation.overallScore, observation.isUtility)
-    }
-
-    // 3. Face rectangles
-    private static func runFaceRectangles(on image: CGImage, orientation: CGImagePropertyOrientation) async -> PartialResult {
-        let request = VNDetectFaceRectanglesRequest()
-        guard let completed = await perform(request, on: image, orientation: orientation),
-              let observations = completed.results
-        else { return .faces([]) }
-        return .faces(observations)
-    }
-
-    // 4. Face capture quality (given prior face rectangles)
-    private static func runFaceCaptureQuality(on image: CGImage, orientation: CGImagePropertyOrientation, faces: [VNFaceObservation]) async -> [Float?] {
-        let request = VNDetectFaceCaptureQualityRequest()
-        request.inputFaceObservations = faces
-        guard let completed = await perform(request, on: image, orientation: orientation),
-              let observations = completed.results
-        else { return Array(repeating: nil, count: faces.count) }
-        return observations.map { $0.faceCaptureQuality }
-    }
-
-    // 5. Human rectangles
-    private static func runHumanRectangles(on image: CGImage, orientation: CGImagePropertyOrientation) async -> PartialResult {
-        let request = VNDetectHumanRectanglesRequest()
-        guard let completed = await perform(request, on: image, orientation: orientation),
-              let observations = completed.results
-        else { return .humans([]) }
-        return .humans(observations.map { $0.boundingBox })
-    }
-
-    // 6. Attention-based saliency
-    private static func runSaliency(on image: CGImage, orientation: CGImagePropertyOrientation) async -> PartialResult {
-        let request = VNGenerateAttentionBasedSaliencyImageRequest()
-        guard let completed = await perform(request, on: image, orientation: orientation),
-              let observation = completed.results?.first as? VNSaliencyImageObservation,
-              let salientObjects = observation.salientObjects,
-              let first = salientObjects.first
-        else { return .saliency(nil) }
-        return .saliency(first.boundingBox)
-    }
-
-    // 7. Feature print (stored as Data for similarity queries in Phase 2)
-    private static func runFeaturePrint(on image: CGImage, orientation: CGImagePropertyOrientation) async -> PartialResult {
-        let request = VNGenerateImageFeaturePrintRequest()
-        guard let completed = await perform(request, on: image, orientation: orientation),
-              let observation = completed.results?.first as? VNFeaturePrintObservation
-        else { return .featurePrint(nil) }
-        // VNFeaturePrintObservation.data is the raw feature vector bytes.
-        return .featurePrint(observation.data)
-    }
-
-    // 8. Animal recognition
-    private static func runAnimals(on image: CGImage, orientation: CGImagePropertyOrientation) async -> PartialResult {
-        let request = VNRecognizeAnimalsRequest()
-        guard let completed = await perform(request, on: image, orientation: orientation),
-              let observations = completed.results
-        else { return .animals([]) }
-        let labels: [VisionAnalysis.ClassificationLabel] = observations.flatMap { obs -> [VisionAnalysis.ClassificationLabel] in
-            obs.labels
-                .filter { $0.confidence > 0.3 }
-                .map { VisionAnalysis.ClassificationLabel(identifier: $0.identifier, confidence: $0.confidence) }
-        }
-        return .animals(labels)
-    }
-
-    // 9. Horizon detection
-    private static func runHorizon(on image: CGImage, orientation: CGImagePropertyOrientation) async -> PartialResult {
-        let request = VNDetectHorizonRequest()
-        guard let completed = await perform(request, on: image, orientation: orientation),
-              let observation = completed.results?.first as? VNHorizonObservation
-        else { return .horizon(nil) }
-        return .horizon(Float(observation.angle))
+        try await BatchedVisionRequests.analyze(image: cgImage, orientation: orientation)
     }
 
     // MARK: - Aggregation
@@ -470,6 +308,13 @@ actor VisionAnalysisEngine {
 
         // Horizon: first non-nil.
         merged.horizonAngle = frames.compactMap { $0.horizonAngle }.first
+
+        // iOS 26 fields: any-true for document / smudge detection across keyframes.
+        let docSignals = frames.compactMap { $0.documentDetected }
+        merged.documentDetected = docSignals.isEmpty ? nil : docSignals.contains(true)
+
+        let smudgeSignals = frames.compactMap { $0.cameraLensSmudged }
+        merged.cameraLensSmudged = smudgeSignals.isEmpty ? nil : smudgeSignals.contains(true)
 
         return merged
     }
