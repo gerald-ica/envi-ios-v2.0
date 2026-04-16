@@ -12,60 +12,56 @@ struct ProfileView: View {
     @State private var showAnalytics = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                profileHeader
-                    .padding(.top, 24)
-                    .padding(.horizontal, 24)
+        ZStack(alignment: .topTrailing) {
+            ScrollView {
+                VStack(spacing: 0) {
+                    profileHeader
+                        .padding(.top, 24)
+                        .padding(.horizontal, 24)
 
-                statsSection
-                    .padding(.top, 24)
-                    .padding(.horizontal, 16)
+                    statsSection
+                        .padding(.top, 24)
+                        .padding(.horizontal, 16)
 
-                sectionDivider
-                    .padding(.top, 24)
-                    .padding(.horizontal, 20)
-
-                subscriptionSection
-                    .padding(.top, 24)
-                    .padding(.horizontal, 16)
-
-                sectionDivider
-                    .padding(.top, 24)
-                    .padding(.horizontal, 20)
-
-                connectedPlatformsSection
-                    .padding(.top, 24)
-                    .padding(.horizontal, 16)
-
-                if let message = viewModel.connectionErrorMessage {
-                    Text(message)
-                        .font(.interRegular(13))
-                        .foregroundColor(ENVITheme.error)
-                        .multilineTextAlignment(.center)
-                        .padding(.top, 12)
+                    sectionDivider
+                        .padding(.top, 24)
                         .padding(.horizontal, 20)
+
+                    subscriptionSection
+                        .padding(.top, 24)
+                        .padding(.horizontal, 16)
+
+                    sectionDivider
+                        .padding(.top, 24)
+                        .padding(.horizontal, 20)
+
+                    connectedPlatformsSection
+                        .padding(.top, 24)
+                        .padding(.horizontal, 16)
+
+                    if let message = viewModel.connectionErrorMessage {
+                        Text(message)
+                            .font(.interRegular(13))
+                            .foregroundColor(ENVITheme.error)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 12)
+                            .padding(.horizontal, 20)
+                    }
+
+                    sectionDivider
+                        .padding(.top, 24)
+                        .padding(.horizontal, 20)
+
+                    settingsSection
+                        .padding(.top, 24)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 120)
                 }
-
-                sectionDivider
-                    .padding(.top, 24)
-                    .padding(.horizontal, 20)
-
-                settingsSection
-                    .padding(.top, 24)
-                    .padding(.horizontal, 16)
-
-                // MARK: - Appearance
-                AppearanceToggle(themeManager: viewModel.themeManager)
-                    .padding(.top, 24)
-                    .padding(.horizontal, 16)
-
-                // MARK: - Sign Out
-                signOutButton
-                    .padding(.top, 24)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 96)
             }
+
+            analyticsShortcut
+                .padding(.top, 24)
+                .padding(.trailing, 22)
         }
         .background(AppBackground(imageName: "profile-bg"))
         .onAppear {
@@ -82,27 +78,34 @@ struct ProfileView: View {
         }
     }
 
+    // MARK: - Analytics top-right shortcut
+
+    /// Sketch "17 - Profile" places an Analytics icon (~33×33) at the
+    /// top-right of the page. Opens the Analytics sheet directly.
+    private var analyticsShortcut: some View {
+        Button { showAnalytics = true } label: {
+            Image(systemName: "chart.bar.xaxis")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(.white)
+                .frame(width: 33, height: 33)
+                .background(Color.white.opacity(0.08))
+                .clipShape(Circle())
+                .overlay(
+                    Circle().stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
     // MARK: - Header
 
     private var profileHeader: some View {
         VStack(spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(ENVITheme.surfaceLow(for: colorScheme))
-                    .frame(width: 84, height: 84)
-
-                Circle()
-                    .strokeBorder(
-                        ENVITheme.text(for: colorScheme).opacity(0.9),
-                        lineWidth: 1.5
-                    )
-                    .frame(width: 84, height: 84)
-
-                Text(viewModel.user.initials)
-                    .font(.spaceMonoBold(28))
-                    .tracking(-0.8)
-                    .foregroundColor(ENVITheme.text(for: colorScheme))
-            }
+            // Sketch "17 - Profile" avatar — solid indigo-blue disc (#4A5FB2),
+            // 88×88, no overlaid initials.
+            Circle()
+                .fill(Color(hex: "#4A5FB2"))
+                .frame(width: 88, height: 88)
 
             VStack(spacing: 4) {
                 Text(viewModel.user.fullName)
@@ -199,24 +202,6 @@ struct ProfileView: View {
 
     private func sectionHeader(_ title: String) -> some View {
         MainAppMonoLabel(title: title)
-    }
-
-    // MARK: - Sign Out
-
-    private var signOutButton: some View {
-        Button(action: {
-            viewModel.signOut()
-            Task { await PurchaseManager.shared.logOut() }
-            onSignOut?()
-        }) {
-            Text("Sign Out")
-                .font(.interSemiBold(15))
-                .foregroundColor(ENVITheme.error)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        }
     }
 
     @ViewBuilder
