@@ -13,7 +13,7 @@
   - Lottie (airbnb/lottie-spm, from 4.4.0)
   - RevenueCat + **RevenueCatUI** (purchases-ios-spm, from 5.0.0)
 
-**Note:** Xcode project `ENVI.xcodeproj` may duplicate or reference this layout — maintain parity when bumping versions.
+**Note:** This repo is opened in Xcode through the generated SwiftPM workspace at `.swiftpm/xcode/package.xcworkspace`.
 
 ## Test target (`ENVITests`)
 
@@ -32,7 +32,7 @@ Current tests (sample):
 
 ## Running tests
 
-Prefer **Xcode** test action (**⌘U**) against the **`ENVI.xcodeproj`** scheme — that resolves iOS simulator destinations correctly.
+Prefer **Xcode** test action (**⌘U**) against the **`ENVI`** scheme from `.swiftpm/xcode/package.xcworkspace` — that resolves iOS simulator destinations correctly.
 
 `swift test` from the command line may fail on a Mac host if the package graph resolves the `ENVI` executable for macOS and hits dependency minimum-OS mismatches (Lottie / RevenueCat require newer macOS than the default executable baseline). If you need CLI tests, use `xcodebuild test` with an iOS Simulator destination, or adjust `Package.swift` platform constraints in a dedicated change.
 

@@ -88,6 +88,31 @@ private extension UInt64 {
     }
 }
 
+@_silgen_name("ssyevr_")
+private func lapack_ssyevr(
+    _ jobz: UnsafePointer<CChar>,
+    _ range: UnsafePointer<CChar>,
+    _ uplo: UnsafePointer<CChar>,
+    _ n: UnsafePointer<__CLPK_integer>,
+    _ a: UnsafeMutablePointer<Float>?,
+    _ lda: UnsafePointer<__CLPK_integer>,
+    _ vl: UnsafePointer<Float>,
+    _ vu: UnsafePointer<Float>,
+    _ il: UnsafePointer<__CLPK_integer>,
+    _ iu: UnsafePointer<__CLPK_integer>,
+    _ abstol: UnsafePointer<Float>,
+    _ m: UnsafeMutablePointer<__CLPK_integer>,
+    _ w: UnsafeMutablePointer<Float>?,
+    _ z: UnsafeMutablePointer<Float>?,
+    _ ldz: UnsafePointer<__CLPK_integer>,
+    _ isuppz: UnsafeMutablePointer<__CLPK_integer>?,
+    _ work: UnsafeMutablePointer<Float>?,
+    _ lwork: UnsafePointer<__CLPK_integer>,
+    _ iwork: UnsafeMutablePointer<__CLPK_integer>?,
+    _ liwork: UnsafePointer<__CLPK_integer>,
+    _ info: UnsafeMutablePointer<__CLPK_integer>
+) -> Void
+
 // MARK: - DimensionReducer
 
 public struct DimensionReducer: Sendable {
@@ -203,15 +228,24 @@ public struct DimensionReducer: Sendable {
     {
         // Similarity matrix S = X * X^T  (n x n)
         var S = [Float](repeating: 0, count: n * n)
+        var XT = [Float](repeating: 0, count: n * d)
+        for i in 0..<n {
+            for j in 0..<d {
+                XT[j * n + i] = X[i * d + j]
+            }
+        }
         X.withUnsafeBufferPointer { xb in
-            S.withUnsafeMutableBufferPointer { sb in
-                cblas_sgemm(
-                    CblasRowMajor, CblasNoTrans, CblasTrans,
-                    Int32(n), Int32(n), Int32(d),
-                    1.0, xb.baseAddress, Int32(d),
-                    xb.baseAddress, Int32(d),
-                    0.0, sb.baseAddress, Int32(n)
-                )
+            XT.withUnsafeBufferPointer { xtb in
+                S.withUnsafeMutableBufferPointer { sb in
+                    vDSP_mmul(
+                        xb.baseAddress!, 1,
+                        xtb.baseAddress!, 1,
+                        sb.baseAddress!, 1,
+                        vDSP_Length(n),
+                        vDSP_Length(d),
+                        vDSP_Length(n)
+                    )
+                }
             }
         }
 
@@ -406,11 +440,11 @@ public struct DimensionReducer: Sendable {
         var lwork: __CLPK_integer = -1
         var liwork: __CLPK_integer = -1
 
-        L.withUnsafeMutableBufferPointer { lb in
-            w.withUnsafeMutableBufferPointer { wb in
-                z.withUnsafeMutableBufferPointer { zb in
-                    isuppz.withUnsafeMutableBufferPointer { ib in
-                        ssyevr_(
+        _ = L.withUnsafeMutableBufferPointer { lb in
+            _ = w.withUnsafeMutableBufferPointer { wb in
+                _ = z.withUnsafeMutableBufferPointer { zb in
+                    _ = isuppz.withUnsafeMutableBufferPointer { ib in
+                        lapack_ssyevr(
                             &jobz, &range, &uplo, &N32,
                             lb.baseAddress, &lda,
                             &vl, &vu, &il, &iu, &abstol,
@@ -431,13 +465,13 @@ public struct DimensionReducer: Sendable {
         var work = [Float](repeating: 0, count: Int(lwork))
         var iwork = [__CLPK_integer](repeating: 0, count: Int(liwork))
 
-        L.withUnsafeMutableBufferPointer { lb in
-            w.withUnsafeMutableBufferPointer { wb in
-                z.withUnsafeMutableBufferPointer { zb in
-                    isuppz.withUnsafeMutableBufferPointer { ib in
-                        work.withUnsafeMutableBufferPointer { wkb in
-                            iwork.withUnsafeMutableBufferPointer { iwkb in
-                                ssyevr_(
+        _ = L.withUnsafeMutableBufferPointer { lb in
+            _ = w.withUnsafeMutableBufferPointer { wb in
+                _ = z.withUnsafeMutableBufferPointer { zb in
+                    _ = isuppz.withUnsafeMutableBufferPointer { ib in
+                        _ = work.withUnsafeMutableBufferPointer { wkb in
+                            _ = iwork.withUnsafeMutableBufferPointer { iwkb in
+                                lapack_ssyevr(
                                     &jobz, &range, &uplo, &N32,
                                     lb.baseAddress, &lda,
                                     &vl, &vu, &il, &iu, &abstol,

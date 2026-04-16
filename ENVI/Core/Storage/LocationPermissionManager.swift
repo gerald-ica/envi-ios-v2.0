@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import Combine
+import MapKit
 
 /// Manages access to the user's current location during onboarding.
 final class LocationPermissionManager: NSObject, ObservableObject {
@@ -40,7 +41,6 @@ final class LocationPermissionManager: NSObject, ObservableObject {
     static let shared = LocationPermissionManager()
 
     private let locationManager = CLLocationManager()
-    private let geocoder = CLGeocoder()
 
     override private init() {
         super.init()
@@ -69,26 +69,35 @@ extension LocationPermissionManager: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.first else { return }
+        let coordinate = location.coordinate
 
-        geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, _ in
-            guard let self else { return }
-            let placemark = placemarks?.first
-            let locality = placemark?.locality
-            let administrativeArea = placemark?.administrativeArea
-            let country = placemark?.country
-
-            self.currentLocationName = [locality, administrativeArea, country]
-                .compactMap { value in
-                    guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
-                        return nil
-                    }
-                    return trimmed
-                }
-                .joined(separator: ", ")
+        Task { [coordinate] in
+            let locationName = await Self.resolveLocationName(for: coordinate)
+            await MainActor.run { [weak self] in
+                self?.currentLocationName = locationName
+            }
         }
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         // Leave the current location name unchanged; the UI can still reflect permission state.
+    }
+
+    private static func resolveLocationName(for coordinate: CLLocationCoordinate2D) async -> String? {
+        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        guard let request = MKReverseGeocodingRequest(location: location) else { return nil }
+        guard let mapItem = try? await request.mapItems.first else { return nil }
+
+        let address = mapItem.addressRepresentations
+        let candidate = address?.cityWithContext
+            ?? address?.fullAddress(includingRegion: true, singleLine: true)
+            ?? mapItem.address?.shortAddress
+            ?? mapItem.address?.fullAddress
+            ?? mapItem.name
+
+        guard let candidate, !candidate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return nil
+        }
+        return candidate
     }
 }

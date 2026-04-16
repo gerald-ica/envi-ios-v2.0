@@ -56,14 +56,14 @@ The environment is determined by the `EnvironmentModel` configuration source. In
 ## 5. Open in Xcode
 
 ```bash
-open ENVI.xcodeproj
+open .swiftpm/xcode/package.xcworkspace
 ```
 
-Or open `Package.swift` in Xcode if working with the Swift package directly.
+Or open `Package.swift` in Xcode if you want Xcode to regenerate the SwiftPM workspace.
 
 ## 6. Build and run
 
-1. Select an **iOS 17.0+** simulator (e.g., iPhone 15 Pro) or connected device
+1. Select an **iOS 17.0+** simulator or connected device
 2. Press **Cmd+R** to build and run
 3. The app launches into the Splash screen, then routes to Onboarding (first run) or the main tab bar
 

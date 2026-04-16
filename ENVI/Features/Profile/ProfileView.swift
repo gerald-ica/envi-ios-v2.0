@@ -1,143 +1,129 @@
 import SwiftUI
 
 /// Profile screen matching Sketch frame "17 - Profile".
-/// Gradient banner, avatar, stats cards, subscription badge, connected platforms,
-/// settings list with "View Analytics" navigation link.
+/// Compact avatar/identity, equal stat cards, subscription card, connected
+/// platforms, and flatter settings rows.
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @Environment(\.colorScheme) private var colorScheme
 
     var onSignOut: (() -> Void)?
+    @State private var showAccountManagement = false
+    @State private var showAnalytics = false
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 0) {
-                    // MARK: - Gradient Banner + Avatar
-                    bannerSection
+        ScrollView {
+            VStack(spacing: 0) {
+                profileHeader
+                    .padding(.top, 24)
+                    .padding(.horizontal, 24)
 
-                    // MARK: - Name + Handle
-                    nameSection
-                        .padding(.top, ENVISpacing.lg)
+                statsSection
+                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
 
-                    // MARK: - Stat Boxes
-                    statsSection
-                        .padding(.top, ENVISpacing.xxl)
-                        .padding(.horizontal, ENVISpacing.xl)
+                sectionDivider
+                    .padding(.top, 24)
+                    .padding(.horizontal, 20)
 
-                    // MARK: - Subscription Badge
-                    subscriptionSection
-                        .padding(.top, ENVISpacing.xxl)
-                        .padding(.horizontal, ENVISpacing.xl)
+                subscriptionSection
+                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
 
-                    // MARK: - Connected Platforms
-                    connectedPlatformsSection
-                        .padding(.top, ENVISpacing.xxl)
-                        .padding(.horizontal, ENVISpacing.xl)
+                sectionDivider
+                    .padding(.top, 24)
+                    .padding(.horizontal, 20)
 
-                    if let message = viewModel.connectionErrorMessage {
-                        Text(message)
-                            .font(.interRegular(13))
-                            .foregroundColor(ENVITheme.error)
-                            .padding(.top, ENVISpacing.sm)
-                            .padding(.horizontal, ENVISpacing.xl)
-                    }
+                connectedPlatformsSection
+                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
 
-                    // MARK: - Settings List
-                    settingsSection
-                        .padding(.top, ENVISpacing.xxl)
-                        .padding(.horizontal, ENVISpacing.xl)
-
-                    // MARK: - Appearance
-                    AppearanceToggle(themeManager: viewModel.themeManager)
-                        .padding(.top, ENVISpacing.xxl)
-                        .padding(.horizontal, ENVISpacing.xl)
-
-                    // MARK: - Sign Out
-                    signOutButton
-                        .padding(.top, ENVISpacing.xxl)
-                        .padding(.horizontal, ENVISpacing.xl)
-                        .padding(.bottom, 100)
+                if let message = viewModel.connectionErrorMessage {
+                    Text(message)
+                        .font(.interRegular(13))
+                        .foregroundColor(ENVITheme.error)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 12)
+                        .padding(.horizontal, 20)
                 }
+
+                sectionDivider
+                    .padding(.top, 24)
+                    .padding(.horizontal, 20)
+
+                settingsSection
+                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
+
+                // MARK: - Appearance
+                AppearanceToggle(themeManager: viewModel.themeManager)
+                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
+
+                // MARK: - Sign Out
+                signOutButton
+                    .padding(.top, 24)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 96)
             }
-            .background(ENVITheme.background(for: colorScheme))
-            .onAppear {
-                viewModel.loadConnections()
+        }
+        .background(ENVITheme.background(for: colorScheme))
+        .onAppear {
+            viewModel.loadConnections()
+        }
+        .sheet(isPresented: $showAccountManagement) {
+            AccountManagementView()
+        }
+        .sheet(isPresented: $showAnalytics) {
+            NavigationStack {
+                AnalyticsView()
             }
+            .preferredColorScheme(.dark)
         }
     }
 
-    // MARK: - Banner
+    // MARK: - Header
 
-    private var bannerSection: some View {
-        ZStack(alignment: .bottom) {
-            // Gradient banner
-            LinearGradient(
-                colors: [
-                    Color(hex: "#0A0E27"),
-                    Color(hex: "#1A1A3E"),
-                    Color(hex: "#30217C").opacity(0.6),
-                    Color(hex: "#1A2A4A")
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .frame(height: 160)
-
-            // Avatar overlapping bottom edge
+    private var profileHeader: some View {
+        VStack(spacing: 12) {
             ZStack {
                 Circle()
                     .fill(ENVITheme.surfaceLow(for: colorScheme))
-                    .frame(width: 96, height: 96)
+                    .frame(width: 84, height: 84)
 
                 Circle()
                     .strokeBorder(
-                        ENVITheme.text(for: colorScheme),
-                        lineWidth: 3
+                        ENVITheme.text(for: colorScheme).opacity(0.9),
+                        lineWidth: 1.5
                     )
-                    .frame(width: 96, height: 96)
+                    .frame(width: 84, height: 84)
 
                 Text(viewModel.user.initials)
-                    .font(.spaceMonoBold(32))
-                    .tracking(-1.0)
-                    .foregroundColor(.white)
+                    .font(.spaceMonoBold(28))
+                    .tracking(-0.8)
+                    .foregroundColor(ENVITheme.text(for: colorScheme))
             }
-            .offset(y: 48)
-        }
-        .padding(.bottom, 48)
-    }
 
-    // MARK: - Name + Handle
+            VStack(spacing: 4) {
+                Text(viewModel.user.fullName)
+                    .font(.spaceMonoBold(23))
+                    .tracking(-0.9)
+                    .foregroundColor(ENVITheme.text(for: colorScheme))
 
-    private var nameSection: some View {
-        VStack(spacing: 4) {
-            Text(viewModel.user.fullName)
-                .font(.spaceMonoBold(24))
-                .tracking(-1.0)
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text(viewModel.user.handle)
-                .font(.interRegular(14))
-                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                Text(viewModel.user.handle)
+                    .font(.interRegular(14))
+                    .foregroundColor(ENVITheme.textLight(for: colorScheme))
+            }
         }
     }
 
     // MARK: - Stats
 
     private var statsSection: some View {
-        HStack(spacing: ENVISpacing.md) {
-            ProfileStatCard(
-                value: "\(viewModel.user.publishedCount)",
-                label: "PUBLISHED"
-            )
-            ProfileStatCard(
-                value: "\(viewModel.user.draftsCount)",
-                label: "DRAFTS"
-            )
-            ProfileStatCard(
-                value: "\(viewModel.user.templatesCount)",
-                label: "TEMPLATES"
-            )
+        HStack(spacing: 12) {
+            MainAppProfileStatBox(value: "\(viewModel.user.publishedCount)", label: "PUBLISHED")
+            MainAppProfileStatBox(value: "\(viewModel.user.draftsCount)", label: "DRAFTS")
+            MainAppProfileStatBox(value: "\(viewModel.user.templatesCount)", label: "TEMPLATES")
         }
     }
 
@@ -167,7 +153,52 @@ struct ProfileView: View {
     // MARK: - Settings
 
     private var settingsSection: some View {
-        ProfileSettingsSection(items: viewModel.settingsItems)
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("SETTINGS")
+
+            VStack(spacing: 0) {
+                ForEach(Array(viewModel.settingsItems.enumerated()), id: \.element.id) { index, item in
+                    Button {
+                        if item.title == "Account Settings" {
+                            showAccountManagement = true
+                        }
+                    } label: {
+                        settingsRow(icon: item.icon, title: item.title)
+                    }
+                    .buttonStyle(.plain)
+
+                    if index < viewModel.settingsItems.count - 1 {
+                        Divider()
+                            .overlay(ENVITheme.textLight(for: colorScheme).opacity(0.12))
+                            .padding(.leading, 44)
+                    }
+                }
+
+                Button {
+                    showAnalytics = true
+                } label: {
+                    settingsRow(icon: "chart.bar.xaxis", title: "View Analytics")
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 4)
+            .background(ENVITheme.surfaceLow(for: colorScheme))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(ENVITheme.textLight(for: colorScheme).opacity(0.08), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+    }
+
+    private var sectionDivider: some View {
+        Divider()
+            .overlay(ENVITheme.textLight(for: colorScheme).opacity(0.12))
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        MainAppMonoLabel(title: title)
     }
 
     // MARK: - Sign Out
@@ -182,37 +213,15 @@ struct ProfileView: View {
                 .font(.interSemiBold(15))
                 .foregroundColor(ENVITheme.error)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, ENVISpacing.lg)
+                .padding(.vertical, 14)
                 .background(ENVITheme.surfaceLow(for: colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
     }
-}
 
-// MARK: - Profile Stat Card
-
-/// Dark surface card for a single stat (e.g. "47 PUBLISHED").
-private struct ProfileStatCard: View {
-    let value: String
-    let label: String
-    @Environment(\.colorScheme) private var colorScheme
-
-    var body: some View {
-        VStack(spacing: ENVISpacing.xs) {
-            Text(value)
-                .font(.spaceMonoBold(22))
-                .tracking(-0.5)
-                .foregroundColor(ENVITheme.text(for: colorScheme))
-
-            Text(label)
-                .font(.spaceMonoBold(9))
-                .tracking(0.88)
-                .foregroundColor(ENVITheme.textLight(for: colorScheme))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, ENVISpacing.lg)
-        .background(ENVITheme.surfaceLow(for: colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
+    @ViewBuilder
+    private func settingsRow(icon: String, title: String) -> some View {
+        MainAppSettingsRow(icon: icon, title: title) {}
     }
 }
 

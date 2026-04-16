@@ -17,7 +17,8 @@ final class SplashViewController: UIViewController {
         return label
     }()
 
-    private var transitionTimer: Timer?
+    private var transitionWorkItem: DispatchWorkItem?
+    private var didFinishTransition = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +37,8 @@ final class SplashViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         spiralView.stopAnimation()
-        transitionTimer?.invalidate()
+        transitionWorkItem?.cancel()
+        transitionWorkItem = nil
     }
 
     private func setupUI() {
@@ -63,12 +65,21 @@ final class SplashViewController: UIViewController {
     }
 
     private func scheduleTransition() {
-        transitionTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { [weak self] _ in
+        guard !didFinishTransition, transitionWorkItem == nil else { return }
+
+        let workItem = DispatchWorkItem { [weak self] in
             self?.performTransition()
         }
+        transitionWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: workItem)
     }
 
     private func performTransition() {
+        guard !didFinishTransition else { return }
+        didFinishTransition = true
+        transitionWorkItem?.cancel()
+        transitionWorkItem = nil
+
         UIView.animate(withDuration: 0.5, animations: {
             self.view.alpha = 0
         }) { _ in

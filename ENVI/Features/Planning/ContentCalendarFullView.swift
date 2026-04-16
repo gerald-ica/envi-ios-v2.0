@@ -385,7 +385,6 @@ struct ContentCalendarFullView: View {
     // MARK: - Month View
 
     private var monthView: some View {
-        let calendar = Calendar.current
         let monthDates = generateMonthDates()
 
         return ScrollView {

@@ -8,14 +8,16 @@ struct ColorGradeView: View {
     @StateObject private var viewModel = ColorGradeViewModel()
 
     var body: some View {
-        ZStack {
-            ENVITheme.Dark.background.ignoresSafeArea()
+        GeometryReader { geo in
+            ZStack {
+                ENVITheme.Dark.background.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                topBar
-                previewArea
-                presetStrip
-                manualControls
+                VStack(spacing: 0) {
+                    topBar
+                    previewArea(containerHeight: geo.size.height)
+                    presetStrip
+                    manualControls
+                }
             }
         }
         .preferredColorScheme(.dark)
@@ -62,7 +64,7 @@ struct ColorGradeView: View {
 
     // MARK: - Preview
 
-    private var previewArea: some View {
+    private func previewArea(containerHeight: CGFloat) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: ENVIRadius.lg)
                 .fill(ENVITheme.Dark.surfaceLow)
@@ -84,7 +86,7 @@ struct ColorGradeView: View {
             }
         }
         .padding(.horizontal, 16)
-        .frame(height: UIScreen.main.bounds.height * 0.32)
+        .frame(height: containerHeight * 0.32)
     }
 
     // MARK: - Preset Strip
@@ -238,7 +240,7 @@ private struct GradeSlider: View {
 
             Slider(value: $value, in: range)
                 .tint(.white)
-                .onChange(of: value) { _ in onChange() }
+                .onChange(of: value) { _, _ in onChange() }
 
             Text(String(format: "%+.1f", value))
                 .font(.interRegular(11))

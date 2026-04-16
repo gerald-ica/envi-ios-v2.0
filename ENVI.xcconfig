@@ -1,0 +1,6 @@
+PRODUCT_BUNDLE_IDENTIFIER = com.weareinformal.envi.staging
+PRODUCT_NAME = ENVI
+INFOPLIST_KEY_CFBundleDisplayName = ENVI
+INFOPLIST_KEY_UILaunchStoryboardName = 
+INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait
+GENERATE_INFOPLIST_FILE = YES

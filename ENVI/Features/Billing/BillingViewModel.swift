@@ -32,10 +32,10 @@ final class BillingViewModel: ObservableObject {
 
     init(
         repository: BillingRepository = BillingRepositoryProvider.shared.repository,
-        purchaseManager: PurchaseManager = .shared
+        purchaseManager: PurchaseManager? = nil
     ) {
         self.repository = repository
-        self.purchaseManager = purchaseManager
+        self.purchaseManager = purchaseManager ?? .shared
     }
 
     // MARK: - Computed

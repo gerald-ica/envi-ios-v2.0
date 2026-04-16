@@ -99,27 +99,28 @@ actor MediaClassifier {
     /// `priority` is advisory — it's applied to the downstream Vision
     /// TaskGroup via `Task.detached(priority:)` when this is called inside
     /// a batch.
-    func classify(_ asset: PHAsset, priority: TaskPriority = .medium) async throws -> ClassifiedAsset {
-        _ = priority // retained in signature for API stability / future use
-        if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
-            return fresh
+    nonisolated func classify(_ asset: PHAsset, priority: TaskPriority = .medium) async throws -> ClassifiedAsset {
+        try await withCheckedThrowingContinuation { continuation in
+            Task { [self] in
+                await self.classifyAndResume(asset, priority: priority, continuation: continuation)
+            }
         }
-        return try await classifyUncached(asset)
     }
 
     /// Re-classifies an asset if the cached entry is stale (version mismatch)
     /// or missing. Returns the fresh entry either way.
-    func rescanIfStale(_ asset: PHAsset) async throws -> ClassifiedAsset {
-        if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
-            return fresh
+    nonisolated func rescanIfStale(_ asset: PHAsset) async throws -> ClassifiedAsset {
+        try await withCheckedThrowingContinuation { continuation in
+            Task { [self] in
+                await self.rescanAndResume(asset, continuation: continuation)
+            }
         }
-        return try await classifyUncached(asset)
     }
 
     /// Classifies a batch in parallel with a cap on concurrent tasks.
     /// Failures are stashed on `failures` and absent from the returned
     /// array — the batch never throws.
-    func classifyBatch(
+    nonisolated func classifyBatch(
         _ assets: [PHAsset],
         progress: ((Int, Int) -> Void)? = nil
     ) async -> [ClassifiedAsset] {
@@ -129,8 +130,7 @@ actor MediaClassifier {
         let scheduler = ThermalAwareScheduler.shared
         await scheduler.beginObserving()
 
-        var results: [ClassifiedAsset] = []
-        results.reserveCapacity(total)
+        let accumulator = ClassifiedAssetAccumulator(capacity: total)
         var completed = 0
 
         // Process the batch in thermal-aware chunks. Before each chunk we
@@ -145,33 +145,26 @@ actor MediaClassifier {
             cursor = end
 
             let maxConcurrent = max(1, min(chunk.count, ProcessInfo.processInfo.activeProcessorCount))
-            await withTaskGroup(of: (PHAsset, Result<ClassifiedAsset, Error>).self) { group in
+            await withTaskGroup(of: Void.self) { group in
                 var index = 0
                 // Seed up to maxConcurrent tasks.
                 while index < min(maxConcurrent, chunk.count) {
                     let asset = chunk[index]
                     group.addTask { [weak self] in
                         guard let self else {
-                            return (asset, .failure(MediaClassifierError.cacheFailure(CancellationError())))
+                            return
                         }
                         do {
                             let result = try await self.classify(asset, priority: .medium)
-                            return (asset, .success(result))
+                            accumulator.append(result)
                         } catch {
-                            return (asset, .failure(error))
+                            await self.recordFailure(localIdentifier: asset.localIdentifier, error: error)
                         }
                     }
                     index += 1
                 }
 
-                while let finished = await group.next() {
-                    let (asset, outcome) = finished
-                    switch outcome {
-                    case .success(let classified):
-                        results.append(classified)
-                    case .failure(let err):
-                        failures[asset.localIdentifier] = err
-                    }
+                while await group.next() != nil {
                     completed += 1
                     if progress != nil, (completed % 10 == 0 || completed == total) {
                         progress?(completed, total)
@@ -183,13 +176,13 @@ actor MediaClassifier {
                         index += 1
                         group.addTask { [weak self] in
                             guard let self else {
-                                return (next, .failure(MediaClassifierError.cacheFailure(CancellationError())))
+                                return
                             }
                             do {
                                 let result = try await self.classify(next, priority: .medium)
-                                return (next, .success(result))
+                                accumulator.append(result)
                             } catch {
-                                return (next, .failure(error))
+                                await self.recordFailure(localIdentifier: next.localIdentifier, error: error)
                             }
                         }
                     }
@@ -197,12 +190,48 @@ actor MediaClassifier {
             }
         }
 
-        return results
+        return accumulator.snapshot()
     }
 
     /// Clears the in-memory failure log (test hook / caller-controlled reset).
     func resetFailures() {
         failures.removeAll()
+    }
+
+    private func recordFailure(localIdentifier: String, error: Error) {
+        failures[localIdentifier] = error
+    }
+
+    private func classifyAndResume(
+        _ asset: PHAsset,
+        priority: TaskPriority,
+        continuation: CheckedContinuation<ClassifiedAsset, Error>
+    ) async {
+        do {
+            _ = priority // retained in signature for API stability / future use
+            if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
+                continuation.resume(returning: fresh)
+                return
+            }
+            continuation.resume(returning: try await classifyUncached(asset))
+        } catch {
+            continuation.resume(throwing: error)
+        }
+    }
+
+    private func rescanAndResume(
+        _ asset: PHAsset,
+        continuation: CheckedContinuation<ClassifiedAsset, Error>
+    ) async {
+        do {
+            if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
+                continuation.resume(returning: fresh)
+                return
+            }
+            continuation.resume(returning: try await classifyUncached(asset))
+        } catch {
+            continuation.resume(throwing: error)
+        }
     }
 
     // MARK: - Core pipeline
@@ -234,15 +263,20 @@ actor MediaClassifier {
 
         // 3. Location — fire-and-forget reverse geocode (best effort).
         if let loc = metadata.surface.location {
-            let clLocation = CLLocation(
-                coordinate: CLLocationCoordinate2D(latitude: loc.latitude, longitude: loc.longitude),
-                altitude: loc.altitude ?? 0,
-                horizontalAccuracy: loc.horizontalAccuracy ?? -1,
-                verticalAccuracy: loc.verticalAccuracy ?? -1,
-                timestamp: loc.timestamp ?? Date()
-            )
+            let coordinate = CLLocationCoordinate2D(latitude: loc.latitude, longitude: loc.longitude)
+            let altitude = loc.altitude ?? 0
+            let horizontalAccuracy = loc.horizontalAccuracy ?? -1
+            let verticalAccuracy = loc.verticalAccuracy ?? -1
+            let timestamp = loc.timestamp ?? Date()
             let geocoder = geocodeCache
-            Task.detached(priority: .background) {
+            Task.detached(priority: .background) { [coordinate, altitude, horizontalAccuracy, verticalAccuracy, timestamp, geocoder] in
+                let clLocation = CLLocation(
+                    coordinate: coordinate,
+                    altitude: altitude,
+                    horizontalAccuracy: horizontalAccuracy,
+                    verticalAccuracy: verticalAccuracy,
+                    timestamp: timestamp
+                )
                 _ = await geocoder.place(for: clLocation)
             }
         }
@@ -349,6 +383,28 @@ actor MediaClassifier {
             latitude: loc?.latitude,
             longitude: loc?.longitude
         )
+    }
+}
+
+private final class ClassifiedAssetAccumulator: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storage: [ClassifiedAsset]
+
+    init(capacity: Int) {
+        self.storage = []
+        storage.reserveCapacity(capacity)
+    }
+
+    func append(_ asset: ClassifiedAsset) {
+        lock.lock()
+        storage.append(asset)
+        lock.unlock()
+    }
+
+    func snapshot() -> [ClassifiedAsset] {
+        lock.lock()
+        defer { lock.unlock() }
+        return storage
     }
 }
 

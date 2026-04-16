@@ -282,7 +282,7 @@ private struct RuleEditorRow: View {
                 .padding(.vertical, ENVISpacing.xs)
                 .background(ENVITheme.surfaceLow(for: colorScheme))
                 .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
-                .onChange(of: value) { _ in syncRule() }
+                .onChange(of: value) { _, _ in syncRule() }
 
             if let onRemove {
                 Button {

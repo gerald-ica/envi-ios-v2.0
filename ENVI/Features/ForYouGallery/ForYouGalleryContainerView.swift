@@ -7,20 +7,17 @@ import SwiftUI
 struct ForYouGalleryContainerView: View {
 
     @StateObject private var viewModel = ForYouGalleryViewModel()
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         ZStack(alignment: .top) {
-            // Background
-            ENVITheme.Dark.background
+            backgroundLayer
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Header
                 headerBar
                     .padding(.top, ENVISpacing.sm)
+                    .padding(.bottom, ENVISpacing.sm)
 
-                // Content
                 switch viewModel.selectedSegment {
                 case .forYou:
                     ForYouSwipeView(viewModel: viewModel)
@@ -32,65 +29,68 @@ struct ForYouGalleryContainerView: View {
         .preferredColorScheme(.dark)
     }
 
+    private var backgroundLayer: some View {
+        ZStack {
+            Color.black
+
+            LinearGradient(
+                colors: [
+                    Color(hex: "#0A0A0A"),
+                    Color(hex: "#050505"),
+                    Color(hex: "#000000")
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            RadialGradient(
+                colors: [Color.white.opacity(0.06), .clear],
+                center: .topLeading,
+                startRadius: 12,
+                endRadius: 320
+            )
+
+            RadialGradient(
+                colors: [Color(hex: "#30217C").opacity(0.12), .clear],
+                center: .bottomTrailing,
+                startRadius: 20,
+                endRadius: 420
+            )
+        }
+    }
+
     // MARK: - Header
 
     private var headerBar: some View {
         HStack(spacing: ENVISpacing.md) {
-            // Search button
-            Button {
-                viewModel.showSearch = true
-            } label: {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 18, weight: .medium))
-                    .foregroundColor(.white)
-                    .frame(width: 44, height: 44)
+            MainAppUtilityChatPill {
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    viewModel.selectedSegment = viewModel.selectedSegment == .forYou ? .gallery : .forYou
+                }
             }
 
-            Spacer()
+            Spacer(minLength: 0)
 
-            // Pill segmented control
             segmentedControl
 
-            Spacer()
+            Spacer(minLength: 0)
 
-            // Spacer to balance the search icon
-            Color.clear
-                .frame(width: 44, height: 44)
+            MainAppUtilityIcon(systemName: "arrow.clockwise") {
+                Task { await viewModel.refresh() }
+            }
         }
-        .padding(.horizontal, ENVISpacing.lg)
+        .padding(.horizontal, 16)
     }
 
     private var segmentedControl: some View {
-        HStack(spacing: 0) {
-            ForEach(ForYouGalleryViewModel.Segment.allCases, id: \.self) { segment in
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        viewModel.selectedSegment = segment
-                    }
-                } label: {
-                    Text(segment.rawValue)
-                        .font(.spaceMonoBold(13))
-                        .tracking(1.2)
-                        .foregroundColor(
-                            viewModel.selectedSegment == segment
-                                ? .black
-                                : .white.opacity(0.6)
-                        )
-                        .padding(.horizontal, ENVISpacing.lg)
-                        .padding(.vertical, ENVISpacing.sm)
-                        .background(
-                            viewModel.selectedSegment == segment
-                                ? Color.white
-                                : Color.clear
-                        )
-                        .clipShape(Capsule())
-                }
-                .buttonStyle(.plain)
+        MainAppTopSegmentSwitch(
+            options: ForYouGalleryViewModel.Segment.allCases.map(\.rawValue),
+            selectedIndex: viewModel.selectedSegment == .forYou ? 0 : 1
+        ) { index in
+            withAnimation(.easeInOut(duration: 0.25)) {
+                viewModel.selectedSegment = index == 0 ? .forYou : .gallery
             }
         }
-        .padding(ENVISpacing.xs)
-        .background(ENVITheme.Dark.surfaceLow)
-        .clipShape(Capsule())
     }
 }
 

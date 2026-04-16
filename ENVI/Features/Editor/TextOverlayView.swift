@@ -6,14 +6,16 @@ struct TextOverlayView: View {
     @StateObject private var viewModel = TextOverlayViewModel()
 
     var body: some View {
-        ZStack {
-            ENVITheme.Dark.background.ignoresSafeArea()
+        GeometryReader { geo in
+            ZStack {
+                ENVITheme.Dark.background.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                topBar
-                previewArea
-                timelineBars
-                controlsPanel
+                VStack(spacing: 0) {
+                    topBar
+                    previewArea(containerHeight: geo.size.height)
+                    timelineBars
+                    controlsPanel
+                }
             }
         }
         .preferredColorScheme(.dark)
@@ -50,7 +52,7 @@ struct TextOverlayView: View {
 
     // MARK: - Preview Area
 
-    private var previewArea: some View {
+    private func previewArea(containerHeight: CGFloat) -> some View {
         GeometryReader { geo in
             ZStack {
                 RoundedRectangle(cornerRadius: ENVIRadius.lg)
@@ -67,7 +69,7 @@ struct TextOverlayView: View {
             }
         }
         .padding(.horizontal, 16)
-        .frame(height: UIScreen.main.bounds.height * 0.4)
+        .frame(height: containerHeight * 0.4)
     }
 
     // MARK: - Timeline Duration Bars

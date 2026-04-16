@@ -8,14 +8,16 @@ struct PhotoEditorView: View {
     @StateObject private var viewModel = PhotoEditorViewModel()
 
     var body: some View {
-        ZStack {
-            ENVITheme.Dark.background.ignoresSafeArea()
+        GeometryReader { geo in
+            ZStack {
+                ENVITheme.Dark.background.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                topBar
-                photoPreview
-                toolSelector
-                activeToolPanel
+                VStack(spacing: 0) {
+                    topBar
+                    photoPreview(containerHeight: geo.size.height)
+                    toolSelector
+                    activeToolPanel
+                }
             }
         }
         .preferredColorScheme(.dark)
@@ -65,7 +67,7 @@ struct PhotoEditorView: View {
 
     // MARK: - Photo Preview
 
-    private var photoPreview: some View {
+    private func photoPreview(containerHeight: CGFloat) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: ENVIRadius.lg)
                 .fill(ENVITheme.Dark.surfaceLow)
@@ -97,7 +99,7 @@ struct PhotoEditorView: View {
             }
         }
         .padding(.horizontal, 16)
-        .frame(height: UIScreen.main.bounds.height * 0.42)
+        .frame(height: containerHeight * 0.42)
     }
 
     // MARK: - Tool Selector
@@ -397,7 +399,7 @@ private struct PhotoSliderRow: View {
 
             Slider(value: $value, in: range)
                 .tint(.white)
-                .onChange(of: value) { _ in onChange() }
+                .onChange(of: value) { _, _ in onChange() }
 
             Text(String(format: "%.2f", value))
                 .font(.interRegular(11))

@@ -327,8 +327,6 @@ public actor SimilarityEngine {
     static func l2Normalize(_ v: [Float]) -> [Float] {
         let n = vDSP_Length(v.count)
         var out = [Float](repeating: 0, count: v.count)
-        var mean: Float = 0
-        var stddev: Float = 0
 
         // vDSP_normalize normalizes to zero-mean unit-variance — not what
         // we want. Compute the L2 norm directly, then scale.
@@ -345,11 +343,6 @@ public actor SimilarityEngine {
                 vDSP_vsmul(vbuf.baseAddress!, 1, &inv, obuf.baseAddress!, 1, n)
             }
         }
-
-        // Silence unused-warnings for mean/stddev placeholders — we may
-        // swap in vDSP_normalize later if the stats are useful.
-        _ = mean
-        _ = stddev
         return out
     }
 }

@@ -265,45 +265,23 @@ struct WorldExplorerView: View {
     // MARK: - Top-Right Content Types
 
     private var topRightContentTypes: some View {
-        VStack(alignment: .trailing, spacing: 0) {
-            HStack(spacing: ENVISpacing.md) {
-                Text("[04]")
-                    .font(.spaceMono(11))
-                    .foregroundColor(lightMode ? .black.opacity(0.35) : .white.opacity(0.4))
-                Text("CONTENT TYPES")
-                    .font(.spaceMonoBold(11))
-                    .tracking(2.5)
-                    .foregroundColor(lightMode ? .black : .white)
+        MainAppContentTypeLegend(
+            items: [
+                (ContentType.photo.label, typeFilterDotColor(.photo)),
+                (ContentType.video.label, typeFilterDotColor(.video)),
+                (ContentType.carousel.label, typeFilterDotColor(.carousel)),
+                (ContentType.reel.label, typeFilterDotColor(.reel)),
+                (ContentType.story.label, typeFilterDotColor(.story))
+            ],
+            selectedLabel: activeTypeFilter?.label
+        ) { label in
+            guard let tappedType = [ContentType.photo, .video, .carousel, .reel, .story].first(where: { $0.label == label }) else {
+                return
             }
-            .padding(.bottom, ENVISpacing.lg)
-
-            VStack(alignment: .trailing, spacing: 6) {
-                ForEach([ContentType.photo, .video, .carousel, .reel, .story], id: \.self) { type in
-                    let isActive = activeTypeFilter == type
-                    let dotColor = typeFilterDotColor(type)
-                    Button {
-                        withAnimation(.easeOut(duration: 0.15)) {
-                            activeTypeFilter = isActive ? nil : type
-                            sceneController?.activeTypeFilter = activeTypeFilter
-                        }
-                    } label: {
-                        HStack(spacing: ENVISpacing.sm) {
-                            Text(type.label)
-                                .font(.spaceMono(10))
-                                .tracking(1.5)
-                                .foregroundColor(
-                                    isActive
-                                        ? (lightMode ? .black : .white)
-                                        : (lightMode ? .black.opacity(0.45) : .white.opacity(0.5))
-                                )
-                            Circle()
-                                .fill(dotColor)
-                                .frame(width: isActive ? 10 : 8, height: isActive ? 10 : 8)
-                                .shadow(color: isActive ? dotColor.opacity(0.8) : .clear, radius: 4)
-                        }
-                        .opacity(activeTypeFilter == nil || isActive ? 1 : 0.3)
-                    }
-                }
+            let isActive = activeTypeFilter == tappedType
+            withAnimation(.easeOut(duration: 0.15)) {
+                activeTypeFilter = isActive ? nil : tappedType
+                sceneController?.activeTypeFilter = activeTypeFilter
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
@@ -323,33 +301,36 @@ struct WorldExplorerView: View {
 
     private var rightSideScrubber: some View {
         VStack(spacing: 0) {
-            // Scrubber track
             GeometryReader { geo in
                 ZStack {
-                    // Vertical line
-                    Rectangle()
-                        .fill(lightMode ? Color.black.opacity(0.15) : Color.white.opacity(0.2))
-                        .frame(width: 1)
-
-                    // Draggable indicator
-                    VStack(spacing: 0) {
-                        HStack(spacing: 6) {
-                            Circle()
-                                .fill(lightMode ? Color(hex: "#222222") : .white)
-                                .frame(width: 8, height: 8)
-                                .overlay(
-                                    Circle()
-                                        .strokeBorder(lightMode ? Color.black.opacity(0.4) : Color.white.opacity(0.6), lineWidth: 1.5)
-                                )
-                                .shadow(color: lightMode ? .black.opacity(0.2) : .white.opacity(0.4), radius: 3)
-
-                            Text(scrubDateLabel)
-                                .font(.spaceMono(9))
-                                .tracking(1.5)
-                                .foregroundColor(lightMode ? .black.opacity(0.6) : .white.opacity(0.7))
+                    MainAppScrubber(
+                        month: scrubDateLabel,
+                        zoom: ExplorerZoomLevel.allCases.map(\.shortLabel),
+                        selectedZoom: zoomLevel.shortLabel
+                    ) { shortLabel in
+                        guard let level = ExplorerZoomLevel.allCases.first(where: { $0.shortLabel == shortLabel }) else {
+                            return
                         }
+                        zoomLevel = level
+                        sceneController?.zoomLevel = level
                     }
-                    .position(x: 10, y: geo.size.height * timePosition)
+
+                    HStack(spacing: 6) {
+                        Text(scrubDateLabel)
+                            .font(.spaceMono(9))
+                            .tracking(1.5)
+                            .foregroundColor(lightMode ? .black.opacity(0.6) : .white.opacity(0.7))
+
+                        Circle()
+                            .fill(lightMode ? Color(hex: "#222222") : .white)
+                            .frame(width: 8, height: 8)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(lightMode ? Color.black.opacity(0.4) : Color.white.opacity(0.6), lineWidth: 1.5)
+                            )
+                            .shadow(color: lightMode ? .black.opacity(0.2) : .white.opacity(0.4), radius: 3)
+                    }
+                    .position(x: 11, y: geo.size.height * timePosition)
                 }
                 .contentShape(Rectangle())
                 .gesture(
@@ -366,37 +347,8 @@ struct WorldExplorerView: View {
                             sceneController?.isScrubbing = false
                         }
                 )
+                .frame(width: 41, height: 433)
             }
-            .frame(width: 80, height: UIScreen.main.bounds.height * 0.5)
-
-            // Zoom level buttons
-            VStack(spacing: 4) {
-                ForEach(ExplorerZoomLevel.allCases, id: \.self) { level in
-                    Button {
-                        zoomLevel = level
-                        sceneController?.zoomLevel = level
-                    } label: {
-                        Text(level.shortLabel)
-                            .font(.spaceMono(10))
-                            .foregroundColor(
-                                zoomLevel == level
-                                    ? (lightMode ? .black : .white)
-                                    : (lightMode ? .black.opacity(0.3) : .white.opacity(0.3))
-                            )
-                            .frame(width: 24, height: 24)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 3)
-                                    .strokeBorder(
-                                        zoomLevel == level
-                                            ? (lightMode ? Color.black.opacity(0.4) : Color.white.opacity(0.5))
-                                            : Color.clear,
-                                        lineWidth: 1
-                                    )
-                            )
-                    }
-                }
-            }
-            .padding(.top, ENVISpacing.md)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
         .padding(.trailing, 64)
@@ -420,38 +372,19 @@ struct WorldExplorerView: View {
             Spacer()
 
             VStack(alignment: .leading, spacing: 0) {
-                // Suggestion chips
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: ENVISpacing.sm) {
-                        ForEach([
-                            "What does my content say about me?",
-                            "Optimize my latest post",
-                            "What should I publish next?",
-                            "Repurpose my top content",
-                            "Analyze engagement trends",
-                        ], id: \.self) { chip in
-                            Button {
-                                explorerPrompt = chip
-                                submitExplorerPrompt()
-                            } label: {
-                                Text(chip.uppercased())
-                                    .font(.spaceMono(11))
-                                    .tracking(0.5)
-                                    .foregroundColor(lightMode ? .black.opacity(0.6) : .white.opacity(0.7))
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 10)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .strokeBorder(
-                                                lightMode ? Color.black.opacity(0.15) : Color.white.opacity(0.2),
-                                                lineWidth: 1
-                                            )
-                                    )
-                            }
-                        }
-                    }
-                    .padding(.horizontal, ENVISpacing.xxl)
+                MainAppSuggestionPanel(
+                    title: "EXPLORE MORE",
+                    longItems: [
+                        "How am I balancing my content?",
+                        "What should I create next?",
+                        "What patterns do you see in my engagement?"
+                    ],
+                    shortItems: ["Strategy", "Calendar", "Repurpose"]
+                ) { prompt in
+                    explorerPrompt = prompt
+                    submitExplorerPrompt()
                 }
+                .padding(.horizontal, ENVISpacing.xxl)
                 .padding(.bottom, ENVISpacing.lg)
 
                 // Input row

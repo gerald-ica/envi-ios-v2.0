@@ -2,41 +2,38 @@ import SwiftUI
 
 /// Masonry grid view for the "Gallery" segment — the Social Media Arsenal.
 ///
-/// Shows approved content in a 2-column masonry layout with a search bar
-/// and a FAB (+) button for creating new content.
+/// Shows approved content in a 2-column masonry layout with saved
+/// template treatment and a floating add button.
 struct GalleryGridView: View {
 
     @ObservedObject var viewModel: ForYouGalleryViewModel
-    @Environment(\.colorScheme) private var colorScheme
     @State private var showMediaPicker = false
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: ENVISpacing.lg) {
-                    // Search bar
+                LazyVStack(alignment: .leading, spacing: ENVISpacing.xl) {
                     searchBar
+                        .padding(.top, ENVISpacing.sm)
 
-                    // Section header
-                    Text("SOCIAL MEDIA ARSENAL")
-                        .font(.spaceMonoBold(13))
-                        .tracking(1.5)
-                        .foregroundColor(.white.opacity(0.5))
-                        .padding(.horizontal, ENVISpacing.xl)
+                    savedTemplatesSection
 
-                    // Grid
+                    sectionHeader(
+                        title: "SOCIAL MEDIA ARSENAL",
+                        subtitle: "Approved content ready for reuse and remixing."
+                    )
+
                     if viewModel.filteredGalleryItems.isEmpty {
                         galleryEmptyState
+                            .padding(.top, ENVISpacing.sm)
                     } else {
                         galleryMasonryGrid
-                            .padding(.horizontal, ENVISpacing.xl)
                     }
                 }
-                .padding(.top, ENVISpacing.lg)
-                .padding(.bottom, 100) // Space for tab bar
+                .padding(.horizontal, ENVISpacing.xl)
+                .padding(.bottom, 136)
             }
 
-            // FAB
             fabButton
         }
     }
@@ -44,19 +41,47 @@ struct GalleryGridView: View {
     // MARK: - Search Bar
 
     private var searchBar: some View {
-        HStack(spacing: ENVISpacing.sm) {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.white.opacity(0.5))
-            TextField("Search arsenal", text: $viewModel.searchQuery)
-                .textInputAutocapitalization(.never)
-                .disableAutocorrection(true)
-                .foregroundColor(.white)
+        MainAppSearchBar(
+            placeholder: "Try \"OOTD short form\"",
+            text: $viewModel.searchQuery
+        )
+    }
+
+    // MARK: - Saved Templates
+
+    private var savedTemplatesSection: some View {
+        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+            sectionHeader(
+                title: "SAVED TEMPLATES",
+                subtitle: "Quick-start formats pulled from the current library."
+            )
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: ENVISpacing.md) {
+                    ForEach(TemplateItem.mockTemplates) { template in
+                        TemplateRailCard(template: template)
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+            .scrollClipDisabled()
         }
-        .padding(.horizontal, ENVISpacing.md)
-        .padding(.vertical, ENVISpacing.sm)
-        .background(ENVITheme.Dark.surfaceLow)
-        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
-        .padding(.horizontal, ENVISpacing.xl)
+    }
+
+    private func sectionHeader(title: String, subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.spaceMonoBold(12))
+                .tracking(1.7)
+                .foregroundColor(.white.opacity(0.5))
+
+            if !subtitle.isEmpty {
+                Text(subtitle)
+                    .font(.interRegular(13))
+                    .foregroundColor(.white.opacity(0.4))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
     }
 
     // MARK: - Masonry Grid
@@ -98,23 +123,24 @@ struct GalleryGridView: View {
 
     private var galleryEmptyState: some View {
         VStack(spacing: ENVISpacing.lg) {
-            Spacer().frame(height: 80)
+            Spacer().frame(height: 48)
 
             Image(systemName: "photo.stack")
                 .font(.system(size: 48))
                 .foregroundColor(.white.opacity(0.2))
 
             Text("Your Social Media Arsenal is empty")
-                .font(.interMedium(15))
-                .foregroundColor(.white.opacity(0.5))
+                .font(.spaceMonoBold(15))
+                .tracking(0.6)
+                .foregroundColor(.white.opacity(0.55))
                 .multilineTextAlignment(.center)
 
-            Text("Swipe right on content in For You to approve it here")
+            Text("Swipe right on content in For You to approve it here.")
                 .font(.interRegular(13))
-                .foregroundColor(.white.opacity(0.35))
+                .foregroundColor(.white.opacity(0.38))
                 .multilineTextAlignment(.center)
 
-            Spacer()
+            Spacer().frame(height: 32)
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, ENVISpacing.xxxl)
@@ -132,7 +158,7 @@ struct GalleryGridView: View {
                 .frame(width: 56, height: 56)
                 .background(Color.white)
                 .clipShape(Circle())
-                .shadow(color: .black.opacity(0.3), radius: 8, y: 4)
+                .shadow(color: .black.opacity(0.34), radius: 10, y: 4)
         }
         .padding(.trailing, ENVISpacing.xl)
         .padding(.bottom, 90)
@@ -158,20 +184,80 @@ private struct GalleryItemView: View {
                 .frame(height: item.height)
                 .clipped()
 
-            // Gradient overlay
             LinearGradient(
-                colors: [.clear, .black.opacity(0.6)],
+                colors: [.clear, .black.opacity(0.66)],
                 startPoint: .top,
                 endPoint: .bottom
             )
 
-            Text(item.title.uppercased())
-                .font(.spaceMonoBold(11))
-                .tracking(1.5)
-                .foregroundColor(.white)
-                .lineLimit(2)
-                .padding(ENVISpacing.md)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(item.type.rawValue.uppercased())
+                    .font(.spaceMonoBold(9))
+                    .tracking(1.5)
+                    .foregroundColor(.white.opacity(0.72))
+
+                Text(item.title.uppercased())
+                    .font(.spaceMonoBold(11))
+                    .tracking(1.4)
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+            }
+            .padding(ENVISpacing.md)
         }
-        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+        .frame(maxWidth: .infinity)
+        .background(ENVITheme.Dark.surfaceLow.opacity(0.9))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+}
+
+// MARK: - Template Rail Card
+
+private struct TemplateRailCard: View {
+    let template: TemplateItem
+
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            Image(template.imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 188, height: 132)
+                .clipped()
+
+            LinearGradient(
+                colors: [.clear, .black.opacity(0.74)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text(template.category.uppercased())
+                    .font(.spaceMonoBold(9))
+                    .tracking(1.5)
+                    .foregroundColor(.white.opacity(0.7))
+
+                Text(template.title.uppercased())
+                    .font(.spaceMonoBold(12))
+                    .tracking(1.3)
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+
+                Text(template.captionTemplate)
+                    .font(.interRegular(11))
+                    .foregroundColor(.white.opacity(0.64))
+                    .lineLimit(2)
+            }
+            .padding(ENVISpacing.md)
+        }
+        .frame(width: 188, height: 132)
+        .background(ENVITheme.Dark.surfaceLow.opacity(0.9))
+        .overlay(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }

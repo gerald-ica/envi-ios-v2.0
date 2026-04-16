@@ -13,7 +13,7 @@
 ```bash
 cd /path/to/envi-ios-v2.0
 swift package resolve   # SPM
-open ENVI.xcodeproj
+open .swiftpm/xcode/package.xcworkspace
 ```
 
 Select an iOS 17+ simulator or device, **⌘R** to run.

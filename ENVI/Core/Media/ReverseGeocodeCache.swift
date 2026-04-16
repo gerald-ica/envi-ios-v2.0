@@ -14,6 +14,7 @@
 
 import Foundation
 import CoreLocation
+import MapKit
 
 // MARK: - PlaceInfo
 
@@ -44,15 +45,17 @@ public struct PlaceInfo: Codable, Equatable, Sendable {
 /// Minimal protocol over the piece of CLGeocoder we need, for dependency
 /// injection in tests without touching Apple's network-backed geocoder.
 public protocol ReverseGeocoding: Sendable {
-    func reverseGeocode(_ location: CLLocation) async throws -> [CLPlacemark]
+    func reverseGeocode(_ location: CLLocation) async throws -> [MKMapItem]
 }
 
 /// Adapter wrapping the real CLGeocoder.
 public struct CLGeocoderAdapter: ReverseGeocoding {
     public init() {}
-    public func reverseGeocode(_ location: CLLocation) async throws -> [CLPlacemark] {
-        let geocoder = CLGeocoder()
-        return try await geocoder.reverseGeocodeLocation(location)
+    public func reverseGeocode(_ location: CLLocation) async throws -> [MKMapItem] {
+        guard let request = MKReverseGeocodingRequest(location: location) else {
+            return []
+        }
+        return try await request.mapItems
     }
 }
 
@@ -109,7 +112,20 @@ public actor ReverseGeocodeCache {
         self.maxEntries = maxEntries
         self.minInterval = minInterval
         self.defaultsKey = defaultsKey
-        loadFromDefaults()
+        guard let data = defaults.data(forKey: defaultsKey),
+              let decoded = try? JSONDecoder().decode(PersistedSnapshot.self, from: data)
+        else { return }
+
+        // Rebuild LRU in order (oldest → newest so newest ends up at head).
+        for entry in decoded.entries {
+            let node = Node(key: entry.key, value: entry.value)
+            node.prev = nil
+            node.next = head
+            head?.prev = node
+            head = node
+            if tail == nil { tail = node }
+            map[entry.key] = node
+        }
     }
 
     // MARK: Public API
@@ -118,6 +134,11 @@ public actor ReverseGeocodeCache {
     /// Rate-limited; returns nil on any error (never throws up the stack).
     public func place(for location: CLLocation) async -> PlaceInfo? {
         let key = Self.cacheKey(for: location.coordinate)
+        let coordinate = location.coordinate
+        let altitude = location.altitude
+        let horizontalAccuracy = location.horizontalAccuracy
+        let verticalAccuracy = location.verticalAccuracy
+        let timestamp = location.timestamp
 
         if let cached = getLRU(key) {
             return cached
@@ -127,9 +148,16 @@ public actor ReverseGeocodeCache {
             return await existing.value
         }
 
-        let task = Task { [weak self] () -> PlaceInfo? in
+        let task = Task { [weak self, coordinate, altitude, horizontalAccuracy, verticalAccuracy, timestamp] () -> PlaceInfo? in
             guard let self = self else { return nil }
-            return await self.performGeocode(location: location, key: key)
+            let resolvedLocation = CLLocation(
+                coordinate: coordinate,
+                altitude: altitude,
+                horizontalAccuracy: horizontalAccuracy,
+                verticalAccuracy: verticalAccuracy,
+                timestamp: timestamp
+            )
+            return await self.performGeocode(location: resolvedLocation, key: key)
         }
         inFlight[key] = task
         let result = await task.value
@@ -147,14 +175,20 @@ public actor ReverseGeocodeCache {
 
         do {
             lastRequestTime = Date()
-            let placemarks = try await geocoder.reverseGeocode(location)
-            guard let pm = placemarks.first else { return nil }
+            let mapItems = try await geocoder.reverseGeocode(location)
+            guard let item = mapItems.first else { return nil }
+            let address = item.addressRepresentations
+            let displayName = address?.cityWithContext
+                ?? address?.fullAddress(includingRegion: true, singleLine: true)
+                ?? item.address?.shortAddress
+                ?? item.address?.fullAddress
+                ?? item.name
             let info = PlaceInfo(
-                name: pm.name,
-                locality: pm.locality,
-                administrativeArea: pm.administrativeArea,
-                country: pm.country,
-                areasOfInterest: pm.areasOfInterest ?? []
+                name: displayName,
+                locality: address?.cityName,
+                administrativeArea: address?.regionName,
+                country: item.address?.fullAddress,
+                areasOfInterest: []
             )
             putLRU(key: key, value: info)
             persistToDefaults()
@@ -238,15 +272,6 @@ public actor ReverseGeocodeCache {
     }
 
     // MARK: Persistence (UserDefaults JSON spillover)
-
-    private func loadFromDefaults() {
-        guard let data = defaults.data(forKey: defaultsKey) else { return }
-        guard let decoded = try? JSONDecoder().decode(PersistedSnapshot.self, from: data) else { return }
-        // Rebuild LRU in order (oldest → newest so newest ends up at head).
-        for entry in decoded.entries {
-            putLRU(key: entry.key, value: entry.value)
-        }
-    }
 
     private func persistToDefaults() {
         // Walk head → tail (most- to least-recently used).
