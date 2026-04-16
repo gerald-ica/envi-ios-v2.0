@@ -29,6 +29,7 @@ targets:
         excludes:
           - "Resources/Info.plist"
           - "SupportingFiles/Info.plist"
+          - "_Archive/**"
     resources:
       - path: ENVI/Resources/Fonts
       - path: ENVI/Resources/Images
