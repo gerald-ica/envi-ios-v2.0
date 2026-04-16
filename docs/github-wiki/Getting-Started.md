@@ -56,14 +56,14 @@ The environment is determined by the `EnvironmentModel` configuration source. In
 ## 5. Open in Xcode
 
 ```bash
-open .swiftpm/xcode/package.xcworkspace
+open ENVI.xcodeproj
 ```
 
-Or open `Package.swift` in Xcode if you want Xcode to regenerate the SwiftPM workspace.
+Use `Package.swift` for dependency and test management only. For simulator or device runs, use the `ENVI` application scheme from `ENVI.xcodeproj` so Xcode builds a signed `.app` bundle.
 
 ## 6. Build and run
 
-1. Select an **iOS 17.0+** simulator or connected device
+1. Select the **ENVI** app scheme and an **iOS 17.0+** simulator or connected device
 2. Press **Cmd+R** to build and run
 3. The app launches into the Splash screen, then routes to Onboarding (first run) or the main tab bar
 
@@ -131,6 +131,7 @@ See [Firebase Data Connect](Firebase-Data-Connect) for full backend setup.
 | Issue | Solution |
 |-------|----------|
 | SPM resolution fails | Delete `.build/` and `Package.resolved`, then run `swift package resolve` again |
+| "Attempted to install `ENVI` which is not a .app bundle" | Open `ENVI.xcodeproj` and run the app scheme instead of the Swift package workspace |
 | Fonts not rendering | Ensure `ENVITypography.registerFonts()` is called in the app delegate |
 | Firebase auth errors | Verify `GoogleService-Info.plist` is present and matches your Firebase project |
 | Photos permission denied | Reset simulator via Device > Erase All Content and Settings |

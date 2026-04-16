@@ -440,10 +440,10 @@ public struct DimensionReducer: Sendable {
         var lwork: __CLPK_integer = -1
         var liwork: __CLPK_integer = -1
 
-        _ = L.withUnsafeMutableBufferPointer { lb in
-            _ = w.withUnsafeMutableBufferPointer { wb in
-                _ = z.withUnsafeMutableBufferPointer { zb in
-                    _ = isuppz.withUnsafeMutableBufferPointer { ib in
+        L.withUnsafeMutableBufferPointer { lb in
+            w.withUnsafeMutableBufferPointer { wb in
+                z.withUnsafeMutableBufferPointer { zb in
+                    isuppz.withUnsafeMutableBufferPointer { ib in
                         lapack_ssyevr(
                             &jobz, &range, &uplo, &N32,
                             lb.baseAddress, &lda,
@@ -465,12 +465,12 @@ public struct DimensionReducer: Sendable {
         var work = [Float](repeating: 0, count: Int(lwork))
         var iwork = [__CLPK_integer](repeating: 0, count: Int(liwork))
 
-        _ = L.withUnsafeMutableBufferPointer { lb in
-            _ = w.withUnsafeMutableBufferPointer { wb in
-                _ = z.withUnsafeMutableBufferPointer { zb in
-                    _ = isuppz.withUnsafeMutableBufferPointer { ib in
-                        _ = work.withUnsafeMutableBufferPointer { wkb in
-                            _ = iwork.withUnsafeMutableBufferPointer { iwkb in
+        L.withUnsafeMutableBufferPointer { lb in
+            w.withUnsafeMutableBufferPointer { wb in
+                z.withUnsafeMutableBufferPointer { zb in
+                    isuppz.withUnsafeMutableBufferPointer { ib in
+                        work.withUnsafeMutableBufferPointer { wkb in
+                            iwork.withUnsafeMutableBufferPointer { iwkb in
                                 lapack_ssyevr(
                                     &jobz, &range, &uplo, &N32,
                                     lb.baseAddress, &lda,

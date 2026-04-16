@@ -29,18 +29,16 @@ final class VideoEditService {
             try FileManager.default.removeItem(at: outputURL)
         }
 
-        exporter.outputURL = outputURL
-        exporter.outputFileType = .mp4
         exporter.timeRange = CMTimeRange(
             start: CMTime(seconds: startTime, preferredTimescale: 600),
             end: CMTime(seconds: endTime, preferredTimescale: 600)
         )
 
-        await exporter.export()
+        try await exporter.export(to: outputURL, as: .mp4)
         return outputURL
     }
 }
 
 // Removed: custom `AVAssetExportSession.export() async throws` extension.
-// iOS 16+ provides the native async variant; keeping the custom version caused
-// an "ambiguous use of 'export()'" error when compiling with the iOS 26 SDK.
+// The platform now provides a native throwing export API, and `export()` is
+// deprecated in iOS 18 in favor of `export(to:as:)`.

@@ -67,7 +67,7 @@ struct OnboardingPhotosAccessView: View {
         // Fire-and-forget: scan runs in background, user continues onboarding
         Task.detached(priority: .utility) {
             await scanner.scanOnboardingBatch()
-            await scanner.registerChangeObserver()
+            scanner.registerChangeObserver()
         }
 
         // Advance to next onboarding step immediately

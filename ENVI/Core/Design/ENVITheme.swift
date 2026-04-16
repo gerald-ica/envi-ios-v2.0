@@ -80,6 +80,15 @@ enum ENVITheme {
     static let error    = Color(hex: "#EF4444")
     static let info     = Color(hex: "#3B82F6")
 
+    // MARK: - Social Platform Colors (from Sketch design system)
+    static let instagram = Color(hex: "#E4405E")
+    static let tiktok    = Color(hex: "#25EFE6")
+    static let twitter   = Color(hex: "#1CA1F1")
+    static let linkedin  = Color(hex: "#0A66C1")
+
+    // MARK: - Neutral
+    static let neutral   = Color(hex: "#545454")
+
     // MARK: - Gradients
     /// Primary gradient — monochromatic white for dark mode
     static let primaryGradient = LinearGradient(

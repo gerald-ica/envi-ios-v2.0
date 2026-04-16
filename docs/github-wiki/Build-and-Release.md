@@ -13,10 +13,12 @@
 ```bash
 cd /path/to/envi-ios-v2.0
 swift package resolve   # SPM
-open .swiftpm/xcode/package.xcworkspace
+open ENVI.xcodeproj
 ```
 
-Select an iOS 17+ simulator or device, **⌘R** to run.
+Select the **ENVI** app scheme, choose an iOS simulator or device, then press **⌘R**.
+
+Do not run the package workspace on a physical device. The Swift package is for module/test management; the installable product is the app target in `ENVI.xcodeproj`.
 
 ## Bundle ID
 

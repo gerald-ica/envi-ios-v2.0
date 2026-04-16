@@ -141,15 +141,17 @@ cd envi-ios-v2.0
 # Resolve Swift Package Manager dependencies
 swift package resolve
 
-# Open in Xcode
-open .swiftpm/xcode/package.xcworkspace
+# Open the installable iOS app project
+open ENVI.xcodeproj
 ```
 
 ### Build & Run
 
-1. Open `.swiftpm/xcode/package.xcworkspace` in Xcode
+1. Open `ENVI.xcodeproj` in Xcode
 2. Select an iOS 26.0+ simulator or device
 3. Press `⌘R` to build and run
+
+`Package.swift` is kept for dependency resolution and tests. The physical-device build must use the app target from `ENVI.xcodeproj`, because a Swift package executable isn't an installable `.app` bundle.
 
 ### Template Tab Setup
 
