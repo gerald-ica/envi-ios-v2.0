@@ -69,13 +69,13 @@ struct ForYouSwipeView: View {
                     ForEach(Array(viewModel.forYouItems.enumerated()), id: \.element.id) { index, item in
                         SwipeableCardView(
                             item: item,
+                            cardWidth: contentWidth,
                             cardHeight: MainAppSketch.feedCardHeight,
                             dismissDistance: 280,
                             onApprove: { viewModel.approve(item) },
                             onDisapprove: { viewModel.disapprove(item.id) },
                             onBookmark: { viewModel.bookmarkCard(id: item.id) }
                         )
-                        .frame(width: contentWidth)
                         .padding(.bottom, index == viewModel.forYouItems.count - 1 ? 0 : -24)
                         .zIndex(Double(viewModel.forYouItems.count - index))
                     }
@@ -193,6 +193,7 @@ private enum ScreenWidthDefaults {
 /// Individual feed card with horizontal swipe gesture for approve/disapprove.
 private struct SwipeableCardView: View {
     let item: ContentItem
+    let cardWidth: CGFloat
     let cardHeight: CGFloat
     let dismissDistance: CGFloat
     let onApprove: () -> Void
@@ -228,8 +229,7 @@ private struct SwipeableCardView: View {
 
             cardContent
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: cardHeight)
+        .frame(width: cardWidth, height: cardHeight)
         // Sketch Content Card fill #4A60B2 — visible only when no image.
         .background(Color(hex: "#4A60B2"))
         .overlay(

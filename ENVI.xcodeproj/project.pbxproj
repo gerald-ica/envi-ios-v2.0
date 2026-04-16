@@ -470,6 +470,13 @@
 		FD37C1975F00001E8E574F12 /* decorative-shape-25.png in Resources */ = {isa = PBXBuildFile; fileRef = 77C208E9B61B103B573DEF50 /* decorative-shape-25.png */; };
 		FE24BF57A576F3463827BA58 /* decorative-shape-19.png in Resources */ = {isa = PBXBuildFile; fileRef = 0EC18D66658FFD338E95F9D7 /* decorative-shape-19.png */; };
 		FFCC534379F764D814266252 /* MetricCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F37019812DD5B67C5621B30 /* MetricCardView.swift */; };
+		B100000000000000000000A1 /* FirestoreBackedAnalyticsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000000000000000000A2 /* FirestoreBackedAnalyticsRepository.swift */; };
+		B100000000000000000000A3 /* AdvancedAnalyticsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000000000000000000A4 /* AdvancedAnalyticsRepository.swift */; };
+		B100000000000000000000A5 /* FirestoreBackedAdvancedAnalyticsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000000000000000000A6 /* FirestoreBackedAdvancedAnalyticsRepository.swift */; };
+		B100000000000000000000B1 /* FirestoreBackedBenchmarkRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000000000000000000B2 /* FirestoreBackedBenchmarkRepository.swift */; };
+		B100000000000000000000C1 /* ConnectedAccountsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000000000000000000C2 /* ConnectedAccountsView.swift */; };
+		B100000000000000000000C3 /* ConnectedAccountsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000000000000000000C4 /* ConnectedAccountsViewModel.swift */; };
+		B100000000000000000000C5 /* ConnectAccountEmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000000000000000000C6 /* ConnectAccountEmptyStateView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -929,6 +936,13 @@
 		FE7CA623F68F981DAFBFDCD0 /* SecurityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityRepository.swift; sourceTree = "<group>"; };
 		FF893BDE3A331ECE39048447 /* BillingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingRepository.swift; sourceTree = "<group>"; };
 		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B100000000000000000000A2 /* FirestoreBackedAnalyticsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreBackedAnalyticsRepository.swift; sourceTree = "<group>"; };
+		B100000000000000000000A4 /* AdvancedAnalyticsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedAnalyticsRepository.swift; sourceTree = "<group>"; };
+		B100000000000000000000A6 /* FirestoreBackedAdvancedAnalyticsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreBackedAdvancedAnalyticsRepository.swift; sourceTree = "<group>"; };
+		B100000000000000000000B2 /* FirestoreBackedBenchmarkRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreBackedBenchmarkRepository.swift; sourceTree = "<group>"; };
+		B100000000000000000000C2 /* ConnectedAccountsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Settings/ConnectedAccountsView.swift"; sourceTree = "<group>"; };
+		B100000000000000000000C4 /* ConnectedAccountsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Settings/ConnectedAccountsViewModel.swift"; sourceTree = "<group>"; };
+		B100000000000000000000C6 /* ConnectAccountEmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConnectAccountEmptyStateView.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1422,6 +1436,10 @@
 				73E5810B29807563DC7CFD22 /* SupportRepository.swift */,
 				6D09E669778F36C7772D5FD2 /* TeamRepository.swift */,
 				7A71C0550EB00A071B6BDB85 /* VideoTemplateRepository.swift */,
+				B100000000000000000000A2 /* FirestoreBackedAnalyticsRepository.swift */,
+				B100000000000000000000A4 /* AdvancedAnalyticsRepository.swift */,
+				B100000000000000000000A6 /* FirestoreBackedAdvancedAnalyticsRepository.swift */,
+				B100000000000000000000B2 /* FirestoreBackedBenchmarkRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -1534,6 +1552,7 @@
 				12D902F0F33585218E93CF85 /* RetentionCohortView.swift */,
 				ADE00642D221C9FCE2D8BE8B /* SourceAttributionView.swift */,
 				1D9AF7A34A4D33CBD18C9184 /* WeeklyDigestView.swift */,
+				B100000000000000000000C6 /* ConnectAccountEmptyStateView.swift */,
 			);
 			path = Analytics;
 			sourceTree = "<group>";
@@ -1612,6 +1631,8 @@
 				0C634C871BD153F4D7474EA6 /* Security */,
 				C9837AA2FF14AFBC54A4611D /* Subscription */,
 				2F7F5B9CC708743A98E7254A /* Support */,
+				B100000000000000000000C2 /* ConnectedAccountsView.swift */,
+				B100000000000000000000C4 /* ConnectedAccountsViewModel.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -2522,6 +2543,13 @@
 				23A37455153C6207FEED9EFD /* WeeklyDigestView.swift in Sources */,
 				BB214E6B74B65A907A8DA218 /* WorkspaceListView.swift in Sources */,
 				7D659888803B71793B33E4EB /* WorldExplorerView.swift in Sources */,
+				B100000000000000000000A1 /* FirestoreBackedAnalyticsRepository.swift in Sources */,
+				B100000000000000000000A3 /* AdvancedAnalyticsRepository.swift in Sources */,
+				B100000000000000000000A5 /* FirestoreBackedAdvancedAnalyticsRepository.swift in Sources */,
+				B100000000000000000000B1 /* FirestoreBackedBenchmarkRepository.swift in Sources */,
+				B100000000000000000000C1 /* ConnectedAccountsView.swift in Sources */,
+				B100000000000000000000C3 /* ConnectedAccountsViewModel.swift in Sources */,
+				B100000000000000000000C5 /* ConnectAccountEmptyStateView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
