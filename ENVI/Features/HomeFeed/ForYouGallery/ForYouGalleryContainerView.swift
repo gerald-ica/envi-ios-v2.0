@@ -2,16 +2,19 @@ import SwiftUI
 
 /// Top-level view for Tab 0 — For You / Gallery dual-mode.
 ///
-/// Shows a pill-shaped segmented control at the top with a search icon,
-/// switching between `ForYouSwipeView` and `GalleryGridView`.
+/// Per Sketch "10 - Feed" artboard:
+/// - Search icon (34×32) at left, opens `FeedSearchView`
+/// - For You / Gallery segmented toggle (220×40) centered
+/// - Content Calendar icon (24×24) at right, opens calendar sheet
 struct ForYouGalleryContainerView: View {
 
     @StateObject private var viewModel = ForYouGalleryViewModel()
+    @State private var showSearch = false
+    @State private var showCalendar = false
 
     var body: some View {
         ZStack(alignment: .top) {
-            backgroundLayer
-                .ignoresSafeArea()
+            AppBackground(imageName: "bg-texture-09")
 
             VStack(spacing: 0) {
                 headerBar
@@ -27,35 +30,11 @@ struct ForYouGalleryContainerView: View {
             }
         }
         .preferredColorScheme(.dark)
-    }
-
-    private var backgroundLayer: some View {
-        ZStack {
-            Color.black
-
-            LinearGradient(
-                colors: [
-                    Color(hex: "#0A0A0A"),
-                    Color(hex: "#050505"),
-                    Color(hex: "#000000")
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-
-            RadialGradient(
-                colors: [Color.white.opacity(0.06), .clear],
-                center: .topLeading,
-                startRadius: 12,
-                endRadius: 320
-            )
-
-            RadialGradient(
-                colors: [Color(hex: "#30217C").opacity(0.12), .clear],
-                center: .bottomTrailing,
-                startRadius: 20,
-                endRadius: 420
-            )
+        .sheet(isPresented: $showSearch) {
+            FeedSearchView()
+        }
+        .sheet(isPresented: $showCalendar) {
+            CalendarSheet()
         }
     }
 
@@ -63,10 +42,8 @@ struct ForYouGalleryContainerView: View {
 
     private var headerBar: some View {
         HStack(spacing: ENVISpacing.md) {
-            MainAppUtilityChatPill {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    viewModel.selectedSegment = viewModel.selectedSegment == .forYou ? .gallery : .forYou
-                }
+            MainAppUtilityIcon(systemName: "magnifyingglass") {
+                showSearch = true
             }
 
             Spacer(minLength: 0)
@@ -75,8 +52,8 @@ struct ForYouGalleryContainerView: View {
 
             Spacer(minLength: 0)
 
-            MainAppUtilityIcon(systemName: "arrow.clockwise") {
-                Task { await viewModel.refresh() }
+            MainAppUtilityIcon(systemName: "calendar") {
+                showCalendar = true
             }
         }
         .padding(.horizontal, 16)
@@ -89,6 +66,29 @@ struct ForYouGalleryContainerView: View {
         ) { index in
             withAnimation(.easeInOut(duration: 0.25)) {
                 viewModel.selectedSegment = index == 0 ? .forYou : .gallery
+            }
+        }
+    }
+}
+
+/// Sheet host for `ContentCalendarView`, providing the demo days the
+/// calendar expects. Keeps the main container view lean.
+private struct CalendarSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                ContentCalendarView(days: AnalyticsData.mock.calendarDays)
+                    .padding(.top, ENVISpacing.lg)
+            }
+            .background(AppBackground(imageName: "bg-texture-09"))
+            .navigationTitle("Content Calendar")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
             }
         }
     }
