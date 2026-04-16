@@ -45,14 +45,21 @@ struct ForYouSwipeView: View {
     // MARK: - Card Stack
 
     private var cardStack: some View {
-        ScrollView(.vertical, showsIndicators: false) {
+        // UIScreen.main.bounds.width is the reliable source for the actual
+        // device width in this view. GeometryReader reports an inflated
+        // proposal here because AppBackground's .ignoresSafeArea() extends
+        // the parent ZStack's bounds beyond the screen, and the ScrollView
+        // does not propose its own width back to content.
+        let screenWidth = UIScreen.main.bounds.width
+        let contentWidth = screenWidth - 32
+
+        return ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 0) {
                 Text("[ TAP THE CONTENT PIECES, AND EXPLORE ]")
                     .font(.spaceMonoBold(11))
                     .tracking(1.5)
                     .foregroundColor(.white.opacity(0.46))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
+                    .frame(width: contentWidth, alignment: .leading)
                     .padding(.top, 14)
                     .padding(.bottom, 16)
 
@@ -66,14 +73,15 @@ struct ForYouSwipeView: View {
                             onDisapprove: { viewModel.disapprove(item.id) },
                             onBookmark: { viewModel.bookmarkCard(id: item.id) }
                         )
+                        .frame(width: contentWidth)
                         .padding(.bottom, index == viewModel.forYouItems.count - 1 ? 0 : -24)
                         .zIndex(Double(viewModel.forYouItems.count - index))
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, 16)
+                .frame(width: screenWidth)
                 .padding(.bottom, 136)
             }
+            .frame(width: screenWidth)
         }
     }
 
@@ -202,7 +210,6 @@ private struct SwipeableCardView: View {
 
             cardContent
         }
-        .frame(maxWidth: .infinity)
         .frame(height: cardHeight)
         .clipped()
         // Sketch Content Card fill #4A60B2 — visible only when no image.
