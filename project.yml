@@ -1,6 +1,6 @@
 name: ENVI
 options:
-  bundleIdPrefix: com.informal
+  bundleIdPrefix: com.weareinformal
   deploymentTarget:
     iOS: "26.0"
   xcodeVersion: "26.4"
@@ -17,6 +17,9 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk.git
     from: "11.0.0"
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS.git
+    from: "8.0.0"
 targets:
   ENVI:
     type: application
@@ -29,10 +32,11 @@ targets:
     resources:
       - path: ENVI/Resources/Fonts
       - path: ENVI/Resources/Images
+      - path: ENVI/Resources/GoogleService-Info.plist
       - path: ENVI/Features/Templates/Resources
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.informal.envi
+        PRODUCT_BUNDLE_IDENTIFIER: com.weareinformal.envi.staging
         INFOPLIST_FILE: "ENVI/SupportingFiles/Info.plist"
         GENERATE_INFOPLIST_FILE: "YES"
         INFOPLIST_KEY_UILaunchStoryboardName: ""
@@ -43,10 +47,20 @@ targets:
         INFOPLIST_KEY_NSMicrophoneUsageDescription: "ENVI uses the microphone for voice commands and audio recording."
         INFOPLIST_KEY_NSCameraUsageDescription: "ENVI uses the camera to capture new content."
         INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "ENVI uses your location to personalize content recommendations and local insights."
-        CODE_SIGNING_ALLOWED: "NO"
+        CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.entitlements"
+        CODE_SIGN_STYLE: "Automatic"
+        CODE_SIGNING_ALLOWED: "YES"
+        DEVELOPMENT_TEAM: "ZM82DY7PG2"
         SWIFT_VERSION: "5.0"
         MARKETING_VERSION: "2.0"
         CURRENT_PROJECT_VERSION: "1"
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.Debug.entitlements"
+          DEVELOPMENT_TEAM: "W5687Z6R55"
+          PRODUCT_BUNDLE_IDENTIFIER: "com.geraldwelly.envi.debug"
+        Release:
+          CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.entitlements"
     dependencies:
       - package: SDWebImage
       - package: Lottie
@@ -63,3 +77,5 @@ targets:
         product: FirebaseCrashlytics
       - package: Firebase
         product: FirebaseCore
+      - package: GoogleSignIn
+        product: GoogleSignIn

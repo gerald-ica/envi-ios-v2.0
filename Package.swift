@@ -10,7 +10,8 @@
 //   ├── Lottie             — Animation playback for onboarding and transitions
 //   ├── RevenueCat         — In-app purchase & subscription management
 //   ├── RevenueCatUI       — Pre-built paywalls & Customer Center
-//   ├── FirebaseAuth       — Authentication (email + Apple Sign-In)
+//   ├── GoogleSignIn        — Google Sign-In authentication
+//   ├── FirebaseAuth       — Authentication (email + Apple Sign-In + Google)
 //   ├── FirebaseAnalytics  — Product analytics and event tracking
 //   ├── FirebaseCrashlytics — Crash reporting and diagnostics
 //   └── FirebaseCore       — Firebase SDK foundation
@@ -30,6 +31,7 @@ let package = Package(
         .package(url: "https://github.com/airbnb/lottie-spm.git", from: "4.4.0"),
         .package(url: "https://github.com/RevenueCat/purchases-ios-spm.git", from: "5.0.0"),
         .package(url: "https://github.com/firebase/firebase-ios-sdk.git", from: "11.0.0"),
+        .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "8.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -43,6 +45,7 @@ let package = Package(
                 .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
+                .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
             ],
             path: "ENVI",
             resources: [
