@@ -13,7 +13,6 @@ enum MainAppSketch {
     static let topSwitchActiveHeight: CGFloat = 32
     static let searchBarWidth: CGFloat = 324
     static let searchBarHeight: CGFloat = 48
-    static let feedCardWidth: CGFloat = 361
     static let feedCardHeight: CGFloat = 480
     static let profileRowHeight: CGFloat = 40
     static let subscriptionHeight: CGFloat = 50

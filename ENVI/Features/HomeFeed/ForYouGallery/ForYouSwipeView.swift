@@ -66,12 +66,12 @@ struct ForYouSwipeView: View {
                             onDisapprove: { viewModel.disapprove(item.id) },
                             onBookmark: { viewModel.bookmarkCard(id: item.id) }
                         )
-                        .frame(width: MainAppSketch.feedCardWidth)
                         .padding(.bottom, index == viewModel.forYouItems.count - 1 ? 0 : -24)
                         .zIndex(Double(viewModel.forYouItems.count - index))
                     }
                 }
                 .frame(maxWidth: .infinity)
+                .padding(.horizontal, 16)
                 .padding(.bottom, 136)
             }
         }
