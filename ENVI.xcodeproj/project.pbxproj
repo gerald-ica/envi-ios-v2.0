@@ -2433,9 +2433,15 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = ENVI/SupportingFiles/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "ENVI uses your location to personalize content recommendations and local insights.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "ENVI uses the microphone for voice commands and audio recording.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "ENVI saves edited content pieces to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "ENVI needs access to your photos and videos to create and manage your content pieces.";
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2456,9 +2462,15 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = ENVI/SupportingFiles/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "ENVI uses your location to personalize content recommendations and local insights.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "ENVI uses the microphone for voice commands and audio recording.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "ENVI saves edited content pieces to your photo library.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "ENVI needs access to your photos and videos to create and manage your content pieces.";
 				INFOPLIST_KEY_UILaunchStoryboardName = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
