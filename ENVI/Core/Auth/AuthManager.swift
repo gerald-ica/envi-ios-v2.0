@@ -4,9 +4,7 @@ import FirebaseCore
 import FirebaseAuth
 import AuthenticationServices
 import CryptoKit
-#if canImport(GoogleSignIn)
 import GoogleSignIn
-#endif
 
 final class AuthManager: ObservableObject {
     static let shared = AuthManager()
@@ -59,11 +57,11 @@ final class AuthManager: ObservableObject {
     func startAuthStateListener() {
         guard FirebaseApp.app() != nil else { return }
         authStateHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            DispatchQueue.main.async {
-                if let user {
-                    self?.authState = .signedIn(uid: user.uid)
-                } else {
-                    self?.authState = .signedOut
+            let uid = user?.uid
+            Task {
+                await MainActor.run { [weak self] in
+                    guard let self else { return }
+                    self.authState = uid.map { .signedIn(uid: $0) } ?? .signedOut
                 }
             }
         }
@@ -149,8 +147,9 @@ final class AuthManager: ObservableObject {
 
     @discardableResult
     func signInWithGoogle(presenting viewController: UIViewController) async throws -> UserAuthPayload {
-        #if canImport(GoogleSignIn)
         guard FirebaseApp.app() != nil else { throw AuthError.firebaseNotConfigured }
+        // NOTE: clientID comes from GoogleService-Info.plist CLIENT_ID field.
+        // Google Sign-In must be enabled in Firebase Console for this to work.
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             throw AuthError.googleSignInFailed
         }
@@ -173,9 +172,6 @@ final class AuthManager: ObservableObject {
             email: authResult.user.email,
             displayName: authResult.user.displayName
         )
-        #else
-        throw AuthError.googleSignInFailed
-        #endif
     }
 
     // MARK: - ENVI-0009 Multi-Factor Authentication
@@ -218,13 +214,18 @@ final class AuthManager: ObservableObject {
     func restoreSession() -> Bool {
         guard FirebaseApp.app() != nil else { return false }
         if let user = Auth.auth().currentUser {
-            DispatchQueue.main.async { [weak self] in
-                self?.authState = .signedIn(uid: user.uid)
+            let uid = user.uid
+            Task {
+                await MainActor.run { [weak self] in
+                    self?.authState = .signedIn(uid: uid)
+                }
             }
             return true
         }
-        DispatchQueue.main.async { [weak self] in
-            self?.authState = .signedOut
+        Task {
+            await MainActor.run { [weak self] in
+                self?.authState = .signedOut
+            }
         }
         return false
     }
@@ -246,8 +247,10 @@ final class AuthManager: ObservableObject {
 
         do {
             try await user.delete()
-            DispatchQueue.main.async { [weak self] in
-                self?.authState = .signedOut
+            Task {
+                await MainActor.run { [weak self] in
+                    self?.authState = .signedOut
+                }
             }
         } catch let error as NSError {
             if error.code == AuthErrorCode.requiresRecentLogin.rawValue {

@@ -1,6 +1,7 @@
 import UIKit
 import RevenueCat
 import FirebaseCore
+import GoogleSignIn
 
 /// App entry point using UIKit app delegate.
 /// Uses SceneDelegate for scene lifecycle management.
@@ -14,12 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Configure Firebase SDK before any auth interaction.
         if FirebaseApp.app() == nil {
-            if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
-               let options = FirebaseOptions(contentsOfFile: path) {
-                FirebaseApp.configure(options: options)
-            } else {
-                print("Firebase not configured: missing GoogleService-Info.plist")
-            }
+            FirebaseApp.configure()
         }
 
         // Configure RevenueCat SDK
@@ -42,4 +38,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication,
                      didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {}
+
+    // MARK: - Google Sign-In URL Handling
+    func application(_ app: UIApplication, open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return GIDSignIn.sharedInstance.handle(url)
+    }
 }

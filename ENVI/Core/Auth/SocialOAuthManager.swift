@@ -2,6 +2,7 @@ import Foundation
 
 final class SocialOAuthManager {
     static let shared = SocialOAuthManager()
+    static var useMockOAuth: Bool = true
 
     private init() {}
 
@@ -30,6 +31,19 @@ final class SocialOAuthManager {
     // MARK: - Connect
 
     func connect(platform: SocialPlatform) async throws -> PlatformConnection {
+        if Self.useMockOAuth {
+            try await Task.sleep(for: .seconds(1))
+            return PlatformConnection(
+                platform: platform,
+                isConnected: true,
+                handle: mockHandle(for: platform),
+                followerCount: Int.random(in: 1000...50000),
+                tokenExpiresAt: Date().addingTimeInterval(86400 * 30),
+                lastRefreshedAt: Date(),
+                scopes: mockScopes(for: platform)
+            )
+        }
+
         let response: OAuthConnectionResponse = try await APIClient.shared.request(
             endpoint: "oauth/\(platform.apiSlug)/connect",
             method: .post,
@@ -51,6 +65,11 @@ final class SocialOAuthManager {
     // MARK: - Disconnect
 
     func disconnect(platform: SocialPlatform) async throws {
+        if Self.useMockOAuth {
+            try await Task.sleep(for: .milliseconds(500))
+            return
+        }
+
         do {
             try await APIClient.shared.requestVoid(
                 endpoint: "oauth/\(platform.apiSlug)/disconnect",
@@ -66,6 +85,19 @@ final class SocialOAuthManager {
     // MARK: - Refresh Token
 
     func refreshToken(platform: SocialPlatform) async throws -> PlatformConnection {
+        if Self.useMockOAuth {
+            try await Task.sleep(for: .milliseconds(500))
+            return PlatformConnection(
+                platform: platform,
+                isConnected: true,
+                handle: mockHandle(for: platform),
+                followerCount: Int.random(in: 1000...50000),
+                tokenExpiresAt: Date().addingTimeInterval(86400 * 30),
+                lastRefreshedAt: Date(),
+                scopes: mockScopes(for: platform)
+            )
+        }
+
         let response: OAuthConnectionResponse
 
         do {
@@ -93,6 +125,18 @@ final class SocialOAuthManager {
     // MARK: - Connection Status
 
     func connectionStatus(platform: SocialPlatform) async throws -> PlatformConnection {
+        if Self.useMockOAuth {
+            return PlatformConnection(
+                platform: platform,
+                isConnected: true,
+                handle: mockHandle(for: platform),
+                followerCount: Int.random(in: 1000...50000),
+                tokenExpiresAt: Date().addingTimeInterval(86400 * 30),
+                lastRefreshedAt: Date(),
+                scopes: mockScopes(for: platform)
+            )
+        }
+
         let response: OAuthConnectionResponse = try await APIClient.shared.request(
             endpoint: "oauth/\(platform.apiSlug)/status",
             method: .get,
@@ -108,6 +152,30 @@ final class SocialOAuthManager {
             lastRefreshedAt: response.lastRefreshedAt,
             scopes: response.scopes ?? []
         )
+    }
+
+    // MARK: - Mock Helpers
+
+    private func mockHandle(for platform: SocialPlatform) -> String {
+        switch platform {
+        case .instagram: return "envi_user"
+        case .tiktok: return "envi_user"
+        case .x: return "envi_user"
+        case .threads: return "envi_user"
+        case .linkedin: return "ENVI User"
+        case .youtube: return "ENVI Channel"
+        }
+    }
+
+    private func mockScopes(for platform: SocialPlatform) -> [String] {
+        switch platform {
+        case .instagram: return ["basic", "publish_media", "insights"]
+        case .tiktok: return ["user.info.basic", "video.list", "video.publish"]
+        case .x: return ["tweet.read", "tweet.write", "users.read"]
+        case .threads: return ["threads_basic", "threads_publish"]
+        case .linkedin: return ["r_liteprofile", "w_member_social"]
+        case .youtube: return ["youtube.readonly", "youtube.upload"]
+        }
     }
 }
 
