@@ -94,6 +94,60 @@ struct MainAppUtilityChatPill: View {
     }
 }
 
+/// Sketch "Search Icon" symbol — 34×32 white pill with a black magnifier glass.
+struct MainAppSearchPill: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white)
+                    .frame(width: 34, height: 32)
+
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(Color(hex: "#0D0D0D"))
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// Sketch "Content Calendar icon" — 24×24 custom glyph with two top binding tabs.
+/// Uses a SwiftUI Canvas-style composition to match the Sketch geometry.
+struct MainAppContentCalendarIcon: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ZStack(alignment: .top) {
+                // Two 1×3 binding tabs at the top (Sketch x≈6 and x≈15 of 24)
+                HStack(spacing: 8) {
+                    Capsule().fill(Color.white).frame(width: 1.5, height: 4)
+                    Capsule().fill(Color.white).frame(width: 1.5, height: 4)
+                }
+                .offset(y: -1)
+
+                VStack(spacing: 0) {
+                    // 18×4 header stripe (days-of-week bar) — white solid
+                    Rectangle()
+                        .fill(Color.white)
+                        .frame(width: 18, height: 4)
+                    // 18×11 body — outlined rectangle
+                    Rectangle()
+                        .stroke(Color.white, lineWidth: 1.5)
+                        .frame(width: 18, height: 11)
+                        .offset(y: -0.75)
+                }
+                .offset(y: 4)
+            }
+            .frame(width: 24, height: 24)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 struct MainAppUtilityIcon: View {
     let systemName: String
     let action: () -> Void

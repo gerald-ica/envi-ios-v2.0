@@ -42,9 +42,7 @@ struct ForYouGalleryContainerView: View {
 
     private var headerBar: some View {
         HStack(spacing: ENVISpacing.md) {
-            MainAppUtilityIcon(systemName: "magnifyingglass") {
-                showSearch = true
-            }
+            MainAppSearchPill { showSearch = true }
 
             Spacer(minLength: 0)
 
@@ -52,9 +50,7 @@ struct ForYouGalleryContainerView: View {
 
             Spacer(minLength: 0)
 
-            MainAppUtilityIcon(systemName: "calendar") {
-                showCalendar = true
-            }
+            MainAppContentCalendarIcon { showCalendar = true }
         }
         .padding(.horizontal, 16)
     }

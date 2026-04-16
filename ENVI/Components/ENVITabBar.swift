@@ -20,12 +20,16 @@ final class ENVITabBar: UIView {
         let iconPointSize: CGFloat
         let imageWidth: CGFloat
         let imageHeight: CGFloat
+        /// When true, the tab always shows its 45×45 white background disc
+        /// (e.g. the profile tab — Sketch "profile / settings icon" is
+        /// persistently a white rounded rect, avatar fills it in production).
+        let persistentDisc: Bool
     }
 
     static let defaultTabs: [Tab] = [
-        Tab(iconName: nil, imageName: "shape-15", iconPointSize: 0, imageWidth: 22, imageHeight: 22),
-        Tab(iconName: nil, imageName: "envi-logo", iconPointSize: 0, imageWidth: 26, imageHeight: 21),
-        Tab(iconName: "person.fill", imageName: nil, iconPointSize: 19, imageWidth: 0, imageHeight: 0),
+        Tab(iconName: nil, imageName: "shape-15", iconPointSize: 0, imageWidth: 22, imageHeight: 22, persistentDisc: false),
+        Tab(iconName: nil, imageName: "envi-logo", iconPointSize: 0, imageWidth: 26, imageHeight: 21, persistentDisc: false),
+        Tab(iconName: "person.fill", imageName: nil, iconPointSize: 19, imageWidth: 0, imageHeight: 0, persistentDisc: true),
     ]
 
     var selectedIndex: Int = 0 {
@@ -189,11 +193,24 @@ final class ENVITabBar: UIView {
     private func updateSelection() {
         for (index, iconView) in iconViews.enumerated() {
             let isSelected = index == selectedIndex
-            iconView.tintColor = isSelected ? pillColor : .white
+            let tab = tabs[index]
 
+            // Sketch: resting left/center icons at 85% opacity; selected tint
+            // flips to pill color when the icon sits on a white circle.
+            if tab.persistentDisc {
+                iconView.tintColor = pillColor
+                iconView.alpha = 1
+            } else {
+                iconView.tintColor = isSelected ? pillColor : .white
+                iconView.alpha = isSelected ? 1 : 0.85
+            }
+
+            let shouldShowCircle = isSelected || tab.persistentDisc
             UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseInOut) {
-                self.activeCircles[index].alpha = isSelected ? 1 : 0
-                self.activeCircles[index].transform = isSelected ? .identity : CGAffineTransform(scaleX: 0.72, y: 0.72)
+                self.activeCircles[index].alpha = shouldShowCircle ? 1 : 0
+                self.activeCircles[index].transform = shouldShowCircle
+                    ? .identity
+                    : CGAffineTransform(scaleX: 0.72, y: 0.72)
             }
         }
     }
