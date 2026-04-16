@@ -269,9 +269,13 @@ struct ExportSheetView: View {
         let scheduledAtDate = publishMode == .scheduled ? scheduledAt : nil
 
         do {
+            // Phase 12 — `mediaRefs` are Cloud Storage object paths. ExportSheet
+            // currently composes text-only posts; media fan-out will populate
+            // this array once the editor's upload step is wired through.
             let ticket = try await PublishingManager.shared.startPublish(
                 caption: caption,
                 platforms: Array(selectedPlatforms),
+                mediaRefs: [],
                 scheduledAt: scheduledAtDate
             )
 
@@ -285,6 +289,8 @@ struct ExportSheetView: View {
             switch finalStatus {
             case .posted:
                 publishStatusMessage = "Published successfully."
+            case .partial:
+                publishStatusMessage = "Partially published. Some platforms failed."
             case .failed:
                 publishStatusMessage = "Publish failed. Please retry."
             case .queued, .processing:

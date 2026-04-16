@@ -14,15 +14,15 @@ import UIKit
 ///     on main, and the presentation anchor is a UIWindow.
 ///   - We keep a single in-flight session at a time; reentrant calls throw
 ///     `.sessionAlreadyActive` rather than stacking webviews.
-@MainActor
 final class ASWebAuthenticationSessionAdapter: NSObject, OAuthSession {
-    private var activeSession: ASWebAuthenticationSession?
-    private weak var presentationAnchor: ASPresentationAnchor?
-    private let presentationAnchorProvider: @MainActor () -> ASPresentationAnchor?
+    @MainActor private var activeSession: ASWebAuthenticationSession?
+    @MainActor private weak var presentationAnchor: ASPresentationAnchor?
+    @MainActor private let presentationAnchorProvider: () -> ASPresentationAnchor?
 
     /// - Parameter presentationAnchorProvider: Injectable so tests can supply
     ///   a stub window and `SceneDelegate` can plug in its managed UIWindow.
     ///   Defaults to "first key window in the foreground-active scene".
+    @MainActor
     init(
         presentationAnchorProvider: @escaping @MainActor () -> ASPresentationAnchor? = {
             ASWebAuthenticationSessionAdapter.defaultPresentationAnchor()
@@ -32,6 +32,7 @@ final class ASWebAuthenticationSessionAdapter: NSObject, OAuthSession {
         super.init()
     }
 
+    @MainActor
     func start(authorizationURL: URL, callbackScheme: String) async throws -> URL {
         guard activeSession == nil else {
             throw OAuthSessionError.sessionAlreadyActive
@@ -82,6 +83,7 @@ final class ASWebAuthenticationSessionAdapter: NSObject, OAuthSession {
         }
     }
 
+    @MainActor
     func cancel() {
         activeSession?.cancel()
         activeSession = nil
@@ -89,6 +91,7 @@ final class ASWebAuthenticationSessionAdapter: NSObject, OAuthSession {
 
     // MARK: - Default presentation anchor
 
+    @MainActor
     private static func defaultPresentationAnchor() -> ASPresentationAnchor? {
         let scenes = UIApplication.shared.connectedScenes
         let activeWindowScene = scenes
@@ -97,7 +100,7 @@ final class ASWebAuthenticationSessionAdapter: NSObject, OAuthSession {
             ?? scenes.compactMap({ $0 as? UIWindowScene }).first
         return activeWindowScene?.keyWindow
             ?? activeWindowScene?.windows.first
-            ?? UIWindow()
+            ?? activeWindowScene.map { UIWindow(windowScene: $0) }
     }
 }
 
@@ -107,11 +110,14 @@ extension ASWebAuthenticationSessionAdapter: ASWebAuthenticationPresentationCont
     nonisolated func presentationAnchor(
         for session: ASWebAuthenticationSession
     ) -> ASPresentationAnchor {
-        // UIKit requires an anchor. If, for some edge case, we lost the
-        // captured anchor, return a throwaway UIWindow — the session will
-        // fail-close immediately.
         MainActor.assumeIsolated {
-            presentationAnchor ?? UIWindow()
+            if let anchor = presentationAnchor ?? ASWebAuthenticationSessionAdapter.defaultPresentationAnchor() {
+                return anchor
+            }
+
+            preconditionFailure(
+                "ASWebAuthenticationSession requires a UIWindowScene-backed presentation anchor."
+            )
         }
     }
 }

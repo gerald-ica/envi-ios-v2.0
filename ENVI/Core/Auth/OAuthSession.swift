@@ -13,6 +13,10 @@ import Foundation
 ///   1. Ask the server for an `authorizationURL` (broker-side state + PKCE).
 ///   2. `try await start(authorizationURL:callbackScheme:)`.
 ///   3. Hand the returned URL to `OAuthCallbackHandler.parse(_:)`.
+///
+/// Main-actor isolation is intentional here: the system auth session presents
+/// UIKit-owned UI and must be driven from the main actor.
+@MainActor
 protocol OAuthSession: AnyObject {
     /// Open the provider's authorization URL in a secure web context and
     /// suspend until the OS re-invokes us via `callbackScheme`.

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Full-screen swipeable content pieces for the "For You" segment.
 ///
@@ -7,6 +8,7 @@ import SwiftUI
 struct ForYouSwipeView: View {
 
     @ObservedObject var viewModel: ForYouGalleryViewModel
+    @State private var screenWidth: CGFloat = ScreenWidthDefaults.currentWidth
 
     var body: some View {
         ZStack {
@@ -50,8 +52,8 @@ struct ForYouSwipeView: View {
         // proposal here because AppBackground's .ignoresSafeArea() extends
         // the parent ZStack's bounds beyond the screen, and the ScrollView
         // does not propose its own width back to content.
-        let screenWidth = UIScreen.main.bounds.width
-        let contentWidth = screenWidth - 32
+        let resolvedScreenWidth = screenWidth > 0 ? screenWidth : ScreenWidthDefaults.currentWidth
+        let contentWidth = resolvedScreenWidth - 32
 
         return ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 0) {
@@ -78,10 +80,10 @@ struct ForYouSwipeView: View {
                         .zIndex(Double(viewModel.forYouItems.count - index))
                     }
                 }
-                .frame(width: screenWidth)
+                .frame(width: resolvedScreenWidth)
                 .padding(.bottom, 136)
             }
-            .frame(width: screenWidth)
+            .frame(width: resolvedScreenWidth)
         }
     }
 
@@ -170,6 +172,22 @@ struct ForYouSwipeView: View {
     }
 }
 
+private enum ScreenWidthDefaults {
+    static let fallbackWidth: CGFloat = 393
+
+    static var currentWidth: CGFloat {
+        let screenWidth = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow)?
+            .windowScene?
+            .screen
+            .bounds.width
+
+        return screenWidth ?? fallbackWidth
+    }
+}
+
 // MARK: - Swipeable Card
 
 /// Individual feed card with horizontal swipe gesture for approve/disapprove.
@@ -210,8 +228,8 @@ private struct SwipeableCardView: View {
 
             cardContent
         }
+        .frame(maxWidth: .infinity)
         .frame(height: cardHeight)
-        .clipped()
         // Sketch Content Card fill #4A60B2 — visible only when no image.
         .background(Color(hex: "#4A60B2"))
         .overlay(
@@ -384,6 +402,7 @@ private struct SwipeableCardView: View {
                 .buttonStyle(.plain)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(ENVISpacing.xl)
     }
 

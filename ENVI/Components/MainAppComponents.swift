@@ -179,7 +179,8 @@ struct MainAppSearchBar: View {
                 .font(.interRegular(14))
         }
         .padding(.horizontal, 16)
-        .frame(width: MainAppSketch.searchBarWidth, height: MainAppSketch.searchBarHeight)
+        .frame(maxWidth: .infinity)
+        .frame(height: MainAppSketch.searchBarHeight)
         .background(MainAppSketch.surfaceLow)
         .overlay(
             RoundedRectangle(cornerRadius: 20, style: .continuous)

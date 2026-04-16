@@ -51,6 +51,13 @@ struct PlatformConnection: Identifiable, Codable {
     var tokenExpiresAt: Date?
     var lastRefreshedAt: Date?
     var scopes: [String]
+    /// Phase 12: set by the Cloud Function refresh cron after 3 consecutive
+    /// refresh failures, or by server-side revoke events. Non-nil flips the
+    /// ConnectedAccountsView badge to red `RECONNECT`.
+    var revokedAt: Date?
+    /// Phase 12: last successful provider-side sync (webhook ack, analytics
+    /// pull, etc). Drives the "Last sync: 3h ago" subtitle.
+    var lastSyncAt: Date?
 
     /// Whether the token expires within the next 7 days.
     var isTokenExpiringSoon: Bool {
@@ -66,7 +73,9 @@ struct PlatformConnection: Identifiable, Codable {
         followerCount: Int? = nil,
         tokenExpiresAt: Date? = nil,
         lastRefreshedAt: Date? = nil,
-        scopes: [String] = []
+        scopes: [String] = [],
+        revokedAt: Date? = nil,
+        lastSyncAt: Date? = nil
     ) {
         self.id = UUID()
         self.platform = platform
@@ -76,5 +85,7 @@ struct PlatformConnection: Identifiable, Codable {
         self.tokenExpiresAt = tokenExpiresAt
         self.lastRefreshedAt = lastRefreshedAt
         self.scopes = scopes
+        self.revokedAt = revokedAt
+        self.lastSyncAt = lastSyncAt
     }
 }

@@ -41,6 +41,18 @@
 		133FC345F3452E747FDA3CCA /* glass-wireframe-sphere.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E11DB154AF0A5F9A8292690 /* glass-wireframe-sphere.png */; };
 		15285D34A2A5DB6BED834238 /* abstract-decoration-2.png in Resources */ = {isa = PBXBuildFile; fileRef = D93FA002E21EBB681BB5B184 /* abstract-decoration-2.png */; };
 		153920C2EB80F0C15892B0C9 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7FD3BB7272C3665C035800 /* AuthManager.swift */; };
+		A1B2C3D4E5F60718293A4B5C /* OAuthCallbackHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* OAuthCallbackHandler.swift */; };
+		A1B2C3D4E5F60718293A4B5E /* OAuthSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5F /* OAuthSession.swift */; };
+		A1B2C3D4E5F60718293A4B60 /* ASWebAuthenticationSessionAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B61 /* ASWebAuthenticationSessionAdapter.swift */; };
+		A1B2C3D4E5F60718293A4B62 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F60718293A4B63 /* FirebaseAppCheck */; };
+		B0000000000000000000FE04 /* LinkedInConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000FE05 /* LinkedInConnector.swift */; };
+		B0000000000000000000FE0A /* TikTokConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000FE0B /* TikTokConnector.swift */; };
+		B0000000000000000000FE0C /* TikTokModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000FE0D /* TikTokModels.swift */; };
+		B0000000000000000000FE0E /* XTwitterConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000FE0F /* XTwitterConnector.swift */; };
+		B0000000000000000000FE10 /* XTwitterConnector+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000FE11 /* XTwitterConnector+Errors.swift */; };
+		B0000000000000000000FE12 /* XTwitterConnector+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000FE13 /* XTwitterConnector+Models.swift */; };
+		B0000000000000000000FE14 /* FeedDetailAltView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000FE15 /* FeedDetailAltView.swift */; };
+		B0000000000000000000FE20 /* TikTokSandboxErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000FE21 /* TikTokSandboxErrorView.swift */; };
 		15463BCCD4AA63D6F9FD3820 /* world-explorer-bg.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D1B926442723D04AD5F685C3 /* world-explorer-bg.jpg */; };
 		1690E63903BEA04B9B7C8A1C /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 0B0000D2BFF22FAFC41CE7D9 /* icon.png */; };
 		1696BA3AD3429DB3C29ACD7C /* fashion-group.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 2B13B716200955221B2723C4 /* fashion-group.jpg */; };
@@ -878,6 +890,17 @@
 		EC21356F84C598DA66605F31 /* bg-texture-12.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bg-texture-12.png"; sourceTree = "<group>"; };
 		EC811C638A6BF91AA57FBD0A /* EducationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationRepository.swift; sourceTree = "<group>"; };
 		ED7FD3BB7272C3665C035800 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5D /* OAuthCallbackHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthCallbackHandler.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5F /* OAuthSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthSession.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B61 /* ASWebAuthenticationSessionAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASWebAuthenticationSessionAdapter.swift; sourceTree = "<group>"; };
+		B0000000000000000000FE05 /* LinkedInConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkedInConnector.swift; sourceTree = "<group>"; };
+		B0000000000000000000FE0B /* TikTokConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TikTokConnector.swift; sourceTree = "<group>"; };
+		B0000000000000000000FE0D /* TikTokModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TikTokModels.swift; sourceTree = "<group>"; };
+		B0000000000000000000FE0F /* XTwitterConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XTwitterConnector.swift; sourceTree = "<group>"; };
+		B0000000000000000000FE11 /* XTwitterConnector+Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XTwitterConnector+Errors.swift"; sourceTree = "<group>"; };
+		B0000000000000000000FE13 /* XTwitterConnector+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XTwitterConnector+Models.swift"; sourceTree = "<group>"; };
+		B0000000000000000000FE15 /* FeedDetailAltView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDetailAltView.swift; sourceTree = "<group>"; };
+		B0000000000000000000FE21 /* TikTokSandboxErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TikTokSandboxErrorView.swift; sourceTree = "<group>"; };
 		EE6C59C1D018707B3FCC0E23 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		EF67353D7C50D0C0CAAEBD11 /* BenchmarkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkViewModel.swift; sourceTree = "<group>"; };
 		EF7275E3EFEEA21534AC8938 /* ExperimentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentModels.swift; sourceTree = "<group>"; };
@@ -919,6 +942,7 @@
 				F59FD005E436EF76FBA63B95 /* RevenueCatUI in Frameworks */,
 				865B76A09D0043E1428D6F47 /* FirebaseAuth in Frameworks */,
 				A23FBB5A239CA121ED683266 /* FirebaseAnalytics in Frameworks */,
+				A1B2C3D4E5F60718293A4B62 /* FirebaseAppCheck in Frameworks */,
 				F7DF42F849F6591804A53732 /* FirebaseCrashlytics in Frameworks */,
 				B8864DDB88E9F14B21E6CA22 /* FirebaseCore in Frameworks */,
 				F747E5AB23F49B19112AB8E1 /* GoogleSignIn in Frameworks */,
@@ -928,6 +952,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B0000000000000000000FF00 /* Connectors */ = {
+			isa = PBXGroup;
+			children = (
+				B0000000000000000000FE05 /* LinkedInConnector.swift */,
+				B0000000000000000000FE0B /* TikTokConnector.swift */,
+				B0000000000000000000FE0D /* TikTokModels.swift */,
+				B0000000000000000000FE0F /* XTwitterConnector.swift */,
+				B0000000000000000000FE11 /* XTwitterConnector+Errors.swift */,
+				B0000000000000000000FE13 /* XTwitterConnector+Models.swift */,
+			);
+			path = Connectors;
+			sourceTree = "<group>";
+		};
 		06F5C12F2A040497DA5C1698 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
@@ -974,7 +1011,6 @@
 				6D9BC270C501C3FC27D355D4 /* cyclist.jpg */,
 				6E103E6C8EE92A9120D21870 /* desert-car.jpg */,
 				9E0F94353A372A41FFD582BF /* envi-mark.jpg */,
-				3F05D4D0DD3B7AD0916C3520 /* ENVIImageCatalog.swift */,
 				2B13B716200955221B2723C4 /* fashion-group.jpg */,
 				0083BFCC4BAB881E5146546C /* fire-stunt.jpg */,
 				0B0000D2BFF22FAFC41CE7D9 /* icon.png */,
@@ -1073,6 +1109,7 @@
 				7E71A51EBDA6027F6AE83BC8 /* ENVIEmptyState.swift */,
 				51D6E61D4AD05D26CF341C08 /* ENVIErrorBanner.swift */,
 				5730DCCE3203EB806C7CBAF5 /* ENVIFilterChip.swift */,
+				3F05D4D0DD3B7AD0916C3520 /* ENVIImageCatalog.swift */,
 				674E3C66DD2F42962AB03211 /* ENVIInput.swift */,
 				616E859040BC8E4985E5F807 /* ENVILoadingState.swift */,
 				73295C9D2CA229309DD18ED2 /* ENVIPlatformFilterBar.swift */,
@@ -1146,6 +1183,7 @@
 		30C177DAF6F142A969FFD04C /* ForYouGallery */ = {
 			isa = PBXGroup;
 			children = (
+				B0000000000000000000FE15 /* FeedDetailAltView.swift */,
 				F68851826B3F7F6D682B9F9F /* FeedDetailView.swift */,
 				848C1F9D37988EF4DA9B0D81 /* ForYouGalleryContainerView.swift */,
 				5DDCA4E82A710F76563C8880 /* ForYouGalleryViewModel.swift */,
@@ -1543,6 +1581,7 @@
 				E0C3378F10932815272ABD75 /* SignInView.swift */,
 				09E67545F5A7A963282E1A1F /* SplashSpiralView.swift */,
 				31567EF1509E4D87A057B8D0 /* SplashViewController.swift */,
+				B0000000000000000000FE21 /* TikTokSandboxErrorView.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -1634,6 +1673,7 @@
 				2606635CED7F82053D1B2A70 /* AI */,
 				E0F79AA7B057727628D6499A /* Auth */,
 				6BF6E9618C012EDA00A86891 /* Config */,
+				B0000000000000000000FF00 /* Connectors */,
 				5D96781CE55E3CECE1BD0491 /* Data */,
 				E391EDAAB220BBCEA993862B /* Design */,
 				744F2E323894281BA1B2F7DC /* Editing */,
@@ -1860,8 +1900,11 @@
 			isa = PBXGroup;
 			children = (
 				56D5D9514BE94516DB9FDC9F /* AppleSignInButton.swift */,
+				A1B2C3D4E5F60718293A4B61 /* ASWebAuthenticationSessionAdapter.swift */,
 				ED7FD3BB7272C3665C035800 /* AuthManager.swift */,
 				936CCD825B911A3820EE6E6D /* GoogleSignInButton.swift */,
+				A1B2C3D4E5F60718293A4B5D /* OAuthCallbackHandler.swift */,
+				A1B2C3D4E5F60718293A4B5F /* OAuthSession.swift */,
 				960BD3DA008319DA93EB54E8 /* SocialOAuthManager.swift */,
 			);
 			path = Auth;
@@ -1962,6 +2005,7 @@
 				41A7B5C949AAB576F4A90642 /* RevenueCatUI */,
 				C21DC2906E9D10E1BEF62035 /* FirebaseAuth */,
 				616952B49AB243FE3DE655A6 /* FirebaseAnalytics */,
+				A1B2C3D4E5F60718293A4B63 /* FirebaseAppCheck */,
 				35DC9D3D157DF735E3D960BF /* FirebaseCrashlytics */,
 				224F10C4C7CF85C34652FC4F /* FirebaseCore */,
 				2F0EABA330874E2089C45583 /* GoogleSignIn */,
@@ -2162,6 +2206,17 @@
 				1BE9BE9E54D59CAD5489FDB8 /* AuditLogView.swift in Sources */,
 				1C752EC430CAF9AD0C48063A /* AuraGateModifier.swift in Sources */,
 				153920C2EB80F0C15892B0C9 /* AuthManager.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5C /* OAuthCallbackHandler.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5E /* OAuthSession.swift in Sources */,
+				A1B2C3D4E5F60718293A4B60 /* ASWebAuthenticationSessionAdapter.swift in Sources */,
+				B0000000000000000000FE04 /* LinkedInConnector.swift in Sources */,
+				B0000000000000000000FE0A /* TikTokConnector.swift in Sources */,
+				B0000000000000000000FE0C /* TikTokModels.swift in Sources */,
+				B0000000000000000000FE0E /* XTwitterConnector.swift in Sources */,
+				B0000000000000000000FE10 /* XTwitterConnector+Errors.swift in Sources */,
+				B0000000000000000000FE12 /* XTwitterConnector+Models.swift in Sources */,
+				B0000000000000000000FE14 /* FeedDetailAltView.swift in Sources */,
+				B0000000000000000000FE20 /* TikTokSandboxErrorView.swift in Sources */,
 				64E34801D8D4A7F891C7246D /* AutoTagView.swift in Sources */,
 				9D4E09ADB562A26DED3C4FDE /* AutomationModels.swift in Sources */,
 				B8778F956F8A0B04B598A946 /* BackgroundTaskBudget.swift in Sources */,
@@ -2767,6 +2822,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AAA7D4464998702BEE1AFE5F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		A1B2C3D4E5F60718293A4B63 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAA7D4464998702BEE1AFE5F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
