@@ -8,13 +8,9 @@ struct OnboardingPhotosAccessView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.scenePhase) private var scenePhase
 
-    /// Phase 5 — Task 4: after the user grants full access we present a
-    /// full-screen progress cover that runs the onboarding scan batch.
-    /// The cover's `onContinue` dismisses and advances onboarding via the
-    /// existing `viewModel.goToNextStep()` path.
-    @State private var showTemplateProgress: Bool = false
-    @State private var hasPresentedProgress: Bool = false
-    @State private var scanCoordinator: MediaScanCoordinator?
+    /// Once photos access is granted, the scan runs fully in the background —
+    /// no blocking progress screen. The user continues onboarding immediately.
+    @State private var hasStartedBackgroundScan: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
@@ -46,28 +42,17 @@ struct OnboardingPhotosAccessView: View {
             }
         }
         .onChange(of: photoLibraryManager.authorizationStatus) { _, newStatus in
-            maybePresentProgress(for: newStatus)
-        }
-        .fullScreenCover(isPresented: $showTemplateProgress) {
-            if let scanCoordinator {
-                TemplateOnboardingProgressView(scanner: scanCoordinator) {
-                    showTemplateProgress = false
-                    viewModel.goToNextStep()
-                }
-            }
+            maybeStartBackgroundScan(for: newStatus)
         }
     }
 
-    /// Presents the Template onboarding progress cover exactly once, the
-    /// first time we observe a fully-authorized Photos status after the
-    /// user taps through the permission flow. If the user is already
-    /// authorized on appear (revisiting the step) we skip the cover —
-    /// the background scan will still run via the Template tab's
-    /// lazy rescan.
-    private func maybePresentProgress(for status: PhotoLibraryManager.AuthorizationStatus) {
+    /// Kicks off the media scan in the background once photos access is
+    /// granted, then immediately advances onboarding. The scan continues
+    /// silently — the For You tab will show results as they become available.
+    private func maybeStartBackgroundScan(for status: PhotoLibraryManager.AuthorizationStatus) {
         guard status.isFullyAuthorized else { return }
-        guard !hasPresentedProgress else { return }
-        hasPresentedProgress = true
+        guard !hasStartedBackgroundScan else { return }
+        hasStartedBackgroundScan = true
 
         let cache: ClassificationCache = {
             if let onDisk = try? ClassificationCache() { return onDisk }
@@ -78,8 +63,15 @@ struct OnboardingPhotosAccessView: View {
             classifier: MediaClassifier.shared,
             cache: cache
         )
-        scanCoordinator = scanner
-        showTemplateProgress = true
+
+        // Fire-and-forget: scan runs in background, user continues onboarding
+        Task.detached(priority: .utility) {
+            await scanner.scanOnboardingBatch()
+            await scanner.registerChangeObserver()
+        }
+
+        // Advance to next onboarding step immediately
+        viewModel.goToNextStep()
     }
 
     private var primaryActionTitle: String {
