@@ -8,6 +8,14 @@ struct OnboardingPhotosAccessView: View {
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.scenePhase) private var scenePhase
 
+    /// Phase 5 — Task 4: after the user grants full access we present a
+    /// full-screen progress cover that runs the onboarding scan batch.
+    /// The cover's `onContinue` dismisses and advances onboarding via the
+    /// existing `viewModel.goToNextStep()` path.
+    @State private var showTemplateProgress: Bool = false
+    @State private var hasPresentedProgress: Bool = false
+    @State private var scanCoordinator: MediaScanCoordinator?
+
     var body: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
             Text("TURN ON FULL PHOTO ACCESS")
@@ -37,6 +45,41 @@ struct OnboardingPhotosAccessView: View {
                 photoLibraryManager.refreshAuthorizationStatus()
             }
         }
+        .onChange(of: photoLibraryManager.authorizationStatus) { _, newStatus in
+            maybePresentProgress(for: newStatus)
+        }
+        .fullScreenCover(isPresented: $showTemplateProgress) {
+            if let scanCoordinator {
+                TemplateOnboardingProgressView(scanner: scanCoordinator) {
+                    showTemplateProgress = false
+                    viewModel.goToNextStep()
+                }
+            }
+        }
+    }
+
+    /// Presents the Template onboarding progress cover exactly once, the
+    /// first time we observe a fully-authorized Photos status after the
+    /// user taps through the permission flow. If the user is already
+    /// authorized on appear (revisiting the step) we skip the cover —
+    /// the background scan will still run via the Template tab's
+    /// lazy rescan.
+    private func maybePresentProgress(for status: PhotoLibraryManager.AuthorizationStatus) {
+        guard status.isFullyAuthorized else { return }
+        guard !hasPresentedProgress else { return }
+        hasPresentedProgress = true
+
+        let cache: ClassificationCache = {
+            if let onDisk = try? ClassificationCache() { return onDisk }
+            // swiftlint:disable:next force_try
+            return try! ClassificationCache(inMemory: true)
+        }()
+        let scanner = MediaScanCoordinator(
+            classifier: MediaClassifier.shared,
+            cache: cache
+        )
+        scanCoordinator = scanner
+        showTemplateProgress = true
     }
 
     private var primaryActionTitle: String {

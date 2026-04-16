@@ -6,7 +6,20 @@ final class MainTabBarController: UIViewController {
 
     var onSignOut: (() -> Void)?
 
-    private let customTabBar = ENVITabBar()
+    /// Tab order (Phase 5 — Task 4):
+    /// 0 Feed · 1 Library · 2 Templates · 3 Chat+Explore · 4 Analytics · 5 Profile
+    /// Icons follow `ENVITabBar.defaultTabs` conventions except the Templates
+    /// tab which uses `square.grid.2x2.fill` per Phase 5 spec.
+    private static let tabs: [ENVITabBar.Tab] = [
+        .init(iconName: "house"),
+        .init(iconName: "square.grid.2x2"),
+        .init(iconName: "square.grid.2x2.fill"),
+        .init(iconName: "sparkles"),
+        .init(iconName: "chart.bar"),
+        .init(iconName: "person"),
+    ]
+
+    private let customTabBar = ENVITabBar(tabs: MainTabBarController.tabs)
     private var viewControllers: [UIViewController] = []
     private var currentIndex = 0
     private var trackedScrollViews: [UIScrollView] = []
@@ -30,7 +43,10 @@ final class MainTabBarController: UIViewController {
         let libraryVC = UIHostingController(rootView: LibraryView())
         libraryVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
-        // Tab 3: Chat + Explore (SwiftUI)
+        // Tab 3: Templates (SwiftUI) — Phase 5 Task 4
+        let templatesVC = Self.makeTemplatesViewController()
+
+        // Tab 4: Chat + Explore (SwiftUI)
         let chatExploreVC = UIHostingController(rootView: ChatExploreView().requiresAura())
         chatExploreVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
@@ -45,7 +61,32 @@ final class MainTabBarController: UIViewController {
         let profileVC = UIHostingController(rootView: profileView)
         profileVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
-        viewControllers = [feedNav, libraryVC, chatExploreVC, analyticsVC, profileVC]
+        viewControllers = [feedNav, libraryVC, templatesVC, chatExploreVC, analyticsVC, profileVC]
+    }
+
+    /// Builds the Templates tab host with a fully-wired `TemplateTabViewModel`.
+    /// Cache / index creation can fail (e.g. no Application Support dir) so
+    /// we fall back to an in-memory cache. The returned VC renders the
+    /// Template tab via `TemplateTabView` (Task 1).
+    @MainActor
+    private static func makeTemplatesViewController() -> UIViewController {
+        let cache: ClassificationCache = {
+            if let onDisk = try? ClassificationCache() { return onDisk }
+            // swiftlint:disable:next force_try
+            return try! ClassificationCache(inMemory: true)
+        }()
+        let scanner = MediaScanCoordinator(
+            classifier: MediaClassifier.shared,
+            cache: cache
+        )
+        let viewModel = TemplateTabViewModel.makeDefault(
+            cache: cache,
+            index: EmbeddingIndex.shared,
+            scanner: scanner
+        )
+        let vc = UIHostingController(rootView: TemplateTabView(viewModel: viewModel))
+        vc.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+        return vc
     }
 
     private func setupTabBar() {
