@@ -32,6 +32,7 @@ struct MasonryGridView: View {
                         MasonryItemView(item: item)
                     }
                 }
+                .frame(maxWidth: .infinity)
             }
         }
     }
@@ -46,6 +47,7 @@ private struct MasonryItemView: View {
             Image(item.imageName)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
+                .frame(maxWidth: .infinity)
                 .frame(height: item.height)
                 .clipped()
 

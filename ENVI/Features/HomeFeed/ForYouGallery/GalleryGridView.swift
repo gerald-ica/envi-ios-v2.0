@@ -97,6 +97,7 @@ struct GalleryGridView: View {
                         GalleryItemView(item: item)
                     }
                 }
+                .frame(maxWidth: .infinity)
             }
         }
     }
