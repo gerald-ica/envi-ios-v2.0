@@ -145,6 +145,25 @@ public final class FeatureFlags {
     /// completes (key `"canConnectFacebook"`).
     public var canConnectFacebook: Bool = false
 
+    // MARK: - Analytics Insights (Phase 13)
+
+    /// Gates the Firestore-backed analytics / advanced / benchmark repositories.
+    ///
+    /// - `true`:  `FirestoreBackedAnalyticsRepository`,
+    ///            `FirestoreBackedAdvancedAnalyticsRepository`, and
+    ///            `FirestoreBackedBenchmarkRepository` read from the per-user
+    ///            `insights/{provider}/{yyyy-mm-dd}` docs written by the
+    ///            nightly Cloud Function sync (see Phase 13-01). Users with
+    ///            no connected accounts see `ConnectAccountEmptyStateView`.
+    /// - `false` (default): existing mock/API repositories keep serving the
+    ///            same canned data they shipped in v1.0. Safe rollback path
+    ///            if the sync job regresses.
+    ///
+    /// Remote Config key: `"connectorsInsightsLive"`. Flipping at runtime
+    /// lets us enable the live path for a staging cohort first, then roll
+    /// to 100% once we've verified the snapshot schema is stable.
+    public var connectorsInsightsLive: Bool = false
+
     // MARK: - Init
 
     /// Private to enforce singleton use. Tests that need an isolated
@@ -209,6 +228,12 @@ public final class FeatureFlags {
         let tiktokConnectorValue = rc.configValue(forKey: tiktokConnectorKey)
         if tiktokConnectorValue.dataValue.count > 0 {
             self.useTikTokConnector = tiktokConnectorValue.boolValue
+        }
+
+        let insightsLiveKey = "connectorsInsightsLive"
+        let insightsLiveValue = rc.configValue(forKey: insightsLiveKey)
+        if insightsLiveValue.dataValue.count > 0 {
+            self.connectorsInsightsLive = insightsLiveValue.boolValue
         }
     }
     #endif

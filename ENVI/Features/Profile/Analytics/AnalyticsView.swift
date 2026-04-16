@@ -7,6 +7,8 @@ struct AnalyticsView: View {
     @StateObject private var advancedViewModel = AdvancedAnalyticsViewModel()
     @Environment(\.colorScheme) private var colorScheme
 
+    @State private var showConnectedAccounts = false
+
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 18) {
@@ -14,7 +16,20 @@ struct AnalyticsView: View {
 
                 platformChips
 
-                if viewModel.isLoading {
+                if viewModel.showEmptyState {
+                    // Phase 13 — render empty state in place of the KPI/chart
+                    // stack when the user has no live data yet. KPI + chart
+                    // views stay untouched (per PLAN spec); we just swap the
+                    // body branch so they are not rendered.
+                    ConnectAccountEmptyStateView(onConnect: {
+                        showConnectedAccounts = true
+                    })
+                    .frame(minHeight: 420)
+                    .padding(.horizontal, 24)
+                    .navigationDestination(isPresented: $showConnectedAccounts) {
+                        ConnectedAccountsView()
+                    }
+                } else if viewModel.isLoading {
                     HStack(spacing: 10) {
                         ProgressView()
                         Text("Loading analytics...")
@@ -24,52 +39,54 @@ struct AnalyticsView: View {
                     .padding(.horizontal, 24)
                 }
 
-                if let error = viewModel.loadErrorMessage {
-                    VStack(alignment: .leading, spacing: ENVISpacing.sm) {
-                        Text(error)
+                if !viewModel.showEmptyState {
+                    if let error = viewModel.loadErrorMessage {
+                        VStack(alignment: .leading, spacing: ENVISpacing.sm) {
+                            Text(error)
+                                .font(.interMedium(13))
+                                .foregroundColor(.red)
+                            Button("Retry") {
+                                Task { await viewModel.reload() }
+                            }
                             .font(.interMedium(13))
-                            .foregroundColor(.red)
-                        Button("Retry") {
-                            Task { await viewModel.reload() }
                         }
-                        .font(.interMedium(13))
+                        .padding(.horizontal, 24)
+                    }
+
+                    HStack(spacing: 8) {
+                        KPICardView(kpi: viewModel.data.reach)
+                        KPICardView(kpi: viewModel.data.engagement)
+                        KPICardView(kpi: viewModel.data.engagementRate)
                     }
                     .padding(.horizontal, 24)
+
+                    EngagementChartView(data: viewModel.data.dailyEngagement)
+                        .padding(.horizontal, 24)
+
+                    PerformanceReportView(viewModel: advancedViewModel)
+                        .padding(.horizontal, 24)
+
+                    AudienceDemographicsView(viewModel: advancedViewModel)
+                        .padding(.horizontal, 24)
+
+                    ContentLeaderboardView(viewModel: advancedViewModel)
+                        .padding(.horizontal, 24)
+
+                    PostTimeHeatmapView(viewModel: advancedViewModel)
+                        .padding(.horizontal, 24)
+
+                    CreatorGrowthSectionView(growth: viewModel.growth)
+                        .padding(.horizontal, 24)
+
+                    RetentionCohortView(cohorts: viewModel.cohorts)
+                        .padding(.horizontal, 24)
+
+                    SourceAttributionView(attributions: viewModel.attribution)
+                        .padding(.horizontal, 24)
+
+                    ContentCalendarView(days: viewModel.displayedCalendarDays)
+                        .padding(.horizontal, 24)
                 }
-
-                HStack(spacing: 8) {
-                    KPICardView(kpi: viewModel.data.reach)
-                    KPICardView(kpi: viewModel.data.engagement)
-                    KPICardView(kpi: viewModel.data.engagementRate)
-                }
-                .padding(.horizontal, 24)
-
-                EngagementChartView(data: viewModel.data.dailyEngagement)
-                    .padding(.horizontal, 24)
-
-                PerformanceReportView(viewModel: advancedViewModel)
-                    .padding(.horizontal, 24)
-
-                AudienceDemographicsView(viewModel: advancedViewModel)
-                    .padding(.horizontal, 24)
-
-                ContentLeaderboardView(viewModel: advancedViewModel)
-                    .padding(.horizontal, 24)
-
-                PostTimeHeatmapView(viewModel: advancedViewModel)
-                    .padding(.horizontal, 24)
-
-                CreatorGrowthSectionView(growth: viewModel.growth)
-                    .padding(.horizontal, 24)
-
-                RetentionCohortView(cohorts: viewModel.cohorts)
-                    .padding(.horizontal, 24)
-
-                SourceAttributionView(attributions: viewModel.attribution)
-                    .padding(.horizontal, 24)
-
-                ContentCalendarView(days: viewModel.displayedCalendarDays)
-                    .padding(.horizontal, 24)
             }
             .padding(.top, 24)
             .padding(.bottom, 100)

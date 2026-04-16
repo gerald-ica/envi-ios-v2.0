@@ -21,14 +21,18 @@ final class AdvancedAnalyticsViewModel: ObservableObject {
     @Published var contentSortField: ContentSortField = .impressions
     @Published var contentLimit: Int = 10
 
+    /// Phase 13 — `true` when `connectorsInsightsLive` is on AND no
+    /// connected provider has produced a snapshot yet.
+    @Published var showEmptyState = false
+
     // MARK: - Dependencies
 
     private let repository: AdvancedAnalyticsRepository
 
     // MARK: - Init
 
-    init(repository: AdvancedAnalyticsRepository = AdvancedAnalyticsRepositoryProvider.shared.repository) {
-        self.repository = repository
+    init(repository: AdvancedAnalyticsRepository? = nil) {
+        self.repository = repository ?? AdvancedAnalyticsRepositoryProvider.resolve()
         Task { await loadAll() }
     }
 
@@ -62,6 +66,14 @@ final class AdvancedAnalyticsViewModel: ObservableObject {
             postTimeAnalysis = t
             funnelSteps = f
             periodComparison = p
+
+            // Phase 13 — treat fully-empty payloads as "no data yet".
+            if FeatureFlags.shared.connectorsInsightsLive {
+                let empty = r.metrics.isEmpty && d.isEmpty && c.isEmpty && t.isEmpty && f.isEmpty
+                showEmptyState = empty
+            } else {
+                showEmptyState = false
+            }
         } catch {
             if AppEnvironment.current == .dev {
                 report = .mock

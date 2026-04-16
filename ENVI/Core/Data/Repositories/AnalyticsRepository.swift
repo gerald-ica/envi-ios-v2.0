@@ -64,10 +64,31 @@ final class APIAnalyticsRepository: AnalyticsRepository {
 }
 
 enum AnalyticsRepositoryProvider {
+    /// Resolves the repository implementation per environment + feature flag.
+    ///
+    /// Phase 13 adds the `connectorsInsightsLive` branch — when true, every
+    /// environment reads directly from Firestore (nightly-sync authored).
+    /// When false, we fall back to the existing env-based mock/API split
+    /// so rollback is a single Remote Config flip.
+    ///
+    /// `FeatureFlags` is `@MainActor`; for call-sites that resolve from
+    /// non-main contexts (ViewModel init, background tasks) use
+    /// ``resolve()`` which hops to the main actor to read the flag.
     static var shared = RepositoryProvider<AnalyticsRepository>(
         dev: MockAnalyticsRepository(),
         api: APIAnalyticsRepository()
     )
+
+    /// Main-actor-safe resolver used by view models that initialise on
+    /// `@MainActor`. Prefer this over `shared.repository` in Phase 13+
+    /// call sites.
+    @MainActor
+    static func resolve() -> AnalyticsRepository {
+        if FeatureFlags.shared.connectorsInsightsLive {
+            return FirestoreBackedAnalyticsRepository()
+        }
+        return shared.repository
+    }
 }
 
 private struct CreatorGrowthResponse: Decodable {

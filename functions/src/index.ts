@@ -120,3 +120,27 @@ export { dispatchScheduled } from "./crons/dispatchScheduled";
 export { refreshTokens } from "./crons/refreshTokens";
 export { instagramWebhook } from "./webhooks/instagram";
 export { facebookWebhook } from "./webhooks/facebook";
+
+/**
+ * Phase 13 surface (analytics insights read-path):
+ *   - scheduledInsightsSync{TikTok,Instagram,Facebook,Threads,LinkedIn,X}
+ *                               — nightly per-provider sync, staggered
+ *                                 02:00/03:00/04:00 UTC (see
+ *                                 `insights/scheduled.ts`).
+ *   - generateInsights          — Pub/Sub onMessagePublished, fired by the
+ *                                 daily sync fan-out for each user.
+ *   - trendSignalsGenerator     — nightly (05:30 UTC) global trend roll-up.
+ *   - seedBenchmarks            — one-time admin callable to populate
+ *                                 `benchmarks/{category}/{metric}` globals.
+ */
+export {
+  scheduledInsightsSyncTikTok,
+  scheduledInsightsSyncInstagram,
+  scheduledInsightsSyncFacebook,
+  scheduledInsightsSyncThreads,
+  scheduledInsightsSyncLinkedIn,
+  scheduledInsightsSyncX,
+  generateInsights,
+  trendSignalsGenerator,
+  seedBenchmarks,
+} from "./insights/scheduled";

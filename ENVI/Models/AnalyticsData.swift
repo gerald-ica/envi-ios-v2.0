@@ -29,6 +29,29 @@ struct AnalyticsData {
         let platform: SocialPlatform?
     }
 
+    // MARK: - Phase 13 empty/connected sentinels
+
+    /// Sentinel for "no connected providers yet" — rendered by the Analytics
+    /// view models as `ConnectAccountEmptyStateView` when the feature flag
+    /// `connectorsInsightsLive` is on.
+    static let empty = AnalyticsData(
+        reach: KPI(label: "Reach", value: "—", change: "0%", isPositive: true),
+        engagement: KPI(label: "Engagement", value: "—", change: "0%", isPositive: true),
+        engagementRate: KPI(label: "Rate", value: "—", change: "0%", isPositive: true),
+        dailyEngagement: [],
+        calendarDays: []
+    )
+
+    /// `true` iff at least one KPI value is populated (non-"—") or at least
+    /// one day has engagement / content. Mirrors the Cloud Function rule:
+    /// empty when no provider has returned a snapshot yet.
+    var hasConnectedData: Bool {
+        let hasAnyKPI = reach.value != "—" || engagement.value != "—" || engagementRate.value != "—"
+        let hasEngagement = dailyEngagement.contains { $0.value > 0 }
+        let hasContent = calendarDays.contains { $0.hasContent }
+        return hasAnyKPI || hasEngagement || hasContent
+    }
+
     static let mock = AnalyticsData(
         reach: KPI(label: "Reach", value: "847.2K", change: "+23.1%", isPositive: true),
         engagement: KPI(label: "Engagement", value: "12.4K", change: "+18.4%", isPositive: true),

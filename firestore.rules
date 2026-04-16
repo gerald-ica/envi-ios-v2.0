@@ -92,6 +92,47 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // -------------------------------------------------------------------
+    // Phase 13: per-user analytics insight snapshots + rollups.
+    // Written by the nightly Cloud Function sync (Admin SDK). Users can
+    // read their own but never write — we rely on the sync job as the
+    // single source of truth.
+    // -------------------------------------------------------------------
+    match /users/{uid}/insights/{rest=**} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;  // Cloud Functions only
+    }
+
+    // Phase 13: per-user generated insight cards (LLM-free heuristics).
+    match /users/{uid}/generatedInsights/{date} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Phase 13: per-user weekly digest docs.
+    match /users/{uid}/weeklyDigest/{weekLabel} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // Phase 13: global industry benchmarks (read-only for any auth user).
+    // Populated by `seedBenchmarks` CF and refreshed quarterly.
+    match /benchmarks/{category}/{metric}/{doc=**} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Phase 13: global trend signals (read-only for any auth user).
+    match /trendSignals/{date} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Phase 13: rate-limit buckets for nightly sync. Admin-only.
+    match /_rateLimit/{rest=**} {
+      allow read, write: if false;
+    }
+
     // Default deny for any path not matched above.
     match /{document=**} {
       allow read, write: if false;

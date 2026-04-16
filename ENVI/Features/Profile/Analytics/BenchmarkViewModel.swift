@@ -16,14 +16,19 @@ final class BenchmarkViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
+    /// Phase 13 — set when `connectorsInsightsLive` is on AND the user
+    /// has neither benchmarks nor insights yet. The Benchmark view binds
+    /// this to the `ConnectAccountEmptyStateView`.
+    @Published var showEmptyState = false
+
     // MARK: - Dependencies
 
     private let repository: BenchmarkRepository
 
     // MARK: - Init
 
-    init(repository: BenchmarkRepository = BenchmarkRepositoryProvider.shared.repository) {
-        self.repository = repository
+    init(repository: BenchmarkRepository? = nil) {
+        self.repository = repository ?? BenchmarkRepositoryProvider.resolve()
         Task { await loadAll() }
     }
 
@@ -44,6 +49,12 @@ final class BenchmarkViewModel: ObservableObject {
             insights = i
             trendSignals = t
             weeklyDigest = d
+
+            if FeatureFlags.shared.connectorsInsightsLive {
+                showEmptyState = b.isEmpty && i.isEmpty && t.isEmpty && d.highlights.isEmpty
+            } else {
+                showEmptyState = false
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
