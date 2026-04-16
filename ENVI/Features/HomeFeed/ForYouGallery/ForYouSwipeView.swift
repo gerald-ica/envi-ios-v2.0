@@ -45,35 +45,33 @@ struct ForYouSwipeView: View {
     // MARK: - Card Stack
 
     private var cardStack: some View {
-        GeometryReader { geo in
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 0) {
-                    Text("[ TAP THE CONTENT PIECES TO EXPAND ]")
-                        .font(.spaceMonoBold(11))
-                        .tracking(1.5)
-                        .foregroundColor(.white.opacity(0.46))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 14)
-                        .padding(.bottom, 16)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                Text("[ TAP THE CONTENT PIECES TO EXPAND ]")
+                    .font(.spaceMonoBold(11))
+                    .tracking(1.5)
+                    .foregroundColor(.white.opacity(0.46))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 14)
+                    .padding(.bottom, 16)
 
-                    LazyVStack(spacing: 0) {
-                        ForEach(Array(viewModel.forYouItems.enumerated()), id: \.element.id) { index, item in
-                            SwipeableCardView(
-                                item: item,
-                                cardHeight: min(480, max(430, geo.size.height * 0.64)),
-                                dismissDistance: geo.size.width,
-                                onApprove: { viewModel.approve(item) },
-                                onDisapprove: { viewModel.disapprove(item.id) },
-                                onBookmark: { viewModel.bookmarkCard(id: item.id) }
-                            )
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, index == viewModel.forYouItems.count - 1 ? 0 : -28)
-                            .padding(.top, index == 0 ? 0 : 4)
-                            .zIndex(Double(viewModel.forYouItems.count - index))
-                        }
+                LazyVStack(spacing: 0) {
+                    ForEach(Array(viewModel.forYouItems.enumerated()), id: \.element.id) { index, item in
+                        SwipeableCardView(
+                            item: item,
+                            cardHeight: MainAppSketch.feedCardHeight,
+                            dismissDistance: 280,
+                            onApprove: { viewModel.approve(item) },
+                            onDisapprove: { viewModel.disapprove(item.id) },
+                            onBookmark: { viewModel.bookmarkCard(id: item.id) }
+                        )
+                        .frame(width: MainAppSketch.feedCardWidth)
+                        .padding(.bottom, index == viewModel.forYouItems.count - 1 ? 0 : -24)
+                        .zIndex(Double(viewModel.forYouItems.count - index))
                     }
                 }
+                .frame(maxWidth: .infinity)
                 .padding(.bottom, 136)
             }
         }
