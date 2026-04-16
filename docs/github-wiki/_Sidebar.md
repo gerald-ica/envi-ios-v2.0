@@ -14,6 +14,7 @@
 - [APIs & Networking](APIs-and-Networking)
 - [Firebase Data Connect](Firebase-Data-Connect)
 - [ENVI Brain (AI)](ENVI-Brain-AI)
+- [Vision & Media Intelligence](ENVI-Brain-AI#vision--media-intelligence-pipeline)
 - [Subscriptions (RevenueCat)](Subscriptions-RevenueCat)
 - [Design System](Design-System)
 - [Components](Components)

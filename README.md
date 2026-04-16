@@ -164,7 +164,7 @@ Before running on a physical device, add to `Info.plist`:
 ### Bundle ID
 
 ```
-com.informal.envi
+com.weareinformal.envi.staging
 ```
 
 ## Fonts

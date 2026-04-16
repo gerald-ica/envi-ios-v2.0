@@ -8,7 +8,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Wiki last updated** | 2026-04-03 UTC |
+| **Wiki last updated** | 2026-04-16 UTC |
 | **Source of truth** | Main repo `README.md`, `ENVI/` Swift sources, `dataconnect/` |
 | **Changelog** | Main repo `docs/WIKI_CHANGELOG.md` |
 
@@ -19,6 +19,7 @@ ENVI is an AI-native content operating system for creators, teams, and agencies.
 ### Key capabilities
 
 - **World Explorer** -- 3D helix timeline rendered in SceneKit with ~1600 content nodes, touch orbit, time scrubbing, and zoom levels
+- **Template Tab** -- Camera-roll-native templates that scan the user's Photos library with Apple Vision, classify every asset, and show templates pre-populated with the user's own content. Dynamic catalog via Lynx-in-WKWebView.
 - **AI Engine (ENVI Brain + Oracle)** -- On-device synthesis, caption generation, script editing, hook libraries, visual AI editing, and style transfer
 - **Content Editor** -- AVFoundation-based video/photo editing with crop, filter, speed, rotate, color grading, text overlays, and audio mixer
 - **Multi-Platform Publishing** -- Scheduling queue, recurring posts, distribution rules, and cross-platform status reconciliation
@@ -49,8 +50,8 @@ ENVI is an AI-native content operating system for creators, teams, and agencies.
 
 ## Executive summary
 
-- **Stack:** SwiftUI + UIKit hybrid, SceneKit (World Explorer), iOS **17.0+**, Xcode **15+**. SPM dependencies: SDWebImage, Lottie, RevenueCat, Firebase (Auth, Analytics, Crashlytics).
-- **Navigation:** `AppCoordinator` -> Splash / Onboarding / Sign-in -> `MainTabBarController` (5 tabs: Feed, Library, Chat/Explore, Analytics, Profile).
+- **Stack:** SwiftUI + UIKit hybrid, SceneKit (World Explorer), iOS **26.0+**, Xcode **26.0+**. SPM dependencies: SDWebImage, Lottie, RevenueCat, Firebase (Auth, Analytics, Crashlytics), GoogleSignIn.
+- **Navigation:** `AppCoordinator` -> Splash / Onboarding / Sign-in -> `MainTabBarController` (3 tabs: For You/Gallery, World Explorer, Profile).
 - **Data layer:** Protocol-backed repositories with Mock -> API implementations. Firebase Auth for identity. Typed `APIClient` with retry policy and auth token injection.
 - **Backend (in repo):** Firebase Data Connect schema + connectors under `dataconnect/`. Deploy via Firebase CLI.
 - **Monetization:** RevenueCat with **Aura** entitlement; paywall and Customer Center SwiftUI views.

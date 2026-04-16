@@ -1,6 +1,6 @@
 # Models & data
 
-**Last updated:** 2026-04-03 UTC
+**Last updated:** 2026-04-16 UTC
 
 ## Swift models (`ENVI/Models/`)
 
@@ -17,6 +17,7 @@
 | `ChatThread.swift` | `ChatThread`, `ThreadMetric`, `MetricTrend` | Structured thread content |
 | `ChatMessage.swift` | `ChatMessage`, `DataCard` | Chat bubbles; `mockThread` |
 | `AnalyticsData.swift` | `AnalyticsData`, `KPI`, `DailyMetric`, `CalendarDay` | Dashboard; `mock` |
+| `VideoTemplateModels.swift` | `VideoTemplate`, `TemplateSlot`, `MediaRequirements`, `PopulatedTemplate` | Template definitions with 15+ filter dimensions for slot matching |
 
 ## Backend schema (Data Connect) — different domain
 
@@ -30,6 +31,12 @@ Postgres-backed GraphQL tables in `dataconnect/schema/schema.gql`:
 - **Template** — user-owned template, optional `isPublic`
 
 **Important:** These tables model **projects / editing / assets**, not the same structs as `ContentPiece` / `ContentItem` in Swift. Integration would require mapping layers and sync strategy.
+
+## SwiftData Models
+
+| Model | File | Role |
+|-------|------|------|
+| `ClassifiedAsset` | `Core/Media/Models/ClassifiedAsset.swift` | Cached classification results -- scene labels, aesthetics score, face count, GPS, feature print hash. Indexed query fields for fast lookup. |
 
 ## Library UI models
 
