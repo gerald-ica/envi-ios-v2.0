@@ -14,7 +14,7 @@ struct ForYouGalleryContainerView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            AppBackground(imageName: "bg-texture-09")
+            AppBackground(imageName: "feed-bg")
 
             VStack(spacing: 0) {
                 headerBar
@@ -82,7 +82,7 @@ private struct CalendarSheet: View {
                 ContentCalendarView(days: AnalyticsData.mock.calendarDays)
                     .padding(.top, ENVISpacing.lg)
             }
-            .background(AppBackground(imageName: "bg-texture-09"))
+            .background(AppBackground(imageName: "feed-bg"))
             .navigationTitle("Content Calendar")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
