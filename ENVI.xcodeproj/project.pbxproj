@@ -2453,7 +2453,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZM82DY7PG2;
+				DEVELOPMENT_TEAM = QNA8KSH8AR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ENVI/SupportingFiles/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
@@ -2481,11 +2481,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = YES;
-				CODE_SIGN_ENTITLEMENTS = ENVI/ENVI.Debug.entitlements;
+				CODE_SIGN_ENTITLEMENTS = ENVI/ENVI.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = W5687Z6R55;
+				DEVELOPMENT_TEAM = QNA8KSH8AR;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ENVI/SupportingFiles/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
@@ -2501,7 +2501,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.geraldwelly.envi.debug;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weareinformal.envi.staging;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

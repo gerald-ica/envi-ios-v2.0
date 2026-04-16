@@ -54,6 +54,13 @@ targets:
         SWIFT_VERSION: "5.0"
         MARKETING_VERSION: "2.0"
         CURRENT_PROJECT_VERSION: "1"
+      configs:
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.Debug.entitlements"
+          DEVELOPMENT_TEAM: "W5687Z6R55"
+          PRODUCT_BUNDLE_IDENTIFIER: "com.geraldwelly.envi.debug"
+        Release:
+          CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.entitlements"
     dependencies:
       - package: SDWebImage
       - package: Lottie
