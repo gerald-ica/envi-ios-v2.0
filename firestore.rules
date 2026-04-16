@@ -1,0 +1,45 @@
+rules_version = '2';
+
+// ENVI Firestore security rules — v1.1 connector foundation (Phase 06-03).
+//
+// Design principles:
+//   - Every write to `users/{uid}/connections/**` goes through the Admin SDK
+//     running in Cloud Functions (the OAuth broker). Clients NEVER write
+//     token material directly.
+//   - Reads are scoped strictly to the authenticated user's own document.
+//   - We fail closed: anything not explicitly allowed is denied.
+//
+// Tests live in `functions/src/__tests__/firestore.rules.test.ts` and run
+// against the Firestore emulator via @firebase/rules-unit-testing.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------
+    // User profile root. Phase 2 already established per-user isolation
+    // here; reiterated so the nested connections subcollection inherits a
+    // reasonable default.
+    // -------------------------------------------------------------------
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;  // Admin SDK only
+
+      // ---------------------------------------------------------------
+      // Social connector tokens. Per-provider document. Read-only for
+      // the owning user; writes are Admin SDK only (rules evaluated on
+      // client path; Admin SDK bypasses rules by design).
+      // ---------------------------------------------------------------
+      match /connections/{provider} {
+        allow read: if request.auth != null
+                      && request.auth.uid == uid
+                      && provider in ["tiktok", "x", "instagram", "facebook", "threads", "linkedin"];
+        allow write: if false;  // Admin SDK only
+      }
+    }
+
+    // Default deny for any path not matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

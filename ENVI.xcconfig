@@ -1,6 +1,15 @@
+// ENVI.xcconfig — app-level build settings.
+//
+// As of Phase 06-04 we switched from GENERATE_INFOPLIST_FILE=YES to a hand-
+// maintained Info.plist (ENVI/Resources/Info.plist) so we can register
+// `CFBundleURLTypes` for the enviapp:// OAuth callback scheme. The three
+// INFOPLIST_KEY_* entries the generator previously owned are now expressed
+// directly in that file. Keep them in sync if you need to add more.
+
 PRODUCT_BUNDLE_IDENTIFIER = com.weareinformal.envi.staging
 PRODUCT_NAME = ENVI
-INFOPLIST_KEY_CFBundleDisplayName = ENVI
-INFOPLIST_KEY_UILaunchStoryboardName = 
-INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait
-GENERATE_INFOPLIST_FILE = YES
+INFOPLIST_FILE = ENVI/Resources/Info.plist
+
+// Phase 06-05 — drives the connector broker environment at runtime. Read by
+// AppConfig.currentConnector. Override in CI via xcodebuild environment.
+ENVI_CONNECTOR_ENV = sandbox

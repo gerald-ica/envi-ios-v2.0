@@ -13,6 +13,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Register fonts at app launch
         ENVITypography.registerFonts()
 
+        // Phase 06-07 — MUST come before FirebaseApp.configure() so the
+        // App Check provider factory is in place before any Firebase
+        // service initialises.
+        AuthManager.configureAppCheck()
+
         // Configure Firebase SDK before any auth interaction.
         if FirebaseApp.app() == nil {
             FirebaseApp.configure()
@@ -39,9 +44,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {}
 
-    // MARK: - Google Sign-In URL Handling
+    // MARK: - URL Handling (OAuth callback + Google Sign-In)
+    //
+    // Phase 06-04 — incoming `enviapp://oauth-callback/{provider}?...` URLs
+    // are dispatched to `OAuthCallbackHandler.handle(_:)` first. Anything
+    // that doesn't match the OAuth callback shape falls through to Google
+    // Sign-In's existing handler. This mirrors the pattern a SwiftUI app
+    // would express via `.onOpenURL { OAuthCallbackHandler.handle($0) }`.
     func application(_ app: UIApplication, open url: URL,
                      options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        switch OAuthCallbackHandler.handle(url) {
+        case .handled, .invalid:
+            // `.handled` — payload parsed + posted via NotificationCenter.
+            // `.invalid` — scheme matched but payload malformed; still
+            // consume so we don't hand a partial OAuth URL to another SDK.
+            return true
+        case .unrelated:
+            break
+        }
         return GIDSignIn.sharedInstance.handle(url)
     }
 }

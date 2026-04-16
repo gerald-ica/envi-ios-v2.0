@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 import FirebaseCore
 import FirebaseAuth
+import FirebaseAppCheck
 import AuthenticationServices
 import CryptoKit
 import GoogleSignIn
@@ -50,6 +51,28 @@ final class AuthManager: ObservableObject {
 
     private init() {
         startAuthStateListener()
+    }
+
+    // MARK: - App Check (Phase 06-07)
+
+    /// Install the appropriate `AppCheckProviderFactory` for the current
+    /// build. MUST be called BEFORE `FirebaseApp.configure()` — otherwise
+    /// the default (no-op) provider will be registered and every Cloud
+    /// Functions call will 401.
+    ///
+    /// - DEBUG builds: `AppCheckDebugProviderFactory` — the debug token is
+    ///   printed to the console on first launch; register it in the
+    ///   Firebase Console under App Check → iOS app → Debug tokens.
+    /// - Release builds: `DeviceCheckProviderFactory` — hardware-backed
+    ///   attestation via Apple DeviceCheck. For iOS 14+ devices this is
+    ///   transparent; older devices fall back to mild heuristics per
+    ///   Firebase defaults.
+    static func configureAppCheck() {
+        #if DEBUG
+        AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
+        #else
+        AppCheck.setAppCheckProviderFactory(DeviceCheckProviderFactory())
+        #endif
     }
 
     // MARK: - Auth State Listener

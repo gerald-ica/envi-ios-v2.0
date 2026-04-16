@@ -14,6 +14,7 @@
 //   ├── FirebaseAuth       — Authentication (email + Apple Sign-In + Google)
 //   ├── FirebaseAnalytics  — Product analytics and event tracking
 //   ├── FirebaseCrashlytics — Crash reporting and diagnostics
+//   ├── FirebaseAppCheck   — Attestation for Cloud Functions broker (Phase 06-07)
 //   └── FirebaseCore       — Firebase SDK foundation
 //
 import PackageDescription
@@ -24,7 +25,7 @@ let package = Package(
         .iOS(.v26)
     ],
     products: [
-        .executable(name: "ENVI", targets: ["ENVI"])
+        .library(name: "ENVI", targets: ["ENVI"])
     ],
     dependencies: [
         .package(url: "https://github.com/SDWebImage/SDWebImage.git", from: "5.19.0"),
@@ -34,7 +35,7 @@ let package = Package(
         .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "8.0.0"),
     ],
     targets: [
-        .executableTarget(
+        .target(
             name: "ENVI",
             dependencies: [
                 "SDWebImage",
@@ -44,10 +45,14 @@ let package = Package(
                 .product(name: "FirebaseAuth", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseAppCheck", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
                 .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
             ],
             path: "ENVI",
+            exclude: [
+                "App/ENVIApp.swift"
+            ],
             resources: [
                 .process("Resources/Fonts"),
                 .process("Resources/Images"),

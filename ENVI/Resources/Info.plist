@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- ================================================================ -->
+    <!-- Core bundle metadata                                              -->
+    <!-- ================================================================ -->
+    <key>CFBundleDevelopmentRegion</key>
+    <string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>CFBundleDisplayName</key>
+    <string>ENVI</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$(PRODUCT_NAME)</string>
+    <key>CFBundlePackageType</key>
+    <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(MARKETING_VERSION)</string>
+    <key>CFBundleVersion</key>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
+
+    <!-- ================================================================ -->
+    <!-- Platform / orientations                                           -->
+    <!-- ================================================================ -->
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UILaunchStoryboardName</key>
+    <string></string>
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <false/>
+        <key>UISceneConfigurations</key>
+        <dict>
+            <key>UIWindowSceneSessionRoleApplication</key>
+            <array>
+                <dict>
+                    <key>UISceneConfigurationName</key>
+                    <string>Default Configuration</string>
+                    <key>UISceneDelegateClassName</key>
+                    <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+                </dict>
+            </array>
+        </dict>
+    </dict>
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+    </array>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <true/>
+
+    <!-- ================================================================ -->
+    <!-- Privacy usage descriptions                                        -->
+    <!-- Required to avoid App Store rejection; strings are customer-      -->
+    <!-- facing so they should read clearly in the permission prompt.     -->
+    <!-- ================================================================ -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>ENVI imports photos and videos from your library so it can turn them into posts for your connected channels.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>ENVI saves edited media back to your photo library so you can keep a copy of every post you publish.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>ENVI uses the camera to capture new content you can publish to your connected social channels.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>ENVI records audio alongside video when you capture or edit content directly in the app.</string>
+
+    <!-- ================================================================ -->
+    <!-- URL schemes — OAuth callback (Phase 06-04)                        -->
+    <!--                                                                   -->
+    <!-- `enviapp://oauth-callback/{provider}` is the ASWebAuthentication  -->
+    <!-- redirect target for every connector. Must be registered with all  -->
+    <!-- 6 provider consoles (see docs/ops/06-06-sandbox-redirect-         -->
+    <!-- checklist.md).                                                    -->
+    <!--                                                                   -->
+    <!-- Google Sign-In's reversed client id scheme is registered too so   -->
+    <!-- GIDSignIn.handle(_:) keeps working after we move off the auto-    -->
+    <!-- generated Info.plist.                                             -->
+    <!-- ================================================================ -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>com.weareinformal.envi.staging.oauth</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>enviapp</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>com.weareinformal.envi.staging.googlesignin</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>com.googleusercontent.apps.471220969990-a6as0oqueq6f69l391f94fa4n5f6k3g5</string>
+            </array>
+        </dict>
+    </array>
+
+    <!-- ================================================================ -->
+    <!-- Apple-specific entitlements surfaced via Info.plist              -->
+    <!-- ================================================================ -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+</dict>
+</plist>
