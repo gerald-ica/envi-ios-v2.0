@@ -82,7 +82,7 @@ struct TrendCardView: View {
                         ForEach(trend.relatedHashtags, id: \.self) { hashtag in
                             Text(hashtag)
                                 .font(.spaceMono(10))
-                                .foregroundColor(ENVITheme.accent)
+                                .foregroundColor(ENVITheme.Dark.accent)
                         }
                     }
                 }

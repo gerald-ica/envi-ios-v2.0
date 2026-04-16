@@ -4,7 +4,9 @@ import FirebaseCore
 import FirebaseAuth
 import AuthenticationServices
 import CryptoKit
+#if canImport(GoogleSignIn)
 import GoogleSignIn
+#endif
 
 final class AuthManager: ObservableObject {
     static let shared = AuthManager()
@@ -147,6 +149,7 @@ final class AuthManager: ObservableObject {
 
     @discardableResult
     func signInWithGoogle(presenting viewController: UIViewController) async throws -> UserAuthPayload {
+        #if canImport(GoogleSignIn)
         guard FirebaseApp.app() != nil else { throw AuthError.firebaseNotConfigured }
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             throw AuthError.googleSignInFailed
@@ -170,6 +173,9 @@ final class AuthManager: ObservableObject {
             email: authResult.user.email,
             displayName: authResult.user.displayName
         )
+        #else
+        throw AuthError.googleSignInFailed
+        #endif
     }
 
     // MARK: - ENVI-0009 Multi-Factor Authentication

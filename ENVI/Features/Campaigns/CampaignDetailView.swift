@@ -325,7 +325,7 @@ struct CampaignDetailView: View {
         return campaign.daysRemaining < 0 ? ENVITheme.error : (campaign.daysRemaining <= 7 ? ENVITheme.warning : ENVITheme.textSecondary(for: colorScheme))
     }
 
-    private func approvalBadge(_ status: ApprovalStatus) -> some View {
+    private func approvalBadge(_ status: BriefApprovalStatus) -> some View {
         let color: Color = {
             switch status {
             case .approved:          return ENVITheme.success

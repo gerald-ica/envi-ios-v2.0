@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- CSP: only allow scripts from 'self' and the envi-asset scheme. Lynx bundle is
+       loaded via a local file URL injected at runtime (same-origin "self"). -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: envi-asset:; connect-src 'self' envi-asset:; base-uri 'none'; form-action 'none';">
+  <title>ENVI Template Catalog</title>
+  <style>
+    html, body { margin:0; padding:0; height:100%; background:transparent;
+      -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+    #root { width:100%; height:100%; }
+    #fallback { display:flex; align-items:center; justify-content:center;
+      height:100%; font-family:-apple-system,system-ui,sans-serif; color:#999; font-size:14px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <div id="fallback">Loading templates...</div>
+  <script src="shell.js"></script>
+</body>
+</html>

@@ -323,7 +323,7 @@ final class FeedViewController: UIViewController, UIScrollViewDelegate {
         hostingController.view.backgroundColor = ENVITheme.UIKit.backgroundDark
         if let sheet = hostingController.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
-            sheet.prefersGrabberIndicator = true
+            sheet.prefersGrabberVisible = true
         }
         present(hostingController, animated: true)
     }

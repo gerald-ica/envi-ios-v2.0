@@ -41,21 +41,6 @@ final class VideoEditService {
     }
 }
 
-private extension AVAssetExportSession {
-    func export() async throws {
-        try await withCheckedThrowingContinuation { continuation in
-            exportAsynchronously {
-                switch self.status {
-                case .completed:
-                    continuation.resume(returning: ())
-                case .failed:
-                    continuation.resume(throwing: self.error ?? NSError(domain: "VideoEditService", code: -1))
-                case .cancelled:
-                    continuation.resume(throwing: NSError(domain: "VideoEditService", code: -2))
-                default:
-                    continuation.resume(throwing: NSError(domain: "VideoEditService", code: -3))
-                }
-            }
-        }
-    }
-}
+// Removed: custom `AVAssetExportSession.export() async throws` extension.
+// iOS 16+ provides the native async variant; keeping the custom version caused
+// an "ambiguous use of 'export()'" error when compiling with the iOS 26 SDK.

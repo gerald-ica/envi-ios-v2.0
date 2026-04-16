@@ -42,7 +42,7 @@ struct BriefEditorView: View {
                 .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
 
             HStack(spacing: ENVISpacing.sm) {
-                ForEach(ApprovalStatus.allCases, id: \.rawValue) { status in
+                ForEach(BriefApprovalStatus.allCases, id: \.rawValue) { status in
                     approvalChip(status)
                 }
             }
@@ -61,7 +61,7 @@ struct BriefEditorView: View {
         )
     }
 
-    private func approvalChip(_ status: ApprovalStatus) -> some View {
+    private func approvalChip(_ status: BriefApprovalStatus) -> some View {
         let isSelected = brief.approvalStatus == status
 
         return Button {
@@ -168,7 +168,7 @@ struct BriefEditorView: View {
 
     // MARK: - Helpers
 
-    private func chipColor(_ status: ApprovalStatus) -> Color {
+    private func chipColor(_ status: BriefApprovalStatus) -> Color {
         switch status {
         case .approved:          return ENVITheme.success
         case .pending:           return ENVITheme.warning
@@ -177,7 +177,7 @@ struct BriefEditorView: View {
         }
     }
 
-    private func chipForeground(_ status: ApprovalStatus) -> Color {
+    private func chipForeground(_ status: BriefApprovalStatus) -> Color {
         chipColor(status)
     }
 

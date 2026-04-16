@@ -22,14 +22,14 @@ struct InsightDataPoint: Identifiable {
     let label: String
     let value: String
     let change: String
-    let trend: MetricTrend
+    let trend: ChatMetricTrend
 
     init(
         id: UUID = UUID(),
         label: String,
         value: String,
         change: String = "",
-        trend: MetricTrend = .neutral
+        trend: ChatMetricTrend = .neutral
     ) {
         self.id = id
         self.label = label

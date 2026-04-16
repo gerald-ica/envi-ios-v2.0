@@ -20,7 +20,7 @@ struct TemplateCarousel: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: ENVISpacing.md) {
                     ForEach(templates) { template in
-                        TemplateCardView(
+                        LibraryTemplateCardView(
                             template: template,
                             onApply: onApply,
                             onDuplicate: onDuplicate,
@@ -34,7 +34,7 @@ struct TemplateCarousel: View {
     }
 }
 
-private struct TemplateCardView: View {
+private struct LibraryTemplateCardView: View {
     let template: TemplateItem
     let onApply: (TemplateItem) -> Void
     let onDuplicate: (TemplateItem) -> Void

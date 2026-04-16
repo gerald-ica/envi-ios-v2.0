@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// Settings section of the Profile screen.
-struct SettingsSection: View {
+/// Settings section of the Profile screen with NavigationLink to Analytics.
+struct ProfileSettingsSection: View {
     let items: [ProfileViewModel.SettingsItem]
     @Environment(\.colorScheme) private var colorScheme
     @State private var showAccountManagement = false
@@ -19,29 +19,50 @@ struct SettingsSection: View {
                         showAccountManagement = true
                     }
                 }) {
-                    HStack(spacing: ENVISpacing.md) {
-                        Image(systemName: item.icon)
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                            .frame(width: 24)
-
-                        Text(item.title)
-                            .font(.interRegular(15))
-                            .foregroundColor(ENVITheme.text(for: colorScheme))
-
-                        Spacer()
-
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                    }
-                    .padding(.vertical, ENVISpacing.sm)
+                    settingsRow(icon: item.icon, title: item.title)
                 }
+            }
+
+            // View Analytics — NavigationLink pushing AnalyticsView
+            NavigationLink {
+                AnalyticsView()
+            } label: {
+                settingsRow(icon: "chart.bar.xaxis", title: "View Analytics")
             }
         }
         .sheet(isPresented: $showAccountManagement) {
             AccountManagementView()
         }
+    }
+
+    @ViewBuilder
+    private func settingsRow(icon: String, title: String) -> some View {
+        HStack(spacing: ENVISpacing.md) {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                .frame(width: 24)
+
+            Text(title)
+                .font(.interRegular(15))
+                .foregroundColor(ENVITheme.text(for: colorScheme))
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+        }
+        .padding(.vertical, ENVISpacing.sm)
+    }
+}
+
+/// Settings section kept for backward compat — maps to ProfileSettingsSection.
+struct SettingsSection: View {
+    let items: [ProfileViewModel.SettingsItem]
+
+    var body: some View {
+        ProfileSettingsSection(items: items)
     }
 }
 

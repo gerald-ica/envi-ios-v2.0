@@ -287,7 +287,7 @@ final class EnhancedChatViewModel: ObservableObject {
 
         // Convert Brain insights into ThreadMetrics for the chat UI
         let metrics: [ThreadMetric] = response.insights.prefix(4).map { insight in
-            let trend: MetricTrend
+            let trend: ChatMetricTrend
             // Map insight confidence to a trend indicator
             if insight.confidence >= 0.85 {
                 trend = .up

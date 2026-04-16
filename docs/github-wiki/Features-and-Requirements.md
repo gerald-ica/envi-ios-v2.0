@@ -1,8 +1,37 @@
 # Features & requirements
 
-**Last updated:** 2026-04-03 UTC
+**Last updated:** 2026-04-15 UTC
 
 This page maps **product intent** (README + code) to **implementation status**.
+
+## Template Tab (Camera-Roll-Native Templates)
+
+| Requirement | Status | Notes |
+|-------------|--------|--------|
+| Camera roll scanning pipeline | **Implemented** | `MediaClassifier` — PHAsset + EXIF/GPS + 9 Vision ML requests per asset |
+| On-device classification cache | **Implemented** | SwiftData `ClassifiedAsset` @Model with indexed query fields |
+| Aesthetics scoring / utility filter | **Implemented** | `CalculateImageAestheticsScoresRequest` + `isUtility` flag filters screenshots/receipts |
+| Native embedding pipeline | **Implemented** | `SimilarityEngine` (Accelerate vDSP), `DimensionReducer` (UMAP), `DensityClusterer` (HDBSCAN) |
+| Embedding index with checkpointing | **Implemented** | `EmbeddingIndex` actor with JSON checkpoint + SHA-256 content-hash invalidation |
+| Video template models (Codable) | **Implemented** | `VideoTemplate`, `TemplateSlot`, `MediaRequirements` with 15+ filter dimensions |
+| Slot-to-asset matching engine | **Implemented** | 6 weighted scoring signals + cluster-cohesion bonus, no-duplicate constraint |
+| "For You" template ranking | **Implemented** | `TemplateRanker` — fillRate * 0.5 + score * 0.3 + popularity * 0.2 |
+| Lynx-in-WKWebView dynamic catalog | **Implemented** | `TemplateCatalogClient`, SHA-256 bundle verify, `SwiftLynxBridge` with rate limit + Codable validation |
+| Feature flag (mock ↔ lynx) | **Implemented** | `FeatureFlags.templateCatalogSource`, Firebase Remote Config ready |
+| Template Tab SwiftUI UI | **Implemented** | Header, category chips, For You grid, category rows, slot-fill indicators |
+| Template card with thumbnails | **Implemented** | `TemplateCardView` — 2x2 thumb grid, PHImageManager thumbnails, context menu |
+| Full-screen preview + player | **Implemented** | `TemplatePreviewView` + `TemplatePlayerView` — AVComposition for video, crossfade for photo |
+| Slot swap UX | **Implemented** | Bottom sheet with alternates + PHPicker with classification quality gate |
+| Onboarding scan progress | **Implemented** | `TemplateOnboardingProgressView` with progress ring + live 3x3 thumbnail mosaic |
+| MainTabBarController integration | **Implemented** | 6th tab at index 2 (Feed/Library/Templates/Chat+Explore/Analytics/Profile) |
+| Hybrid scan strategy | **Implemented** | Onboarding 500 + BGProcessingTask full + lazy rescan + PHPhotoLibraryChangeObserver |
+| Thermal-aware scheduling | **Implemented** | `ThermalAwareScheduler` — adaptive batch sizes per thermalState + LPM |
+| Batched Vision requests | **Implemented** | Single VNImageRequestHandler with shared Metal CIContext (1.5x+ speedup target) |
+| Background task checkpointing | **Implemented** | `BackgroundTaskBudget` — UserDefaults resume point, survives iOS task kills |
+| iOS 26 Vision exclusives | **Implemented** | `RecognizeDocumentsRequest`, `DetectCameraLensSmudgeRequest` |
+| Performance regression tests | **Implemented** | classify(500)<120s, embedRebuild(500)<8s, match(20×500)<1s, RSS<250MB |
+| Telemetry (10 events, no PII) | **Implemented** | media_scan_*, template_*, embedding_index_rebuilt via TelemetryManager |
+
 
 ## World Explorer (3D helix)
 

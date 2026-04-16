@@ -158,7 +158,7 @@ struct AuditLogEntry: Identifiable, Codable {
 
 // MARK: - Compliance Check
 
-enum ComplianceStatus: String, Codable, CaseIterable, Identifiable {
+enum SecurityComplianceStatus: String, Codable, CaseIterable, Identifiable {
     case passed
     case failed
     case pending
@@ -218,14 +218,14 @@ enum Regulation: String, Codable, CaseIterable, Identifiable {
 struct ComplianceCheck: Identifiable, Codable {
     let id: UUID
     var regulation: Regulation
-    var status: ComplianceStatus
+    var status: SecurityComplianceStatus
     var lastAuditDate: Date
     var findings: [String]
 
     init(
         id: UUID = UUID(),
         regulation: Regulation,
-        status: ComplianceStatus,
+        status: SecurityComplianceStatus,
         lastAuditDate: Date = Date(),
         findings: [String] = []
     ) {

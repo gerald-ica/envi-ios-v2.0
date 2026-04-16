@@ -336,22 +336,26 @@ struct ContentNodeView: View {
         }
     }
 
+    @ViewBuilder
     private var tagsRow: some View {
+        let fgColor: Color = lightMode ? .black.opacity(0.5) : .white.opacity(0.5)
+        let bgColor: Color = lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05)
+        let borderColor: Color = lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.1)
         FlowLayout(spacing: ENVISpacing.xs) {
             ForEach(content.tags, id: \.self) { tag in
                 Text(tag.uppercased())
                     .font(.spaceMono(10))
                     .tracking(1.0)
-                    .foregroundColor(lightMode ? .black.opacity(0.5) : .white.opacity(0.5))
+                    .foregroundColor(fgColor)
                     .padding(.horizontal, ENVISpacing.sm)
                     .padding(.vertical, 3)
                     .background(
                         RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                            .fill(lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05))
+                            .fill(bgColor)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: ENVIRadius.sm)
-                            .strokeBorder(lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.1), lineWidth: 0.5)
+                            .strokeBorder(borderColor, lineWidth: 0.5)
                     )
             }
         }

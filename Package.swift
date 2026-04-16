@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.2
 //
 // ENVI iOS — Personalized AI Content Editor
 //
@@ -20,7 +20,7 @@ import PackageDescription
 let package = Package(
     name: "ENVI",
     platforms: [
-        .iOS(.v17)
+        .iOS(.v26)
     ],
     products: [
         .executable(name: "ENVI", targets: ["ENVI"])
@@ -48,6 +48,9 @@ let package = Package(
             resources: [
                 .process("Resources/Fonts"),
                 .process("Resources/Images"),
+            ],
+            swiftSettings: [
+                .swiftLanguageMode(.v5),
             ]
         ),
         .testTarget(

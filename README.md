@@ -8,6 +8,7 @@ ENVI assembles and edits content pieces from the user's camera roll -- photos, v
 
 ## Features
 
+- **Template Tab** -- Camera-roll-native video/photo templates. ENVI scans the user's Photos library with Apple's Vision framework (9 ML requests per asset), classifies every photo and video, and shows templates pre-populated with the user's own content. Templates rank by how well the user's media matches each slot -- "4/4 slots filled" means ready to export in one tap. Dynamic catalog delivery via Lynx-in-WKWebView lets new templates ship without App Store updates.
 - **World Explorer** -- 3D content library rendered as a helix timeline using SceneKit, displaying the user's content pieces in an immersive, navigable space
 - **ENVI AI Engine** -- Caption generation, script editing, hook libraries, visual AI editing, style transfer, ideation dashboard with trends and competitor analysis
 - **Content Editor** -- AVFoundation-based video and photo editor with crop, filter, speed, rotate, color grading, text overlays, and audio mixer
@@ -18,6 +19,44 @@ ENVI assembles and edits content pieces from the user's camera roll -- photos, v
 - **Teams and Collaboration** -- Workspaces, role management, review workflows, approval steps, and share links
 - **Campaigns** -- Campaign management with briefs, content requests, and sprint boards
 - **Monetization** -- RevenueCat-powered Aura subscription, billing, commerce offers, and marketplace UGC
+
+## Template Tab (New)
+
+The Template Tab is ENVI's differentiator vs CapCut. Instead of showing a remote catalog of templates with generic placeholders, ENVI:
+
+1. **Scans the camera roll** during onboarding (last 500 assets with progress UI, full library continues in background)
+2. **Classifies every asset** with Apple Vision (scene labels, aesthetics score, face/person count, saliency, feature prints) + EXIF/GPS/TIFF metadata
+3. **Clusters visually similar content** via native Swift ports of UMAP + HDBSCAN (from Apple's embedding-atlas algorithms)
+4. **Matches assets to template slots** using 6 weighted scoring signals + cluster-cohesion bonus
+5. **Renders templates with the user's own content** -- thumbnails are real camera roll photos, not stock
+6. **Full-screen preview** with AVPlayer-backed video playback, slot swapping (tap to swap with alternates or pick from library), and one-tap export
+7. **Dynamic catalog** via Lynx-in-WKWebView with SHA-256 bundle integrity verification and feature-flag rollback
+
+### Template Tab Architecture
+
+```
+Camera Roll → PhotoLibraryManager → MediaClassifier Pipeline
+                                        ├── MediaMetadataExtractor (EXIF/GPS/TIFF/MakerApple)
+                                        ├── VisionAnalysisEngine (9 ML requests batched)
+                                        ├── ReverseGeocodeCache (CLGeocoder + LRU)
+                                        └── ClassificationCache (SwiftData @Model)
+                                                    ↓
+                                        EmbeddingIndex (SimilarityEngine + UMAP + HDBSCAN)
+                                                    ↓
+                                        TemplateMatchEngine + TemplateRanker
+                                                    ↓
+                                        TemplateTabViewModel (@Observable)
+                                                    ↓
+                                        TemplateTabView → TemplatePreviewView → Export
+```
+
+### Scan Strategy
+
+- **Onboarding**: `scanOnboardingBatch()` — last 500 PHAssets with progress ring UI
+- **Background**: `BGProcessingTaskRequest` — full library in 100-asset chunks, resumable via UserDefaults checkpoint
+- **Lazy**: Template tab rescan on open — classifies delta since last scan
+- **Incremental**: `PHPhotoLibraryChangeObserver` — classifies new/updated assets in real-time
+- **Thermal-aware**: `ThermalAwareScheduler` throttles/pauses work based on `ProcessInfo.thermalState` + Low Power Mode
 
 ## Chat/Explore Tab
 
@@ -34,18 +73,23 @@ Content pieces are already-edited short-form media created from the user's camer
 
 ## Architecture
 
-ENVI uses a **SwiftUI + UIKit hybrid** architecture targeting **iOS 17.0+**.
+ENVI uses a **SwiftUI + UIKit hybrid** architecture targeting **iOS 26.0+**.
 
-- **SwiftUI** — Library, Chat/Explore, Analytics, Profile, Export screens
+- **SwiftUI** — Library, Chat/Explore, Analytics, Profile, Templates, Export screens
 - **UIKit** — Feed, Editor, custom tab bar, navigation coordinators
 - **SceneKit** — 3D World Explorer helix rendering and interaction
+- **Vision** — On-device ML (classify, aesthetics, face, saliency, feature prints, document detect, lens smudge)
+- **Accelerate** — BLAS/LAPACK for native UMAP + HDBSCAN embedding pipeline
+- **SwiftData** — Classification cache with indexed query fields
+- **WebKit** — Lynx-in-WKWebView for dynamic template catalog delivery
+- **BackgroundTasks** — Resumable camera roll scanning with thermal awareness
 - **SPM Dependencies** — SDWebImage, Lottie, RevenueCat, Firebase (Auth, Analytics, Crashlytics)
 
 ### Navigation
 
 - **AppCoordinator** — Root coordinator managing auth flow (Splash → Onboarding → Sign In) and main app flow
-- **MainTabBarController** — Custom UIKit tab bar controller hosting 5 tabs with a floating pill-shaped tab bar
-- **OnboardingCoordinator** — Manages onboarding flow including Photos permission request
+- **MainTabBarController** — Custom UIKit tab bar controller hosting 6 tabs with a floating pill-shaped tab bar
+- **OnboardingCoordinator** — Manages onboarding flow including Photos permission request and template scan progress
 
 ### Layer Structure
 
@@ -53,30 +97,29 @@ ENVI uses a **SwiftUI + UIKit hybrid** architecture targeting **iOS 17.0+**.
 ENVI/
 ├── App/                    # App delegate, scene delegate, root coordinator
 ├── Core/
+│   ├── AI/                 # ENVI Brain, ContentAnalyzer, PredictionEngine
+│   ├── Config/             # AppEnvironment, FeatureFlags
 │   ├── Design/             # ENVITheme, ENVITypography, ENVISpacing, ThemeManager
+│   ├── Editing/            # VideoEditService (AVFoundation)
+│   ├── Embedding/          # SimilarityEngine, DimensionReducer (UMAP), DensityClusterer (HDBSCAN), EmbeddingIndex
 │   ├── Extensions/         # Color+ENVI, Font+ENVI, View+Extensions
+│   ├── Media/              # MediaClassifier, VisionAnalysisEngine, ClassificationCache, MediaScanCoordinator, ThermalAwareScheduler
 │   ├── Networking/         # APIClient, ContentPieceAssembler
-│   └── Storage/            # UserDefaultsManager, PhotoLibraryManager
-├── Components/             # Reusable design system components
-│   ├── ENVIBadge           # Status badges
-│   ├── ENVIBottomSheet     # UIKit bottom sheet presentation
-│   ├── ENVIButton          # Primary/secondary/ghost button variants
-│   ├── ENVICard            # Elevated card container
-│   ├── ENVIChip            # Filter/action chips
-│   ├── ENVIInput           # Text input with label + validation
-│   ├── ENVIProgressRing    # Circular progress indicator
-│   ├── ENVITabBar          # Custom floating tab bar (UIKit)
-│   └── ENVIToggle          # Custom toggle switch
+│   ├── Storage/            # UserDefaultsManager, PhotoLibraryManager
+│   ├── Templates/          # TemplateMatchEngine, TemplateRanker, TemplateCatalogClient, TemplateManifest
+│   └── Telemetry/          # TelemetryManager (Firebase Analytics)
+├── Components/             # Reusable design system components (ENVIButton, ENVICard, ENVIChip, etc.)
 ├── Features/
-│   ├── Auth/               # Splash, onboarding, sign in
+│   ├── Auth/               # Splash, onboarding (incl. template scan progress), sign in
 │   ├── Feed/               # Swipeable card stack, AI insight pills
 │   ├── Library/            # Masonry grid, template carousel
+│   ├── Templates/          # TemplateTabView, TemplateCardView, TemplatePreviewView, TemplatePlayerView, LynxWebView, SwiftLynxBridge
 │   ├── ChatExplore/        # Dual-mode Chat + World Explorer
 │   ├── Analytics/          # KPI cards, engagement charts, content calendar
 │   ├── Profile/            # Stats, connected platforms, settings
 │   ├── Editor/             # Video editor with timeline + toolbar (UIKit)
 │   └── Export/             # Export sheet with AI captions + progress overlay
-├── Models/                 # User, ContentItem, ChatMessage, Platform, AnalyticsData
+├── Models/                 # User, ContentItem, ChatMessage, Platform, AnalyticsData, VideoTemplateModels
 └── Navigation/             # Coordinator protocol, MainTabBarController
 ```
 
@@ -84,9 +127,9 @@ ENVI/
 
 ### Requirements
 
-- **Xcode 15.0+**
-- **iOS 17.0+** deployment target
-- macOS 14.0+ (Sonoma) recommended
+- **Xcode 26.0+**
+- **iOS 26.0+** deployment target
+- macOS 26.0+ (Tahoe) recommended
 
 ### Setup
 
@@ -105,8 +148,18 @@ open ENVI.xcodeproj
 ### Build & Run
 
 1. Open `ENVI.xcodeproj` in Xcode
-2. Select an iOS 17.0+ simulator or device
+2. Select an iOS 26.0+ simulator or device
 3. Press `⌘R` to build and run
+
+### Template Tab Setup
+
+Before running on a physical device, add to `Info.plist`:
+```xml
+<key>BGTaskSchedulerPermittedIdentifiers</key>
+<array>
+    <string>com.envi.mediaclassifier.fullscan</string>
+</array>
+```
 
 ### Bundle ID
 

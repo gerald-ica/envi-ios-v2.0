@@ -1,0 +1,65 @@
+name: ENVI
+options:
+  bundleIdPrefix: com.informal
+  deploymentTarget:
+    iOS: "26.0"
+  xcodeVersion: "26.4"
+packages:
+  SDWebImage:
+    url: https://github.com/SDWebImage/SDWebImage.git
+    from: "5.19.0"
+  Lottie:
+    url: https://github.com/airbnb/lottie-spm.git
+    from: "4.4.0"
+  RevenueCat:
+    url: https://github.com/RevenueCat/purchases-ios-spm.git
+    from: "5.0.0"
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk.git
+    from: "11.0.0"
+targets:
+  ENVI:
+    type: application
+    platform: iOS
+    sources:
+      - path: ENVI
+        excludes:
+          - "Resources/Info.plist"
+          - "SupportingFiles/Info.plist"
+    resources:
+      - path: ENVI/Resources/Fonts
+      - path: ENVI/Resources/Images
+      - path: ENVI/Features/Templates/Resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.informal.envi
+        INFOPLIST_FILE: "ENVI/SupportingFiles/Info.plist"
+        GENERATE_INFOPLIST_FILE: "YES"
+        INFOPLIST_KEY_UILaunchStoryboardName: ""
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
+        INFOPLIST_KEY_UIUserInterfaceStyle: "Dark"
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: "ENVI needs access to your photos and videos to create and manage your content pieces."
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "ENVI saves edited content pieces to your photo library."
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "ENVI uses the microphone for voice commands and audio recording."
+        INFOPLIST_KEY_NSCameraUsageDescription: "ENVI uses the camera to capture new content."
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "ENVI uses your location to personalize content recommendations and local insights."
+        CODE_SIGNING_ALLOWED: "NO"
+        SWIFT_VERSION: "5.0"
+        MARKETING_VERSION: "2.0"
+        CURRENT_PROJECT_VERSION: "1"
+    dependencies:
+      - package: SDWebImage
+      - package: Lottie
+        product: Lottie
+      - package: RevenueCat
+        product: RevenueCat
+      - package: RevenueCat
+        product: RevenueCatUI
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseAnalytics
+      - package: Firebase
+        product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseCore

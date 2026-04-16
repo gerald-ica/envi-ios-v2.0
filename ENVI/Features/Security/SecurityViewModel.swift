@@ -22,7 +22,7 @@ final class SecurityViewModel: ObservableObject {
     // MARK: - Compliance
     @Published var complianceChecks: [ComplianceCheck] = []
     @Published var isLoadingCompliance = false
-    @Published var complianceStatusFilter: ComplianceStatus?
+    @Published var complianceStatusFilter: SecurityComplianceStatus?
 
     // MARK: - Retention
     @Published var retentionPolicies: [DataRetentionPolicy] = []
