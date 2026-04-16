@@ -74,7 +74,7 @@ struct AnalyticsView: View {
             .padding(.top, 24)
             .padding(.bottom, 100)
         }
-        .background(ENVITheme.background(for: colorScheme))
+        .background(AppBackground(imageName: "analytics-bg"))
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
             await viewModel.reload()

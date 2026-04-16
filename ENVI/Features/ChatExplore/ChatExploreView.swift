@@ -48,7 +48,7 @@ struct ChatExploreView: View {
                 .padding(.top, 52)
                 .padding(.trailing, 58)
         }
-        .background(Color.black)
+        .background(AppBackground(imageName: "chat-home-bg"))
         .preferredColorScheme(.dark)
     }
 
@@ -139,7 +139,7 @@ struct EnhancedChatView: View {
                 viewModel.startThread(text)
             })
         }
-        .background(ENVITheme.background(for: colorScheme))
+        .background(AppBackground(imageName: "chat-home-bg"))
         .onChange(of: seedPrompt) { _, prompt in
             guard let prompt, !prompt.isEmpty else { return }
             viewModel.startThread(prompt)

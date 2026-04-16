@@ -67,7 +67,7 @@ struct ProfileView: View {
                     .padding(.bottom, 96)
             }
         }
-        .background(ENVITheme.background(for: colorScheme))
+        .background(AppBackground(imageName: "profile-bg"))
         .onAppear {
             viewModel.loadConnections()
         }
