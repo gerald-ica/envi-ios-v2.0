@@ -42,6 +42,7 @@ final class OnboardingViewModel: ObservableObject {
 
     // MARK: - Step 7: Socials
     @Published var instagramEnabled = false
+    @Published var facebookEnabled = false
     @Published var tiktokEnabled = false
     @Published var xEnabled = false
     @Published var threadsEnabled = false
@@ -241,6 +242,7 @@ final class OnboardingViewModel: ObservableObject {
     func isEnabled(for platform: SocialPlatform) -> Binding<Bool> {
         switch platform {
         case .instagram: return Binding(get: { self.instagramEnabled }, set: { self.instagramEnabled = $0 })
+        case .facebook:  return Binding(get: { self.facebookEnabled },  set: { self.facebookEnabled = $0 })
         case .tiktok:    return Binding(get: { self.tiktokEnabled },    set: { self.tiktokEnabled = $0 })
         case .x:         return Binding(get: { self.xEnabled },         set: { self.xEnabled = $0 })
         case .threads:   return Binding(get: { self.threadsEnabled },   set: { self.threadsEnabled = $0 })
@@ -252,6 +254,7 @@ final class OnboardingViewModel: ObservableObject {
     private func setToggle(for platform: SocialPlatform, enabled: Bool) {
         switch platform {
         case .instagram: instagramEnabled = enabled
+        case .facebook:  facebookEnabled = enabled
         case .tiktok:    tiktokEnabled = enabled
         case .x:         xEnabled = enabled
         case .threads:   threadsEnabled = enabled
@@ -299,6 +302,7 @@ final class OnboardingViewModel: ObservableObject {
     private var connectedPlatforms: [String] {
         [
             instagramEnabled ? "Instagram" : nil,
+            facebookEnabled ? "Facebook" : nil,
             tiktokEnabled ? "TikTok" : nil,
             xEnabled ? "X" : nil,
             threadsEnabled ? "Threads" : nil,

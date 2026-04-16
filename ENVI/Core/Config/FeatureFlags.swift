@@ -85,6 +85,66 @@ public final class FeatureFlags {
         #endif
     }()
 
+    // MARK: - TikTok Connector (Phase 08)
+
+    /// Gates the real TikTok sandbox connector path.
+    ///
+    /// - `true` (staging/prod default): `SocialOAuthManager.connect(.tiktok)`
+    ///   delegates to `TikTokConnector.shared.connect()` which drives the
+    ///   broker round-trip against TikTok's sandbox.
+    /// - `false` (DEBUG default): legacy behaviour — `SocialOAuthManager`
+    ///   handles `.tiktok` the same way it handles every other provider.
+    ///   Keeps unit tests deterministic and avoids invoking the new code
+    ///   path from SwiftUI previews.
+    ///
+    /// Remote Config key: `"useTikTokConnector"`. Flipping at runtime lets
+    /// us disable the real connector in prod without a resubmission if a
+    /// broker deploy regresses. Works together with
+    /// `connectorsUseMockOAuth`: BOTH flags' conditions must be satisfied
+    /// (mock off, connector on) for the real path to run.
+    public var useTikTokConnector: Bool = {
+        #if DEBUG
+        return false
+        #else
+        return true
+        #endif
+    }()
+
+    // MARK: - X Connector (Phase 09)
+
+    /// Gates the real X (Twitter) proxy routes (`/connectors/x/*`).
+    ///
+    /// - `true`  (default in release): publish / media / account calls hit
+    ///   the Cloud Function which proxies to `api.x.com` v2 endpoints.
+    /// - `false` (default in DEBUG): `XTwitterConnector` returns
+    ///   deterministic mock payloads — no network, stable ids for
+    ///   snapshot tests.
+    ///
+    /// Remote Config key: `"useXConnector"`. Flip to `false` in prod as an
+    /// emergency brake if X has an outage or we hit a rate-limit wall
+    /// that needs a broader fix.
+    public var useXConnector: Bool = {
+        #if DEBUG
+        return false
+        #else
+        return true
+        #endif
+    }()
+
+    // MARK: - Meta Family (Phase 10)
+
+    /// Gates the Facebook Pages connector in the Connect UI.
+    ///
+    /// FB Pages publishing requires Meta App Review approval for
+    /// `pages_manage_posts` + `pages_read_engagement` scopes. Until that is
+    /// granted, `.facebook` must NOT appear as a user-connectable option.
+    /// Instagram and Threads each have their own App Review lifecycles and
+    /// are gated independently by their connector code paths.
+    ///
+    /// Default: `false`. Flip to `true` via Remote Config once App Review
+    /// completes (key `"canConnectFacebook"`).
+    public var canConnectFacebook: Bool = false
+
     // MARK: - Init
 
     /// Private to enforce singleton use. Tests that need an isolated
@@ -137,6 +197,18 @@ public final class FeatureFlags {
         // data length as well.
         if mockOAuthValue.dataValue.count > 0 {
             self.connectorsUseMockOAuth = mockOAuthValue.boolValue
+        }
+
+        let xConnectorKey = "useXConnector"
+        let xConnectorValue = rc.configValue(forKey: xConnectorKey)
+        if xConnectorValue.dataValue.count > 0 {
+            self.useXConnector = xConnectorValue.boolValue
+        }
+
+        let tiktokConnectorKey = "useTikTokConnector"
+        let tiktokConnectorValue = rc.configValue(forKey: tiktokConnectorKey)
+        if tiktokConnectorValue.dataValue.count > 0 {
+            self.useTikTokConnector = tiktokConnectorValue.boolValue
         }
     }
     #endif

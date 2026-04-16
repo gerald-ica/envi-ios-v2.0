@@ -5,6 +5,14 @@ final class PublishingManager {
 
     private init() {}
 
+    // TODO(phase-12): route publishes through the per-platform connector
+    // dispatcher instead of the generic `/publish/jobs` endpoint. Today
+    // Phase 08's TikTokConnector writes directly to
+    // `connectors/tiktok/publish/*` and observes Firestore; Phase 12 will
+    // introduce a shared state machine (queued → uploading → awaiting →
+    // posted|failed) that unifies the read path with this manager's
+    // `waitForFinalStatus` contract.
+
     enum PublishError: Error {
         case invalidTicket
         case timedOut

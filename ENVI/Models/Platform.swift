@@ -4,6 +4,7 @@ import SwiftUI
 /// Represents a social media platform.
 enum SocialPlatform: String, CaseIterable, Codable, Identifiable {
     case instagram = "Instagram"
+    case facebook  = "Facebook"
     case tiktok    = "TikTok"
     case x         = "X"
     case threads   = "Threads"
@@ -18,6 +19,7 @@ enum SocialPlatform: String, CaseIterable, Codable, Identifiable {
     var iconName: String {
         switch self {
         case .instagram: return "camera"
+        case .facebook:  return "f.square"
         case .tiktok:    return "music.note"
         case .x:         return "xmark"
         case .threads:   return "at"
@@ -29,6 +31,7 @@ enum SocialPlatform: String, CaseIterable, Codable, Identifiable {
     var brandColor: Color {
         switch self {
         case .instagram: return Color(hex: "#E4405F")
+        case .facebook:  return Color(hex: "#1877F2")
         case .tiktok:    return Color(hex: "#000000")
         case .x:         return Color(hex: "#1DA1F2")
         case .threads:   return Color(hex: "#000000")

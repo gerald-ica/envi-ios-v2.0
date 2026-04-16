@@ -28,3 +28,72 @@ export {
   oauthDisconnect,
   oauthStatus,
 } from "./oauth";
+
+/**
+ * Phase 8 surface (TikTok sandbox connector):
+ *   - connectorsTikTokPublishInit      POST /connectors/tiktok/publish/init
+ *   - connectorsTikTokPublishComplete  POST /connectors/tiktok/publish/complete
+ *   - connectorsTikTokVideos           GET  /connectors/tiktok/videos
+ *
+ * Side-effectful import: `./providers/tiktok` registers its
+ * `ProviderOAuthAdapter` with the Phase 7 broker registry at module load.
+ * Failure to register crashes the function boot (fail-fast vs. 404 at
+ * request time).
+ */
+import "./providers/tiktok";
+
+export {
+  connectorsTikTokPublishInit,
+  connectorsTikTokPublishComplete,
+  connectorsTikTokVideos,
+} from "./providers/tiktok.routes";
+
+/**
+ * Phase 9 surface (X / Twitter proxy routes):
+ *   - connectorsX     POST /connectors/x/tweet
+ *                     POST /connectors/x/media
+ *                     GET  /connectors/x/account
+ *
+ * The adapter registers itself with the Phase 7 broker registry at
+ * module load — importing the module is sufficient to make `:provider=x`
+ * resolve in the generic `/oauth/:provider/*` routes.
+ */
+export { connectorsX } from "./providers/x";
+
+/**
+ * Phase 11 surface (LinkedIn connector):
+ *   - connectorsLinkedInOrganizations  GET  /connectors/linkedin/organizations
+ *   - publishLinkedIn                  POST /publish/linkedin
+ *
+ * Importing `./providers/linkedin-register` has the side effect of
+ * registering the LinkedIn adapter with the Phase 7 broker registry, so
+ * `:provider=linkedin` resolves in the generic `/oauth/:provider/*`
+ * routes without any further wiring.
+ */
+import "./providers/linkedin-register";
+
+export {
+  connectorsLinkedInOrganizations,
+  publishLinkedIn,
+} from "./providers/linkedin.routes";
+
+/**
+ * Phase 10 surface (Meta family — Facebook Pages, Instagram, Threads):
+ *   - metaPages            GET  /meta/pages            (FB only)
+ *   - metaIGAccountType    POST /meta/ig-account-type  (IG only)
+ *   - metaSelectPage       POST /oauth/facebook/select-page
+ *   - refreshMetaTokens    scheduled — every 50 days
+ *
+ * Importing `./providers/meta` has the side effect of registering three
+ * `ProviderOAuthAdapter`s with the broker registry (facebook, instagram,
+ * threads), so all three resolve in `/oauth/:provider/*`.
+ */
+import "./providers/meta";
+
+export {
+  metaPages,
+  metaIGAccountType,
+  metaSelectPage,
+} from "./oauth/metaRoutes";
+
+export { refreshMetaTokens } from "./crons/refreshMetaTokens";

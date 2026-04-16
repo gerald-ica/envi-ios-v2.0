@@ -10,7 +10,7 @@ enum OAuthCallbackHandler {
 
     /// Known OAuth providers surfaced in the callback path segment.
     enum Provider: String, CaseIterable {
-        case tiktok, x, instagram, youtube, threads, linkedin, reddit
+        case tiktok, x, instagram, facebook, youtube, threads, linkedin, reddit
     }
 
     /// Outcome of handling an incoming URL.

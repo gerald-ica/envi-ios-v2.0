@@ -266,6 +266,7 @@ struct LibraryItem: Identifiable, Codable {
     private static func fallbackImageName(for platform: SocialPlatform) -> String {
         switch platform {
         case .instagram: return "studio-fashion"
+        case .facebook: return "fashion-group"
         case .tiktok: return "industrial-girl"
         case .x: return "red-silhouette"
         case .threads: return "fashion-group"

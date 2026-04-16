@@ -20,7 +20,11 @@ import Foundation
 /// - `OAuthSession` is now injectable in `init` so tests can swap in a
 ///   recording stub. A singleton `.shared` is still available and uses
 ///   the real `ASWebAuthenticationSessionAdapter`.
-final class SocialOAuthManager {
+/// Not marked `final` so unit-test subclasses (Phase 08 `TikTokConnector`
+/// test harness) can override `connectViaBroker(platform:)` and
+/// `refreshToken(platform:)` without a full protocol extraction. Production
+/// code should still instantiate via `.shared` or the primary `init`.
+class SocialOAuthManager {
 
     /// Process-wide singleton. Backed by the real web auth adapter; prefer
     /// `SocialOAuthManager(session:apiClient:)` from tests.
@@ -32,6 +36,8 @@ final class SocialOAuthManager {
     private let sessionFactory: @MainActor () -> OAuthSession
     private let callbackScheme: String
     private let featureFlagGate: @Sendable () async -> Bool
+    private let tiktokConnectorFlagGate: @Sendable () async -> Bool
+    private let xConnectorFlagGate: @Sendable () async -> Bool
 
     /// Builds an APIClient whose JSONDecoder uses ISO-8601 for `Date` fields.
     /// The broker emits `tokenExpiresAt` / `lastRefreshedAt` as ISO-8601
@@ -65,12 +71,32 @@ final class SocialOAuthManager {
         callbackScheme: String = "enviapp",
         featureFlagGate: @escaping @Sendable () async -> Bool = {
             await MainActor.run { FeatureFlags.shared.connectorsUseMockOAuth }
+        },
+        tiktokConnectorFlagGate: @escaping @Sendable () async -> Bool = {
+            await MainActor.run { FeatureFlags.shared.useTikTokConnector }
+        },
+        xConnectorFlagGate: @escaping @Sendable () async -> Bool = {
+            await MainActor.run { FeatureFlags.shared.useXConnector }
         }
     ) {
         self.apiClient = apiClient
         self.sessionFactory = sessionFactory
         self.callbackScheme = callbackScheme
         self.featureFlagGate = featureFlagGate
+        self.tiktokConnectorFlagGate = tiktokConnectorFlagGate
+        self.xConnectorFlagGate = xConnectorFlagGate
+    }
+
+    /// Phase 08 — resolves the real-TikTok-connector feature flag. Kept as a
+    /// distinct hook so tests can flip it without touching global
+    /// FeatureFlags state.
+    fileprivate func useTikTokConnectorFlag() async -> Bool {
+        await tiktokConnectorFlagGate()
+    }
+
+    /// Phase 09 — resolves the real-X-connector feature flag.
+    fileprivate func useXConnectorFlag() async -> Bool {
+        await xConnectorFlagGate()
     }
 
     // MARK: - Errors
@@ -114,6 +140,35 @@ final class SocialOAuthManager {
             )
         }
 
+        // Phase 08 — route TikTok through its dedicated connector when the
+        // feature flag is on. The connector delegates back to this class
+        // via `connectViaBroker(platform:)` (the `bypassConnectorRoute`
+        // internal entry point), so no recursion.
+        if platform == .tiktok,
+           await useTikTokConnectorFlag() {
+            return try await TikTokConnector.shared.connect()
+        }
+
+        // Phase 09 — same pattern for X. `XTwitterConnector.connect()` calls
+        // `connectViaBroker(platform: .x)` directly to avoid looping back
+        // through this dispatch.
+        if platform == .x,
+           await useXConnectorFlag() {
+            return try await XTwitterConnector.shared.connect()
+        }
+
+        return try await connectViaBroker(platform: platform)
+    }
+
+    /// Internal entry point used both by `connect(platform:)` (when no
+    /// per-provider connector is registered) AND by `TikTokConnector` so
+    /// it can reuse the broker round-trip without re-triggering its own
+    /// routing logic.
+    ///
+    /// Kept `internal` (default) so same-module Phase 08 / Phase 09
+    /// connectors can share the implementation. External callers should
+    /// continue to use `connect(platform:)`.
+    func connectViaBroker(platform: SocialPlatform) async throws -> PlatformConnection {
         // 1. Ask the broker to mint a PKCE + state package and hand us an
         //    authorization URL. The broker persists the PKCE verifier
         //    keyed by the `stateToken` returned here.
@@ -283,6 +338,7 @@ final class SocialOAuthManager {
     private func mockHandle(for platform: SocialPlatform) -> String {
         switch platform {
         case .instagram: return "envi_user"
+        case .facebook: return "ENVI Page"
         case .tiktok: return "envi_user"
         case .x: return "envi_user"
         case .threads: return "envi_user"
@@ -294,6 +350,7 @@ final class SocialOAuthManager {
     private func mockScopes(for platform: SocialPlatform) -> [String] {
         switch platform {
         case .instagram: return ["basic", "publish_media", "insights"]
+        case .facebook: return ["pages_show_list", "pages_manage_posts", "pages_read_engagement"]
         case .tiktok: return ["user.info.basic", "video.list", "video.publish"]
         case .x: return ["tweet.read", "tweet.write", "users.read"]
         case .threads: return ["threads_basic", "threads_publish"]
