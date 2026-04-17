@@ -8,6 +8,7 @@ struct AnalyticsView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @State private var showConnectedAccounts = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -93,6 +94,19 @@ struct AnalyticsView: View {
         }
         .background(AppBackground(imageName: "analytics-bg"))
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(ENVITheme.text(for: colorScheme))
+                }
+                .accessibilityLabel("Back")
+            }
+        }
         .refreshable {
             await viewModel.reload()
             await advancedViewModel.loadAll()
