@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 Foundation** — Phases 1–5 (shipped 2026-04-06)
 - 🚧 **v1.1 Real Social Connectors** — Phases 6–13 (implementation complete, awaiting verification blockers)
-- 🚧 **v1.2 Frontend Audit Fixes** — Phases 14–19 (in progress, created 2026-04-17)
+- 🚧 **v1.2 Frontend Audit Fixes** — Phases 14–19 (implementation complete 2026-04-17, awaiting ship checklist)
 
 ---
 
@@ -347,11 +347,11 @@ Plans:
 **Plans:** TBD (5 expected)
 
 Plans:
-- [ ] 19-01: Refactor repo-in-view anti-pattern — `SystemHealthView`, `SSOConfigView`, `ContractManagerView` get real ViewModels
-- [ ] 19-02: Standardize `AdvancedAnalyticsRepositoryProvider` and `BenchmarkRepositoryProvider` to use `RepositoryProvider.shared.X` pattern
-- [ ] 19-03: Delete or merge orphan `LibraryDAMViewModel.swift`; gate `EnhancedChatViewModel` dev mocks behind real `#if DEBUG`
-- [ ] 19-04: ViewModel test coverage — at least one XCTest per live tab VM (ProfileViewModel, EnhancedChatViewModel, ForYouGalleryViewModel, new PublishingViewModel)
-- [ ] 19-05: Unify ENVI wordmark asset — splash and signup currently use different stencil variants
+- [x] 19-01: Refactor repo-in-view anti-pattern — `SystemHealthView`, `SSOConfigView`, `ContractManagerView` get real ViewModels
+- [x] 19-02: Standardize `AdvancedAnalyticsRepositoryProvider` and `BenchmarkRepositoryProvider` to use `RepositoryProvider.shared.X` pattern
+- [x] 19-03: Delete or merge orphan `LibraryDAMViewModel.swift`; gate `EnhancedChatViewModel` dev mocks behind real `#if DEBUG`
+- [x] 19-04: ViewModel test coverage — at least one XCTest per live tab VM (ProfileViewModel, EnhancedChatViewModel, ForYouGalleryViewModel, new PublishingViewModel)
+- [x] 19-05: Unify ENVI wordmark asset — splash and signup currently use different stencil variants
 
 ---
 
@@ -380,4 +380,4 @@ Phases execute in numeric order within each milestone.
 | 16. p1-publishing-tab-modal-entry-points-aifeatures | v1.2 | 4/4 | Complete | 2026-04-17 |
 | 17. p2-mock-to-repo-swaps | v1.2 | 3/3 | Complete | 2026-04-17 |
 | 18. p3-dead-action-fixes | v1.2 | 3/3 | Complete | 2026-04-17 |
-| 19. p4-hygiene | v1.2 | 0/5 | Not started | - |
+| 19. p4-hygiene | v1.2 | 5/5 | Complete | 2026-04-17 |
