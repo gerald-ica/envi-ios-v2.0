@@ -411,6 +411,7 @@
 		D43DE2CEB8767AAB5E734C94 /* bg-texture-11.png in Resources */ = {isa = PBXBuildFile; fileRef = 64E050F8BE9639D1B7B00735 /* bg-texture-11.png */; };
 		D44AF6177444867DE1D6C247 /* ExportComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6307D43573CD764ADCC0982A /* ExportComposer.swift */; };
 		D4DD7B70FA004815613F87E3 /* FirestoreBackedBenchmarkRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9DD1227633E3BA1853FA09 /* FirestoreBackedBenchmarkRepository.swift */; };
+		D5C80AD0D02D0842E110E4B0 /* FeatureFlagsAnalyticsProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6EC01B9638B9C3D4E91208A /* FeatureFlagsAnalyticsProviderTests.swift */; };
 		D676C52544E4646579980E15 /* BillingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2CDCD5CC82DBFC779166F0C /* BillingViewModel.swift */; };
 		D6B78E78B0185B0912AE1C37 /* InsightGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 674ED05E0B4A5524D74B2467 /* InsightGenerator.swift */; };
 		D7058AF42AFD20195DB51787 /* InstagramConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1D177C01053A19BDB9E21EB /* InstagramConnector.swift */; };
@@ -491,6 +492,16 @@
 		FF3A9BB8AECA714C783471BC /* PageSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367A0F4C8C7169D8BB4F14D /* PageSelectorViewModel.swift */; };
 		FFCC534379F764D814266252 /* MetricCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F37019812DD5B67C5621B30 /* MetricCardView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A34FD912FAAE69DDC7E512DA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8A18758206201E6345B9892A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 02F75898D3F5656C6FA4BCB6;
+			remoteInfo = ENVI;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		006F6D3073570F62E346867A /* FolderBrowserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderBrowserView.swift; sourceTree = "<group>"; };
@@ -784,6 +795,7 @@
 		960BD3DA008319DA93EB54E8 /* SocialOAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialOAuthManager.swift; sourceTree = "<group>"; };
 		96730F93B899979E7662EEE8 /* FirestoreBackedAdvancedAnalyticsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreBackedAdvancedAnalyticsRepository.swift; sourceTree = "<group>"; };
 		9AFB4ABC4F7BD65A2091B96B /* ShareLinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareLinkView.swift; sourceTree = "<group>"; };
+		9C366FD4C05E183873BCAD9F /* ENVITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ENVITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CA0EB30B461EFEB2C930034 /* ContentPieceAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPieceAssembler.swift; sourceTree = "<group>"; };
 		9CD7FA1FA400C7BC20BD0D77 /* abstract-7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "abstract-7.png"; sourceTree = "<group>"; };
 		9D3D716B931F08E8AADB7004 /* ENVI.Debug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ENVI.Debug.entitlements; sourceTree = "<group>"; };
@@ -802,6 +814,7 @@
 		A5C293637A1BE746757A02BA /* ExperimentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentViewModel.swift; sourceTree = "<group>"; };
 		A6737478A5CF41CC61C89E26 /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
 		A6B762103AF398FAEC32F656 /* ExperimentResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentResultsView.swift; sourceTree = "<group>"; };
+		A6EC01B9638B9C3D4E91208A /* FeatureFlagsAnalyticsProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlagsAnalyticsProviderTests.swift; sourceTree = "<group>"; };
 		A6F75502FD7AC41A8F6E4ABD /* CaptionGeneratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptionGeneratorView.swift; sourceTree = "<group>"; };
 		A7034DFF74809A7C32A6B7CF /* XTwitterConnector+Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XTwitterConnector+Models.swift"; sourceTree = "<group>"; };
 		A91697762EA219359A7A24BF /* ENVICard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENVICard.swift; sourceTree = "<group>"; };
@@ -1208,6 +1221,7 @@
 			isa = PBXGroup;
 			children = (
 				FFFE87A397B8FEA95504E43B /* ENVI.app */,
+				9C366FD4C05E183873BCAD9F /* ENVITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1727,6 +1741,7 @@
 			isa = PBXGroup;
 			children = (
 				D8824D3D79AE1ADD9CCBD8A8 /* ENVI */,
+				BB1D07EEF4F666B6A7805C9F /* ENVITests */,
 				2ECCA5AB3F8B4CACE7F5477C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -1841,6 +1856,14 @@
 				CBC88D50488AEB390E68988D /* LinkedInAuthorPickerViewModel.swift */,
 			);
 			path = Publishing;
+			sourceTree = "<group>";
+		};
+		BB1D07EEF4F666B6A7805C9F /* ENVITests */ = {
+			isa = PBXGroup;
+			children = (
+				A6EC01B9638B9C3D4E91208A /* FeatureFlagsAnalyticsProviderTests.swift */,
+			);
+			path = ENVITests;
 			sourceTree = "<group>";
 		};
 		C33EB98285929A58223A6C8A /* Connectors */ = {
@@ -2114,6 +2137,24 @@
 			productReference = FFFE87A397B8FEA95504E43B /* ENVI.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E12098A17DE9D26C6E0B4959 /* ENVITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 61B5560F863C55B815729195 /* Build configuration list for PBXNativeTarget "ENVITests" */;
+			buildPhases = (
+				D963CD02C86FB32AD07426C5 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				60450D65B911A6D3E5B607BD /* PBXTargetDependency */,
+			);
+			name = ENVITests;
+			packageProductDependencies = (
+			);
+			productName = ENVITests;
+			productReference = 9C366FD4C05E183873BCAD9F /* ENVITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -2150,6 +2191,7 @@
 			projectRoot = "";
 			targets = (
 				02F75898D3F5656C6FA4BCB6 /* ENVI */,
+				E12098A17DE9D26C6E0B4959 /* ENVITests */,
 			);
 		};
 /* End PBXProject section */
@@ -2643,7 +2685,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D963CD02C86FB32AD07426C5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D5C80AD0D02D0842E110E4B0 /* FeatureFlagsAnalyticsProviderTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		60450D65B911A6D3E5B607BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 02F75898D3F5656C6FA4BCB6 /* ENVI */;
+			targetProxy = A34FD912FAAE69DDC7E512DA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		2B2378CE235C6C936A01B531 /* Debug */ = {
@@ -2709,6 +2767,24 @@
 			};
 			name = Debug;
 		};
+		45080B1A0FE4E0782A811FBD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.weareinformal.ENVITests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ENVI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ENVI";
+			};
+			name = Release;
+		};
 		B19120D8FB9DBC3AB4E84A3F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2764,6 +2840,24 @@
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
+		};
+		CC129BF278250BB18CDAFCA3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.weareinformal.ENVITests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ENVI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ENVI";
+			};
+			name = Debug;
 		};
 		E1E3D9F1F0D1F64E310ED6E2 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -2837,6 +2931,15 @@
 			buildConfigurations = (
 				ECE496564A680C332F1681B0 /* Debug */,
 				E1E3D9F1F0D1F64E310ED6E2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		61B5560F863C55B815729195 /* Build configuration list for PBXNativeTarget "ENVITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC129BF278250BB18CDAFCA3 /* Debug */,
+				45080B1A0FE4E0782A811FBD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
