@@ -515,6 +515,7 @@
 		E1C73AE2A34F07B01E3D0001 /* EducationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C73AE2A34F07B01E3D0002 /* EducationViewModel.swift */; };
 		E1C73AE2A34F07B01E3D0003 /* EducationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C73AE2A34F07B01E3D0004 /* EducationViewModelTests.swift */; };
 		E18A01B10001000000000001 /* FeedDetailBookmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18A01B10001000000000002 /* FeedDetailBookmarkTests.swift */; };
+		E18A02B20001000000000001 /* ContentLibrarySettingsConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18A02B20001000000000002 /* ContentLibrarySettingsConnectTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1028,6 +1029,7 @@
 		E1C73AE2A34F07B01E3D0002 /* EducationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationViewModel.swift; sourceTree = "<group>"; };
 		E1C73AE2A34F07B01E3D0004 /* EducationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationViewModelTests.swift; sourceTree = "<group>"; };
 		E18A01B10001000000000002 /* FeedDetailBookmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDetailBookmarkTests.swift; sourceTree = "<group>"; };
+		E18A02B20001000000000002 /* ContentLibrarySettingsConnectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLibrarySettingsConnectTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1926,6 +1928,7 @@
 				23A48050F39646A8B3D178D5 /* SupportViewModelTests.swift */,
 				E1C73AE2A34F07B01E3D0004 /* EducationViewModelTests.swift */,
 				E18A01B10001000000000002 /* FeedDetailBookmarkTests.swift */,
+				E18A02B20001000000000002 /* ContentLibrarySettingsConnectTests.swift */,
 			);
 			path = ENVITests;
 			sourceTree = "<group>";
@@ -2786,6 +2789,7 @@
 				182A3C0D041842ECBB63119B /* SupportViewModelTests.swift in Sources */,
 				E1C73AE2A34F07B01E3D0003 /* EducationViewModelTests.swift in Sources */,
 				E18A01B10001000000000001 /* FeedDetailBookmarkTests.swift in Sources */,
+				E18A02B20001000000000001 /* ContentLibrarySettingsConnectTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
