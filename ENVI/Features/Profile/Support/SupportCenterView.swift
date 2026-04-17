@@ -1,17 +1,26 @@
 import SwiftUI
 
 /// Support center with ticket list, FAQ browser, and new ticket creation.
+///
+/// Phase 17 — Plan 02. Previously held `SupportTicket.mockList` /
+/// `FAQArticle.mockList` as `@State` defaults and never called
+/// `SupportRepository`. Now VM-driven via `SupportViewModel` +
+/// `SupportRepositoryProvider`.
 struct SupportCenterView: View {
     @Environment(\.colorScheme) private var colorScheme
+    @StateObject private var viewModel: SupportViewModel
+
     @State private var selectedTab: SupportTab = .tickets
-    @State private var tickets: [SupportTicket] = SupportTicket.mockList
-    @State private var faqs: [FAQArticle] = FAQArticle.mockList
     @State private var showingNewTicket = false
     @State private var newSubject = ""
     @State private var newDescription = ""
     @State private var newPriority: TicketPriority = .medium
     @State private var expandedFAQ: UUID?
     @State private var searchText = ""
+
+    init(viewModel: SupportViewModel = SupportViewModel()) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     private enum SupportTab: String, CaseIterable {
         case tickets = "Tickets"
@@ -23,7 +32,13 @@ struct SupportCenterView: View {
             VStack(alignment: .leading, spacing: ENVISpacing.xl) {
                 header
                 tabBar
-                if selectedTab == .tickets {
+
+                if viewModel.isLoading && viewModel.tickets.isEmpty && viewModel.faqs.isEmpty {
+                    ENVILoadingState()
+                } else if let error = viewModel.errorMessage,
+                          viewModel.tickets.isEmpty && viewModel.faqs.isEmpty {
+                    ENVIErrorBanner(message: error)
+                } else if selectedTab == .tickets {
                     ticketSection
                 } else {
                     faqSection
@@ -32,6 +47,7 @@ struct SupportCenterView: View {
             .padding(ENVISpacing.lg)
         }
         .background(ENVITheme.background(for: colorScheme).ignoresSafeArea())
+        .task { await viewModel.loadSupportCenter() }
         .overlay {
             if showingNewTicket {
                 newTicketOverlay
@@ -87,7 +103,7 @@ struct SupportCenterView: View {
     private var ticketSection: some View {
         VStack(alignment: .leading, spacing: ENVISpacing.md) {
             HStack {
-                Text("\(tickets.count) TICKETS")
+                Text("\(viewModel.tickets.count) TICKETS")
                     .font(.spaceMono(13))
                     .tracking(1)
                     .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
@@ -111,7 +127,7 @@ struct SupportCenterView: View {
                 }
             }
 
-            ForEach(tickets) { ticket in
+            ForEach(viewModel.tickets) { ticket in
                 ticketRow(ticket)
             }
         }
@@ -202,8 +218,8 @@ struct SupportCenterView: View {
     }
 
     private var filteredFAQs: [FAQArticle] {
-        if searchText.isEmpty { return faqs }
-        return faqs.filter {
+        if searchText.isEmpty { return viewModel.faqs }
+        return viewModel.faqs.filter {
             $0.title.localizedCaseInsensitiveContains(searchText) ||
             $0.category.localizedCaseInsensitiveContains(searchText)
         }
@@ -350,17 +366,21 @@ struct SupportCenterView: View {
 
                 Button {
                     guard !newSubject.isEmpty else { return }
-                    let ticket = SupportTicket(
-                        subject: newSubject,
-                        description: newDescription,
-                        priority: newPriority
-                    )
+                    let subject = newSubject
+                    let description = newDescription
+                    let priority = newPriority
                     withAnimation {
-                        tickets.insert(ticket, at: 0)
                         newSubject = ""
                         newDescription = ""
                         newPriority = .medium
                         showingNewTicket = false
+                    }
+                    Task {
+                        await viewModel.submitTicket(
+                            subject: subject,
+                            description: description,
+                            priority: priority
+                        )
                     }
                 } label: {
                     Text("Submit Ticket")
@@ -412,6 +432,6 @@ struct SupportCenterView: View {
 }
 
 #Preview {
-    SupportCenterView()
+    SupportCenterView(viewModel: .preview())
         .preferredColorScheme(.dark)
 }
