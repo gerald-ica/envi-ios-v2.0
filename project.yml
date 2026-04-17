@@ -104,6 +104,7 @@ targets:
       - path: ENVITests/AppRouterIntegrationTests.swift
       - path: ENVITests/DeepLinkRouterTests.swift
       - path: ENVITests/PublishingTabTests.swift
+      - path: ENVITests/Phase16Plan02SettingsEntryPointsTests.swift
     settings:
       base:
         SWIFT_VERSION: "5.0"
