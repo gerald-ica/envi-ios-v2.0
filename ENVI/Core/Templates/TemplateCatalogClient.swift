@@ -328,6 +328,35 @@ actor TemplateCatalogClient: VideoTemplateRepository {
         return manifest.templates.filter { $0.category == category }
     }
 
+    /// Phase 18-03: local-only duplicate. The Lynx catalog is a read-only
+    /// server manifest, so there's no server endpoint to POST to — we
+    /// deep-copy the template in memory with a fresh UUID and return it
+    /// for the VM to prepend to `populatedTemplates`. If a later phase
+    /// wires a "saved clones" collection server-side, that's where this
+    /// lands; for now the clone lives for the session.
+    func duplicate(templateID: UUID) async throws -> VideoTemplate {
+        let manifest = try await loadManifest()
+        let source = manifest.templates.first(where: { $0.id == templateID })
+            ?? manifest.templates.first
+            ?? VideoTemplate(name: "Untitled", category: .grwm, aspectRatio: .portrait9x16)
+
+        return VideoTemplate(
+            id: UUID(),
+            remoteID: nil,
+            name: "\(source.name) Copy",
+            category: source.category,
+            aspectRatio: source.aspectRatio,
+            duration: source.duration,
+            slots: source.slots,
+            textOverlays: source.textOverlays,
+            transitions: source.transitions,
+            audioTrack: source.audioTrack,
+            suggestedPlatforms: source.suggestedPlatforms,
+            thumbnailURL: source.thumbnailURL,
+            popularity: source.popularity
+        )
+    }
+
     // MARK: Bundle download
 
     /// Downloads the Lynx render bundle described by the current

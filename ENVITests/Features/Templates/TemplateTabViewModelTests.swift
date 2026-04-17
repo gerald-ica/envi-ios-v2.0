@@ -53,6 +53,9 @@ final class TemplateTabViewModelTests: XCTestCase {
         var catalog: [VideoTemplate] = []
         var trending: [VideoTemplate] = []
         var shouldThrow: Bool = false
+        /// Records every `duplicate(templateID:)` invocation so Phase 18-03
+        /// tests can assert the context-menu flow reached the repo.
+        private(set) var duplicateCalls: [UUID] = []
         struct BoomError: Error {}
 
         func fetchCatalog() async throws -> [VideoTemplate] {
@@ -66,6 +69,27 @@ final class TemplateTabViewModelTests: XCTestCase {
         func fetchByCategory(_ category: VideoTemplateCategory) async throws -> [VideoTemplate] {
             if shouldThrow { throw BoomError() }
             return catalog.filter { $0.category == category }
+        }
+        func duplicate(templateID: UUID) async throws -> VideoTemplate {
+            duplicateCalls.append(templateID)
+            if shouldThrow { throw BoomError() }
+            let source = catalog.first(where: { $0.id == templateID })
+                ?? catalog.first
+                ?? VideoTemplate(name: "Untitled", category: .grwm, aspectRatio: .portrait9x16)
+            return VideoTemplate(
+                id: UUID(),
+                name: "\(source.name) Copy",
+                category: source.category,
+                aspectRatio: source.aspectRatio,
+                duration: source.duration,
+                slots: source.slots,
+                textOverlays: source.textOverlays,
+                transitions: source.transitions,
+                audioTrack: source.audioTrack,
+                suggestedPlatforms: source.suggestedPlatforms,
+                thumbnailURL: source.thumbnailURL,
+                popularity: source.popularity
+            )
         }
     }
 

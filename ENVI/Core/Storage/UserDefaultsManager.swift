@@ -17,6 +17,7 @@ final class UserDefaultsManager {
         case userBirthplace
         case connectedPlatforms
         case appearanceMode
+        case hiddenTemplateIDs
     }
 
     // MARK: - Onboarding
@@ -53,6 +54,16 @@ final class UserDefaultsManager {
     var connectedPlatforms: [String] {
         get { defaults.stringArray(forKey: Key.connectedPlatforms.rawValue) ?? [] }
         set { defaults.set(newValue, forKey: Key.connectedPlatforms.rawValue) }
+    }
+
+    // MARK: - Templates
+    //
+    // Phase 18-03: per-user "don't show me this template again" preference
+    // for the Templates tab. Local-only — hide is a UX preference, not a
+    // shared/server concern.
+    var hiddenTemplateIDs: Set<String> {
+        get { Set(defaults.stringArray(forKey: Key.hiddenTemplateIDs.rawValue) ?? []) }
+        set { defaults.set(Array(newValue), forKey: Key.hiddenTemplateIDs.rawValue) }
     }
 
     // MARK: - Reset (for testing)

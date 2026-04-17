@@ -9,6 +9,13 @@ protocol VideoTemplateRepository {
     func fetchCatalog() async throws -> [VideoTemplate]
     func fetchTrending() async throws -> [VideoTemplate]
     func fetchByCategory(_ category: VideoTemplateCategory) async throws -> [VideoTemplate]
+
+    /// Phase 18-03: create a copy of an existing template as a new record.
+    /// Mock path deep-copies the struct and assigns a fresh UUID; server
+    /// path (when wired) POSTs to `templates/:id/duplicate` and returns
+    /// the server-assigned clone. The template tab's context menu
+    /// ("Find Similar Content") calls this.
+    func duplicate(templateID: UUID) async throws -> VideoTemplate
 }
 
 // MARK: - Error
@@ -42,6 +49,7 @@ final class MockVideoTemplateRepository: VideoTemplateRepository {
         case onCatalog(VideoTemplateRepositoryError)
         case onTrending(VideoTemplateRepositoryError)
         case onCategory(VideoTemplateRepositoryError)
+        case onDuplicate(VideoTemplateRepositoryError)
         case always(VideoTemplateRepositoryError)
     }
 
@@ -82,9 +90,36 @@ final class MockVideoTemplateRepository: VideoTemplateRepository {
         return library.filter { $0.category == category }
     }
 
+    func duplicate(templateID: UUID) async throws -> VideoTemplate {
+        try await simulateLatency()
+        try throwIfNeeded(for: .duplicate)
+
+        // Prefer the source template if we have it; otherwise duplicate the
+        // first library entry so the UI still gets a clone to display.
+        let source = library.first(where: { $0.id == templateID })
+            ?? library.first
+            ?? VideoTemplate(name: "Untitled", category: .grwm, aspectRatio: .portrait9x16)
+
+        return VideoTemplate(
+            id: UUID(),
+            remoteID: nil,
+            name: "\(source.name) Copy",
+            category: source.category,
+            aspectRatio: source.aspectRatio,
+            duration: source.duration,
+            slots: source.slots,
+            textOverlays: source.textOverlays,
+            transitions: source.transitions,
+            audioTrack: source.audioTrack,
+            suggestedPlatforms: source.suggestedPlatforms,
+            thumbnailURL: source.thumbnailURL,
+            popularity: source.popularity
+        )
+    }
+
     // MARK: - Helpers
 
-    private enum Endpoint { case catalog, trending, category }
+    private enum Endpoint { case catalog, trending, category, duplicate }
 
     private func simulateLatency() async throws {
         guard latency > .zero else { return }
@@ -102,6 +137,8 @@ final class MockVideoTemplateRepository: VideoTemplateRepository {
         case .onTrending(let error) where endpoint == .trending:
             throw error
         case .onCategory(let error) where endpoint == .category:
+            throw error
+        case .onDuplicate(let error) where endpoint == .duplicate:
             throw error
         default:
             return

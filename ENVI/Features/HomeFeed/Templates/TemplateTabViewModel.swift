@@ -37,6 +37,12 @@ final class TemplateTabViewModel {
     private(set) var error: Error?
     private(set) var selectedCategory: VideoTemplateCategory? = nil  // nil = "All"
 
+    // Phase 18-03: locally-hidden template ids. Persisted via
+    // UserDefaultsManager so Hide survives app relaunches. Read into
+    // `visibleTemplates` so the list filter is a derived property, not
+    // a mutation of the underlying `populatedTemplates` store.
+    private(set) var hiddenIDs: Set<String> = []
+
     // MARK: - Selection handoff (AsyncStream)
     //
     // The VM emits a picked template here; a coordinator / route layer
@@ -55,6 +61,9 @@ final class TemplateTabViewModel {
     private let cache: ClassificationCache
     private let index: EmbeddingIndex
     private let scanner: MediaScanCoordinator
+    /// Injected UserDefaults shim so tests can use a fresh domain.
+    /// Defaults to the shared singleton — production code stays unchanged.
+    private let preferences: UserDefaultsManager
 
     private var progressSubscription: AnyCancellable?
 
@@ -66,7 +75,8 @@ final class TemplateTabViewModel {
         ranker: TemplateRanker = TemplateRanker(),
         cache: ClassificationCache,
         index: EmbeddingIndex,
-        scanner: MediaScanCoordinator
+        scanner: MediaScanCoordinator,
+        preferences: UserDefaultsManager = .shared
     ) {
         self.repo = repo
         self.matcher = matcher
@@ -74,6 +84,9 @@ final class TemplateTabViewModel {
         self.cache = cache
         self.index = index
         self.scanner = scanner
+        self.preferences = preferences
+        // Phase 18-03: restore Hide preferences from disk before any render.
+        self.hiddenIDs = preferences.hiddenTemplateIDs
 
         var continuation: AsyncStream<PopulatedTemplate>.Continuation!
         self.selectionStream = AsyncStream { continuation = $0 }
@@ -90,6 +103,59 @@ final class TemplateTabViewModel {
                     self?.scanProgress = next
                 }
             }
+    }
+
+    // MARK: - Visible / Hide filtering (Phase 18-03)
+
+    /// `populatedTemplates` filtered by the locally-hidden ids. Views bind
+    /// to this instead of `populatedTemplates` so Hide actually removes
+    /// items from the visible grid. Source of truth remains
+    /// `populatedTemplates` (so unhideAll can restore without a refetch).
+    var visibleTemplates: [PopulatedTemplate] {
+        populatedTemplates.filter { !hiddenIDs.contains($0.id.uuidString) }
+    }
+
+    /// Hide a template locally. Persists to UserDefaults so it survives
+    /// relaunches. Local-only — we don't sync Hide to the server.
+    func hide(_ populated: PopulatedTemplate) {
+        hiddenIDs.insert(populated.id.uuidString)
+        preferences.hiddenTemplateIDs = hiddenIDs
+    }
+
+    /// Restore all hidden templates. Future surfaces (a "show hidden"
+    /// toggle) can call this; not wired to UI in 18-03 but kept here
+    /// so the contract is symmetric.
+    func unhideAll() {
+        hiddenIDs.removeAll()
+        preferences.hiddenTemplateIDs = hiddenIDs
+    }
+
+    /// Duplicate a template via the repo and prepend the clone to
+    /// `populatedTemplates` so it appears in the grid immediately. The
+    /// clone is populated via the matcher so its thumbnail + slot fill
+    /// is consistent with other visible cards.
+    ///
+    /// Errors are surfaced via the existing `error` property so the
+    /// banner shown for catalog load failures also covers this path.
+    func duplicate(_ populated: PopulatedTemplate) async {
+        do {
+            let clone = try await repo.duplicate(templateID: populated.template.id)
+            let populatedClone = await matcher.populate(
+                template: clone,
+                from: cache,
+                using: index
+            )
+            populatedTemplates.insert(populatedClone, at: 0)
+            // Keep the per-category bucket in sync so the clone appears
+            // under its category row too.
+            let category = populatedClone.template.category
+            var bucket = byCategory[category] ?? []
+            bucket.insert(populatedClone, at: 0)
+            byCategory[category] = bucket
+            self.error = nil
+        } catch {
+            self.error = error
+        }
     }
 
     deinit {
