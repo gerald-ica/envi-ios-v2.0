@@ -77,13 +77,7 @@ public final class FeatureFlags {
     /// Remote Config key: `"connectorsUseMockOAuth"`. Setting it at runtime
     /// lets us flip the mock path on in prod as an emergency brake if a
     /// broker deploy breaks (e.g. provider outage, secret rotation gap).
-    public var connectorsUseMockOAuth: Bool = {
-        #if DEBUG
-        return true
-        #else
-        return false
-        #endif
-    }()
+    public var connectorsUseMockOAuth: Bool = false
 
     // MARK: - TikTok Connector (Phase 08)
 
@@ -102,13 +96,7 @@ public final class FeatureFlags {
     /// broker deploy regresses. Works together with
     /// `connectorsUseMockOAuth`: BOTH flags' conditions must be satisfied
     /// (mock off, connector on) for the real path to run.
-    public var useTikTokConnector: Bool = {
-        #if DEBUG
-        return false
-        #else
-        return true
-        #endif
-    }()
+    public var useTikTokConnector: Bool = true
 
     // MARK: - X Connector (Phase 09)
 
@@ -123,13 +111,7 @@ public final class FeatureFlags {
     /// Remote Config key: `"useXConnector"`. Flip to `false` in prod as an
     /// emergency brake if X has an outage or we hit a rate-limit wall
     /// that needs a broader fix.
-    public var useXConnector: Bool = {
-        #if DEBUG
-        return false
-        #else
-        return true
-        #endif
-    }()
+    public var useXConnector: Bool = true
 
     // MARK: - Meta Family (Phase 10)
 
