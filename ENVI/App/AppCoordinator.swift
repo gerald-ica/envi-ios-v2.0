@@ -82,9 +82,16 @@ final class AppCoordinator: ParentCoordinator {
             try? AuthManager.shared.signOut()
             Task { await PurchaseManager.shared.logOut() }
             TelemetryManager.shared.track(.authSignedOut)
+            // Phase 15-03: drop any stashed deep link on sign-out so
+            // it doesn't fire after the next sign-in lands in a
+            // different session.
+            Task { @MainActor in PendingDeepLinkStore.shared.reset() }
             self?.showSignIn()
         }
         navigationController.setViewControllers([tabBar], animated: true)
+        // Phase 15-03: main tab bar is now on screen — replay any
+        // deep link that arrived while we were on Splash/SignIn.
+        Task { @MainActor in PendingDeepLinkStore.shared.markMainAppReady() }
     }
 
     private func syncPurchasesWithAuth() {

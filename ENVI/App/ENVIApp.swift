@@ -44,13 +44,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {}
 
-    // MARK: - URL Handling (OAuth callback + Google Sign-In)
+    // MARK: - URL Handling (OAuth callback + DeepLinkRouter + Google Sign-In)
     //
     // Phase 06-04 — incoming `enviapp://oauth-callback/{provider}?...` URLs
-    // are dispatched to `OAuthCallbackHandler.handle(_:)` first. Anything
-    // that doesn't match the OAuth callback shape falls through to Google
-    // Sign-In's existing handler. This mirrors the pattern a SwiftUI app
-    // would express via `.onOpenURL { OAuthCallbackHandler.handle($0) }`.
+    // are dispatched to `OAuthCallbackHandler.handle(_:)` first.
+    //
+    // Phase 15-03 — non-OAuth `enviapp://destination/*` URLs are parsed by
+    // `DeepLinkRouter` and dispatched through `AppRouter.shared`. If the
+    // app isn't yet showing the main tab bar (still on Splash/SignIn),
+    // the destination is stashed as a pending deep link and replayed
+    // once the main tab bar appears.
+    //
+    // Anything that doesn't match either shape falls through to Google
+    // Sign-In's existing handler.
     func application(_ app: UIApplication, open url: URL,
                      options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         switch OAuthCallbackHandler.handle(url) {
@@ -62,6 +68,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         case .unrelated:
             break
         }
+
+        // Phase 15-03: router-aware destination URLs.
+        if let destination = DeepLinkRouter.destination(from: url) {
+            TelemetryManager.shared.track(.deepLinkRouted, parameters: [
+                "destination": destination.id
+            ])
+            PendingDeepLinkStore.shared.dispatchOrStore(destination)
+            return true
+        }
+
         return GIDSignIn.sharedInstance.handle(url)
     }
 }
