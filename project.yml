@@ -96,9 +96,10 @@ targets:
       # Pre-existing ENVITests/*.swift files had only been compiled via SPM
       # (`swift test`) and have bit-rotted against the current iOS-only
       # API surface. Until Phase 19 does a test-target consolidation, the
-      # Xcode test bundle ONLY compiles the Phase 14-02 pin tests. When
+      # Xcode test bundle ONLY compiles the Phase 14 pin tests. When
       # more suites migrate, add them explicitly here.
       - path: ENVITests/FeatureFlagsAnalyticsProviderTests.swift
+      - path: ENVITests/ProfileViewModelTests.swift
     settings:
       base:
         SWIFT_VERSION: "5.0"
