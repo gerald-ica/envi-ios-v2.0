@@ -45,6 +45,31 @@ struct AppDestinationSheetResolver: View {
         case .linkedInAuthorPicker:
             LinkedInAuthorPickerSheetHost()
 
+        // MARK: - Profile-adjacent modals (Phase 16-02)
+
+        case .agency:
+            AgencySheetHost()
+
+        case .teams:
+            TeamsSheetHost()
+
+        case .commerce:
+            NavigationStack {
+                MarketplaceView()
+                    .navigationTitle("Commerce")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .preferredColorScheme(.dark)
+
+        case .experiments:
+            ExperimentsSheetHost()
+
+        case .security:
+            SecuritySheetHost()
+
+        case .notifications:
+            NotificationsSheetHost()
+
         default:
             // Phase 16-02+ will fill the remaining arms: admin,
             // agency, brandKit, campaigns, commerce, community,
@@ -219,6 +244,71 @@ private struct LinkedInAuthorPickerSheetHost: View {
             onSelect: { _ in },
             onDismiss: { dismiss() }
         )
+    }
+}
+
+// MARK: - Profile-adjacent sheet hosts (Phase 16-02)
+
+/// Host for `AgencyDashboardView`. Owns a fresh `AgencyViewModel` so
+/// the sheet can be surfaced from the generic router path without a
+/// parent view having to allocate one.
+private struct AgencySheetHost: View {
+    @StateObject private var viewModel = AgencyViewModel()
+    var body: some View {
+        NavigationStack {
+            AgencyDashboardView(viewModel: viewModel)
+                .navigationTitle("Agency")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct TeamsSheetHost: View {
+    @StateObject private var viewModel = TeamViewModel()
+    var body: some View {
+        NavigationStack {
+            TeamMemberView(viewModel: viewModel)
+                .navigationTitle("Teams")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct ExperimentsSheetHost: View {
+    @StateObject private var viewModel = ExperimentViewModel()
+    var body: some View {
+        NavigationStack {
+            ExperimentListView(viewModel: viewModel)
+                .navigationTitle("Experiments")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct SecuritySheetHost: View {
+    @StateObject private var viewModel = SecurityViewModel()
+    var body: some View {
+        NavigationStack {
+            AuditLogView(viewModel: viewModel)
+                .navigationTitle("Security")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct NotificationsSheetHost: View {
+    @StateObject private var viewModel = NotificationViewModel()
+    var body: some View {
+        NavigationStack {
+            NotificationListView(viewModel: viewModel)
+                .navigationTitle("Notifications")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
     }
 }
 
