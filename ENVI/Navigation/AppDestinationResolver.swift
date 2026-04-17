@@ -70,6 +70,34 @@ struct AppDestinationSheetResolver: View {
         case .notifications:
             NotificationsSheetHost()
 
+        // MARK: - AIFeatures (Phase 16-03)
+
+        case .ideation:
+            NavigationStack {
+                IdeationDashboardView()
+                    .navigationTitle("Ideation")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .preferredColorScheme(.dark)
+
+        case .aiVisualEditor:
+            AIVisualEditorSheetHost()
+
+        case .captionGenerator:
+            CaptionGeneratorSheetHost()
+
+        case .hookLibrary:
+            HookLibrarySheetHost()
+
+        case .scriptEditor:
+            ScriptEditorSheetHost()
+
+        case .styleTransfer:
+            StyleTransferSheetHost()
+
+        case .imageGenerator:
+            ImageGeneratorSheetHost()
+
         default:
             // Phase 16-02+ will fill the remaining arms: admin,
             // agency, brandKit, campaigns, commerce, community,
@@ -306,6 +334,87 @@ private struct NotificationsSheetHost: View {
         NavigationStack {
             NotificationListView(viewModel: viewModel)
                 .navigationTitle("Notifications")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+// MARK: - AIFeatures sheet hosts (Phase 16-03)
+
+/// Hosts for the AI writing suite — three views share a single
+/// `AIWritingViewModel` per sheet so prompt/caption/hook/script state
+/// stays coherent within one session. Separate VM instances per sheet
+/// because each sheet presentation is logically independent.
+
+private struct CaptionGeneratorSheetHost: View {
+    @StateObject private var viewModel = AIWritingViewModel()
+    var body: some View {
+        NavigationStack {
+            CaptionGeneratorView(viewModel: viewModel)
+                .navigationTitle("Caption Generator")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct HookLibrarySheetHost: View {
+    @StateObject private var viewModel = AIWritingViewModel()
+    var body: some View {
+        NavigationStack {
+            HookLibraryView(viewModel: viewModel)
+                .navigationTitle("Hook Library")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct ScriptEditorSheetHost: View {
+    @StateObject private var viewModel = AIWritingViewModel()
+    var body: some View {
+        NavigationStack {
+            ScriptEditorView(viewModel: viewModel)
+                .navigationTitle("Script Editor")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+/// Hosts for the AI visual suite (three views share AIVisualViewModel).
+
+private struct AIVisualEditorSheetHost: View {
+    @StateObject private var viewModel = AIVisualViewModel()
+    var body: some View {
+        NavigationStack {
+            AIVisualEditorView(viewModel: viewModel)
+                .navigationTitle("AI Visual Editor")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct StyleTransferSheetHost: View {
+    @StateObject private var viewModel = AIVisualViewModel()
+    var body: some View {
+        NavigationStack {
+            StyleTransferView(viewModel: viewModel)
+                .navigationTitle("Style Transfer")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct ImageGeneratorSheetHost: View {
+    @StateObject private var viewModel = AIVisualViewModel()
+    var body: some View {
+        NavigationStack {
+            ImageGeneratorView(viewModel: viewModel)
+                .navigationTitle("Image Generator")
                 .navigationBarTitleDisplayMode(.inline)
         }
         .preferredColorScheme(.dark)
