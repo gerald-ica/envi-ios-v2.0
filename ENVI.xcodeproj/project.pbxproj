@@ -174,6 +174,7 @@
 		5AC5E6D9F07AAA30FE6BD55F /* badge-scheduler.png in Resources */ = {isa = PBXBuildFile; fileRef = A9DFFB573BA622A0AA62381C /* badge-scheduler.png */; };
 		5AE76DC12FBA4AA6792A42DB /* XTwitterConnector+Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7034DFF74809A7C32A6B7CF /* XTwitterConnector+Models.swift */; };
 		5B1357678049398123DCC2CB /* IntegrationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D192D35EE2CE898623D4AA5C /* IntegrationRepository.swift */; };
+		5D5727D72D62B3C1AD7B9498 /* PublishingTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA4D7C4675DA2FCCDB616DB /* PublishingTabView.swift */; };
 		5DBA4A2DFECA8E293D6BB546 /* BenchmarkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF67353D7C50D0C0CAAEBD11 /* BenchmarkViewModel.swift */; };
 		5EE972F6DBC5025D4A12B548 /* TemplateTabViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBD8E964F85497454511533 /* TemplateTabViewModel.swift */; };
 		5F4569F3CC65E0EA71E69D87 /* AIVisualViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC644E1410664FAF3FCACF16 /* AIVisualViewModel.swift */; };
@@ -461,6 +462,7 @@
 		EB754680AA48BC14595DF721 /* ProfileViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9F3CF1A8E72211502286C5 /* ProfileViewModelTests.swift */; };
 		EB9D444C6E1CD9F9A24497C0 /* EnhancedChatHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A12EE0CB6360D1A1A165DA39 /* EnhancedChatHomeView.swift */; };
 		EC5B99A74CE6307ADCD826DA /* PurchaseConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21D26E56B5E2492734E2CA78 /* PurchaseConstants.swift */; };
+		EC65EBAF901D35DA977944F1 /* PublishingTabTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA673AFE179B9A35FB5A6D0 /* PublishingTabTests.swift */; };
 		EC8C9834242839B4DFCEC8C1 /* SecurityViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8E3BBB73567BC3424691B1 /* SecurityViewModel.swift */; };
 		EC976CAF321A1DF3344C1B97 /* RetentionCohortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12D902F0F33585218E93CF85 /* RetentionCohortView.swift */; };
 		ED48E916810BEDE8D3A1FBA2 /* AIWritingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52174703847837C02B8EDC17 /* AIWritingModels.swift */; };
@@ -692,6 +694,8 @@
 		5AA1FD130D2DC202A4A979F3 /* badge-analytics-pro.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "badge-analytics-pro.png"; sourceTree = "<group>"; };
 		5B2675FCAB069A010D225BF8 /* SmartCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartCollectionView.swift; sourceTree = "<group>"; };
 		5C32AEF5C5B39FB1359703E7 /* TemplatePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplatePreviewView.swift; sourceTree = "<group>"; };
+		5CA4D7C4675DA2FCCDB616DB /* PublishingTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishingTabView.swift; sourceTree = "<group>"; };
+		5CA673AFE179B9A35FB5A6D0 /* PublishingTabTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishingTabTests.swift; sourceTree = "<group>"; };
 		5D5BF877346070079C522EFC /* StyleTransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleTransferView.swift; sourceTree = "<group>"; };
 		5D5CAB86316A075F53C945B0 /* FeatureFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
 		5D7C47F4746C28DAE31D7249 /* FlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowLayout.swift; sourceTree = "<group>"; };
@@ -1874,6 +1878,7 @@
 			children = (
 				1CCC2BC16F00DD4EF2FF5AC7 /* LinkedInAuthorPickerView.swift */,
 				CBC88D50488AEB390E68988D /* LinkedInAuthorPickerViewModel.swift */,
+				5CA4D7C4675DA2FCCDB616DB /* PublishingTabView.swift */,
 			);
 			path = Publishing;
 			sourceTree = "<group>";
@@ -1886,6 +1891,7 @@
 				BC3C4E708C794534AC1DCBBD /* DeepLinkRouterTests.swift */,
 				A6EC01B9638B9C3D4E91208A /* FeatureFlagsAnalyticsProviderTests.swift */,
 				4B9F3CF1A8E72211502286C5 /* ProfileViewModelTests.swift */,
+				5CA673AFE179B9A35FB5A6D0 /* PublishingTabTests.swift */,
 			);
 			path = ENVITests;
 			sourceTree = "<group>";
@@ -2614,6 +2620,7 @@
 				5FC7DD168091970DFA0BFDF4 /* ProgressOverlayView.swift in Sources */,
 				23CE90354144DA818C27DE42 /* PublishResultsView.swift in Sources */,
 				1A8F546BBEDFA35DF315F3F6 /* PublishingManager.swift in Sources */,
+				5D5727D72D62B3C1AD7B9498 /* PublishingTabView.swift in Sources */,
 				EC5B99A74CE6307ADCD826DA /* PurchaseConstants.swift in Sources */,
 				79A7DE5C504FFC78EA176037 /* PurchaseManager.swift in Sources */,
 				7D90CBF5DC474011B137B8EF /* ReferralView.swift in Sources */,
@@ -2730,6 +2737,7 @@
 				8CC99027DA53D939333F0BE4 /* DeepLinkRouterTests.swift in Sources */,
 				D5C80AD0D02D0842E110E4B0 /* FeatureFlagsAnalyticsProviderTests.swift in Sources */,
 				EB754680AA48BC14595DF721 /* ProfileViewModelTests.swift in Sources */,
+				EC65EBAF901D35DA977944F1 /* PublishingTabTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

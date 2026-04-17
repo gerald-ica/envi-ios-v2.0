@@ -2,13 +2,17 @@ import UIKit
 import SwiftUI
 import Combine
 
-/// 3-tab controller matching Sketch "Main App" design.
+/// 4-tab controller (Phase 16-01 — widened from 3 tabs).
 ///
 /// Tab 0: For You / Gallery (swipeable content + masonry grid)
 /// Tab 1: World Explorer / AI Chat (ENVI logo center)
-/// Tab 2: Profile + Settings (circle icon)
+/// Tab 2: Publishing (schedule queue + scheduling composer)
+/// Tab 3: Profile + Settings (circle icon)
 ///
-/// Condensed pill: 164pt wide, #4A60B2 fill, 3 icons.
+/// Publishing sits BEFORE Profile so the profile/avatar icon stays
+/// rightmost — matches iOS convention for identity affordances.
+///
+/// Pill: 210pt wide, #4A60B2 fill, 4 icons (see ENVITabBar.pillWidth).
 ///
 /// Phase 15-02: owns a shared `AppRouter` instance that every tab root
 /// receives via `.environmentObject(router)`. `router.selectedTab` is
@@ -72,7 +76,16 @@ final class MainTabBarController: UIViewController {
         )
         chatExploreVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
-        // Tab 2: Profile + Settings
+        // Tab 2: Publishing (Phase 16-01)
+        // Queue dashboard + scheduler composer surface. Registered BEFORE
+        // Profile so the profile/avatar icon stays rightmost.
+        let publishingVC = UIHostingController(
+            rootView: PublishingTabView()
+                .environmentObject(router)
+        )
+        publishingVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
+
+        // Tab 3: Profile + Settings
         let profileView = ProfileView(onSignOut: { [weak self] in
             self?.onSignOut?()
         })
@@ -82,7 +95,7 @@ final class MainTabBarController: UIViewController {
         )
         profileVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
-        viewControllers = [forYouGalleryVC, chatExploreVC, profileVC]
+        viewControllers = [forYouGalleryVC, chatExploreVC, publishingVC, profileVC]
     }
 
     /// Builds Tab 0 — the For You / Gallery dual-mode view.
@@ -105,8 +118,8 @@ final class MainTabBarController: UIViewController {
 
         NSLayoutConstraint.activate([
             customTabBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            customTabBar.widthAnchor.constraint(equalToConstant: 164),
-            customTabBar.heightAnchor.constraint(equalToConstant: 64),
+            customTabBar.widthAnchor.constraint(equalToConstant: ENVITabBar.pillWidth),
+            customTabBar.heightAnchor.constraint(equalToConstant: ENVITabBar.pillHeight),
             customTabBar.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -6),
         ])
 

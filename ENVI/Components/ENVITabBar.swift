@@ -1,6 +1,8 @@
 import UIKit
 
-/// 3-pill floating tab bar matching Sketch "Main App" Tab Pill Bar symbol (164×64).
+/// 4-pill floating tab bar (Phase 16-01 widening — was 3-pill 164×64,
+/// now 210×64 to accommodate the Publishing tab while preserving the
+/// existing 45pt active-disc diameter and per-icon hit-target spacing).
 ///
 /// Per Sketch spec:
 /// - Pill fill: `#4A5FB2` (the "purple aura")
@@ -8,11 +10,17 @@ import UIKit
 ///   a luminous highlight that reads as a translucent aura
 /// - Tab 0: `shape-15` (home/feed bitmap), 30×30
 /// - Tab 1: `envi-logo` (center), 30×24.6
-/// - Tab 2: `person.fill` SF Symbol (profile placeholder)
+/// - Tab 2: `paperplane.fill` SF Symbol (Publishing, Phase 16-01)
+/// - Tab 3: `person.fill` SF Symbol (profile placeholder)
 ///
 /// When a tab is selected, a 45×45 white circle appears behind its icon and the
 /// icon tints to the pill color for contrast on the white circle.
 final class ENVITabBar: UIView {
+
+    // Phase 16-01: pill widened from 164 → 210 to fit a 4th icon slot
+    // while preserving the ~54pt-per-column rhythm (210 / 4 ≈ 52.5).
+    static let pillWidth: CGFloat = 210
+    static let pillHeight: CGFloat = 64
 
     struct Tab {
         let iconName: String?
@@ -29,6 +37,7 @@ final class ENVITabBar: UIView {
     static let defaultTabs: [Tab] = [
         Tab(iconName: nil, imageName: "shape-15", iconPointSize: 0, imageWidth: 30, imageHeight: 30, persistentDisc: false),
         Tab(iconName: nil, imageName: "envi-logo", iconPointSize: 0, imageWidth: 30, imageHeight: 25, persistentDisc: false),
+        Tab(iconName: "paperplane.fill", imageName: nil, iconPointSize: 17, imageWidth: 0, imageHeight: 0, persistentDisc: false),
         Tab(iconName: "person.fill", imageName: nil, iconPointSize: 19, imageWidth: 0, imageHeight: 0, persistentDisc: true),
     ]
 
@@ -59,7 +68,7 @@ final class ENVITabBar: UIView {
     required init?(coder: NSCoder) { fatalError() }
 
     override var intrinsicContentSize: CGSize {
-        CGSize(width: 164, height: 64)
+        CGSize(width: ENVITabBar.pillWidth, height: ENVITabBar.pillHeight)
     }
 
     override func layoutSubviews() {
@@ -167,8 +176,8 @@ final class ENVITabBar: UIView {
 
         NSLayoutConstraint.activate([
             pillBackground.centerXAnchor.constraint(equalTo: centerXAnchor),
-            pillBackground.widthAnchor.constraint(equalToConstant: 164),
-            pillBackground.heightAnchor.constraint(equalToConstant: 64),
+            pillBackground.widthAnchor.constraint(equalToConstant: ENVITabBar.pillWidth),
+            pillBackground.heightAnchor.constraint(equalToConstant: ENVITabBar.pillHeight),
             pillBackground.topAnchor.constraint(equalTo: topAnchor),
             pillBackground.bottomAnchor.constraint(equalTo: bottomAnchor),
 
