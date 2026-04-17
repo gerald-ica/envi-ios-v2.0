@@ -5,6 +5,11 @@ import SwiftUI
 enum ExploreMode: String, CaseIterable {
     case explore = "EXPLORE"
     case chat = "CHAT"
+    // Phase 16-03 — "AI" mode surfaces the 7 AIFeatures views via
+    // AIToolsMenuView. Each card in the menu routes through
+    // router.present(.destination) so the views open as sheets
+    // resolved by AppDestinationSheetResolver.
+    case ai = "AI"
 }
 
 // MARK: - ChatExploreView
@@ -24,25 +29,39 @@ struct ChatExploreView: View {
     var body: some View {
         ZStack(alignment: .top) {
             ZStack {
-                if selectedMode == .explore {
+                switch selectedMode {
+                case .explore:
                     WorldExplorerView(onSuggestionClick: { prompt in
                         seededChatPrompt = prompt
                         withAnimation(.easeInOut(duration: 0.3)) {
                             selectedMode = .chat
                         }
                     })
-                        .transition(
-                            .asymmetric(
-                                insertion: .opacity.combined(with: .offset(x: -20)),
-                                removal: .opacity.combined(with: .offset(x: -20))
-                            )
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.combined(with: .offset(x: -20)),
+                            removal: .opacity.combined(with: .offset(x: -20))
                         )
-                } else {
+                    )
+
+                case .chat:
                     EnhancedChatView(seedPrompt: $seededChatPrompt)
                         .transition(
                             .asymmetric(
                                 insertion: .opacity.combined(with: .offset(x: 20)),
                                 removal: .opacity.combined(with: .offset(x: 20))
+                            )
+                        )
+
+                case .ai:
+                    // Phase 16-03 — AI toolbelt mode. Sibling to the
+                    // WorldExplorer ↔ Chat pair. Each card in the grid
+                    // routes via router.present(.destination).
+                    AIToolsMenuView()
+                        .transition(
+                            .asymmetric(
+                                insertion: .opacity.combined(with: .offset(y: 20)),
+                                removal: .opacity.combined(with: .offset(y: 20))
                             )
                         )
                 }
