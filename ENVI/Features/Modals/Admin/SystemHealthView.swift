@@ -1,26 +1,26 @@
 import SwiftUI
 
 /// System health dashboard with real-time status indicators (ENVI-0956..0960).
+///
+/// Phase 19 Plan 01 — repo-in-view anti-pattern removed; now backed by
+/// `SystemHealthViewModel`.
 struct SystemHealthView: View {
 
-    @State private var metrics: [SystemHealthMetric] = []
-    @State private var isLoading = true
+    @StateObject private var viewModel: SystemHealthViewModel
     @Environment(\.colorScheme) private var colorScheme
 
-    private let repository = AdminRepositoryProvider.shared.repository
-
-    private var overallStatus: HealthStatus {
-        if metrics.contains(where: { $0.status == .critical }) { return .critical }
-        if metrics.contains(where: { $0.status == .degraded }) { return .degraded }
-        return .healthy
+    init(viewModel: SystemHealthViewModel? = nil) {
+        _viewModel = StateObject(wrappedValue: viewModel ?? SystemHealthViewModel())
     }
 
     var body: some View {
         ScrollView {
             VStack(spacing: ENVISpacing.xxl) {
                 header
-                if isLoading {
+                if viewModel.isLoading {
                     ENVILoadingState()
+                } else if let message = viewModel.errorMessage {
+                    ENVIErrorBanner(message: message)
                 } else {
                     overallBanner
                     metricsGrid
@@ -29,7 +29,7 @@ struct SystemHealthView: View {
             .padding(.vertical, ENVISpacing.xl)
         }
         .background(ENVITheme.background(for: colorScheme))
-        .task { await loadHealth() }
+        .task { await viewModel.load() }
     }
 
     // MARK: - Header
@@ -52,28 +52,28 @@ struct SystemHealthView: View {
 
     private var overallBanner: some View {
         HStack(spacing: ENVISpacing.md) {
-            Image(systemName: overallStatus.iconName)
+            Image(systemName: viewModel.overallStatus.iconName)
                 .font(.system(size: 28))
-                .foregroundColor(statusColor(for: overallStatus))
+                .foregroundColor(statusColor(for: viewModel.overallStatus))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Overall Status")
                     .font(.interRegular(12))
                     .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
 
-                Text(overallStatus.displayName.uppercased())
+                Text(viewModel.overallStatus.displayName.uppercased())
                     .font(.spaceMonoBold(18))
-                    .foregroundColor(statusColor(for: overallStatus))
+                    .foregroundColor(statusColor(for: viewModel.overallStatus))
             }
 
             Spacer()
 
-            Text("\(metrics.filter { $0.status == .healthy }.count)/\(metrics.count)")
+            Text("\(viewModel.healthyCount)/\(viewModel.metrics.count)")
                 .font(.spaceMonoBold(14))
                 .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
         }
         .padding(ENVISpacing.lg)
-        .background(statusColor(for: overallStatus).opacity(0.1))
+        .background(statusColor(for: viewModel.overallStatus).opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
         .padding(.horizontal, ENVISpacing.xl)
     }
@@ -87,7 +87,7 @@ struct SystemHealthView: View {
         ]
 
         return LazyVGrid(columns: columns, spacing: ENVISpacing.md) {
-            ForEach(metrics) { metric in
+            ForEach(viewModel.metrics) { metric in
                 metricCard(metric)
             }
         }
@@ -150,13 +150,6 @@ struct SystemHealthView: View {
         case .degraded: return .orange
         case .critical: return .red
         }
-    }
-
-    // MARK: - Actions
-
-    private func loadHealth() async {
-        defer { isLoading = false }
-        metrics = (try? await repository.fetchSystemHealth()) ?? []
     }
 }
 

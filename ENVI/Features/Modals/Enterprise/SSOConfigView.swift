@@ -1,32 +1,41 @@
 import SwiftUI
 
 /// Enterprise SSO provider setup with domain mapping and SAML metadata (ENVI-0976..0978).
+///
+/// Phase 19 Plan 01 — repo-in-view anti-pattern removed; now backed by
+/// `SSOConfigViewModel`.
 struct SSOConfigView: View {
 
+    @StateObject private var viewModel: SSOConfigViewModel
     @Environment(\.colorScheme) private var colorScheme
-    @State private var config: SSOConfig = .mock
-    @State private var scimConfig: SCIMConfig = .mock
-    @State private var isLoading = true
-    @State private var isSaving = false
     @State private var newMetaKey = ""
     @State private var newMetaValue = ""
 
-    private let repository: EnterpriseRepository = EnterpriseRepositoryProvider.shared.repository
+    init(viewModel: SSOConfigViewModel? = nil) {
+        _viewModel = StateObject(wrappedValue: viewModel ?? SSOConfigViewModel())
+    }
 
     var body: some View {
         ScrollView {
             VStack(spacing: ENVISpacing.xxl) {
                 header
-                providerSection
-                domainSection
-                metadataSection
-                scimSection
-                saveButton
+                if viewModel.isLoading {
+                    ENVILoadingState()
+                } else {
+                    if let message = viewModel.errorMessage {
+                        ENVIErrorBanner(message: message)
+                    }
+                    providerSection
+                    domainSection
+                    metadataSection
+                    scimSection
+                    saveButton
+                }
             }
             .padding(.vertical, ENVISpacing.xl)
         }
         .background(ENVITheme.background(for: colorScheme))
-        .task { await loadConfig() }
+        .task { await viewModel.load() }
     }
 
     // MARK: - Header
@@ -64,7 +73,7 @@ struct SSOConfigView: View {
 
     private func providerChip(_ provider: SSOProvider) -> some View {
         Button {
-            config.provider = provider
+            viewModel.config.provider = provider
         } label: {
             HStack(spacing: ENVISpacing.xs) {
                 Image(systemName: provider.iconName)
@@ -75,12 +84,12 @@ struct SSOConfigView: View {
             .padding(.horizontal, ENVISpacing.md)
             .padding(.vertical, ENVISpacing.sm)
             .background(
-                config.provider == provider
+                viewModel.config.provider == provider
                     ? ENVITheme.text(for: colorScheme)
                     : ENVITheme.surfaceLow(for: colorScheme)
             )
             .foregroundColor(
-                config.provider == provider
+                viewModel.config.provider == provider
                     ? ENVITheme.background(for: colorScheme)
                     : ENVITheme.textSecondary(for: colorScheme)
             )
@@ -95,11 +104,11 @@ struct SSOConfigView: View {
             sectionLabel("DOMAIN")
 
             HStack(spacing: ENVISpacing.sm) {
-                TextField("e.g. acme.com", text: $config.domain)
+                TextField("e.g. acme.com", text: $viewModel.config.domain)
                     .font(.interRegular(14))
                     .foregroundColor(ENVITheme.text(for: colorScheme))
 
-                Toggle("", isOn: $config.isEnabled)
+                Toggle("", isOn: $viewModel.config.isEnabled)
                     .labelsHidden()
                     .tint(ENVITheme.success)
             }
@@ -116,8 +125,8 @@ struct SSOConfigView: View {
         VStack(alignment: .leading, spacing: ENVISpacing.sm) {
             sectionLabel("SAML METADATA")
 
-            ForEach(Array(config.metadata.keys.sorted()), id: \.self) { key in
-                metadataRow(key: key, value: config.metadata[key] ?? "")
+            ForEach(Array(viewModel.config.metadata.keys.sorted()), id: \.self) { key in
+                metadataRow(key: key, value: viewModel.config.metadata[key] ?? "")
             }
 
             HStack(spacing: ENVISpacing.sm) {
@@ -127,8 +136,7 @@ struct SSOConfigView: View {
                     .font(.interRegular(13))
 
                 Button {
-                    guard !newMetaKey.isEmpty else { return }
-                    config.metadata[newMetaKey] = newMetaValue
+                    viewModel.addMetadata(key: newMetaKey, value: newMetaValue)
                     newMetaKey = ""
                     newMetaValue = ""
                 } label: {
@@ -171,7 +179,7 @@ struct SSOConfigView: View {
                         .font(.interMedium(13))
                         .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                     Spacer()
-                    Text(scimConfig.endpoint)
+                    Text(viewModel.scimConfig.endpoint)
                         .font(.spaceMono(11))
                         .foregroundColor(ENVITheme.text(for: colorScheme))
                         .lineLimit(1)
@@ -182,7 +190,7 @@ struct SSOConfigView: View {
                         .font(.interMedium(13))
                         .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
                     Spacer()
-                    Toggle("", isOn: $scimConfig.syncEnabled)
+                    Toggle("", isOn: $viewModel.scimConfig.syncEnabled)
                         .labelsHidden()
                         .tint(ENVITheme.success)
                 }
@@ -198,14 +206,14 @@ struct SSOConfigView: View {
 
     private var saveButton: some View {
         Button {
-            Task { await saveConfig() }
+            Task { await viewModel.save() }
         } label: {
             HStack(spacing: ENVISpacing.sm) {
-                if isSaving {
+                if viewModel.isSaving {
                     ProgressView()
                         .tint(ENVITheme.background(for: colorScheme))
                 }
-                Text(isSaving ? "SAVING..." : "SAVE CONFIGURATION")
+                Text(viewModel.isSaving ? "SAVING..." : "SAVE CONFIGURATION")
                     .font(.spaceMonoBold(14))
             }
             .frame(maxWidth: .infinity)
@@ -214,7 +222,7 @@ struct SSOConfigView: View {
             .foregroundColor(ENVITheme.background(for: colorScheme))
             .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
         }
-        .disabled(isSaving)
+        .disabled(viewModel.isSaving)
         .padding(.horizontal, ENVISpacing.xl)
     }
 
@@ -226,21 +234,5 @@ struct SSOConfigView: View {
             .tracking(1)
             .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
             .padding(.horizontal, ENVISpacing.xl)
-    }
-
-    private func loadConfig() async {
-        do {
-            async let sso = repository.fetchSSOConfig()
-            async let scim = repository.fetchSCIMConfig()
-            config = try await sso
-            scimConfig = try await scim
-        } catch {}
-        isLoading = false
-    }
-
-    private func saveConfig() async {
-        isSaving = true
-        _ = try? await repository.updateSSOConfig(config)
-        isSaving = false
     }
 }

@@ -1,27 +1,36 @@
 import SwiftUI
 
 /// Enterprise contract cards with renewal status, seat count, and value (ENVI-0981..0984).
+///
+/// Phase 19 Plan 01 — repo-in-view anti-pattern removed; now backed by
+/// `ContractManagerViewModel`.
 struct ContractManagerView: View {
 
+    @StateObject private var viewModel: ContractManagerViewModel
     @Environment(\.colorScheme) private var colorScheme
-    @State private var contracts: [EnterpriseContract] = []
-    @State private var certifications: [ComplianceCertification] = []
-    @State private var isLoading = true
 
-    private let repository: EnterpriseRepository = EnterpriseRepositoryProvider.shared.repository
+    init(viewModel: ContractManagerViewModel? = nil) {
+        _viewModel = StateObject(wrappedValue: viewModel ?? ContractManagerViewModel())
+    }
 
     var body: some View {
         ScrollView {
             VStack(spacing: ENVISpacing.xxl) {
                 header
-                summaryRow
-                contractList
-                complianceSection
+                if viewModel.isLoading {
+                    ENVILoadingState()
+                } else if let message = viewModel.errorMessage {
+                    ENVIErrorBanner(message: message)
+                } else {
+                    summaryRow
+                    contractList
+                    complianceSection
+                }
             }
             .padding(.vertical, ENVISpacing.xl)
         }
         .background(ENVITheme.background(for: colorScheme))
-        .task { await loadData() }
+        .task { await viewModel.load() }
     }
 
     // MARK: - Header
@@ -46,17 +55,17 @@ struct ContractManagerView: View {
         HStack(spacing: ENVISpacing.md) {
             summaryPill(
                 label: "TOTAL SEATS",
-                value: "\(contracts.reduce(0) { $0 + $1.seats })",
+                value: "\(viewModel.totalSeats)",
                 icon: "person.2.fill"
             )
             summaryPill(
                 label: "ACTIVE",
-                value: "\(contracts.filter { $0.renewalStatus == .active }.count)",
+                value: "\(viewModel.activeCount)",
                 icon: "checkmark.circle.fill"
             )
             summaryPill(
                 label: "RENEWALS",
-                value: "\(contracts.filter { $0.renewalStatus == .pendingRenewal }.count)",
+                value: "\(viewModel.renewalCount)",
                 icon: "arrow.clockwise"
             )
         }
@@ -88,7 +97,7 @@ struct ContractManagerView: View {
         VStack(alignment: .leading, spacing: ENVISpacing.sm) {
             sectionLabel("CLIENT CONTRACTS")
 
-            ForEach(contracts) { contract in
+            ForEach(viewModel.contracts) { contract in
                 contractCard(contract)
             }
         }
@@ -179,7 +188,7 @@ struct ContractManagerView: View {
         VStack(alignment: .leading, spacing: ENVISpacing.sm) {
             sectionLabel("COMPLIANCE CERTIFICATIONS")
 
-            ForEach(certifications) { cert in
+            ForEach(viewModel.certifications) { cert in
                 certificationRow(cert)
             }
         }
@@ -235,15 +244,5 @@ struct ContractManagerView: View {
             .tracking(1)
             .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
             .padding(.horizontal, ENVISpacing.xl)
-    }
-
-    private func loadData() async {
-        do {
-            async let c = repository.fetchContracts()
-            async let certs = repository.fetchCertifications()
-            contracts = try await c
-            certifications = try await certs
-        } catch {}
-        isLoading = false
     }
 }
