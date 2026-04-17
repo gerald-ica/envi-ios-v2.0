@@ -321,9 +321,9 @@ Plans:
 **Plans:** TBD (3 expected)
 
 Plans:
-- [ ] 17-01: `GrowthViewModel` + bind `GrowthRepository` → `GrowthDashboardView`, `ReferralView`
-- [ ] 17-02: `SupportViewModel` + bind `SupportRepository` → `SupportCenterView`
-- [ ] 17-03: `EducationViewModel` + bind `EducationRepository` → `TutorialListView`, `AchievementsView`
+- [x] 17-01: `GrowthViewModel` + bind `GrowthRepository` → `GrowthDashboardView`, `ReferralView`
+- [x] 17-02: `SupportViewModel` + bind `SupportRepository` → `SupportCenterView`
+- [x] 17-03: `EducationViewModel` + bind `EducationRepository` → `TutorialListView`, `AchievementsView`
 
 #### Phase 18: p3-dead-action-fixes
 
@@ -378,6 +378,6 @@ Phases execute in numeric order within each milestone.
 | 14. p0-analytics-unmock-profile-bind | v1.2 | 3/3 | Complete | 2026-04-17 |
 | 15. p1-routing-layer | v1.2 | 3/3 | Complete | 2026-04-17 |
 | 16. p1-publishing-tab-modal-entry-points-aifeatures | v1.2 | 4/4 | Complete | 2026-04-17 |
-| 17. p2-mock-to-repo-swaps | v1.2 | 0/3 | Not started | - |
+| 17. p2-mock-to-repo-swaps | v1.2 | 3/3 | Complete | 2026-04-17 |
 | 18. p3-dead-action-fixes | v1.2 | 0/3 | Not started | - |
 | 19. p4-hygiene | v1.2 | 0/5 | Not started | - |

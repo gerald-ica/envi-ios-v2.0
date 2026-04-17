@@ -3,11 +3,11 @@
 ## Current Position
 
 Milestone: **v1.2 Frontend Audit Fixes**
-Phase: **16 of 19** complete, ready to plan Phase 17
+Phase: **17 of 19** complete, ready to plan Phase 18
 Plan: Not started
-Status: Phase 16 complete; ready to plan Phase 17 (p2-mock-to-repo-swaps)
-Last activity: 2026-04-17 — Phase 16 complete (4/4 plans shipped): Publishing 4th tab live, 23 orphan surfaces routable via AppRouter, admin/enterprise gating behind FeatureFlags.showAdminTools
-Progress: ▓▓▓░░░░░░░ ~50% (3 of 6 phases complete)
+Status: Phase 17 complete; ready to plan Phase 18 (p3-dead-action-fixes)
+Last activity: 2026-04-17 — Phase 17 complete (3/3 plans shipped): 5 previously-mocked views (GrowthDashboard, Referral, SupportCenter, TutorialList, Achievements) now repo-driven via Growth/Support/Education ViewModels; 3 repos no longer ORPHAN
+Progress: ▓▓▓▓░░░░░░ ~67% (4 of 6 phases complete)
 
 ### v1.1 status (carried forward)
 
@@ -72,9 +72,10 @@ firebase deploy --only functions,firestore:rules,firestore:indexes
 - 2026-04-17: Phase 14 complete — analytics live, Profile bound to real user. FirebaseFirestore + FirebaseRemoteConfig linked via SPM (resolves v1.1 blocker #7). `connectorsInsightsLive` default flipped to `true` with 7 XCTests pinning provider behavior. `ProfileViewModel` hydrates from `AuthManager.currentUser()` (new bridge extension); `User.mock` confined to Preview/Debug paths with 2 new XCTests.
 - 2026-04-17: Phase 15 complete — routing layer shipped. `AppDestination` enum (35 cases) + `AppRouter` ObservableObject (published sheet/fullScreen/pushStack/selectedTab with two-way `MainTabBarController` sync) + `AppDestinationResolver` struct with 4 wired arms (Phase 16 fills remainder). Four inline `.sheet(isPresented:)` call sites migrated from bool state to `router.present(...)` in ForYouGalleryContainerView and ChatExploreView. `DeepLinkRouter` parses `enviapp://destination/{caseName}[?id=…]` URLs through a one-line-change registry; `PendingDeepLinkStore` replays deep links that arrive pre-Splash. `AppDelegate.application(_:open:)` patched — OAuth callback path byte-for-byte preserved. TelemetryManager gained `deepLinkRouted` + `deepLinkMalformed` events. 14 new XCTests (6 AppRouter + 2 integration + 6 DeepLinkRouter) bring the Xcode test bundle to 23 passing.
 - 2026-04-17: Phase 16 complete — 23 orphan surfaces now routable via AppRouter. 16-01: Publishing promoted to the 4th tab (`PublishingTabView` hosts `ScheduleQueueView`, ENVITabBar widened 164→210pt). 16-02: 6 new Profile/Settings rows (Agency, Teams, Commerce, Experiments, Security, Notifications) route via `router.present`. 16-03: `AIToolsMenuView` (2-col grid) added as a third `.ai` mode in ChatExploreView's mode-switcher, surfacing 7 AIFeatures views (Ideation + Caption/Hook/Script over AIWritingViewModel + Image/Style/Visual over AIVisualViewModel). 16-04: `LibraryToolsMenu` (3 sections, 7 visible + 2 admin-gated tools — BrandKit, Metadata, Repurposing, Campaigns, Collaboration, Community, Search + Admin, Enterprise); `FeatureFlags.showAdminTools` defaults false. AppDestination grew from 35→39 cases (schedulePost, publishResults, linkedInAuthorPicker, libraryTools). 23 new pin tests (Xcode bundle 23→46 passing). 18 atomic commits across the 4 plans.
+- 2026-04-17: Phase 17 complete — 5 previously-mocked views (GrowthDashboard, Referral, SupportCenter, TutorialList, Achievements) now repo-driven via 3 new ViewModels (GrowthViewModel / SupportViewModel / EducationViewModel); 3 repos no longer ORPHAN (Growth, Support, Education). 17-01: `GrowthViewModel` loads metrics + viral loops + shareable assets via `async let` + referral program + invites; `sendInvite(email:)` action flows through `GrowthRepository.sendInvite(...)` updating state on success. 17-02: `SupportViewModel` loads tickets + FAQs + health score via `async let`; `submitTicket(...)` flows through `SupportRepository.createTicket(...)` so the repo sees writes. 17-03: `EducationViewModel` loads tutorials + learning paths + achievements; coaching tips protocol method left wired only in the test double (no live consumer yet). House pattern fixed: class is non-`@MainActor`, methods are; `@Published` state + repo-injected init + `#if DEBUG` `preview()` helper for SwiftUI Previews; no silent mock fallback on error — `errorMessage` surfaces and views render `ENVIErrorBanner`. 10 new XCTests across the 3 VMs (Xcode bundle 46→56 passing). 12 atomic commits across the 3 plans (17-02 recovered from a partial state — feat 0783f93 had landed pre-recovery; view refactor + summary landed in recovery session).
 
 ## Session Continuity
 
 Last session: 2026-04-17
-Stopped at: Phase 16 complete (all 4 plans shipped). Ready to plan Phase 17 (p2-mock-to-repo-swaps).
+Stopped at: Phase 17 complete (all 3 plans shipped). Ready to plan Phase 18 (p3-dead-action-fixes).
 Resume file: None
