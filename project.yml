@@ -107,6 +107,12 @@ targets:
       - path: ENVITests/Phase16Plan02SettingsEntryPointsTests.swift
       - path: ENVITests/AIToolsMenuTests.swift
       - path: ENVITests/LibraryToolsMenuTests.swift
+      - path: ENVITests/GrowthViewModelTests.swift
+      - path: ENVITests/SupportViewModelTests.swift
+      - path: ENVITests/EducationViewModelTests.swift
+      - path: ENVITests/FeedDetailBookmarkTests.swift
+      - path: ENVITests/TemplateTabActionsTests.swift
+      - path: ENVITests/Phase19Plan01RepoInViewRefactorTests.swift
     settings:
       base:
         SWIFT_VERSION: "5.0"
