@@ -82,6 +82,10 @@ targets:
       - package: Firebase
         product: FirebaseAppCheck
       - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseRemoteConfig
+      - package: Firebase
         product: FirebaseCore
       - package: GoogleSignIn
         product: GoogleSignIn

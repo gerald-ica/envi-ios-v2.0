@@ -121,9 +121,10 @@ final class FirestoreBackedAdvancedAnalyticsRepository: AdvancedAnalyticsReposit
             let ageBuckets = monthly.audienceAge ?? [:]
             let genderBuckets = monthly.audienceGender ?? [:]
             let countryBuckets = monthly.audienceCountry ?? [:]
-            let total = Double(ageBuckets.values.reduce(0, +) +
-                               genderBuckets.values.reduce(0, +) +
-                               countryBuckets.values.reduce(0, +))
+            let ageSum: Int = ageBuckets.values.reduce(0, +)
+            let genderSum: Int = genderBuckets.values.reduce(0, +)
+            let countrySum: Int = countryBuckets.values.reduce(0, +)
+            let total = Double(ageSum + genderSum + countrySum)
             let denom = max(total, 1)
             for (age, value) in ageBuckets {
                 for (gender, gvalue) in genderBuckets {

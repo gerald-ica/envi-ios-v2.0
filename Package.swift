@@ -15,6 +15,8 @@
 //   ├── FirebaseAnalytics  — Product analytics and event tracking
 //   ├── FirebaseCrashlytics — Crash reporting and diagnostics
 //   ├── FirebaseAppCheck   — Attestation for Cloud Functions broker (Phase 06-07)
+//   ├── FirebaseFirestore  — Firestore-backed analytics insights (Phase 13-14)
+//   ├── FirebaseRemoteConfig — Remote feature-flag control (Phase 14)
 //   └── FirebaseCore       — Firebase SDK foundation
 //
 import PackageDescription
@@ -46,6 +48,8 @@ let package = Package(
                 .product(name: "FirebaseAnalytics", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCrashlytics", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseAppCheck", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseFirestore", package: "firebase-ios-sdk"),
+                .product(name: "FirebaseRemoteConfig", package: "firebase-ios-sdk"),
                 .product(name: "FirebaseCore", package: "firebase-ios-sdk"),
                 .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
             ],
