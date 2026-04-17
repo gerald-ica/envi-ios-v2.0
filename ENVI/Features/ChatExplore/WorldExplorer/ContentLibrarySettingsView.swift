@@ -18,6 +18,33 @@ struct ContentLibrarySettingsView: View {
     @State private var showStories: Bool = true
     @State private var showReels: Bool = true
 
+    // MARK: - Connect-row state (Phase 18-02)
+    //
+    // Drives the YouTube / X / LinkedIn CONNECT buttons that used to be
+    // `Button {} label: { ... }` no-ops. Mirrors the `inFlight` +
+    // `connectedPlatforms` pattern from `ConnectedAccountsViewModel`
+    // without reaching for a full VM — the settings sheet only needs
+    // per-row booleans, not the wider Connected-Accounts dashboard state.
+
+    /// Platform currently undergoing a connect. Drives the "CONNECTING…"
+    /// label flip and disables the button while in-flight.
+    @State private var connectingPlatform: SocialPlatform?
+
+    /// Platforms we believe are connected. Seeded with Instagram + TikTok
+    /// to match the current design's mock state, updated when a successful
+    /// connect returns. Kept as a `Set<SocialPlatform>` so the row builder
+    /// can ask `connectedPlatforms.contains(.x)` without a lookup table.
+    @State private var connectedPlatforms: Set<SocialPlatform> = [.instagram, .tiktok]
+
+    /// Most recent connect error — surfaced under the Connected Accounts
+    /// section. Cleared on the next successful connect.
+    @State private var connectErrorMessage: String?
+
+    /// Injected OAuth entry point. Defaults to `SocialOAuthManager.shared`
+    /// (the same instance `ConnectedAccountsViewModel` uses); tests swap
+    /// in a recording subclass.
+    var oauth: SocialOAuthManager = .shared
+
     /// Local picker option — maps to ContentSource without shadowing it.
     enum SourceOption: String, CaseIterable {
         case photoLibrary = "Photo Library"
@@ -142,11 +169,38 @@ struct ContentLibrarySettingsView: View {
                     sectionHeader("CONNECTED ACCOUNTS")
 
                     VStack(spacing: ENVISpacing.sm) {
-                        connectedAccountRow(platform: "Instagram", icon: "camera", connected: true)
-                        connectedAccountRow(platform: "TikTok", icon: "music.note", connected: true)
-                        connectedAccountRow(platform: "YouTube", icon: "play.rectangle", connected: false)
-                        connectedAccountRow(platform: "X / Twitter", icon: "bubble.left", connected: false)
-                        connectedAccountRow(platform: "LinkedIn", icon: "briefcase", connected: false)
+                        connectedAccountRow(
+                            platform: .instagram,
+                            label: "Instagram",
+                            icon: "camera"
+                        )
+                        connectedAccountRow(
+                            platform: .tiktok,
+                            label: "TikTok",
+                            icon: "music.note"
+                        )
+                        connectedAccountRow(
+                            platform: .youtube,
+                            label: "YouTube",
+                            icon: "play.rectangle"
+                        )
+                        connectedAccountRow(
+                            platform: .x,
+                            label: "X / Twitter",
+                            icon: "bubble.left"
+                        )
+                        connectedAccountRow(
+                            platform: .linkedin,
+                            label: "LinkedIn",
+                            icon: "briefcase"
+                        )
+
+                        if let error = connectErrorMessage {
+                            Text(error)
+                                .font(.spaceMono(10))
+                                .foregroundColor(Color(hex: "#F87171").opacity(0.9))
+                                .padding(.top, ENVISpacing.xs)
+                        }
                     }
                     .padding(.bottom, ENVISpacing.xxxl)
 
@@ -219,14 +273,26 @@ struct ContentLibrarySettingsView: View {
             .padding(.bottom, ENVISpacing.xxl)
     }
 
-    private func connectedAccountRow(platform: String, icon: String, connected: Bool) -> some View {
-        HStack(spacing: ENVISpacing.md) {
+    /// Single row in the Connected Accounts section. Drives the connection
+    /// state machine off `connectedPlatforms` + `connectingPlatform` and
+    /// routes CONNECT taps through `SocialOAuthManager.connect(platform:)`
+    /// — the same entry point `ConnectedAccountsViewModel` uses for the
+    /// Settings > Connected Accounts dashboard.
+    private func connectedAccountRow(
+        platform: SocialPlatform,
+        label: String,
+        icon: String
+    ) -> some View {
+        let connected = connectedPlatforms.contains(platform)
+        let isConnecting = connectingPlatform == platform
+
+        return HStack(spacing: ENVISpacing.md) {
             Image(systemName: icon)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(connected ? .white.opacity(0.7) : .white.opacity(0.3))
                 .frame(width: 20)
 
-            Text(platform.uppercased())
+            Text(label.uppercased())
                 .font(.spaceMonoBold(11))
                 .tracking(2.0)
                 .foregroundColor(connected ? .white.opacity(0.7) : .white.opacity(0.4))
@@ -244,11 +310,13 @@ struct ContentLibrarySettingsView: View {
                         .foregroundColor(Color(hex: "#4ADE80").opacity(0.7))
                 }
             } else {
-                Button {} label: {
-                    Text("CONNECT")
+                Button {
+                    connect(platform)
+                } label: {
+                    Text(isConnecting ? "CONNECTING…" : "CONNECT")
                         .font(.spaceMonoBold(9))
                         .tracking(1.5)
-                        .foregroundColor(.white.opacity(0.5))
+                        .foregroundColor(.white.opacity(isConnecting ? 0.3 : 0.5))
                         .padding(.horizontal, ENVISpacing.sm)
                         .padding(.vertical, ENVISpacing.xs)
                         .overlay(
@@ -256,6 +324,8 @@ struct ContentLibrarySettingsView: View {
                                 .strokeBorder(Color.white.opacity(0.15), lineWidth: 0.5)
                         )
                 }
+                .disabled(connectingPlatform != nil)
+                .accessibilityLabel("Connect \(label)")
             }
         }
         .padding(.vertical, ENVISpacing.md)
@@ -268,6 +338,30 @@ struct ContentLibrarySettingsView: View {
             RoundedRectangle(cornerRadius: ENVIRadius.lg)
                 .strokeBorder(Color.white.opacity(0.05), lineWidth: 0.5)
         )
+    }
+
+    /// Kick off an OAuth connect via `SocialOAuthManager`. Mirrors
+    /// `ConnectedAccountsViewModel.connect(_:)` with a single in-flight
+    /// platform slot. On success the row flips to CONNECTED; on failure
+    /// the row reverts and the error surfaces in-section.
+    func connect(_ platform: SocialPlatform) {
+        guard connectingPlatform == nil else { return }
+        connectingPlatform = platform
+        connectErrorMessage = nil
+
+        Task { @MainActor in
+            defer { connectingPlatform = nil }
+            do {
+                let connection = try await oauth.connect(platform: platform)
+                if connection.isConnected {
+                    connectedPlatforms.insert(platform)
+                }
+            } catch {
+                connectErrorMessage =
+                    (error as? LocalizedError)?.errorDescription
+                    ?? "Couldn't connect \(platform.rawValue). Try again."
+            }
+        }
     }
 
     private func contentTypeToggle(label: String, isOn: Binding<Bool>) -> some View {
