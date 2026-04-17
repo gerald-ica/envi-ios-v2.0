@@ -8,6 +8,7 @@ struct SignInView: View {
     @State private var isLoading = false
     @State private var showForgotPassword = false
     @State private var resetEmailSent = false
+    @State private var linkOnlyPlatform: SocialPlatform?
     @Environment(\.colorScheme) private var colorScheme
 
     var onSignIn: (() -> Void)?
@@ -98,6 +99,23 @@ struct SignInView: View {
             .padding(.horizontal, ENVISpacing.xl)
             .padding(.top, ENVISpacing.sm)
 
+            // Social identity providers — Meta & X sign in directly,
+            // Instagram & TikTok open an explainer sheet because they
+            // can only be linked (not used as identity) for now.
+            Text("OR CONTINUE WITH")
+                .font(.spaceMono(10))
+                .tracking(1.4)
+                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                .padding(.top, ENVISpacing.lg)
+
+            HStack(spacing: ENVISpacing.lg) {
+                SocialSignInButton(platform: .facebook) { signInWithOAuth(.facebook) }
+                SocialSignInButton(platform: .x)        { signInWithOAuth(.x) }
+                SocialSignInButton(platform: .instagram) { linkOnlyPlatform = .instagram }
+                SocialSignInButton(platform: .tiktok)    { linkOnlyPlatform = .tiktok }
+            }
+            .padding(.top, ENVISpacing.md)
+
             // ENVI-0017 Forgot Password
             Button(action: { showForgotPassword = true }) {
                 Text("Forgot password?")
@@ -131,10 +149,46 @@ struct SignInView: View {
             )
             .presentationDetents([.medium])
         }
+        .sheet(item: $linkOnlyPlatform) { platform in
+            LinkOnlyPlatformSheet(platform: platform)
+                .presentationDetents([.medium])
+        }
         .alert("Reset Email Sent", isPresented: $resetEmailSent) {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Check your inbox for a password reset link.")
+        }
+    }
+
+    private func signInWithOAuth(_ platform: SocialPlatform) {
+        guard !isLoading else { return }
+        errorMessage = nil
+        isLoading = true
+        TelemetryManager.shared.track(.authSignInStarted)
+
+        Task {
+            do {
+                switch platform {
+                case .facebook:
+                    _ = try await AuthManager.shared.signInWithFacebook()
+                case .x:
+                    _ = try await AuthManager.shared.signInWithX()
+                default:
+                    throw AuthManager.AuthError.invalidCredential
+                }
+                await MainActor.run {
+                    isLoading = false
+                    TelemetryManager.shared.track(.authSignInSucceeded)
+                    onSignIn?()
+                }
+            } catch {
+                await MainActor.run {
+                    isLoading = false
+                    errorMessage = "\(platform.rawValue) sign in failed. Please try again."
+                    TelemetryManager.shared.track(.authSignInFailed)
+                    TelemetryManager.shared.record(error: error, context: "\(platform.apiSlug)_sign_in")
+                }
+            }
         }
     }
 

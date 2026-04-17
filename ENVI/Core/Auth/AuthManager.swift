@@ -197,6 +197,60 @@ final class AuthManager: ObservableObject {
         )
     }
 
+    // MARK: - Sign In with Meta / X (Firebase OAuthProvider)
+
+    /// Sign in using Facebook as the identity provider. Uses Firebase's built-in
+    /// web-based OAuth flow (ASWebAuthenticationSession under the hood), so no
+    /// Facebook SDK dependency is required. Requires the Facebook provider to
+    /// be enabled in Firebase Console with a valid App ID + App Secret.
+    @discardableResult
+    @MainActor
+    func signInWithFacebook() async throws -> UserAuthPayload {
+        try await signInWithOAuthProvider(
+            providerID: "facebook.com",
+            scopes: ["email", "public_profile"]
+        )
+    }
+
+    /// Sign in using X (formerly Twitter) as the identity provider. Firebase
+    /// still identifies this provider as "twitter.com" for backwards
+    /// compatibility. Requires the Twitter provider to be enabled in Firebase
+    /// Console with valid API Key + Secret (OAuth 1.0a).
+    @discardableResult
+    @MainActor
+    func signInWithX() async throws -> UserAuthPayload {
+        try await signInWithOAuthProvider(providerID: "twitter.com", scopes: [])
+    }
+
+    @MainActor
+    private func signInWithOAuthProvider(
+        providerID: String,
+        scopes: [String]
+    ) async throws -> UserAuthPayload {
+        guard FirebaseApp.app() != nil else { throw AuthError.firebaseNotConfigured }
+        let provider = OAuthProvider(providerID: providerID)
+        if !scopes.isEmpty {
+            provider.scopes = scopes
+        }
+        let credential: AuthCredential = try await withCheckedThrowingContinuation { continuation in
+            provider.getCredentialWith(nil) { credential, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let credential {
+                    continuation.resume(returning: credential)
+                } else {
+                    continuation.resume(throwing: AuthError.invalidCredential)
+                }
+            }
+        }
+        let result = try await Auth.auth().signIn(with: credential)
+        return UserAuthPayload(
+            uid: result.user.uid,
+            email: result.user.email,
+            displayName: result.user.displayName
+        )
+    }
+
     // MARK: - ENVI-0009 Multi-Factor Authentication
 
     /// Enroll a phone number for SMS-based MFA.

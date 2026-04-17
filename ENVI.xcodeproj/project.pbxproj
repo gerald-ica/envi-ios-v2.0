@@ -128,6 +128,7 @@
 		3E43C63299D8B3E344D57F41 /* SSOConfigViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72908CDA8EDA6D07F6BE030B /* SSOConfigViewModel.swift */; };
 		3E67852A188383BFD7D48B62 /* TikTokConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F98C114C9D0B997D1C77C70 /* TikTokConnector.swift */; };
 		3E80B70BD9DFD39B40DCDCC7 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BCDBEB40B1FD93F8ACED9241 /* Inter-Medium.ttf */; };
+		3ECB08FA167A3F98A687662B /* SocialSignInButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6060A5223C99ED0CDE375E62 /* SocialSignInButton.swift */; };
 		408A850704C54BE457617EF8 /* PostTimeHeatmapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59A17FA15F31754DF2AAB2D0 /* PostTimeHeatmapView.swift */; };
 		42C411724052B1E8381A00BA /* bg-texture-01.png in Resources */ = {isa = PBXBuildFile; fileRef = 10C8C05A9F952BD12E9FA755 /* bg-texture-01.png */; };
 		42EC4D69C00BD6C8DF9C45FC /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 3AB72E3687B4FEA3870EF51A /* RevenueCat */; };
@@ -325,6 +326,7 @@
 		94C1A853AB4F009C3E73EB59 /* ExperimentEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19BB3B2C03C8DDCFFD0FD8D7 /* ExperimentEditorView.swift */; };
 		9513CE9F3938A8C68C45C31F /* envi-ai-confidence.png in Resources */ = {isa = PBXBuildFile; fileRef = 44B7C9F8FCCDC2710314574D /* envi-ai-confidence.png */; };
 		95904B5892E274F13A576E5F /* SavedSearchesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B1FEA5D6D5E3D7764141B4 /* SavedSearchesView.swift */; };
+		95C0F12D65C8191454A252BB /* LinkOnlyPlatformSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 930558E84169BB50CA592A41 /* LinkOnlyPlatformSheet.swift */; };
 		961A18CBDC5F57A04DF869C7 /* RepurposingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0379F9C0D69C19D89CF46A9 /* RepurposingModels.swift */; };
 		968D66B3DB2342B917DA535A /* SpaceMono-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 148D7F346BACC4356400F9C8 /* SpaceMono-Regular.ttf */; };
 		96CF7E1FC3BC5A823024C64F /* ColorGradeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3454EB0B4CA4C1F6EB0B8CF /* ColorGradeView.swift */; };
@@ -766,6 +768,7 @@
 		5F1F8128BD7EA813BD402A15 /* LibraryDAMRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryDAMRepository.swift; sourceTree = "<group>"; };
 		5F363E760E44869A4EC413C3 /* XTwitterConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XTwitterConnector.swift; sourceTree = "<group>"; };
 		5F522A535F6E1752C3301841 /* PublishResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishResultsView.swift; sourceTree = "<group>"; };
+		6060A5223C99ED0CDE375E62 /* SocialSignInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialSignInButton.swift; sourceTree = "<group>"; };
 		6065CDFA6A8BB3911BC5BFD0 /* CommunityModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityModels.swift; sourceTree = "<group>"; };
 		60C8714E30D16BDF0589F853 /* AnalyticsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsViewModel.swift; sourceTree = "<group>"; };
 		614AE1AD916DD751BCA8F804 /* GrowthViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthViewModelTests.swift; sourceTree = "<group>"; };
@@ -875,6 +878,7 @@
 		91FEDE71E4154A41FCB27841 /* culture-food.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "culture-food.jpg"; sourceTree = "<group>"; };
 		920B91CC273A9F366A28F935 /* decorative-image-generator.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "decorative-image-generator.png"; sourceTree = "<group>"; };
 		9219C202DF59C31B53B39CA7 /* NotificationListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationListView.swift; sourceTree = "<group>"; };
+		930558E84169BB50CA592A41 /* LinkOnlyPlatformSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkOnlyPlatformSheet.swift; sourceTree = "<group>"; };
 		9327EC42F304B7A30EF66FDE /* parking-garage.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "parking-garage.jpg"; sourceTree = "<group>"; };
 		936CCD825B911A3820EE6E6D /* GoogleSignInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignInButton.swift; sourceTree = "<group>"; };
 		9393C5ACF1F1CF84BCBAE68F /* ContentRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentRepository.swift; sourceTree = "<group>"; };
@@ -1783,6 +1787,7 @@
 			isa = PBXGroup;
 			children = (
 				F1342536B033EC585D4F7D43 /* CitySearchCompleter.swift */,
+				930558E84169BB50CA592A41 /* LinkOnlyPlatformSheet.swift */,
 				7BDBC5F7C6B47851F3261352 /* OnboardingBirthTimeView.swift */,
 				67BDCF0A4B1E91F1D196CEA2 /* OnboardingCoordinator.swift */,
 				C13C045ABBD72A91BF35FDB3 /* OnboardingDOBView.swift */,
@@ -2214,6 +2219,7 @@
 				29E2214E98CCA962CCCB6644 /* OAuthCallbackHandler.swift */,
 				22784A8B00A61990E6C907D7 /* OAuthSession.swift */,
 				960BD3DA008319DA93EB54E8 /* SocialOAuthManager.swift */,
+				6060A5223C99ED0CDE375E62 /* SocialSignInButton.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -2745,6 +2751,7 @@
 				85B70B6E4B9FD1739A73F519 /* LibraryView.swift in Sources */,
 				090D462241309091038F0DEB /* LibraryViewModel.swift in Sources */,
 				195A7DF1277CE94BA74CA579 /* LinkInBioEditorView.swift in Sources */,
+				95C0F12D65C8191454A252BB /* LinkOnlyPlatformSheet.swift in Sources */,
 				C71EF1B5FADC4AD8FB40B782 /* LinkedInAuthorPickerView.swift in Sources */,
 				7CC8AC78C129791EF4EFC7F5 /* LinkedInAuthorPickerViewModel.swift in Sources */,
 				34DC940ED52B6FF7950501B7 /* LinkedInConnector.swift in Sources */,
@@ -2842,6 +2849,7 @@
 				6535C53FCB65C915E5E6057A /* SimilarityEngine.swift in Sources */,
 				0F9462ACBD4F7AAD4AA5549B /* SmartCollectionView.swift in Sources */,
 				7917D6D2EEDB8C806E6F44DE /* SocialOAuthManager.swift in Sources */,
+				3ECB08FA167A3F98A687662B /* SocialSignInButton.swift in Sources */,
 				7ABABD45E8797298EC9CBC60 /* SourceAttribution.swift in Sources */,
 				A06551A59DB00A18D13998DE /* SourceAttributionView.swift in Sources */,
 				84C46B5672E4A32028C02ACC /* SplashSpiralView.swift in Sources */,
