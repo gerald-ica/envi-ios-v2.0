@@ -37,4 +37,50 @@ final class ProfileViewModelTests: XCTestCase {
         XCTAssertEqual(vm.user?.handle, User.mock.handle)
         XCTAssertFalse(vm.connections.isEmpty, "Preview helper calls loadConnections() so connections list is populated.")
     }
+
+    // MARK: - Phase 19 Plan 04 extensions
+
+    /// `loadConnections()` must synthesize an entry per SocialPlatform so
+    /// the Profile UI always has a full row for each connectable platform
+    /// (disconnected rows render a "Connect" button). Pins Phase 14's
+    /// "merge user.connectedPlatforms with the full platform list" contract.
+    func testLoadConnectionsPopulatesRowForEveryPlatform() {
+        let vm = ProfileViewModel()
+        vm.user = User.mock
+        vm.loadConnections()
+
+        XCTAssertEqual(
+            vm.connections.count,
+            SocialPlatform.allCases.count,
+            "Every SocialPlatform case must have a connection row."
+        )
+        // Every SocialPlatform should appear exactly once.
+        let platforms = Set(vm.connections.map(\.platform))
+        XCTAssertEqual(platforms.count, SocialPlatform.allCases.count)
+    }
+
+    /// `loadConnections()` with nil user should still produce a full row
+    /// per platform — all disconnected. Guards against a crash when the
+    /// Profile view loads before auth hydration completes.
+    func testLoadConnectionsWithNilUserStillProducesFullRowset() {
+        let vm = ProfileViewModel()
+        vm.user = nil
+        vm.loadConnections()
+
+        XCTAssertEqual(vm.connections.count, SocialPlatform.allCases.count)
+        XCTAssertTrue(
+            vm.connections.allSatisfy { !$0.isConnected },
+            "With no user, no platforms should be marked connected."
+        )
+    }
+
+    /// `isConnectingPlatform` is the spinner flag the UI uses to disable
+    /// the Connect button during an in-flight connect. Baseline pin: the
+    /// flag starts false and the error message starts nil so the UI
+    /// doesn't render a stale error banner.
+    func testConnectPlatformDefaultStateIsIdle() {
+        let vm = ProfileViewModel()
+        XCTAssertFalse(vm.isConnectingPlatform)
+        XCTAssertNil(vm.connectionErrorMessage)
+    }
 }
