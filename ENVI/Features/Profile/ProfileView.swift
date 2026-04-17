@@ -15,47 +15,56 @@ struct ProfileView: View {
         ZStack(alignment: .topTrailing) {
             ScrollView {
                 VStack(spacing: 0) {
-                    profileHeader
-                        .padding(.top, 24)
-                        .padding(.horizontal, 24)
+                    if let user = viewModel.user {
+                        profileHeader(user: user)
+                            .padding(.top, 24)
+                            .padding(.horizontal, 24)
 
-                    statsSection
-                        .padding(.top, 24)
-                        .padding(.horizontal, 16)
+                        statsSection(user: user)
+                            .padding(.top, 24)
+                            .padding(.horizontal, 16)
 
-                    sectionDivider
-                        .padding(.top, 24)
-                        .padding(.horizontal, 20)
-
-                    subscriptionSection
-                        .padding(.top, 24)
-                        .padding(.horizontal, 16)
-
-                    sectionDivider
-                        .padding(.top, 24)
-                        .padding(.horizontal, 20)
-
-                    connectedPlatformsSection
-                        .padding(.top, 24)
-                        .padding(.horizontal, 16)
-
-                    if let message = viewModel.connectionErrorMessage {
-                        Text(message)
-                            .font(.interRegular(13))
-                            .foregroundColor(ENVITheme.error)
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 12)
+                        sectionDivider
+                            .padding(.top, 24)
                             .padding(.horizontal, 20)
+
+                        subscriptionSection
+                            .padding(.top, 24)
+                            .padding(.horizontal, 16)
+
+                        sectionDivider
+                            .padding(.top, 24)
+                            .padding(.horizontal, 20)
+
+                        connectedPlatformsSection
+                            .padding(.top, 24)
+                            .padding(.horizontal, 16)
+
+                        if let message = viewModel.connectionErrorMessage {
+                            Text(message)
+                                .font(.interRegular(13))
+                                .foregroundColor(ENVITheme.error)
+                                .multilineTextAlignment(.center)
+                                .padding(.top, 12)
+                                .padding(.horizontal, 20)
+                        }
+
+                        sectionDivider
+                            .padding(.top, 24)
+                            .padding(.horizontal, 20)
+
+                        settingsSection
+                            .padding(.top, 24)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 120)
+                    } else if viewModel.isLoadingProfile {
+                        loadingState
+                            .padding(.top, 120)
+                    } else if let error = viewModel.profileLoadError {
+                        errorState(message: error)
+                            .padding(.top, 120)
+                            .padding(.horizontal, 24)
                     }
-
-                    sectionDivider
-                        .padding(.top, 24)
-                        .padding(.horizontal, 20)
-
-                    settingsSection
-                        .padding(.top, 24)
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 120)
                 }
             }
 
@@ -64,8 +73,8 @@ struct ProfileView: View {
                 .padding(.trailing, 22)
         }
         .background(AppBackground(imageName: "profile-bg"))
-        .onAppear {
-            viewModel.loadConnections()
+        .task {
+            await viewModel.loadProfile()
         }
         .sheet(isPresented: $showAccountManagement) {
             AccountManagementView()
@@ -99,7 +108,7 @@ struct ProfileView: View {
 
     // MARK: - Header
 
-    private var profileHeader: some View {
+    private func profileHeader(user: User) -> some View {
         VStack(spacing: 12) {
             // Sketch "17 - Profile" avatar — solid indigo-blue disc (#4A5FB2),
             // 88×88, no overlaid initials.
@@ -108,12 +117,12 @@ struct ProfileView: View {
                 .frame(width: 88, height: 88)
 
             VStack(spacing: 4) {
-                Text(viewModel.user.fullName)
+                Text(user.fullName)
                     .font(.spaceMonoBold(23))
                     .tracking(-0.9)
                     .foregroundColor(ENVITheme.text(for: colorScheme))
 
-                Text(viewModel.user.handle)
+                Text(user.handle)
                     .font(.interRegular(14))
                     .foregroundColor(ENVITheme.textLight(for: colorScheme))
             }
@@ -122,11 +131,11 @@ struct ProfileView: View {
 
     // MARK: - Stats
 
-    private var statsSection: some View {
+    private func statsSection(user: User) -> some View {
         HStack(spacing: 12) {
-            MainAppProfileStatBox(value: "\(viewModel.user.publishedCount)", label: "PUBLISHED")
-            MainAppProfileStatBox(value: "\(viewModel.user.draftsCount)", label: "DRAFTS")
-            MainAppProfileStatBox(value: "\(viewModel.user.templatesCount)", label: "TEMPLATES")
+            MainAppProfileStatBox(value: "\(user.publishedCount)", label: "PUBLISHED")
+            MainAppProfileStatBox(value: "\(user.draftsCount)", label: "DRAFTS")
+            MainAppProfileStatBox(value: "\(user.templatesCount)", label: "TEMPLATES")
         }
     }
 
@@ -193,6 +202,50 @@ struct ProfileView: View {
             )
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
+    }
+
+    // MARK: - Loading / Error
+
+    private var loadingState: some View {
+        VStack(spacing: 12) {
+            ProgressView()
+                .controlSize(.large)
+                .tint(ENVITheme.text(for: colorScheme))
+            Text("Loading profile...")
+                .font(.interRegular(14))
+                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func errorState(message: String) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 32, weight: .medium))
+                .foregroundColor(ENVITheme.error)
+
+            Text(message)
+                .font(.interRegular(14))
+                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                .multilineTextAlignment(.center)
+
+            Button {
+                Task { await viewModel.loadProfile() }
+            } label: {
+                Text("Retry")
+                    .font(.interMedium(14))
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 10)
+                    .background(ENVITheme.surfaceLow(for: colorScheme))
+                    .foregroundColor(ENVITheme.text(for: colorScheme))
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule().stroke(ENVITheme.textLight(for: colorScheme).opacity(0.15), lineWidth: 1)
+                    )
+            }
+            .buttonStyle(.plain)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     private var sectionDivider: some View {
