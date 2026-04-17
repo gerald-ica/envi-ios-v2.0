@@ -98,6 +98,45 @@ struct AppDestinationSheetResolver: View {
         case .imageGenerator:
             ImageGeneratorSheetHost()
 
+        // MARK: - Library-adjacent modals (Phase 16-04)
+
+        case .libraryTools:
+            LibraryToolsMenu()
+
+        case .brandKit:
+            BrandKitSheetHost()
+
+        case .campaigns:
+            CampaignsSheetHost()
+
+        case .collaboration:
+            CollaborationSheetHost()
+
+        case .community:
+            CommunitySheetHost()
+
+        case .metadata:
+            MetadataSheetHost()
+
+        case .repurposing:
+            RepurposingSheetHost()
+
+        case .admin:
+            NavigationStack {
+                SystemHealthView()
+                    .navigationTitle("Admin")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .preferredColorScheme(.dark)
+
+        case .enterprise:
+            NavigationStack {
+                ContractManagerView()
+                    .navigationTitle("Enterprise")
+                    .navigationBarTitleDisplayMode(.inline)
+            }
+            .preferredColorScheme(.dark)
+
         default:
             // Phase 16-02+ will fill the remaining arms: admin,
             // agency, brandKit, campaigns, commerce, community,
@@ -415,6 +454,80 @@ private struct ImageGeneratorSheetHost: View {
         NavigationStack {
             ImageGeneratorView(viewModel: viewModel)
                 .navigationTitle("Image Generator")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+// MARK: - Library-adjacent sheet hosts (Phase 16-04)
+
+private struct BrandKitSheetHost: View {
+    @StateObject private var viewModel = BrandKitViewModel()
+    var body: some View {
+        NavigationStack {
+            BrandKitListView(viewModel: viewModel)
+                .navigationTitle("Brand Kit")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct CampaignsSheetHost: View {
+    @StateObject private var viewModel = CampaignViewModel()
+    var body: some View {
+        NavigationStack {
+            CampaignListView(viewModel: viewModel)
+                .navigationTitle("Campaigns")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct CollaborationSheetHost: View {
+    @StateObject private var viewModel = CollaborationViewModel()
+    var body: some View {
+        NavigationStack {
+            ReviewListView(viewModel: viewModel)
+                .navigationTitle("Collaboration")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct CommunitySheetHost: View {
+    @StateObject private var viewModel = CommunityViewModel()
+    var body: some View {
+        NavigationStack {
+            InboxView(viewModel: viewModel)
+                .navigationTitle("Community")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct MetadataSheetHost: View {
+    @StateObject private var viewModel = MetadataViewModel()
+    var body: some View {
+        NavigationStack {
+            TagManagerView(viewModel: viewModel)
+                .navigationTitle("Metadata")
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+private struct RepurposingSheetHost: View {
+    @StateObject private var viewModel = RepurposingViewModel()
+    var body: some View {
+        NavigationStack {
+            RepurposeDashboardView(viewModel: viewModel)
+                .navigationTitle("Repurposing")
                 .navigationBarTitleDisplayMode(.inline)
         }
         .preferredColorScheme(.dark)

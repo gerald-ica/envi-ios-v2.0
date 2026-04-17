@@ -79,6 +79,10 @@ enum AppDestination: Identifiable, Hashable, Equatable {
 
     case search
 
+    // MARK: - Library Tools Menu (Phase 16-04)
+
+    case libraryTools
+
     // MARK: - AIFeatures (7 views under ChatExplore/AIFeatures)
 
     case ideation
@@ -136,6 +140,7 @@ enum AppDestination: Identifiable, Hashable, Equatable {
         case .linkedInAuthorPicker: return "linkedInAuthorPicker"
         case .repurposing: return "repurposing"
         case .search: return "search"
+        case .libraryTools: return "libraryTools"
         case .ideation: return "ideation"
         case .aiVisualEditor: return "aiVisualEditor"
         case .captionGenerator: return "captionGenerator"
