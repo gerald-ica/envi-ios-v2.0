@@ -294,9 +294,9 @@ Plans:
 **Plans:** TBD (3 expected)
 
 Plans:
-- [ ] 15-01: `AppDestination` enum covering all reachable + formerly-orphan destinations
-- [ ] 15-02: Central router object + `NavigationCoordinator` real implementation; replace ad-hoc `.sheet(isPresented:)` call sites in the 3 live tabs
-- [ ] 15-03: Deep-link scheme hook (`enviapp://…`) so same router handles OAuth callbacks and future Universal Links
+- [x] 15-01: `AppDestination` enum covering all reachable + formerly-orphan destinations
+- [x] 15-02: Central router object + `NavigationCoordinator` real implementation; replace ad-hoc `.sheet(isPresented:)` call sites in the 3 live tabs
+- [x] 15-03: Deep-link scheme hook (`enviapp://…`) so same router handles OAuth callbacks and future Universal Links
 
 #### Phase 16: p1-publishing-tab-modal-entry-points-aifeatures
 
@@ -376,7 +376,7 @@ Phases execute in numeric order within each milestone.
 | 12. publish-lifecycle-hardening | v1.1 | 7/7 | Implemented | 2026-04-16 |
 | 13. analytics-insights-readpath | v1.1 | 6/6 | Implemented | 2026-04-16 |
 | 14. p0-analytics-unmock-profile-bind | v1.2 | 3/3 | Complete | 2026-04-17 |
-| 15. p1-routing-layer | v1.2 | 0/3 | Not started | - |
+| 15. p1-routing-layer | v1.2 | 3/3 | Complete | 2026-04-17 |
 | 16. p1-publishing-tab-modal-entry-points-aifeatures | v1.2 | 0/4 | Not started | - |
 | 17. p2-mock-to-repo-swaps | v1.2 | 0/3 | Not started | - |
 | 18. p3-dead-action-fixes | v1.2 | 0/3 | Not started | - |
