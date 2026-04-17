@@ -102,6 +102,7 @@ targets:
       - path: ENVITests/ProfileViewModelTests.swift
       - path: ENVITests/AppRouterTests.swift
       - path: ENVITests/AppRouterIntegrationTests.swift
+      - path: ENVITests/DeepLinkRouterTests.swift
     settings:
       base:
         SWIFT_VERSION: "5.0"
