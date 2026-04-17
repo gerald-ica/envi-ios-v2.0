@@ -9,7 +9,6 @@ import Combine
 /// `GrowthRepository` entirely. The repository is wired via
 /// `GrowthRepositoryProvider.shared.repository` so dev builds continue to
 /// receive mock data and staging/prod builds hit the real API.
-@MainActor
 final class GrowthViewModel: ObservableObject {
     // MARK: - Dashboard State
     @Published var metrics: [GrowthMetric] = []
@@ -32,6 +31,7 @@ final class GrowthViewModel: ObservableObject {
 
     // MARK: - Dashboard
 
+    @MainActor
     func loadDashboard() async {
         isLoading = true
         errorMessage = nil
@@ -54,6 +54,7 @@ final class GrowthViewModel: ObservableObject {
 
     // MARK: - Referral
 
+    @MainActor
     func loadReferrals() async {
         isLoading = true
         errorMessage = nil
@@ -72,6 +73,7 @@ final class GrowthViewModel: ObservableObject {
         isLoading = false
     }
 
+    @MainActor
     func sendInvite(email: String) async {
         guard !email.isEmpty else { return }
         errorMessage = nil

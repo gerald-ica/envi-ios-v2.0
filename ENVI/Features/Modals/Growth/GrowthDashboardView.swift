@@ -1,23 +1,38 @@
 import SwiftUI
 
 /// Growth dashboard displaying growth metrics, viral loop funnels, and shareable asset performance.
+///
+/// Phase 17 — Plan 01. Previously rendered `GrowthMetric.mockList` /
+/// `ViralLoop.mockList` / `ShareableAsset.mockList` as `@State` defaults
+/// and never called `GrowthRepository`. Now VM-driven.
 struct GrowthDashboardView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State private var metrics: [GrowthMetric] = GrowthMetric.mockList
-    @State private var viralLoops: [ViralLoop] = ViralLoop.mockList
-    @State private var assets: [ShareableAsset] = ShareableAsset.mockList
+    @StateObject private var viewModel: GrowthViewModel
+
+    init(viewModel: GrowthViewModel = GrowthViewModel()) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: ENVISpacing.xl) {
                 header
-                metricsGrid
-                viralLoopsSection
-                shareableAssetsSection
+
+                if viewModel.isLoading && viewModel.metrics.isEmpty {
+                    ENVILoadingState()
+                } else if let error = viewModel.errorMessage,
+                          viewModel.metrics.isEmpty {
+                    ENVIErrorBanner(message: error)
+                } else {
+                    metricsGrid
+                    viralLoopsSection
+                    shareableAssetsSection
+                }
             }
             .padding(ENVISpacing.lg)
         }
         .background(ENVITheme.background(for: colorScheme).ignoresSafeArea())
+        .task { await viewModel.loadDashboard() }
     }
 
     // MARK: - Header
@@ -44,7 +59,7 @@ struct GrowthDashboardView: View {
         ]
 
         return LazyVGrid(columns: columns, spacing: ENVISpacing.md) {
-            ForEach(metrics) { metric in
+            ForEach(viewModel.metrics) { metric in
                 metricCard(metric)
             }
         }
@@ -92,7 +107,7 @@ struct GrowthDashboardView: View {
                 .tracking(1)
                 .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
 
-            ForEach(viralLoops) { loop in
+            ForEach(viewModel.viralLoops) { loop in
                 viralLoopCard(loop)
             }
         }
@@ -149,7 +164,7 @@ struct GrowthDashboardView: View {
                 .tracking(1)
                 .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
 
-            ForEach(assets) { asset in
+            ForEach(viewModel.shareableAssets) { asset in
                 assetRow(asset)
             }
         }
@@ -214,6 +229,6 @@ struct GrowthDashboardView: View {
 }
 
 #Preview {
-    GrowthDashboardView()
+    GrowthDashboardView(viewModel: .preview())
         .preferredColorScheme(.dark)
 }

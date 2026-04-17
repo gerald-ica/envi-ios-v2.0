@@ -1,25 +1,41 @@
 import SwiftUI
 
 /// Referral dashboard showing the user's referral code, invite list, and earned rewards.
+///
+/// Phase 17 — Plan 01. Previously held `ReferralProgram.mock` and
+/// `ReferralInvite.mockList` as `@State` defaults; now VM-driven via
+/// `GrowthViewModel` and `GrowthRepository`.
 struct ReferralView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State private var program: ReferralProgram = .mock
-    @State private var invites: [ReferralInvite] = ReferralInvite.mockList
+    @StateObject private var viewModel: GrowthViewModel
     @State private var newEmail = ""
     @State private var showingInviteField = false
     @State private var codeCopied = false
+
+    init(viewModel: GrowthViewModel = GrowthViewModel()) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: ENVISpacing.xl) {
                 header
-                referralCodeCard
-                rewardsRow
-                inviteSection
+
+                if viewModel.isLoading && viewModel.referralProgram == nil {
+                    ENVILoadingState()
+                } else if let error = viewModel.errorMessage,
+                          viewModel.referralProgram == nil {
+                    ENVIErrorBanner(message: error)
+                } else if let program = viewModel.referralProgram {
+                    referralCodeCard(program)
+                    rewardsRow(program)
+                    inviteSection
+                }
             }
             .padding(ENVISpacing.lg)
         }
         .background(ENVITheme.background(for: colorScheme).ignoresSafeArea())
+        .task { await viewModel.loadReferrals() }
     }
 
     // MARK: - Header
@@ -39,7 +55,7 @@ struct ReferralView: View {
 
     // MARK: - Referral Code Card
 
-    private var referralCodeCard: some View {
+    private func referralCodeCard(_ program: ReferralProgram) -> some View {
         VStack(spacing: ENVISpacing.md) {
             Text("YOUR CODE")
                 .font(.spaceMono(10))
@@ -83,7 +99,7 @@ struct ReferralView: View {
 
     // MARK: - Rewards Row
 
-    private var rewardsRow: some View {
+    private func rewardsRow(_ program: ReferralProgram) -> some View {
         HStack(spacing: ENVISpacing.md) {
             rewardStat(value: "\(program.referralCount)", label: "REFERRALS")
             rewardStat(value: String(format: "$%.0f", program.earnedRewards), label: "EARNED")
@@ -136,7 +152,7 @@ struct ReferralView: View {
                 inviteField
             }
 
-            ForEach(invites) { invite in
+            ForEach(viewModel.referralInvites) { invite in
                 inviteRow(invite)
             }
         }
@@ -153,13 +169,10 @@ struct ReferralView: View {
 
             Button {
                 guard !newEmail.isEmpty else { return }
-                let invite = ReferralInvite(recipientEmail: newEmail)
-                withAnimation {
-                    invites.insert(invite, at: 0)
-                    program.referralCount += 1
-                    newEmail = ""
-                    showingInviteField = false
-                }
+                let email = newEmail
+                newEmail = ""
+                showingInviteField = false
+                Task { await viewModel.sendInvite(email: email) }
             } label: {
                 Text("Send")
                     .font(.spaceMono(12))
@@ -234,6 +247,6 @@ struct ReferralView: View {
 }
 
 #Preview {
-    ReferralView()
+    ReferralView(viewModel: .preview())
         .preferredColorScheme(.dark)
 }
