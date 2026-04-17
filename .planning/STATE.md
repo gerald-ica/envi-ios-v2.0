@@ -2,11 +2,16 @@
 
 ## Current Position
 
-Milestone: **v1.1 Real Social Connectors**
-Phase: **8 of 8 complete** (Phases 6–13 all implemented)
-Status: **Implementation complete — awaiting verification + human-gated blockers**
-Last activity: 2026-04-16 — Phase 13 analytics read-path landed
-Progress: ██████████ 100% (implementation)
+Milestone: **v1.2 Frontend Audit Fixes**
+Phase: **14 of 19** (p0-analytics-unmock-profile-bind — ready to plan)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-04-17 — Milestone v1.2 created, driven by 2026-04-17 Frontend Audit
+Progress: ░░░░░░░░░░ 0% (6 phases)
+
+### v1.1 status (carried forward)
+
+v1.1 Real Social Connectors — implementation complete (Phases 6–13, 2026-04-16), awaiting verification + 7 human-gated blockers (secret rotation, redirect URIs, FB/LinkedIn App Review, Firestore SPM link). Phase 14 of v1.2 resolves blocker #7 (Firestore SPM link). Other blockers remain ops-side.
 
 ### Remaining work before non-local deploy
 
@@ -63,9 +68,10 @@ firebase deploy --only functions,firestore:rules,firestore:indexes
 - 2026-04-06: Milestone v1.0 Foundation shipped (Phases 1-5), OAuth scaffolding mocked.
 - 2026-04-16: Milestone v1.1 Real Social Connectors created, 8 phases (Phases 6-13). Focus: replace mocks with real broker + 6 provider integrations + insights read-path.
 - 2026-04-16: Phase 7 OAuth broker infrastructure shipped. `functions/src/oauth/` — adapter interface + registry + start/callback/refresh/disconnect/status handlers. iOS: `SocialOAuthManager.useMockOAuth` removed, replaced with `FeatureFlags.connectorsUseMockOAuth` (DEBUG default: true). `ProviderOAuthAdapter` interface locked — Phase 8+ wires concrete adapters.
+- 2026-04-17: Milestone v1.2 Frontend Audit Fixes created, 6 phases (Phases 14-19). Driven by parallel-agent frontend audit report at `Claude Files/ENVI Frontend Audit - 2026-04-17.md` (Obsidian vault). Focus: 60 orphan views, unrouted modals, Phase 13 analytics silently mocked, dead actions on reachable surfaces.
 
 ## Session Continuity
 
-Last session: 2026-04-16
-Stopped at: Milestone v1.1 initialization — ready to plan Phase 6
+Last session: 2026-04-17
+Stopped at: Milestone v1.2 initialization — ready to plan Phase 14
 Resume file: None

@@ -3,8 +3,8 @@
 ## Milestones
 
 - ✅ **v1.0 Foundation** — Phases 1–5 (shipped 2026-04-06)
-- 🚧 **v1.1 Real Social Connectors** — Phases 6–13 (in progress)
-- 📋 **v1.2 Post-Connector Polish** — Phases 14+ (planned, TBD)
+- 🚧 **v1.1 Real Social Connectors** — Phases 6–13 (implementation complete, awaiting verification blockers)
+- 🚧 **v1.2 Frontend Audit Fixes** — Phases 14–19 (in progress, created 2026-04-17)
 
 ---
 
@@ -266,9 +266,92 @@
 
 ---
 
-### 📋 v1.2 Post-Connector Polish (Planned)
+### 🚧 v1.2 Frontend Audit Fixes (In Progress)
 
-**Milestone goal (TBD):** App Store submission prep, provider App Review submissions, prod credential cutover, incident runbook for connector outages.
+**Milestone Goal:** Close the gaps identified in the 2026-04-17 Frontend Audit. v1.1 shipped the backend and repository layer but left the frontend with ~60 orphan views, 14 unrouted modal groups, Phase 13 analytics silently mocked behind a disabled feature flag, and several production views displaying hardcoded mock data. v1.2 systematically wires the frontend to the work already done.
+
+**Source:** `Claude Files/ENVI Frontend Audit - 2026-04-17.md` (Obsidian vault). 19-item prioritized fix list, P0 → P4.
+
+#### Phase 14: p0-analytics-unmock-profile-bind
+
+**Goal:** Ship the two P0 items — Phase 13 analytics actually serves live data, and the Profile tab stops showing `User.mock`.
+
+**Depends on:** v1.1 complete
+**Research:** Unlikely — `AccountRepository` exists, `FeatureFlags.connectorsInsightsLive` already defined, SPM link is mechanical.
+**Plans:** TBD (3 expected)
+
+Plans:
+- [ ] 14-01: Link `FirebaseFirestore` SPM product to ENVI target (resolves v1.1 STATE blocker #7)
+- [ ] 14-02: Flip `FeatureFlags.connectorsInsightsLive` default to `true` in prod config + verify `AnalyticsRepositoryProvider.resolve()` returns Firestore-backed repo
+- [ ] 14-03: Bind `AccountRepository` to `ProfileViewModel`; remove `User.mock` from production path
+
+#### Phase 15: p1-routing-layer
+
+**Goal:** Build the missing routing abstraction. `NavigationCoordinator.swift` today is protocol-only; replace with `AppDestination` enum + router so Phase 16 can wire orphan modals from one central place.
+
+**Depends on:** Phase 14
+**Research:** Unlikely — standard SwiftUI `NavigationStack` + `navigationDestination(for:)` pattern.
+**Plans:** TBD (3 expected)
+
+Plans:
+- [ ] 15-01: `AppDestination` enum covering all reachable + formerly-orphan destinations
+- [ ] 15-02: Central router object + `NavigationCoordinator` real implementation; replace ad-hoc `.sheet(isPresented:)` call sites in the 3 live tabs
+- [ ] 15-03: Deep-link scheme hook (`enviapp://…`) so same router handles OAuth callbacks and future Universal Links
+
+#### Phase 16: p1-publishing-tab-modal-entry-points-aifeatures
+
+**Goal:** Make the 14 orphan modal groups + 7 orphan AIFeatures views reachable. Promote Publishing from "2-file fragment" to a real 4th tab.
+
+**Depends on:** Phase 15
+**Research:** Unlikely — all target views + VMs + repos already exist.
+**Plans:** TBD (4 expected)
+
+Plans:
+- [ ] 16-01: Publishing tab — add as 4th `MainTabBarController` entry; container hosts `ScheduleQueueView` + `LinkedInAuthorPickerView` + placeholder for recurring-post rules
+- [ ] 16-02: Profile/Settings entry points for Agency, Teams, Commerce, Experiments, Security, Notifications modals
+- [ ] 16-03: ChatExplore — wire 7 AIFeatures views (Ideation, AIVisualEditor, CaptionGenerator, HookLibrary, ScriptEditor, StyleTransfer, ImageGenerator) via a new mode/menu in `ChatExploreView`
+- [ ] 16-04: HomeFeed/Library entry points for BrandKit, Campaigns, Collaboration, Community, Metadata, Repurposing, Search, Admin, Enterprise modals
+
+#### Phase 17: p2-mock-to-repo-swaps
+
+**Goal:** Convert 5 views that hold hardcoded mock data in `@State` defaults into repo-driven ViewModels. Lowest-friction wins — the repos already exist.
+
+**Depends on:** Phase 14 (for baseline repo pattern), Phase 15 (so new VMs can be presented)
+**Research:** Unlikely — pattern already established (ContentViewModel, CampaignViewModel, etc.).
+**Plans:** TBD (3 expected)
+
+Plans:
+- [ ] 17-01: `GrowthViewModel` + bind `GrowthRepository` → `GrowthDashboardView`, `ReferralView`
+- [ ] 17-02: `SupportViewModel` + bind `SupportRepository` → `SupportCenterView`
+- [ ] 17-03: `EducationViewModel` + bind `EducationRepository` → `TutorialListView`, `AchievementsView`
+
+#### Phase 18: p3-dead-action-fixes
+
+**Goal:** Fix the 4 confirmed dead UI actions on already-reachable surfaces.
+
+**Depends on:** Phase 14
+**Research:** Unlikely — targeted fixes with well-defined scope.
+**Plans:** TBD (3 expected)
+
+Plans:
+- [ ] 18-01: `FeedDetailView.swift:107` bookmark — wire to `ContentRepository` bookmark mutation
+- [ ] 18-02: `ContentLibrarySettingsView.swift:247` CONNECT rows (YouTube / X / LinkedIn) — route through `SocialOAuthManager`, same path `ConnectedAccountsViewModel` uses
+- [ ] 18-03: `TemplateTabView.swift:231-232` `onDuplicate` / `onHide` — bind to `VideoTemplateRepository` + local hide list
+
+#### Phase 19: p4-hygiene
+
+**Goal:** Anti-pattern cleanup + missing test coverage + brand consistency.
+
+**Depends on:** Phase 16 (so test targets match the final reachable surface)
+**Research:** Unlikely — refactor + tests.
+**Plans:** TBD (5 expected)
+
+Plans:
+- [ ] 19-01: Refactor repo-in-view anti-pattern — `SystemHealthView`, `SSOConfigView`, `ContractManagerView` get real ViewModels
+- [ ] 19-02: Standardize `AdvancedAnalyticsRepositoryProvider` and `BenchmarkRepositoryProvider` to use `RepositoryProvider.shared.X` pattern
+- [ ] 19-03: Delete or merge orphan `LibraryDAMViewModel.swift`; gate `EnhancedChatViewModel` dev mocks behind real `#if DEBUG`
+- [ ] 19-04: ViewModel test coverage — at least one XCTest per live tab VM (ProfileViewModel, EnhancedChatViewModel, ForYouGalleryViewModel, new PublishingViewModel)
+- [ ] 19-05: Unify ENVI wordmark asset — splash and signup currently use different stencil variants
 
 ---
 
@@ -292,3 +375,9 @@ Phases execute in numeric order within each milestone.
 | 11. linkedin-connector | v1.1 | 5/5 | Implemented | 2026-04-16 |
 | 12. publish-lifecycle-hardening | v1.1 | 7/7 | Implemented | 2026-04-16 |
 | 13. analytics-insights-readpath | v1.1 | 6/6 | Implemented | 2026-04-16 |
+| 14. p0-analytics-unmock-profile-bind | v1.2 | 0/3 | Not started | - |
+| 15. p1-routing-layer | v1.2 | 0/3 | Not started | - |
+| 16. p1-publishing-tab-modal-entry-points-aifeatures | v1.2 | 0/4 | Not started | - |
+| 17. p2-mock-to-repo-swaps | v1.2 | 0/3 | Not started | - |
+| 18. p3-dead-action-fixes | v1.2 | 0/3 | Not started | - |
+| 19. p4-hygiene | v1.2 | 0/5 | Not started | - |
