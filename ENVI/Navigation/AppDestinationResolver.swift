@@ -34,11 +34,23 @@ struct AppDestinationSheetResolver: View {
         case .contentLibrarySettings:
             ContentLibrarySettingsView()
 
+        // MARK: - Publishing (Phase 16-01)
+
+        case .schedulePost:
+            SchedulePostSheetHost()
+
+        case .publishResults:
+            PublishResultsSheetHost()
+
+        case .linkedInAuthorPicker:
+            LinkedInAuthorPickerSheetHost()
+
         default:
-            // Phase 16 will wire: admin, agency, brandKit, campaigns,
-            // commerce, community, enterprise, experiments, metadata,
-            // publishing, repurposing, teams, collaboration,
-            // campaignDetail, + all 7 AIFeatures + 6 Profile sub-sections
+            // Phase 16-02+ will fill the remaining arms: admin,
+            // agency, brandKit, campaigns, commerce, community,
+            // enterprise, experiments, metadata, publishing,
+            // repurposing, teams, collaboration, campaignDetail,
+            // + all 7 AIFeatures + 6 Profile sub-sections
             // + exportSheet/mediaPicker/phPicker.
             PlaceholderSheetView(destination: destination)
         }
@@ -124,6 +136,89 @@ private struct ChatHistorySheetHost: View {
             }
         }
         .preferredColorScheme(.dark)
+    }
+}
+
+// MARK: - Publishing sheet hosts (Phase 16-01)
+
+/// Host for `SchedulePostView`. Owns a fresh `SchedulingViewModel` for
+/// the duration of the sheet so the composer can write through to the
+/// same repository stack `ScheduleQueueView` reads from.
+private struct SchedulePostSheetHost: View {
+    @StateObject private var viewModel = SchedulingViewModel()
+
+    var body: some View {
+        SchedulePostView(viewModel: viewModel)
+            .preferredColorScheme(.dark)
+    }
+}
+
+/// Host for `PublishResultsView`. Presents the most-recent completed or
+/// failed post's reconciliation details. If no such post exists, shows
+/// a lightweight empty state rather than constructing the view with a
+/// fake payload.
+private struct PublishResultsSheetHost: View {
+    @StateObject private var viewModel = SchedulingViewModel()
+    @Environment(\.dismiss) private var dismiss
+
+    private var mostRecentResolvedPost: ScheduledPost? {
+        viewModel.scheduledPosts
+            .filter { $0.status == .completed || $0.status == .failed }
+            .sorted { $0.scheduledAt > $1.scheduledAt }
+            .first
+    }
+
+    var body: some View {
+        Group {
+            if let post = mostRecentResolvedPost {
+                PublishResultsView(viewModel: viewModel, post: post)
+            } else {
+                NavigationStack {
+                    VStack(spacing: ENVISpacing.lg) {
+                        Image(systemName: "checkmark.seal")
+                            .font(.system(size: 40, weight: .light))
+                            .foregroundColor(.white.opacity(0.4))
+                        Text("NO PUBLISH RESULTS YET")
+                            .font(.spaceMonoBold(12))
+                            .tracking(1.8)
+                            .foregroundColor(.white.opacity(0.55))
+                        Text("Completed and failed posts will show their per-platform reconciliation here.")
+                            .font(.interRegular(13))
+                            .foregroundColor(.white.opacity(0.4))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, ENVISpacing.xxxl)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black)
+                    .navigationTitle("Publish Results")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Done") { dismiss() }
+                        }
+                    }
+                }
+                .preferredColorScheme(.dark)
+            }
+        }
+    }
+}
+
+/// Host for `LinkedInAuthorPickerView`. The picker is designed to be
+/// invoked from a compose flow with a selection callback, but when
+/// surfaced as a generic router destination (no caller-supplied
+/// callback) we just dismiss on confirm — the selected author is
+/// discarded. This is acceptable because the picker itself is a read
+/// surface from the Publishing tab's POV; the real write path
+/// originates from the compose flow in a future plan.
+private struct LinkedInAuthorPickerSheetHost: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        LinkedInAuthorPickerView(
+            onSelect: { _ in },
+            onDismiss: { dismiss() }
+        )
     }
 }
 

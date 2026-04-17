@@ -67,6 +67,9 @@ enum AppDestination: Identifiable, Hashable, Equatable {
 
     case publishing
     case contentCalendar
+    case schedulePost
+    case publishResults
+    case linkedInAuthorPicker
 
     // MARK: - Modals / Repurposing
 
@@ -128,6 +131,9 @@ enum AppDestination: Identifiable, Hashable, Equatable {
         case .metadata: return "metadata"
         case .publishing: return "publishing"
         case .contentCalendar: return "contentCalendar"
+        case .schedulePost: return "schedulePost"
+        case .publishResults: return "publishResults"
+        case .linkedInAuthorPicker: return "linkedInAuthorPicker"
         case .repurposing: return "repurposing"
         case .search: return "search"
         case .ideation: return "ideation"
