@@ -245,7 +245,7 @@ struct HookLibraryView: View {
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack {
         HookLibraryView(viewModel: {
             let vm = AIWritingViewModel()
             vm.hookTemplates = HookTemplate.mockList

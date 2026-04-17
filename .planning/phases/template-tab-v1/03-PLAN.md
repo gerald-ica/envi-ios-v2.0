@@ -188,7 +188,7 @@ Output: VideoTemplate/TemplateSlot/MediaRequirements models + TemplateMatchEngin
   <name>Task 4: TemplateTabViewModel.swift — SwiftUI-ready VM</name>
   <files>ENVI/Features/Templates/TemplateTabViewModel.swift</files>
   <action>
-  `@MainActor @Observable` class (or ObservableObject on iOS 17) that Phase 5's UI consumes:
+  `@MainActor @Observable` class (or ObservableObject fallback on lower platforms) that Phase 5's UI consumes:
   
   ```swift
   @MainActor

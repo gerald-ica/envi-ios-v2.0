@@ -75,12 +75,9 @@ final class VisionAnalysisEngineTests: XCTestCase {
         XCTAssertNotNil(analysis.featurePrintData, "Expected a VNFeaturePrintObservation data blob")
         XCTAssertGreaterThan(analysis.featurePrintData?.count ?? 0, 0)
 
-        // On iOS 18+ we should also get an aesthetics score != nil. On iOS 17 it's nil by design.
-        if #available(iOS 18.0, *) {
-            XCTAssertNotNil(analysis.aestheticsScore, "iOS 18+ should return an aesthetics score")
-            if let score = analysis.aestheticsScore {
-                XCTAssertTrue((-1.0...1.0).contains(score), "Aesthetics score out of bounds: \(score)")
-            }
+        XCTAssertNotNil(analysis.aestheticsScore, "iOS 26+ should return an aesthetics score")
+        if let score = analysis.aestheticsScore {
+            XCTAssertTrue((-1.0...1.0).contains(score), "Aesthetics score out of bounds: \(score)")
         }
 
         XCTAssertEqual(analysis.framesAnalyzed, 1)

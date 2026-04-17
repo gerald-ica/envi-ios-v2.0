@@ -8,7 +8,10 @@ struct ContentItem: Identifiable, Codable {
     let creatorHandle: String
     let creatorAvatar: String?
     let platform: SocialPlatform
-    let imageName: String?       // bundled image name
+    let imageName: String?       // legacy bundled fallback only
+    var assetLocalIdentifier: String? = nil
+    var assemblyPieceID: String? = nil
+    var assembledMediaURL: String? = nil
     let caption: String
     let bodyText: String?
     let timestamp: Date

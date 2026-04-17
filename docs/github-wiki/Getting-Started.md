@@ -8,7 +8,7 @@ This guide walks through setting up the ENVI iOS development environment from sc
 
 - **Xcode 15.0+** (download from the Mac App Store or [developer.apple.com](https://developer.apple.com/xcode/))
 - **macOS 14.0+** (Sonoma) recommended
-- **iOS 17.0+** simulator or physical device
+- **iOS 26.0+** simulator or physical device
 - **Git** (included with Xcode Command Line Tools)
 
 ## 1. Clone the repository
@@ -63,7 +63,7 @@ Use `Package.swift` for dependency and test management only. For simulator or de
 
 ## 6. Build and run
 
-1. Select the **ENVI** app scheme and an **iOS 17.0+** simulator or connected device
+1. Select the **ENVI** app scheme and an **iOS 26.0+** simulator or connected device
 2. Press **Cmd+R** to build and run
 3. The app launches into the Splash screen, then routes to Onboarding (first run) or the main tab bar
 

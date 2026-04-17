@@ -1,8 +1,6 @@
 import UIKit
 
-/// 4-pill floating tab bar (Phase 16-01 widening — was 3-pill 164×64,
-/// now 210×64 to accommodate the Publishing tab while preserving the
-/// existing 45pt active-disc diameter and per-icon hit-target spacing).
+/// 3-pill floating tab bar.
 ///
 /// Per Sketch spec:
 /// - Pill fill: `#4A5FB2` (the "purple aura")
@@ -10,16 +8,13 @@ import UIKit
 ///   a luminous highlight that reads as a translucent aura
 /// - Tab 0: `shape-15` (home/feed bitmap), 30×30
 /// - Tab 1: `envi-logo` (center), 30×24.6
-/// - Tab 2: `paperplane.fill` SF Symbol (Publishing, Phase 16-01)
-/// - Tab 3: `person.fill` SF Symbol (profile placeholder)
+/// - Tab 2: `profile aura` image (profile icon)
 ///
 /// When a tab is selected, a 45×45 white circle appears behind its icon and the
 /// icon tints to the pill color for contrast on the white circle.
 final class ENVITabBar: UIView {
 
-    // Phase 16-01: pill widened from 164 → 210 to fit a 4th icon slot
-    // while preserving the ~54pt-per-column rhythm (210 / 4 ≈ 52.5).
-    static let pillWidth: CGFloat = 210
+    static let pillWidth: CGFloat = 164
     static let pillHeight: CGFloat = 64
 
     struct Tab {
@@ -37,8 +32,7 @@ final class ENVITabBar: UIView {
     static let defaultTabs: [Tab] = [
         Tab(iconName: nil, imageName: "shape-15", iconPointSize: 0, imageWidth: 30, imageHeight: 30, persistentDisc: false),
         Tab(iconName: nil, imageName: "envi-logo", iconPointSize: 0, imageWidth: 30, imageHeight: 25, persistentDisc: false),
-        Tab(iconName: "paperplane.fill", imageName: nil, iconPointSize: 17, imageWidth: 0, imageHeight: 0, persistentDisc: false),
-        Tab(iconName: "person.fill", imageName: nil, iconPointSize: 19, imageWidth: 0, imageHeight: 0, persistentDisc: true),
+        Tab(iconName: nil, imageName: "profile aura", iconPointSize: 0, imageWidth: 30, imageHeight: 30, persistentDisc: false),
     ]
 
     var selectedIndex: Int = 0 {
@@ -52,6 +46,8 @@ final class ENVITabBar: UIView {
     private var iconViews: [UIImageView] = []
     private var activeCircles: [UIView] = []
     private let pillBackground = UIView()
+    private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterialDark))
+    private let tintOverlay = UIView()
     private let topGlow = CAGradientLayer()
     private let stackView = UIStackView()
 
@@ -88,7 +84,7 @@ final class ENVITabBar: UIView {
         layer.shadowRadius = 22
         layer.shadowOffset = CGSize(width: 0, height: 12)
 
-        pillBackground.backgroundColor = pillColor
+        pillBackground.backgroundColor = .clear
         pillBackground.layer.cornerRadius = 32
         pillBackground.layer.cornerCurve = .continuous
         pillBackground.clipsToBounds = true
@@ -96,6 +92,18 @@ final class ENVITabBar: UIView {
         pillBackground.layer.borderColor = UIColor.white.withAlphaComponent(0.16).cgColor
         pillBackground.translatesAutoresizingMaskIntoConstraints = false
         addSubview(pillBackground)
+
+        // Base glass layer.
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        blurView.isUserInteractionEnabled = false
+        pillBackground.addSubview(blurView)
+
+        // Keep only a very light neutral tint so the blur reads as glass.
+        // A strong blue tint makes the bar look opaque.
+        tintOverlay.backgroundColor = UIColor.white.withAlphaComponent(0.08)
+        tintOverlay.translatesAutoresizingMaskIntoConstraints = false
+        tintOverlay.isUserInteractionEnabled = false
+        pillBackground.addSubview(tintOverlay)
 
         // Top edge glow: white → clear vertical gradient clipped by pill corners.
         // This creates the Sketch's luminous aura effect along the top rim.
@@ -180,6 +188,16 @@ final class ENVITabBar: UIView {
             pillBackground.heightAnchor.constraint(equalToConstant: ENVITabBar.pillHeight),
             pillBackground.topAnchor.constraint(equalTo: topAnchor),
             pillBackground.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            blurView.topAnchor.constraint(equalTo: pillBackground.topAnchor),
+            blurView.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),
+            blurView.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor),
+
+            tintOverlay.topAnchor.constraint(equalTo: pillBackground.topAnchor),
+            tintOverlay.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),
+            tintOverlay.leadingAnchor.constraint(equalTo: pillBackground.leadingAnchor),
+            tintOverlay.trailingAnchor.constraint(equalTo: pillBackground.trailingAnchor),
 
             stackView.topAnchor.constraint(equalTo: pillBackground.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: pillBackground.bottomAnchor),

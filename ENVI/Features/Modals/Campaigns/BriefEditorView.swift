@@ -8,7 +8,7 @@ struct BriefEditorView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: ENVISpacing.xl) {
                     approvalSection

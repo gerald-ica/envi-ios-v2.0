@@ -266,7 +266,7 @@ private struct CampaignEditorSheet: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: ENVISpacing.lg) {
                     editorField("Name", text: $campaign.name)
@@ -361,7 +361,7 @@ private struct CampaignEditorSheet: View {
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack {
         CampaignListView(viewModel: CampaignViewModel())
     }
     .preferredColorScheme(.dark)

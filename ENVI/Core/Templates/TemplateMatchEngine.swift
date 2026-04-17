@@ -470,12 +470,8 @@ actor TemplateMatchEngine {
         case .depthEffect: return .photoDepthEffect
         case .slomo:       return .videoHighFrameRate
         case .timelapse:   return .videoTimelapse
-        case .cinematic:
-            if #available(iOS 15.0, *) { return .videoCinematic }
-            return []
-        case .spatial:
-            if #available(iOS 18.0, *) { return .spatialMedia }
-            return []
+        case .cinematic:   return .videoCinematic
+        case .spatial:     return .spatialMedia
         }
     }
 

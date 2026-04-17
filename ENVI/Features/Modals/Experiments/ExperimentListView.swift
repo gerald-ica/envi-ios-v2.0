@@ -239,7 +239,7 @@ private struct ExperimentCardView: View {
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack {
         ExperimentListView(viewModel: ExperimentViewModel())
     }
     .preferredColorScheme(.dark)

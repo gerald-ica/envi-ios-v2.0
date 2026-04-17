@@ -5,7 +5,7 @@
 ## Requirements
 
 - **Xcode:** 15.0+
-- **Deployment target:** iOS **17.0+**
+- **Deployment target:** iOS **26.0+**
 - **macOS:** 14.0+ recommended (Sonoma)
 
 ## Open & build

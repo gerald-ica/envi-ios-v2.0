@@ -59,6 +59,9 @@ struct ForYouGalleryContainerView: View {
     }
 }
 
+/// Backward-compatible name used by legacy tab bar wiring.
+typealias HomeFeedContainerView = ForYouGalleryContainerView
+
 #Preview {
     ForYouGalleryContainerView()
         .environmentObject(AppRouter())

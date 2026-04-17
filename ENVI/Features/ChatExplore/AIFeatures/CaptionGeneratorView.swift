@@ -249,7 +249,7 @@ struct CaptionGeneratorView: View {
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack {
         CaptionGeneratorView(viewModel: AIWritingViewModel())
     }
     .preferredColorScheme(.dark)

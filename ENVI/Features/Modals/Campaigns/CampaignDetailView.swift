@@ -397,7 +397,7 @@ private struct DetailRow: View {
 }
 
 #Preview {
-    NavigationView {
+    NavigationStack {
         CampaignDetailView(campaign: .mock, viewModel: CampaignViewModel())
     }
     .preferredColorScheme(.dark)

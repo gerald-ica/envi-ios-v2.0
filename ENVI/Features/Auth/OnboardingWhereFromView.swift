@@ -6,7 +6,7 @@ import MapKit
 struct OnboardingWhereFromView: View {
     @ObservedObject var viewModel: OnboardingViewModel
     @ObservedObject private var locationManager = LocationPermissionManager.shared
-    @StateObject private var citySearch = CitySearchCompleter()
+    @StateObject private var citySearch = LocalCitySearchCompleter()
     @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isSearchFocused: Bool
 
@@ -169,6 +169,33 @@ struct OnboardingWhereFromView: View {
                 UIApplication.shared.open(url)
             }
         }
+    }
+}
+
+private final class LocalCitySearchCompleter: NSObject, ObservableObject, MKLocalSearchCompleterDelegate {
+    @Published var suggestions: [MKLocalSearchCompletion] = []
+    private let completer = MKLocalSearchCompleter()
+
+    override init() {
+        super.init()
+        completer.delegate = self
+        completer.resultTypes = .address
+    }
+
+    func search(_ query: String) {
+        guard query.count >= 2 else {
+            suggestions = []
+            return
+        }
+        completer.queryFragment = query
+    }
+
+    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        suggestions = completer.results
+    }
+
+    func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
+        suggestions = []
     }
 }
 

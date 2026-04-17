@@ -134,6 +134,9 @@ struct FeedSearchView: View {
     }
 }
 
+/// Backward-compatible name used by existing navigation call sites.
+typealias HomeFeedSearchView = FeedSearchView
+
 // MARK: - Model
 
 private struct TrendingTopic: Identifiable {

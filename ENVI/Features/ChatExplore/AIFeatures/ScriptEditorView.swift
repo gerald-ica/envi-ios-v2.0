@@ -13,7 +13,7 @@ struct ScriptEditorView: View {
     @State private var showExportSheet = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
                     if let script = viewModel.editingScript {
@@ -445,7 +445,7 @@ struct ScriptEditorView: View {
     // MARK: - Export Sheet
 
     private func exportPreviewSheet(_ script: VideoScript) -> some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 Text(viewModel.exportScriptAsText(script))
                     .font(.spaceMono(12))

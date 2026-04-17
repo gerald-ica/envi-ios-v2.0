@@ -224,6 +224,9 @@ struct LibraryItem: Identifiable, Codable {
     let id: String
     let title: String
     let imageName: String
+    let assetLocalIdentifier: String?
+    let assemblyPieceID: String?
+    let assembledMediaURL: String?
     let type: ItemType
     let height: CGFloat // For masonry layout
 
@@ -234,10 +237,22 @@ struct LibraryItem: Identifiable, Codable {
         case drafts = "Drafts"
     }
 
-    init(id: String = UUID().uuidString, title: String, imageName: String, type: ItemType, height: CGFloat) {
+    init(
+        id: String = UUID().uuidString,
+        title: String,
+        imageName: String,
+        assetLocalIdentifier: String? = nil,
+        assemblyPieceID: String? = nil,
+        assembledMediaURL: String? = nil,
+        type: ItemType,
+        height: CGFloat
+    ) {
         self.id = id
         self.title = title
         self.imageName = imageName
+        self.assetLocalIdentifier = assetLocalIdentifier
+        self.assemblyPieceID = assemblyPieceID
+        self.assembledMediaURL = assembledMediaURL
         self.type = type
         self.height = height
     }
@@ -246,6 +261,9 @@ struct LibraryItem: Identifiable, Codable {
         id = contentItem.id.uuidString
         title = contentItem.caption
         imageName = contentItem.imageName ?? LibraryItem.fallbackImageName(for: contentItem.platform)
+        assetLocalIdentifier = contentItem.assetLocalIdentifier
+        assemblyPieceID = contentItem.assemblyPieceID
+        assembledMediaURL = contentItem.assembledMediaURL
 
         switch contentItem.type {
         case .photo:

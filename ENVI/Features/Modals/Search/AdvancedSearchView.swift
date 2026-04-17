@@ -379,7 +379,7 @@ private struct FilterBuilderView: View {
     private let fields = ["platform", "content_type", "status", "engagement", "date", "tag"]
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: ENVISpacing.lg) {
                 // Field
                 VStack(alignment: .leading, spacing: ENVISpacing.xs) {

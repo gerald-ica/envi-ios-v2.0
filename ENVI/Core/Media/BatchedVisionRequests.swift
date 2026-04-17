@@ -65,7 +65,7 @@ struct BatchedVisionRequests {
     ///   - image: Decoded source image. Not retained past this call.
     ///   - orientation: EXIF orientation of the image.
     /// - Returns: Fully populated `VisionAnalysis` (fields unavailable on the current
-    ///   OS — e.g. aesthetics on iOS 17 — remain `nil`).
+    ///   OS — e.g. aesthetics when a request is unavailable — remain `nil`).
     static func analyze(
         image: CGImage,
         orientation: CGImagePropertyOrientation
@@ -91,13 +91,8 @@ struct BatchedVisionRequests {
             horizon
         ]
 
-        // iOS 18+ aesthetics
-        var aesthetics: VNCalculateImageAestheticsScoresRequest?
-        if #available(iOS 18.0, *) {
-            let req = VNCalculateImageAestheticsScoresRequest()
-            aesthetics = req
-            allRequests.append(req)
-        }
+        let aesthetics = VNCalculateImageAestheticsScoresRequest()
+        allRequests.append(aesthetics)
 
         // Single handler — image decode happens once here, shared across all sub-requests.
         let handler = VNImageRequestHandler(
@@ -159,9 +154,7 @@ struct BatchedVisionRequests {
             analysis.horizonAngle = Float(horizonObs.angle)
         }
 
-        if #available(iOS 18.0, *),
-           let aestheticsReq = aesthetics,
-           let aestheticsObs = aestheticsReq.results?.first as? VNImageAestheticsScoresObservation {
+        if let aestheticsObs = aesthetics.results?.first as? VNImageAestheticsScoresObservation {
             analysis.aestheticsScore = aestheticsObs.overallScore
             analysis.isUtility = aestheticsObs.isUtility
         }
@@ -187,14 +180,11 @@ struct BatchedVisionRequests {
             }
         }
 
-        // MARK: iOS 26 exclusives
-        if #available(iOS 26.0, *) {
-            analysis = await Self.runIOS26Additions(
-                analysis: analysis,
-                image: image,
-                orientation: orientation
-            )
-        }
+        analysis = await Self.runIOS26Additions(
+            analysis: analysis,
+            image: image,
+            orientation: orientation
+        )
 
         return analysis
     }
@@ -208,7 +198,6 @@ struct BatchedVisionRequests {
     /// a new handler (the old handler's sub-request graph is done; reopening on the
     /// same CGImage is cheap because the handler's decoded buffer is cached in the
     /// shared context's Metal texture cache when `cacheIntermediates` permits).
-    @available(iOS 26.0, *)
     private static func runIOS26Additions(
         analysis: VisionAnalysis,
         image: CGImage,

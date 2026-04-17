@@ -8,7 +8,7 @@ struct ExperimentEditorView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: ENVISpacing.lg) {
                     editorField("Name", text: $experiment.name)

@@ -312,13 +312,8 @@ actor TikTokConnector {
 
             let data: Data
             do {
-                if #available(iOS 13.4, *) {
-                    try handle.seek(toOffset: UInt64(offset))
-                    data = handle.readData(ofLength: thisChunk)
-                } else {
-                    handle.seek(toFileOffset: UInt64(offset))
-                    data = handle.readData(ofLength: thisChunk)
-                }
+                try handle.seek(toOffset: UInt64(offset))
+                data = handle.readData(ofLength: thisChunk)
             } catch {
                 throw TikTokConnectorError.videoFileUnreadable
             }

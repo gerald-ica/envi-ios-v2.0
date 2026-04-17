@@ -152,15 +152,11 @@ final class LynxWebViewController: UIViewController {
         config.suppressesIncrementalRendering = false
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
-        if #available(iOS 14.0, *) {
-            let prefs = WKWebpagePreferences()
-            prefs.allowsContentJavaScript = true
-            config.defaultWebpagePreferences = prefs
-        }
+        let prefs = WKWebpagePreferences()
+        prefs.allowsContentJavaScript = true
+        config.defaultWebpagePreferences = prefs
         // App-bound domains hardening (Info.plist must declare the domains).
-        if #available(iOS 14.0, *) {
-            config.limitsNavigationsToAppBoundDomains = true
-        }
+        config.limitsNavigationsToAppBoundDomains = true
 
         // envi-asset:// — used by Lynx to fetch user asset thumbnails by
         // local identifier without leaking filesystem paths.

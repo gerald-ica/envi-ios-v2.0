@@ -9,7 +9,7 @@ struct ExperimentResultsView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 if isLoading {
                     ENVILoadingState(minHeight: 200)

@@ -248,7 +248,7 @@ private struct TagEditorSheet: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
                 Section("Name") {
                     TextField("Tag name", text: $tag.name)

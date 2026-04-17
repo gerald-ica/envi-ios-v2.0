@@ -55,7 +55,9 @@ let package = Package(
             ],
             path: "ENVI",
             exclude: [
-                "App/ENVIApp.swift"
+                "App/ENVIApp.swift",
+                "Features/HomeFeed/ForYouGallery",
+                "Features/HomeFeed/Search"
             ],
             resources: [
                 .process("Resources/Fonts"),

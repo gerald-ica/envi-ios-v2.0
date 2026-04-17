@@ -59,7 +59,7 @@ Cache path: `FileManager.default.applicationSupportDirectory/ClassificationCache
 
 Legacy `VNImageRequestHandler` with `withCheckedContinuation`, dispatched concurrently via `TaskGroup`. Reason: Package targets iOS 26, but async Vision request API (`ClassifyImageRequest` without VN prefix) is iOS 18+.
 
-`VNCalculateImageAestheticsScoresRequest` is gated with `#if #available(iOS 18.0, *)`; on iOS 17 the engine returns `aestheticsScore: nil` / `isUtility: nil`.
+`VNCalculateImageAestheticsScoresRequest` is gated with `#if #available(iOS 18.0, *)`; when unavailable the engine returns `aestheticsScore: nil` / `isUtility: nil`.
 
 ## BGTask Registration
 
@@ -82,11 +82,11 @@ Two pre-existing main-branch build blockers were fixed to let Phase 1 files inte
 - `MetricTrend` duplicate — `ChatThread.swift` + `ContentInsight.swift`
 - `ContentTemplate` / `CreativeBrief` Codable conformance errors (likely fallout from above)
 
-**Verification approach used:** Because these unrelated pre-existing errors block `xcodebuild build`, all Phase 1 files were verified via `xcrun -sdk iphonesimulator swiftc -parse -target arm64-apple-ios17.0-simulator` against the Phase 1 file set. All files parse cleanly in isolation. Full test execution blocked until main-branch duplicate-type cleanup lands — recommend a separate PR.
+**Verification approach used:** Because these unrelated pre-existing errors block `xcodebuild build`, all Phase 1 files were verified via `xcrun -sdk iphonesimulator swiftc -parse -target arm64-apple-ios26.0-simulator` against the Phase 1 file set. All files parse cleanly in isolation. Full test execution blocked until main-branch duplicate-type cleanup lands — recommend a separate PR.
 
 ## Decisions Made
 
-- Used legacy VNImageRequestHandler pattern (iOS 17 compat) over new iOS 18+ async API
+- Used legacy VNImageRequestHandler pattern (iOS 26 compat) over new iOS 18+ async API
 - ClassifiedAsset stores metadata/visionAnalysis as `Data` blobs (not relationship types) — simpler migrations, better write perf
 - failures map keyed by `String` (PHAsset.localIdentifier) rather than `UUID` — PHAsset IDs are opaque strings
 - `MediaClassifierProtocol` + `PHAssetProviding` protocols added as testability seams

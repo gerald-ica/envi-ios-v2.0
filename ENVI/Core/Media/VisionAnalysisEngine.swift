@@ -31,11 +31,11 @@ struct VisionAnalysis: Codable, Equatable {
 
     // MARK: Aesthetics (iOS 18+)
 
-    /// Overall aesthetics score in [-1, 1]. `nil` on iOS 17 or when request fails.
+    /// Overall aesthetics score in [-1, 1]. `nil` on iOS 26 when unavailable, or when request fails.
     var aestheticsScore: Float?
 
     /// True when Vision thinks this is "utility" content (screenshot, receipt, document).
-    /// `nil` on iOS 17 or when request fails.
+    /// `nil` on iOS 26 when unavailable, or when request fails.
     var isUtility: Bool?
 
     // MARK: Faces
@@ -132,12 +132,12 @@ struct CodableRect: Codable, Equatable {
 /// template-matching uses to pick which asset to surface in which template slot.
 ///
 /// API choice: we use the legacy `VN*Request` + `VNImageRequestHandler` path because
-/// the deployment target is iOS 17 and the new `async` Vision request API
+/// the deployment target is iOS 26 and the new `async` Vision request API
 /// (e.g. `ClassifyImageRequest`) is iOS 18+ only. Requests are wrapped in
 /// `withCheckedContinuation` and dispatched concurrently via `TaskGroup`, which
 /// matches Apple's recommended batching shape. On iOS 18+ devices we additionally
 /// run `VNCalculateImageAestheticsScoresRequest` for the aesthetics + isUtility
-/// signals; on iOS 17 those fields return `nil` and the caller treats them as
+/// signals; when unavailable those fields return `nil` and the caller treats them as
 /// "unknown" (fallback pipeline in Task 5 handles this).
 actor VisionAnalysisEngine {
 
@@ -213,13 +213,7 @@ actor VisionAnalysisEngine {
         var frameAnalyses: [VisionAnalysis] = []
         for time in samplePoints {
             do {
-                let cgImage: CGImage
-                if #available(iOS 16, *) {
-                    let (image, _) = try await generator.image(at: time)
-                    cgImage = image
-                } else {
-                    cgImage = try generator.copyCGImage(at: time, actualTime: nil)
-                }
+                let (cgImage, _) = try await generator.image(at: time)
                 let analysis = try await runBatch(on: cgImage, orientation: .up)
                 frameAnalyses.append(analysis)
             } catch {

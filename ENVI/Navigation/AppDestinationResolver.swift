@@ -23,7 +23,7 @@ struct AppDestinationSheetResolver: View {
     var body: some View {
         switch destination {
         case .search:
-            FeedSearchView()
+            HomeFeedSearchView()
 
         case .contentCalendar:
             ContentCalendarSheetHost()

@@ -102,10 +102,8 @@ final class VisionPerformanceTests: XCTestCase {
             let handler = VNImageRequestHandler(cgImage: image, orientation: orientation, options: [:])
             _ = try? handler.perform([request])
         }
-        if #available(iOS 18.0, *) {
-            let handler = VNImageRequestHandler(cgImage: image, orientation: orientation, options: [:])
-            _ = try? handler.perform([VNCalculateImageAestheticsScoresRequest()])
-        }
+        let handler = VNImageRequestHandler(cgImage: image, orientation: orientation, options: [:])
+        _ = try? handler.perform([VNCalculateImageAestheticsScoresRequest()])
     }
 
     // MARK: - Tests

@@ -61,7 +61,7 @@ struct ContentLibrarySettingsView: View {
     }
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 0) {
 
