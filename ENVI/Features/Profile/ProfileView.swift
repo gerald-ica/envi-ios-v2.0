@@ -3,9 +3,18 @@ import SwiftUI
 /// Profile screen matching Sketch frame "17 - Profile".
 /// Compact avatar/identity, equal stat cards, subscription card, connected
 /// platforms, and flatter settings rows.
+///
+/// Phase 15-02: injected with `@EnvironmentObject AppRouter` so
+/// `router.sheet` / `router.fullScreen` attachments present at this root
+/// whenever any child view (or deep-link) routes here. Profile's own
+/// existing `.sheet(isPresented:)` bool-driven sheets stay as-is for
+/// this plan — they'll move to the router in Phase 16 when Profile
+/// sub-section modals (Notifications, Security, Billing, etc.) come
+/// online from the same resolver.
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var router: AppRouter
 
     var onSignOut: (() -> Void)?
     @State private var showAccountManagement = false
@@ -84,6 +93,15 @@ struct ProfileView: View {
                 AnalyticsView()
             }
             .preferredColorScheme(.dark)
+        }
+        // Router-driven sheet/full-screen for cross-tab destinations
+        // that originate while Profile is active (Phase 16 will populate
+        // more arms of the resolver).
+        .sheet(item: $router.sheet) { destination in
+            AppDestinationSheetResolver(destination: destination)
+        }
+        .fullScreenCover(item: $router.fullScreen) { destination in
+            AppDestinationFullScreenResolver(destination: destination)
         }
     }
 
@@ -265,5 +283,6 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView()
+        .environmentObject(AppRouter())
         .preferredColorScheme(.dark)
 }

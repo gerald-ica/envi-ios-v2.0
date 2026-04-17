@@ -13,6 +13,7 @@
 		045E689A407F4B9E4B5E19D5 /* profile-bg.png in Resources */ = {isa = PBXBuildFile; fileRef = 6B3A16BFAD95B62FCE7B630A /* profile-bg.png */; };
 		04D17B30CFCAA2F28770391B /* LibraryDAMRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F1F8128BD7EA813BD402A15 /* LibraryDAMRepository.swift */; };
 		06807295F52D7ED7F323B498 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E829F2A55464E6FE446E8 /* SettingsView.swift */; };
+		06E0867ED6D12225B7707E25 /* AppDestinationResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537121C2D0B039C53A81AEE4 /* AppDestinationResolver.swift */; };
 		06F48479ADCF32A4BC3F6A9E /* GrowthDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C55E10515D7F7FE3B2B729D3 /* GrowthDashboardView.swift */; };
 		0712703A1B96D2F6C81735F9 /* SegmentBuilderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99FB31BA2F5647598D478BC /* SegmentBuilderView.swift */; };
 		090D462241309091038F0DEB /* LibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE0A2C71F51EC4E8271CD59A /* LibraryViewModel.swift */; };
@@ -328,6 +329,7 @@
 		A3C1422B2AEDA933D800F377 /* GrowthModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54308D7C3334D4AAEC6D472E /* GrowthModels.swift */; };
 		A41EAA776C38555968D4B9B3 /* ImageGeneratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B5107C12BBB44BF6FB1D7D4 /* ImageGeneratorView.swift */; };
 		A4ACB2D46BB6EC095F9385CE /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 10D020CD8909967C76A0C81C /* Inter-SemiBold.ttf */; };
+		A6DEA6CD05AC111ABF782A8C /* AppRouterIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6229A4A9E5C7CD93D6600A8B /* AppRouterIntegrationTests.swift */; };
 		A79180066CEA73C2A66DECA5 /* OnboardingPhotosAccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38A1F1FB2D32A3010D4D2225 /* OnboardingPhotosAccessView.swift */; };
 		A7AE85DA1C61B1DD31FACD9E /* CampaignRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C4670B7793BBD8F34163E4 /* CampaignRepository.swift */; };
 		A80FACCBB639981E135D48E6 /* MetadataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A021004F36A3CBFA8A75D05A /* MetadataModels.swift */; };
@@ -669,6 +671,7 @@
 		51D6E61D4AD05D26CF341C08 /* ENVIErrorBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENVIErrorBanner.swift; sourceTree = "<group>"; };
 		52174703847837C02B8EDC17 /* AIWritingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIWritingModels.swift; sourceTree = "<group>"; };
 		52E5F6A5D3CF9AEA036C295E /* FirestoreBackedAnalyticsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreBackedAnalyticsRepository.swift; sourceTree = "<group>"; };
+		537121C2D0B039C53A81AEE4 /* AppDestinationResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDestinationResolver.swift; sourceTree = "<group>"; };
 		5384E3C72AE9CD43665814AC /* ThermalAwareScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalAwareScheduler.swift; sourceTree = "<group>"; };
 		53F8D3EF8780336B1B823249 /* CommerceModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommerceModels.swift; sourceTree = "<group>"; };
 		54308D7C3334D4AAEC6D472E /* GrowthModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthModels.swift; sourceTree = "<group>"; };
@@ -701,6 +704,7 @@
 		616E859040BC8E4985E5F807 /* ENVILoadingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENVILoadingState.swift; sourceTree = "<group>"; };
 		6192D04E294AD90E9ABA8F1A /* ContractManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContractManagerView.swift; sourceTree = "<group>"; };
 		61C63D4474E4F751CA186CDC /* CreatorGrowthSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatorGrowthSnapshot.swift; sourceTree = "<group>"; };
+		6229A4A9E5C7CD93D6600A8B /* AppRouterIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouterIntegrationTests.swift; sourceTree = "<group>"; };
 		62F478C0857925C27C292FA1 /* TelemetryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryManager.swift; sourceTree = "<group>"; };
 		6307D43573CD764ADCC0982A /* ExportComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportComposer.swift; sourceTree = "<group>"; };
 		64778A7E86D5082A26A8B1C2 /* Inter-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Black.ttf"; sourceTree = "<group>"; };
@@ -1871,6 +1875,7 @@
 		BB1D07EEF4F666B6A7805C9F /* ENVITests */ = {
 			isa = PBXGroup;
 			children = (
+				6229A4A9E5C7CD93D6600A8B /* AppRouterIntegrationTests.swift */,
 				F2AC7091528A70B4C770CCF9 /* AppRouterTests.swift */,
 				A6EC01B9638B9C3D4E91208A /* FeatureFlagsAnalyticsProviderTests.swift */,
 				4B9F3CF1A8E72211502286C5 /* ProfileViewModelTests.swift */,
@@ -2006,6 +2011,7 @@
 			isa = PBXGroup;
 			children = (
 				B1A63D36B88C55D87763D361 /* AppDestination.swift */,
+				537121C2D0B039C53A81AEE4 /* AppDestinationResolver.swift */,
 				3BC83D9A659FF00F3FA09C40 /* AppRouter.swift */,
 				A6737478A5CF41CC61C89E26 /* MainTabBarController.swift */,
 				F05D4AF79877D378CD732981 /* NavigationCoordinator.swift */,
@@ -2356,6 +2362,7 @@
 				57F9BA970B309F6F3523F6D0 /* AppBackground.swift in Sources */,
 				2E8EB17219B8A6C85DE6B714 /* AppCoordinator.swift in Sources */,
 				78A3EF80CFD91CB96AF1A206 /* AppDestination.swift in Sources */,
+				06E0867ED6D12225B7707E25 /* AppDestinationResolver.swift in Sources */,
 				6E2D8E53B649FE719CB62CCF /* AppEnvironment.swift in Sources */,
 				2744037EF0C243211F8B6D62 /* AppRouter.swift in Sources */,
 				A0354E561640E32962E7E4A0 /* AppleSignInButton.swift in Sources */,
@@ -2707,6 +2714,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A6DEA6CD05AC111ABF782A8C /* AppRouterIntegrationTests.swift in Sources */,
 				C1E2F1568D381D117F7302B1 /* AppRouterTests.swift in Sources */,
 				D5C80AD0D02D0842E110E4B0 /* FeatureFlagsAnalyticsProviderTests.swift in Sources */,
 				EB754680AA48BC14595DF721 /* ProfileViewModelTests.swift in Sources */,

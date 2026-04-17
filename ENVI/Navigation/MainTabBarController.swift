@@ -1,5 +1,6 @@
 import UIKit
 import SwiftUI
+import Combine
 
 /// 3-tab controller matching Sketch "Main App" design.
 ///
@@ -8,6 +9,13 @@ import SwiftUI
 /// Tab 2: Profile + Settings (circle icon)
 ///
 /// Condensed pill: 164pt wide, #4A60B2 fill, 3 icons.
+///
+/// Phase 15-02: owns a shared `AppRouter` instance that every tab root
+/// receives via `.environmentObject(router)`. `router.selectedTab` is
+/// two-way synced with `currentIndex`: programmatic
+/// `router.selectTab(n)` switches tabs via the same path as a tab-bar
+/// tap, and tab-bar taps write back to `router.selectedTab` so both
+/// stay in lockstep.
 final class MainTabBarController: UIViewController {
 
     var onSignOut: (() -> Void)?
@@ -17,6 +25,14 @@ final class MainTabBarController: UIViewController {
     private var currentIndex = 0
     private var trackedScrollViews: [UIScrollView] = []
 
+    /// Shared router injected into each tab's SwiftUI root via
+    /// `.environmentObject`.
+    private let router = AppRouter.shared
+
+    /// Combine subscription that observes `router.selectedTab` → tab
+    /// switch. Discarded on deinit.
+    private var routerTabCancellable: AnyCancellable?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = ENVITheme.UIKit.backgroundDark
@@ -24,6 +40,20 @@ final class MainTabBarController: UIViewController {
         setupTabBar()
         attachViewControllersIfNeeded()
         showViewController(at: 0)
+        bindRouter()
+    }
+
+    // MARK: - Router sync
+
+    /// Wire `router.selectedTab` → `showViewController` so programmatic
+    /// router-driven navigation from SwiftUI lands on the right tab.
+    private func bindRouter() {
+        routerTabCancellable = router.$selectedTab
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] index in
+                guard let self = self, index != self.currentIndex else { return }
+                self.showViewController(at: index)
+            }
     }
 
     // MARK: - Tab Setup
@@ -35,14 +65,21 @@ final class MainTabBarController: UIViewController {
         let forYouGalleryVC = makeForYouGalleryViewController()
 
         // Tab 1: World Explorer / AI Chat (center ENVI logo)
-        let chatExploreVC = UIHostingController(rootView: ChatExploreView().requiresAura())
+        let chatExploreVC = UIHostingController(
+            rootView: ChatExploreView()
+                .requiresAura()
+                .environmentObject(router)
+        )
         chatExploreVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
         // Tab 2: Profile + Settings
         let profileView = ProfileView(onSignOut: { [weak self] in
             self?.onSignOut?()
         })
-        let profileVC = UIHostingController(rootView: profileView)
+        let profileVC = UIHostingController(
+            rootView: profileView
+                .environmentObject(router)
+        )
         profileVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
         viewControllers = [forYouGalleryVC, chatExploreVC, profileVC]
@@ -54,6 +91,7 @@ final class MainTabBarController: UIViewController {
     @MainActor
     private func makeForYouGalleryViewController() -> UIViewController {
         let containerView = ForYouGalleryContainerView()
+            .environmentObject(router)
         let hostingVC = UIHostingController(rootView: containerView)
         hostingVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
         return hostingVC
@@ -74,6 +112,9 @@ final class MainTabBarController: UIViewController {
 
         customTabBar.onTabSelected = { [weak self] index in
             self?.showViewController(at: index)
+            // Mirror to router so SwiftUI observers (and future
+            // `router.selectedTab` readers) stay in sync.
+            self?.router.selectedTab = index
         }
     }
 
