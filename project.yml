@@ -113,6 +113,7 @@ targets:
       - path: ENVITests/FeedDetailBookmarkTests.swift
       - path: ENVITests/TemplateTabActionsTests.swift
       - path: ENVITests/Phase19Plan01RepoInViewRefactorTests.swift
+      - path: ENVITests/Phase19Plan02ProviderStandardizationTests.swift
     settings:
       base:
         SWIFT_VERSION: "5.0"

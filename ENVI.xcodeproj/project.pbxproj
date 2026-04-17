@@ -348,6 +348,7 @@
 		A80FACCBB639981E135D48E6 /* MetadataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A021004F36A3CBFA8A75D05A /* MetadataModels.swift */; };
 		A81809C5DD5E6CF55FD0AC27 /* decorative-ai-visual-editor.png in Resources */ = {isa = PBXBuildFile; fileRef = 2FB42FA0FAA032F08921EC63 /* decorative-ai-visual-editor.png */; };
 		A853BADA4D4234062E931C32 /* BrandKitListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0753450A0BF302E7331985FB /* BrandKitListView.swift */; };
+		A90345DD2FA88E631121CC1B /* Phase19Plan02ProviderStandardizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AF271D1FDE12BB9EC91390 /* Phase19Plan02ProviderStandardizationTests.swift */; };
 		A989A95F046A47ED122D5D03 /* particle-shape-34b.png in Resources */ = {isa = PBXBuildFile; fileRef = F69B267B87B9BA763044E695 /* particle-shape-34b.png */; };
 		AA93DA68F3E5D05F73454E8A /* StorageQuotaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77703F86F21FE2E9B656BDF3 /* StorageQuotaView.swift */; };
 		AACD61F6BECA5B26E6F98AA3 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0DFAFDA2FE943487C93574B3 /* Inter-Regular.ttf */; };
@@ -883,6 +884,7 @@
 		AF43C26E5A6B6F0A045EFC64 /* AIToolsMenuTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIToolsMenuTests.swift; sourceTree = "<group>"; };
 		B0379F9C0D69C19D89CF46A9 /* RepurposingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepurposingModels.swift; sourceTree = "<group>"; };
 		B06C3E9606869AA9C31AD25E /* ReminderManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderManagerView.swift; sourceTree = "<group>"; };
+		B0AF271D1FDE12BB9EC91390 /* Phase19Plan02ProviderStandardizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Phase19Plan02ProviderStandardizationTests.swift; sourceTree = "<group>"; };
 		B0C8ED6BD157C3015DDE2DDB /* CalendarRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarRepository.swift; sourceTree = "<group>"; };
 		B18AC5917C88F417902A403A /* SpaceMono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceMono-Bold.ttf"; sourceTree = "<group>"; };
 		B1A63D36B88C55D87763D361 /* AppDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDestination.swift; sourceTree = "<group>"; };
@@ -1935,6 +1937,7 @@
 				F537540CE31D6BA16FF48BDA /* LibraryToolsMenuTests.swift */,
 				BB5C6ACCCCB304CC5E90B604 /* Phase16Plan02SettingsEntryPointsTests.swift */,
 				6E3566E1DD2B3C74012A05EC /* Phase19Plan01RepoInViewRefactorTests.swift */,
+				B0AF271D1FDE12BB9EC91390 /* Phase19Plan02ProviderStandardizationTests.swift */,
 				4B9F3CF1A8E72211502286C5 /* ProfileViewModelTests.swift */,
 				5CA673AFE179B9A35FB5A6D0 /* PublishingTabTests.swift */,
 				72EBF00D01760AC56D19FAEF /* SupportViewModelTests.swift */,
@@ -2802,6 +2805,7 @@
 				AE944E78E5DF2AD455ED7DF9 /* LibraryToolsMenuTests.swift in Sources */,
 				5B779AA661DE242EF9F641E0 /* Phase16Plan02SettingsEntryPointsTests.swift in Sources */,
 				B76C2243EF636780094D670A /* Phase19Plan01RepoInViewRefactorTests.swift in Sources */,
+				A90345DD2FA88E631121CC1B /* Phase19Plan02ProviderStandardizationTests.swift in Sources */,
 				EB754680AA48BC14595DF721 /* ProfileViewModelTests.swift in Sources */,
 				EC65EBAF901D35DA977944F1 /* PublishingTabTests.swift in Sources */,
 				B03D1157DE06362C5FCA497A /* SupportViewModelTests.swift in Sources */,
