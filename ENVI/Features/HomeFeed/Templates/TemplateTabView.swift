@@ -206,7 +206,7 @@ struct TemplateTabView: View {
 
     @ViewBuilder
     private var forYouSection: some View {
-        let top = Array(viewModel.populatedTemplates.prefix(10))
+        let top = Array(viewModel.visibleTemplates.prefix(10))
         if !top.isEmpty {
             VStack(alignment: .leading, spacing: ENVISpacing.md) {
                 sectionLabel("For You")
@@ -228,8 +228,12 @@ struct TemplateTabView: View {
                                     selectedPreview = populated
                                     viewModel.select(populated)
                                 },
-                                onDuplicate: { /* TODO: Find similar content */ },
-                                onHide: { /* TODO: Hide template */ }
+                                onDuplicate: {
+                                    Task { await viewModel.duplicate(populated) }
+                                },
+                                onHide: {
+                                    viewModel.hide(populated)
+                                }
                             )
                         }
                         .buttonStyle(.plain)
@@ -251,11 +255,14 @@ struct TemplateTabView: View {
     @ViewBuilder
     private var categorySections: some View {
         if let selected = viewModel.selectedCategory {
-            let items = viewModel.byCategory[selected] ?? []
+            let items = (viewModel.byCategory[selected] ?? [])
+                .filter { !viewModel.hiddenIDs.contains($0.id.uuidString) }
             categoryRow(title: selected.displayName, items: items)
         } else {
             ForEach(VideoTemplateCategory.allCases) { category in
-                if let items = viewModel.byCategory[category], !items.isEmpty {
+                let items = (viewModel.byCategory[category] ?? [])
+                    .filter { !viewModel.hiddenIDs.contains($0.id.uuidString) }
+                if !items.isEmpty {
                     categoryRow(title: category.displayName, items: items)
                 }
             }
@@ -278,8 +285,12 @@ struct TemplateTabView: View {
                                     selectedPreview = populated
                                     viewModel.select(populated)
                                 },
-                                onDuplicate: { /* TODO: Find similar content */ },
-                                onHide: { /* TODO: Hide template */ }
+                                onDuplicate: {
+                                    Task { await viewModel.duplicate(populated) }
+                                },
+                                onHide: {
+                                    viewModel.hide(populated)
+                                }
                             )
                             .frame(width: 180)
                         }
