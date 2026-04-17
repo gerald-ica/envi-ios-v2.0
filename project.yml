@@ -114,6 +114,9 @@ targets:
       - path: ENVITests/TemplateTabActionsTests.swift
       - path: ENVITests/Phase19Plan01RepoInViewRefactorTests.swift
       - path: ENVITests/Phase19Plan02ProviderStandardizationTests.swift
+      - path: ENVITests/EnhancedChatViewModelTests.swift
+      - path: ENVITests/ForYouGalleryViewModelTests.swift
+      - path: ENVITests/SchedulingViewModelTests.swift
       # Phase 19 Plan 03 — un-rotted pre-existing tests:
       - path: ENVITests/Embedding/DensityClustererTests.swift
       - path: ENVITests/Embedding/DimensionReducerTests.swift
