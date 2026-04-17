@@ -2,6 +2,14 @@ import SwiftUI
 import Combine
 
 /// ViewModel for DAM (Digital Asset Management) features in the Library.
+///
+/// Phase 19 Plan 03 note: this VM is NOT orphan (as the plan originally
+/// assumed) — `AssetDetailView`, `FolderBrowserView`, `SmartCollectionView`,
+/// and `StorageQuotaView` all bind to it. It is complementary to
+/// `LibraryViewModel` (which handles library items / templates / content
+/// plan), not a duplicate. A future consolidation could merge the two
+/// if the DAM surfaces are folded into the main Library view, but that's
+/// a v1.3+ refactor, not a hygiene fix.
 final class LibraryDAMViewModel: ObservableObject {
 
     // MARK: - Published State
