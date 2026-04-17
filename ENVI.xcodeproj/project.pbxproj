@@ -508,6 +508,8 @@
 		FE24BF57A576F3463827BA58 /* decorative-shape-19.png in Resources */ = {isa = PBXBuildFile; fileRef = 0EC18D66658FFD338E95F9D7 /* decorative-shape-19.png */; };
 		FF3A9BB8AECA714C783471BC /* PageSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367A0F4C8C7169D8BB4F14D /* PageSelectorViewModel.swift */; };
 		FFCC534379F764D814266252 /* MetricCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F37019812DD5B67C5621B30 /* MetricCardView.swift */; };
+		FA2E5ED97E2D42B2919422AE /* GrowthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8891CD81E4D544D498901FDF /* GrowthViewModel.swift */; };
+		ED0979435D724B2785DE5F5A /* GrowthViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B3CC309181E49B78A6A9BB3 /* GrowthViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1014,6 +1016,8 @@
 		FE7CA623F68F981DAFBFDCD0 /* SecurityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityRepository.swift; sourceTree = "<group>"; };
 		FF893BDE3A331ECE39048447 /* BillingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingRepository.swift; sourceTree = "<group>"; };
 		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8891CD81E4D544D498901FDF /* GrowthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthViewModel.swift; sourceTree = "<group>"; };
+		3B3CC309181E49B78A6A9BB3 /* GrowthViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1907,6 +1911,7 @@
 				BB5C6ACCCCB304CC5E90B604 /* Phase16Plan02SettingsEntryPointsTests.swift */,
 				4B9F3CF1A8E72211502286C5 /* ProfileViewModelTests.swift */,
 				5CA673AFE179B9A35FB5A6D0 /* PublishingTabTests.swift */,
+				3B3CC309181E49B78A6A9BB3 /* GrowthViewModelTests.swift */,
 			);
 			path = ENVITests;
 			sourceTree = "<group>";
@@ -2150,6 +2155,7 @@
 				76D153AAC50E16327FCC9510 /* PricingView.swift */,
 				E2AD9DFCF2E03A2427AD91C9 /* ReferralView.swift */,
 				CD69ECE0BCDB60E0D8E2A983 /* UpgradePromptView.swift */,
+				8891CD81E4D544D498901FDF /* GrowthViewModel.swift */,
 			);
 			path = Growth;
 			sourceTree = "<group>";
@@ -2742,6 +2748,7 @@
 				F66867B0914B17552162B253 /* XTwitterConnector+Errors.swift in Sources */,
 				5AE76DC12FBA4AA6792A42DB /* XTwitterConnector+Models.swift in Sources */,
 				332C9A42FB5E4BFE027701E3 /* XTwitterConnector.swift in Sources */,
+				FA2E5ED97E2D42B2919422AE /* GrowthViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2758,6 +2765,7 @@
 				5B779AA661DE242EF9F641E0 /* Phase16Plan02SettingsEntryPointsTests.swift in Sources */,
 				EB754680AA48BC14595DF721 /* ProfileViewModelTests.swift in Sources */,
 				EC65EBAF901D35DA977944F1 /* PublishingTabTests.swift in Sources */,
+				ED0979435D724B2785DE5F5A /* GrowthViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
