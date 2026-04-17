@@ -52,7 +52,7 @@ final class Phase19Plan02ProviderStandardizationTests: XCTestCase {
     /// payloads rather than a blank UI, matching AnalyticsViewModel +
     /// AdvancedAnalyticsViewModel behavior. Pins Phase 19 Plan 02's
     /// "add a proper fallback" contract.
-    func testBenchmarkViewModelDevFallbackOnError() async {
+    func testBenchmarkViewModelDevFallbackOnError() async throws {
         // Note: AppEnvironment.current is `.dev` by default in the
         // ENVITests test host (Debug config). If that ever changes
         // this test will start failing and force a conscious update.

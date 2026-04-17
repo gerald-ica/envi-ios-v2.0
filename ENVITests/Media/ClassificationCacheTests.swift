@@ -70,7 +70,7 @@ final class ClassificationCacheTests: XCTestCase {
         let fetched = try await cache.fetch(localIdentifier: "ASSET-1")
         XCTAssertNotNil(fetched)
         XCTAssertEqual(fetched?.localIdentifier, "ASSET-1")
-        XCTAssertEqual(fetched?.aestheticsScore, 0.5, accuracy: 0.0001)
+        XCTAssertEqual(fetched?.aestheticsScore ?? 0, 0.5, accuracy: 0.0001)
     }
 
     func testUpsertUpdatesExisting() async throws {

@@ -114,6 +114,58 @@ targets:
       - path: ENVITests/TemplateTabActionsTests.swift
       - path: ENVITests/Phase19Plan01RepoInViewRefactorTests.swift
       - path: ENVITests/Phase19Plan02ProviderStandardizationTests.swift
+      # Phase 19 Plan 03 — un-rotted pre-existing tests:
+      - path: ENVITests/Embedding/DensityClustererTests.swift
+      - path: ENVITests/Embedding/DimensionReducerTests.swift
+      - path: ENVITests/Embedding/EmbeddingIndexTests.swift
+      - path: ENVITests/Embedding/SimilarityEngineTests.swift
+      - path: ENVITests/Templates/TemplateCatalogClientTests.swift
+      - path: ENVITests/Templates/TemplateMatchEngineTests.swift
+      - path: ENVITests/Templates/TemplateRankerTests.swift
+      - path: ENVITests/Templates/VideoTemplateModelsTests.swift
+      # FIXME(19-03): TemplateTabPerformanceTests asserts a 1-second budget
+      # for populateAll(20 templates × 500 assets); running in simulator
+      # consistently takes 1.2s. Not a code regression — simulator overhead.
+      # Deferred to device-test CI lane.
+      # - path: ENVITests/Performance/TemplateTabPerformanceTests.swift
+      - path: ENVITests/Connectors/LinkedInConnectorTests.swift
+      - path: ENVITests/Connectors/TikTokConnectorTests.swift
+      - path: ENVITests/Connectors/TikTokIntegrationTests.swift
+      - path: ENVITests/Connectors/XTwitterConnectorTests.swift
+      - path: ENVITests/OAuth/OAuthBrokerTests.swift
+      - path: ENVITests/OAuth/OAuthRefreshRotationTests.swift
+      # FIXME(19-03): SocialOAuthManagerTests.swift hits a MainActor-isolated
+      # init() issue under Swift 6 strict concurrency. Non-trivial fix; defer
+      # to v1.3 test un-rot sweep.
+      # - path: ENVITests/OAuth/SocialOAuthManagerTests.swift
+      - path: ENVITests/ENVITests.swift
+      - path: ENVITests/AppCheckConfigurationTests.swift
+      - path: ENVITests/AppConfigConnectorTests.swift
+      - path: ENVITests/ASWebAuthenticationSessionAdapterTests.swift
+      - path: ENVITests/ContentLibrarySettingsConnectTests.swift
+      - path: ENVITests/OAuthCallbackHandlerTests.swift
+      - path: ENVITests/Media/ClassificationCacheTests.swift
+      - path: ENVITests/Media/MediaClassifierTests.swift
+      - path: ENVITests/Media/MediaMetadataExtractorTests.swift
+      # FIXME(19-03): 3 Media tests fail under Swift 6 strict concurrency.
+      # MediaScanCoordinatorTests — missing `override` keyword on subclass
+      #   method (protocol signature changed out from under the test).
+      # ThermalAwareSchedulerTests — `await` inside XCTAssertEqual autoclosure
+      #   not permitted; needs `let budget = await …; XCTAssertEqual(budget, …)`
+      #   rewrite across ~8 assertions.
+      # ReverseGeocodeCacheTests — MockGeocoder doesn't conform to
+      #   `ReverseGeocoding` protocol (signature drift).
+      # All three are straightforward fixes but exceed the 10-min/file
+      # time-box. Deferred to v1.3 test un-rot sweep.
+      # - path: ENVITests/Media/MediaScanCoordinatorTests.swift
+      # - path: ENVITests/Media/ReverseGeocodeCacheTests.swift
+      # - path: ENVITests/Media/ThermalAwareSchedulerTests.swift
+      # FIXME(19-03): Vision tests fail on simulator with
+      # "Failed to create espresso context" — CoreML/VisionKit runtime
+      # is unavailable on iPhone simulator without real-device ANE access.
+      # Environmental, not a code issue. Deferred to device-test CI lane.
+      # - path: ENVITests/Media/VisionAnalysisEngineTests.swift
+      # - path: ENVITests/Media/VisionPerformanceTests.swift
     settings:
       base:
         SWIFT_VERSION: "5.0"
