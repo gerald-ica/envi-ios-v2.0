@@ -361,6 +361,7 @@
 		A3C1422B2AEDA933D800F377 /* GrowthModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54308D7C3334D4AAEC6D472E /* GrowthModels.swift */; };
 		A41EAA776C38555968D4B9B3 /* ImageGeneratorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B5107C12BBB44BF6FB1D7D4 /* ImageGeneratorView.swift */; };
 		A4ACB2D46BB6EC095F9385CE /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 10D020CD8909967C76A0C81C /* Inter-SemiBold.ttf */; };
+		A4EE816C4E4E137E2C6305F4 /* ENVIWordmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2459994BA850232B6F381AE5 /* ENVIWordmark.swift */; };
 		A6DEA6CD05AC111ABF782A8C /* AppRouterIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6229A4A9E5C7CD93D6600A8B /* AppRouterIntegrationTests.swift */; };
 		A79180066CEA73C2A66DECA5 /* OnboardingPhotosAccessView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38A1F1FB2D32A3010D4D2225 /* OnboardingPhotosAccessView.swift */; };
 		A7AE85DA1C61B1DD31FACD9E /* CampaignRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C4670B7793BBD8F34163E4 /* CampaignRepository.swift */; };
@@ -639,6 +640,7 @@
 		2124026347D2379F99B47413 /* KPICardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KPICardView.swift; sourceTree = "<group>"; };
 		21D26E56B5E2492734E2CA78 /* PurchaseConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseConstants.swift; sourceTree = "<group>"; };
 		22784A8B00A61990E6C907D7 /* OAuthSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthSession.swift; sourceTree = "<group>"; };
+		2459994BA850232B6F381AE5 /* ENVIWordmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENVIWordmark.swift; sourceTree = "<group>"; };
 		24A812107C782459D6E98CF7 /* MediaMetadataExtractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaMetadataExtractorTests.swift; sourceTree = "<group>"; };
 		25238A732CEBD4A3CC266022 /* DimensionReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DimensionReducer.swift; sourceTree = "<group>"; };
 		25A3BDCE31AC1A5383BF37DE /* GrowthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthViewModel.swift; sourceTree = "<group>"; };
@@ -1284,6 +1286,7 @@
 				65144225243991650516C3F8 /* ENVIStatusBadge.swift */,
 				E14158D388F6C5C9EBC7BB89 /* ENVITabBar.swift */,
 				C9D203F9F53669B2DD58B2F1 /* ENVIToggle.swift */,
+				2459994BA850232B6F381AE5 /* ENVIWordmark.swift */,
 				7D37C8DFD72DD0A8FEB804A6 /* MainAppComponents.swift */,
 				59DE8793914BFBC5D531F5D0 /* MainApp */,
 			);
@@ -2673,6 +2676,7 @@
 				0CF6AF372E78A8310CB6411A /* ENVITheme.swift in Sources */,
 				F3534B0947AAA5CB755343E7 /* ENVIToggle.swift in Sources */,
 				7F533B526C2E1ECF23EBC5DE /* ENVITypography.swift in Sources */,
+				A4EE816C4E4E137E2C6305F4 /* ENVIWordmark.swift in Sources */,
 				7E1045AF527A5665E39E3E8C /* EditorContainerView.swift in Sources */,
 				4FA979EDCA2AFE37B1C8256D /* EditorModels.swift in Sources */,
 				949D1C0CAFBF171C3155A251 /* EditorProjectManager.swift in Sources */,

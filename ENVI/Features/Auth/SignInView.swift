@@ -19,10 +19,7 @@ struct SignInView: View {
 
             // Logo area
             VStack(spacing: ENVISpacing.lg) {
-                Text("ENVI")
-                    .font(.spaceMonoBold(40))
-                    .tracking(-2.0)
-                    .foregroundColor(ENVITheme.text(for: colorScheme))
+                ENVIWordmark(size: .heading, color: ENVITheme.text(for: colorScheme))
 
                 Text("Welcome back")
                     .font(.interRegular(15))

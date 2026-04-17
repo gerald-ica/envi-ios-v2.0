@@ -6,11 +6,20 @@ final class SplashViewController: UIViewController {
     var onComplete: (() -> Void)?
 
     private let spiralView = SplashSpiralView()
+    // Phase 19 Plan 05 — wordmark asset unified with `ENVIWordmark`.
+    // UIKit can't embed a SwiftUI view without a hosting controller and
+    // the splash is a narrowly-scoped boot screen, so we match the
+    // ENVIWordmark's canonical rendering (SpaceMonoBold 48 pt, tracking
+    // -2.0, white on black) manually via NSAttributedString rather than
+    // adopting UIHostingConfiguration here.
     private let helloLabel: UILabel = {
         let label = UILabel()
-        label.text = "ENVI"
-        label.font = .spaceMonoBold(48)
-        label.textColor = .white
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: UIFont.spaceMonoBold(48),
+            .foregroundColor: UIColor.white,
+            .kern: -2.0
+        ]
+        label.attributedText = NSAttributedString(string: "ENVI", attributes: attrs)
         label.textAlignment = .center
         label.alpha = 0
         label.translatesAutoresizingMaskIntoConstraints = false
