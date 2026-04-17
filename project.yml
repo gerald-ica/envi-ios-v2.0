@@ -100,6 +100,7 @@ targets:
       # more suites migrate, add them explicitly here.
       - path: ENVITests/FeatureFlagsAnalyticsProviderTests.swift
       - path: ENVITests/ProfileViewModelTests.swift
+      - path: ENVITests/AppRouterTests.swift
     settings:
       base:
         SWIFT_VERSION: "5.0"
