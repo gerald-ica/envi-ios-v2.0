@@ -334,9 +334,9 @@ Plans:
 **Plans:** TBD (3 expected)
 
 Plans:
-- [ ] 18-01: `FeedDetailView.swift:107` bookmark — wire to `ContentRepository` bookmark mutation
-- [ ] 18-02: `ContentLibrarySettingsView.swift:247` CONNECT rows (YouTube / X / LinkedIn) — route through `SocialOAuthManager`, same path `ConnectedAccountsViewModel` uses
-- [ ] 18-03: `TemplateTabView.swift:231-232` `onDuplicate` / `onHide` — bind to `VideoTemplateRepository` + local hide list
+- [x] 18-01: `FeedDetailView.swift:107` bookmark — wire to `ContentRepository` bookmark mutation
+- [x] 18-02: `ContentLibrarySettingsView.swift:247` CONNECT rows (YouTube / X / LinkedIn) — route through `SocialOAuthManager`, same path `ConnectedAccountsViewModel` uses
+- [x] 18-03: `TemplateTabView.swift:231-232` `onDuplicate` / `onHide` — bind to `VideoTemplateRepository` + local hide list
 
 #### Phase 19: p4-hygiene
 
@@ -379,5 +379,5 @@ Phases execute in numeric order within each milestone.
 | 15. p1-routing-layer | v1.2 | 3/3 | Complete | 2026-04-17 |
 | 16. p1-publishing-tab-modal-entry-points-aifeatures | v1.2 | 4/4 | Complete | 2026-04-17 |
 | 17. p2-mock-to-repo-swaps | v1.2 | 3/3 | Complete | 2026-04-17 |
-| 18. p3-dead-action-fixes | v1.2 | 0/3 | Not started | - |
+| 18. p3-dead-action-fixes | v1.2 | 3/3 | Complete | 2026-04-17 |
 | 19. p4-hygiene | v1.2 | 0/5 | Not started | - |
