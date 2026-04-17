@@ -165,6 +165,24 @@ public final class FeatureFlags {
     /// Config key to `false` and call `refreshFromRemoteConfig()`.
     public var connectorsInsightsLive: Bool = true
 
+    // MARK: - Admin & Enterprise Tools (Phase 16-04)
+
+    /// Gates the Admin + Enterprise entries in the Library tools menu
+    /// (and any future Admin-only surface).
+    ///
+    /// - `true`: `LibraryToolsMenu` renders Admin (`SystemHealthView`)
+    ///           and Enterprise (`ContractManagerView`) alongside the
+    ///           creator-facing tools. Intended for internal dogfooding
+    ///           and future role-gated enterprise tenants.
+    /// - `false` (default): those rows are hidden entirely from the
+    ///           menu — regular creators never see them.
+    ///
+    /// This is a hard-coded placeholder until the role system lands
+    /// (role-based visibility tracked in the Phase-17 roadmap). Remote
+    /// Config key: `"showAdminTools"`. Flipping true in Remote Config
+    /// will expose the admin surfaces app-wide without a resubmission.
+    public var showAdminTools: Bool = false
+
     // MARK: - Init
 
     /// Private to enforce singleton use. Tests that need an isolated

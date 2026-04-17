@@ -17,6 +17,11 @@ struct LibraryView: View {
     @State private var showSearch = false
     @State private var segmentIndex = 0
 
+    // Phase 16-04 — router injected so the Library Tools menu can be
+    // surfaced via router.present(.libraryTools) from a new header
+    // affordance.
+    @EnvironmentObject private var router: AppRouter
+
     @Environment(\.colorScheme) private var colorScheme
 
     private let segments = ["For You", "Gallery"]
@@ -40,9 +45,12 @@ struct LibraryView: View {
                 }
             }
 
-            uploadFAB
-                .padding(.trailing, 24)
-                .padding(.bottom, 96)
+            VStack(spacing: ENVISpacing.md) {
+                toolsFAB
+                uploadFAB
+            }
+            .padding(.trailing, 24)
+            .padding(.bottom, 96)
         }
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showMediaPicker) {
@@ -121,6 +129,28 @@ struct LibraryView: View {
                 .shadow(color: Color.black.opacity(0.25), radius: 12, y: 8)
         }
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Tools FAB (Phase 16-04)
+
+    /// Smaller secondary FAB that opens the Library Tools menu via the
+    /// router. Stacked above the primary Upload FAB so the existing
+    /// bottom-right affordance isn't displaced.
+    private var toolsFAB: some View {
+        Button(action: { router.present(.libraryTools) }) {
+            Image(systemName: "wrench.and.screwdriver.fill")
+                .font(.system(size: 18, weight: .medium))
+                .foregroundColor(.white)
+                .frame(width: 44, height: 44)
+                .background(Color.white.opacity(0.12))
+                .overlay(
+                    Circle().stroke(Color.white.opacity(0.18), lineWidth: 1)
+                )
+                .clipShape(Circle())
+                .shadow(color: Color.black.opacity(0.2), radius: 10, y: 6)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Library Tools")
     }
 }
 
