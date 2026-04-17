@@ -307,10 +307,10 @@ Plans:
 **Plans:** TBD (4 expected)
 
 Plans:
-- [ ] 16-01: Publishing tab — add as 4th `MainTabBarController` entry; container hosts `ScheduleQueueView` + `LinkedInAuthorPickerView` + placeholder for recurring-post rules
-- [ ] 16-02: Profile/Settings entry points for Agency, Teams, Commerce, Experiments, Security, Notifications modals
-- [ ] 16-03: ChatExplore — wire 7 AIFeatures views (Ideation, AIVisualEditor, CaptionGenerator, HookLibrary, ScriptEditor, StyleTransfer, ImageGenerator) via a new mode/menu in `ChatExploreView`
-- [ ] 16-04: HomeFeed/Library entry points for BrandKit, Campaigns, Collaboration, Community, Metadata, Repurposing, Search, Admin, Enterprise modals
+- [x] 16-01: Publishing tab — add as 4th `MainTabBarController` entry; container hosts `ScheduleQueueView` + `LinkedInAuthorPickerView` + placeholder for recurring-post rules
+- [x] 16-02: Profile/Settings entry points for Agency, Teams, Commerce, Experiments, Security, Notifications modals
+- [x] 16-03: ChatExplore — wire 7 AIFeatures views (Ideation, AIVisualEditor, CaptionGenerator, HookLibrary, ScriptEditor, StyleTransfer, ImageGenerator) via a new mode/menu in `ChatExploreView`
+- [x] 16-04: HomeFeed/Library entry points for BrandKit, Campaigns, Collaboration, Community, Metadata, Repurposing, Search, Admin, Enterprise modals
 
 #### Phase 17: p2-mock-to-repo-swaps
 
@@ -377,7 +377,7 @@ Phases execute in numeric order within each milestone.
 | 13. analytics-insights-readpath | v1.1 | 6/6 | Implemented | 2026-04-16 |
 | 14. p0-analytics-unmock-profile-bind | v1.2 | 3/3 | Complete | 2026-04-17 |
 | 15. p1-routing-layer | v1.2 | 3/3 | Complete | 2026-04-17 |
-| 16. p1-publishing-tab-modal-entry-points-aifeatures | v1.2 | 0/4 | Not started | - |
+| 16. p1-publishing-tab-modal-entry-points-aifeatures | v1.2 | 4/4 | Complete | 2026-04-17 |
 | 17. p2-mock-to-repo-swaps | v1.2 | 0/3 | Not started | - |
 | 18. p3-dead-action-fixes | v1.2 | 0/3 | Not started | - |
 | 19. p4-hygiene | v1.2 | 0/5 | Not started | - |

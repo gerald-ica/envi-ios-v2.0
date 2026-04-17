@@ -3,11 +3,11 @@
 ## Current Position
 
 Milestone: **v1.2 Frontend Audit Fixes**
-Phase: **15 of 19** complete, ready to plan Phase 16
+Phase: **16 of 19** complete, ready to plan Phase 17
 Plan: Not started
-Status: Phase 15 complete; ready to plan Phase 16 (p1-publishing-tab-modal-entry-points-aifeatures)
-Last activity: 2026-04-17 — Phase 15 complete (3/3 plans shipped): AppDestination enum + AppRouter ObservableObject shipped, 4 live sheets migrated, DeepLinkRouter parses enviapp://destination/* URLs
-Progress: ▓▓░░░░░░░░ ~33% (2 of 6 phases complete)
+Status: Phase 16 complete; ready to plan Phase 17 (p2-mock-to-repo-swaps)
+Last activity: 2026-04-17 — Phase 16 complete (4/4 plans shipped): Publishing 4th tab live, 23 orphan surfaces routable via AppRouter, admin/enterprise gating behind FeatureFlags.showAdminTools
+Progress: ▓▓▓░░░░░░░ ~50% (3 of 6 phases complete)
 
 ### v1.1 status (carried forward)
 
@@ -71,9 +71,10 @@ firebase deploy --only functions,firestore:rules,firestore:indexes
 - 2026-04-17: Milestone v1.2 Frontend Audit Fixes created, 6 phases (Phases 14-19). Driven by parallel-agent frontend audit report at `Claude Files/ENVI Frontend Audit - 2026-04-17.md` (Obsidian vault). Focus: 60 orphan views, unrouted modals, Phase 13 analytics silently mocked, dead actions on reachable surfaces.
 - 2026-04-17: Phase 14 complete — analytics live, Profile bound to real user. FirebaseFirestore + FirebaseRemoteConfig linked via SPM (resolves v1.1 blocker #7). `connectorsInsightsLive` default flipped to `true` with 7 XCTests pinning provider behavior. `ProfileViewModel` hydrates from `AuthManager.currentUser()` (new bridge extension); `User.mock` confined to Preview/Debug paths with 2 new XCTests.
 - 2026-04-17: Phase 15 complete — routing layer shipped. `AppDestination` enum (35 cases) + `AppRouter` ObservableObject (published sheet/fullScreen/pushStack/selectedTab with two-way `MainTabBarController` sync) + `AppDestinationResolver` struct with 4 wired arms (Phase 16 fills remainder). Four inline `.sheet(isPresented:)` call sites migrated from bool state to `router.present(...)` in ForYouGalleryContainerView and ChatExploreView. `DeepLinkRouter` parses `enviapp://destination/{caseName}[?id=…]` URLs through a one-line-change registry; `PendingDeepLinkStore` replays deep links that arrive pre-Splash. `AppDelegate.application(_:open:)` patched — OAuth callback path byte-for-byte preserved. TelemetryManager gained `deepLinkRouted` + `deepLinkMalformed` events. 14 new XCTests (6 AppRouter + 2 integration + 6 DeepLinkRouter) bring the Xcode test bundle to 23 passing.
+- 2026-04-17: Phase 16 complete — 23 orphan surfaces now routable via AppRouter. 16-01: Publishing promoted to the 4th tab (`PublishingTabView` hosts `ScheduleQueueView`, ENVITabBar widened 164→210pt). 16-02: 6 new Profile/Settings rows (Agency, Teams, Commerce, Experiments, Security, Notifications) route via `router.present`. 16-03: `AIToolsMenuView` (2-col grid) added as a third `.ai` mode in ChatExploreView's mode-switcher, surfacing 7 AIFeatures views (Ideation + Caption/Hook/Script over AIWritingViewModel + Image/Style/Visual over AIVisualViewModel). 16-04: `LibraryToolsMenu` (3 sections, 7 visible + 2 admin-gated tools — BrandKit, Metadata, Repurposing, Campaigns, Collaboration, Community, Search + Admin, Enterprise); `FeatureFlags.showAdminTools` defaults false. AppDestination grew from 35→39 cases (schedulePost, publishResults, linkedInAuthorPicker, libraryTools). 23 new pin tests (Xcode bundle 23→46 passing). 18 atomic commits across the 4 plans.
 
 ## Session Continuity
 
 Last session: 2026-04-17
-Stopped at: Phase 15 complete (all 3 plans shipped). Ready to plan Phase 16 (p1-publishing-tab-modal-entry-points-aifeatures).
+Stopped at: Phase 16 complete (all 4 plans shipped). Ready to plan Phase 17 (p2-mock-to-repo-swaps).
 Resume file: None
