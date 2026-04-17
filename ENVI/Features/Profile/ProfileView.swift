@@ -183,6 +183,47 @@ struct ProfileView: View {
     // MARK: - Settings
 
     private var settingsSection: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            // Existing Settings group (Account, View Analytics, etc.)
+            baseSettingsGroup
+
+            // Phase 16-02 — Creator Business entry points.
+            // Agency / Teams / Commerce route via AppRouter so their
+            // modal stacks are reachable from a single identity surface.
+            routerSettingsGroup(
+                title: "CREATOR BUSINESS",
+                rows: [
+                    SettingsEntryRow(icon: "briefcase.fill",   title: "Agency",     destination: .agency),
+                    SettingsEntryRow(icon: "person.3.fill",    title: "Teams",      destination: .teams),
+                    SettingsEntryRow(icon: "bag.fill",         title: "Commerce",   destination: .commerce),
+                ]
+            )
+
+            // Phase 16-02 — Analytics & Experiments group.
+            routerSettingsGroup(
+                title: "ANALYTICS",
+                rows: [
+                    SettingsEntryRow(icon: "flask.fill", title: "Experiments", destination: .experiments),
+                ]
+            )
+
+            // Phase 16-02 — Account-scoped entry points (Security,
+            // Notifications). These live next to Account Settings
+            // conceptually; using a dedicated sub-group keeps the
+            // existing Settings rows untouched.
+            routerSettingsGroup(
+                title: "ACCOUNT",
+                rows: [
+                    SettingsEntryRow(icon: "lock.shield.fill", title: "Security",      destination: .security),
+                    SettingsEntryRow(icon: "bell.fill",        title: "Notifications", destination: .notifications),
+                ]
+            )
+        }
+    }
+
+    /// The pre-existing Settings card (Account Settings, View Analytics).
+    /// Kept as-is so Phase 16-02 doesn't touch any row that already works.
+    private var baseSettingsGroup: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionHeader("SETTINGS")
 
@@ -210,6 +251,39 @@ struct ProfileView: View {
                     settingsRow(icon: "chart.bar.xaxis", title: "View Analytics")
                 }
                 .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 4)
+            .background(ENVITheme.surfaceLow(for: colorScheme))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(ENVITheme.textLight(for: colorScheme).opacity(0.08), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+    }
+
+    /// A router-driven settings group. Each row taps through
+    /// `router.present(destination)` — no inline `.sheet` bools.
+    private func routerSettingsGroup(title: String, rows: [SettingsEntryRow]) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader(title)
+
+            VStack(spacing: 0) {
+                ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                    Button {
+                        router.present(row.destination)
+                    } label: {
+                        settingsRow(icon: row.icon, title: row.title)
+                    }
+                    .buttonStyle(.plain)
+
+                    if index < rows.count - 1 {
+                        Divider()
+                            .overlay(ENVITheme.textLight(for: colorScheme).opacity(0.12))
+                            .padding(.leading, 44)
+                    }
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 4)
@@ -279,6 +353,17 @@ struct ProfileView: View {
     private func settingsRow(icon: String, title: String) -> some View {
         MainAppSettingsRow(icon: icon, title: title) {}
     }
+}
+
+// MARK: - Phase 16-02 settings entry row model
+
+/// A single Settings row that routes through AppRouter when tapped.
+/// Grouped into sections by `ProfileView.routerSettingsGroup(...)`.
+struct SettingsEntryRow: Identifiable {
+    let id = UUID()
+    let icon: String           // SF Symbol name
+    let title: String
+    let destination: AppDestination
 }
 
 #Preview {
