@@ -46,3 +46,35 @@ func buildQueryString(_ params: [String: String]) -> String {
     components.queryItems = params.map { URLQueryItem(name: $0.key, value: $0.value) }
     return components.string ?? ""
 }
+
+// MARK: - Canonical Resolver Facade (Phase 19 — Plan 02)
+
+/// Canonical entry point for the analytics family of repositories. Gives the
+/// call site a single, flag-aware resolver per repo so VMs don't each have
+/// to know about `FeatureFlags.connectorsInsightsLive` branching or remember
+/// which provider enum owns a given resolver.
+///
+/// Usage:
+/// ```swift
+/// init(repository: AdvancedAnalyticsRepository? = nil) {
+///     self.repository = repository ?? Repositories.advancedAnalytics
+/// }
+/// ```
+///
+/// Existing `SomeRepositoryProvider.resolve()` methods remain for backwards
+/// compatibility — they're what this struct forwards to. Prefer the
+/// facade for new code.
+@MainActor
+enum Repositories {
+    static var analytics: AnalyticsRepository {
+        AnalyticsRepositoryProvider.resolve()
+    }
+
+    static var advancedAnalytics: AdvancedAnalyticsRepository {
+        AdvancedAnalyticsRepositoryProvider.resolve()
+    }
+
+    static var benchmark: BenchmarkRepository {
+        BenchmarkRepositoryProvider.resolve()
+    }
+}

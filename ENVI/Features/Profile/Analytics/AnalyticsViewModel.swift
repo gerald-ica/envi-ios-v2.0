@@ -23,7 +23,7 @@ final class AnalyticsViewModel: ObservableObject {
     init(repository: AnalyticsRepository? = nil) {
         // Resolve the repository lazily so the FeatureFlags main-actor read
         // happens inside a MainActor context.
-        self.repository = repository ?? AnalyticsRepositoryProvider.resolve()
+        self.repository = repository ?? Repositories.analytics
         Task { await reload() }
     }
 

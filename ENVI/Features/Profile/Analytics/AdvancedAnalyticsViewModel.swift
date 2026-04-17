@@ -32,7 +32,7 @@ final class AdvancedAnalyticsViewModel: ObservableObject {
     // MARK: - Init
 
     init(repository: AdvancedAnalyticsRepository? = nil) {
-        self.repository = repository ?? AdvancedAnalyticsRepositoryProvider.resolve()
+        self.repository = repository ?? Repositories.advancedAnalytics
         Task { await loadAll() }
     }
 

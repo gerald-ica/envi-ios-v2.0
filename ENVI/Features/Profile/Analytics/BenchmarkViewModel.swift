@@ -28,7 +28,7 @@ final class BenchmarkViewModel: ObservableObject {
     // MARK: - Init
 
     init(repository: BenchmarkRepository? = nil) {
-        self.repository = repository ?? BenchmarkRepositoryProvider.resolve()
+        self.repository = repository ?? Repositories.benchmark
         Task { await loadAll() }
     }
 
@@ -56,7 +56,19 @@ final class BenchmarkViewModel: ObservableObject {
                 showEmptyState = false
             }
         } catch {
-            errorMessage = error.localizedDescription
+            // Phase 19 Plan 02 — match AnalyticsViewModel / AdvancedAnalyticsViewModel
+            // fallback behavior: in dev, surface mock data so the UI stays useful
+            // during local work. In staging / prod, surface an errorMessage so
+            // failures are visible rather than silently replaced with mock data.
+            if AppEnvironment.current == .dev {
+                benchmarks = Benchmark.mock
+                insights = InsightCard.mock
+                trendSignals = TrendSignal.mock
+                weeklyDigest = .mock
+                showEmptyState = false
+            } else {
+                errorMessage = "Unable to load benchmarks right now."
+            }
         }
 
         isLoading = false
@@ -66,7 +78,11 @@ final class BenchmarkViewModel: ObservableObject {
         do {
             benchmarks = try await repository.fetchBenchmarks(category: selectedCategory)
         } catch {
-            errorMessage = error.localizedDescription
+            if AppEnvironment.current == .dev {
+                benchmarks = Benchmark.mock
+            } else {
+                errorMessage = "Unable to load benchmarks right now."
+            }
         }
     }
 
