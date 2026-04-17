@@ -3,6 +3,7 @@
 *.xcodeproj/project.xcworkspace/xcuserdata/
 *.playground/
 build/
+build_output/
 DerivedData/
 *.hmap
 *.ipa

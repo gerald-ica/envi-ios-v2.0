@@ -21,19 +21,19 @@ struct KPICardView: View {
             }
 
             Text(kpi.value)
-                .font(.spaceMonoBold(26))
+                .font(.spaceMonoBold(22))
                 .tracking(-1.0)
                 .foregroundColor(ENVITheme.text(for: colorScheme))
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
 
             Text(kpi.change)
-                .font(.spaceMono(11))
+                .font(.spaceMono(10))
                 .foregroundColor(kpi.isPositive ? ENVITheme.success : ENVITheme.error)
         }
-        .frame(maxWidth: .infinity, minHeight: 100, alignment: .leading)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, minHeight: 70, alignment: .leading)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
         .background(ENVITheme.surfaceLow(for: colorScheme))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)

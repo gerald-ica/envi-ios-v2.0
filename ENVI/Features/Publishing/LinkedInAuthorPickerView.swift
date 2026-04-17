@@ -30,6 +30,7 @@
 
 import SwiftUI
 
+@MainActor
 struct LinkedInAuthorPickerView: View {
 
     // MARK: - Inputs
@@ -45,8 +46,18 @@ struct LinkedInAuthorPickerView: View {
 
     @StateObject private var viewModel: LinkedInAuthorPickerViewModel
 
+    @MainActor
     init(
-        viewModel: LinkedInAuthorPickerViewModel = LinkedInAuthorPickerViewModel(),
+        onSelect: @escaping (LinkedInAuthorOption) -> Void,
+        onDismiss: @escaping () -> Void
+    ) {
+        _viewModel = StateObject(wrappedValue: LinkedInAuthorPickerViewModel())
+        self.onSelect = onSelect
+        self.onDismiss = onDismiss
+    }
+
+    init(
+        viewModel: LinkedInAuthorPickerViewModel,
         onSelect: @escaping (LinkedInAuthorOption) -> Void,
         onDismiss: @escaping () -> Void
     ) {

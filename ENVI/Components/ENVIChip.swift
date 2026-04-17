@@ -18,9 +18,9 @@ struct ENVIChip: View {
                 .padding(.horizontal, ENVISpacing.lg)
                 .padding(.vertical, ENVISpacing.sm)
                 .background(chipBackground)
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.sm))
+                .clipShape(Capsule())
                 .overlay(
-                    RoundedRectangle(cornerRadius: ENVIRadius.sm)
+                    Capsule()
                         .strokeBorder(chipBorder, lineWidth: 1)
                 )
         }

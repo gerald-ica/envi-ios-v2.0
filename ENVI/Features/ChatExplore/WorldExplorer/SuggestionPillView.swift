@@ -40,24 +40,23 @@ struct SuggestionPillView: View {
                 // Sparkle icon
                 Text("✦")
                     .font(.system(size: 14))
-                    .foregroundColor(ENVITheme.Dark.accent)
+                    .foregroundColor(.white) // Flat white
 
                 Text("AI HAS A SUGGESTION")
                     .font(.spaceMonoBold(11))
                     .tracking(2.0)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.white.opacity(0.9))
             }
             .padding(.horizontal, ENVISpacing.xl)
-            .padding(.vertical, ENVISpacing.md)
+            .padding(.vertical, ENVISpacing.sm) // Tighter
             .background(
                 Capsule()
-                    .fill(.ultraThinMaterial)
-                    .environment(\.colorScheme, .dark)
+                    .fill(Color(hex: "#1A1A1A")) // Flat dark
             )
             .overlay(
                 Capsule()
                     .strokeBorder(
-                        Color.white.opacity(isPulsing ? 0.35 : 0.15),
+                        Color.white.opacity(isPulsing ? 0.4 : 0.1),
                         lineWidth: 1
                     )
                     .animation(
@@ -65,7 +64,7 @@ struct SuggestionPillView: View {
                         value: isPulsing
                     )
             )
-            .shadow(color: ENVITheme.Dark.accent.opacity(0.2), radius: 16, y: 4)
+            .shadow(color: Color.black.opacity(0.3), radius: 10, y: 4)
         }
         .onAppear {
             isPulsing = true

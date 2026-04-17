@@ -28,7 +28,6 @@ struct LibraryView: View {
             VStack(spacing: 0) {
                 header
                     .padding(.top, ENVISpacing.sm)
-                    .padding(.horizontal, 16)
                     .padding(.bottom, ENVISpacing.sm)
 
                 ScrollView {
@@ -66,30 +65,22 @@ struct LibraryView: View {
     // MARK: - Header
 
     private var header: some View {
-        HStack(spacing: ENVISpacing.md) {
-            MainAppSearchPill { showSearch = true }
-
-            Spacer(minLength: 0)
-
-            MainAppTopSegmentSwitch(
-                options: segments,
-                selectedIndex: segmentIndex
-            ) { idx in
+        MainAppHeader(
+            selectedIndex: segmentIndex,
+            onSegmentChange: { idx in
                 withAnimation(.easeInOut(duration: 0.2)) { segmentIndex = idx }
-            }
-
-            Spacer(minLength: 0)
-
-            MainAppContentCalendarIcon { showCalendar = true }
-        }
+            },
+            onSearch: { showSearch = true },
+            onCalendar: { showCalendar = true }
+        )
     }
 
     // MARK: - Sections
 
     private var savedTemplates: some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+        VStack(alignment: .leading, spacing: 12) {
             sectionLabel("SAVED TEMPLATES")
-                .padding(.horizontal, 20)
+                .padding(.horizontal, MainAppSketch.screenInset)
 
             TemplateCarousel(
                 templates: viewModel.templates,
@@ -101,12 +92,12 @@ struct LibraryView: View {
     }
 
     private var socialMediaArsenal: some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+        VStack(alignment: .leading, spacing: 12) {
             sectionLabel("SOCIAL MEDIA ARSENAL")
-                .padding(.horizontal, 20)
+                .padding(.horizontal, MainAppSketch.screenInset)
 
             MasonryGridView(items: viewModel.filteredItems)
-                .padding(.horizontal, 20)
+                .padding(.horizontal, MainAppSketch.screenInset)
         }
     }
 
@@ -121,13 +112,13 @@ struct LibraryView: View {
 
     private var uploadFAB: some View {
         Button(action: { showMediaPicker = true }) {
-            Image(systemName: "arrow.up.to.line")
-                .font(.system(size: 20, weight: .semibold))
+            Image(systemName: "plus")
+                .font(.system(size: 24, weight: .regular))
                 .foregroundColor(.black)
                 .frame(width: 56, height: 56)
                 .background(Color.white)
                 .clipShape(Circle())
-                .enviElevatedShadow()
+                .shadow(color: Color.black.opacity(0.25), radius: 12, y: 8)
         }
         .buttonStyle(.plain)
     }

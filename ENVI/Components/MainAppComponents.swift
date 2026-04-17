@@ -275,10 +275,8 @@ struct MainAppSettingsRow: View {
                     .font(.system(size: 21, weight: .regular))
                     .foregroundColor(MainAppSketch.textSecondary)
             }
-            .padding(.horizontal, 22)
+            .padding(.horizontal, 6)
             .frame(height: MainAppSketch.profileRowHeight)
-            .background(MainAppSketch.surfaceLow.opacity(0.54))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -314,10 +312,8 @@ struct MainAppConnectionRow: View {
                     .background(badgeSelected ? Color.white : MainAppSketch.surfaceHigh)
                     .clipShape(Capsule())
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 6)
             .frame(height: MainAppSketch.profileRowHeight)
-            .background(MainAppSketch.surfaceLow.opacity(0.54))
-            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.plain)
     }
@@ -453,5 +449,30 @@ struct MainAppSuggestionPanel: View {
             }
         }
         .frame(width: 336, alignment: .leading)
+    }
+}
+
+struct MainAppHeader: View {
+    let selectedIndex: Int
+    let onSegmentChange: (Int) -> Void
+    let onSearch: () -> Void
+    let onCalendar: () -> Void
+
+    var body: some View {
+        ZStack {
+            HStack {
+                MainAppSearchPill(action: onSearch)
+                Spacer()
+                MainAppContentCalendarIcon(action: onCalendar)
+            }
+
+            MainAppTopSegmentSwitch(
+                options: ["For You", "Gallery"],
+                selectedIndex: selectedIndex,
+                action: onSegmentChange
+            )
+        }
+        .frame(height: 48)
+        .padding(.horizontal, MainAppSketch.screenInset)
     }
 }

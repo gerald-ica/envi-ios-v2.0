@@ -70,57 +70,12 @@ struct EnhancedChatHomeView: View {
                     .frame(height: 1)
                     .padding(.bottom, ENVISpacing.xxxl)
 
-                // MARK: - Message input (underline style)
-                VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
-                    VStack(alignment: .leading, spacing: ENVISpacing.sm) {
-                        Text("MESSAGE")
-                            .font(.spaceMonoBold(11))
-                            .tracking(11 * 0.15) // 0.15em tracking
-                            .foregroundColor(ENVITheme.text(for: colorScheme).opacity(0.5))
-
-                        TextField("Type your question...", text: $viewModel.inputText)
-                            .font(.interRegular(14))
-                            .foregroundColor(ENVITheme.text(for: colorScheme))
-                            .padding(.bottom, ENVISpacing.sm)
-                            .overlay(
-                                Rectangle()
-                                    .fill(ENVITheme.text(for: colorScheme).opacity(0.2))
-                                    .frame(height: 1),
-                                alignment: .bottom
-                            )
-                            .onSubmit {
-                                sendMessage()
-                            }
-                    }
-
-                    // MARK: - Send button
-                    Button(action: { sendMessage() }) {
-                        Text("SEND MESSAGE")
-                            .font(.spaceMonoBold(12))
-                            .tracking(12 * 0.15) // 0.15em tracking
-                            .foregroundColor(
-                                colorScheme == .dark
-                                    ? Color.black
-                                    : Color.white
-                            )
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(ENVITheme.text(for: colorScheme))
-                            .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.lg))
-                    }
-                    .buttonStyle(.plain)
-                }
+                // Removed Message input area
             }
             .padding(.horizontal, ENVISpacing.xxl)
             .padding(.top, 80)
             .padding(.bottom, ENVISpacing.xxxl)
         }
-    }
-
-    private func sendMessage() {
-        let trimmed = viewModel.inputText.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty else { return }
-        viewModel.startThread(trimmed)
     }
 }
 

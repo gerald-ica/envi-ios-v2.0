@@ -13,6 +13,7 @@ enum ENVITheme {
         static let surfaceHigh  = Color(hex: "#E8E8E8")
         static let text         = Color(hex: "#000000")
         static let textSecondary = Color.black.opacity(0.7)
+        static let textLight    = Color.black.opacity(0.5)
         static let primary      = Color(hex: "#000000")
         static let secondary    = Color.black.opacity(0.7)
         static let border       = Color.black.opacity(0.12)

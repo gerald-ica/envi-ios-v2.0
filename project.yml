@@ -41,8 +41,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.weareinformal.envi.staging
-        INFOPLIST_FILE: "ENVI/SupportingFiles/Info.plist"
-        GENERATE_INFOPLIST_FILE: "YES"
+        INFOPLIST_FILE: "ENVI/Resources/Info.plist"
+        GENERATE_INFOPLIST_FILE: "NO"
         INFOPLIST_KEY_UILaunchStoryboardName: ""
         INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_UIUserInterfaceStyle: "Dark"
@@ -79,6 +79,8 @@ targets:
         product: FirebaseAnalytics
       - package: Firebase
         product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseAppCheck
       - package: Firebase
         product: FirebaseCore
       - package: GoogleSignIn

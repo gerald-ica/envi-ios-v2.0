@@ -388,111 +388,27 @@ struct WorldExplorerView: View {
                 .padding(.bottom, ENVISpacing.lg)
 
                 // Input row
-                HStack(spacing: 10) {
-                    // Plus (+) button
-                    ZStack {
-                        Button {
+                ZStack(alignment: .bottomLeading) {
+                    ENVIBottomComposer(
+                        text: $explorerPrompt,
+                        lightMode: lightMode,
+                        isPlusMenuOpen: $plusMenuOpen,
+                        onPlusTap: {
                             withAnimation(.easeOut(duration: 0.2)) {
                                 plusMenuOpen.toggle()
                             }
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(lightMode ? .black.opacity(0.5) : .white.opacity(0.5))
-                                .rotationEffect(.degrees(plusMenuOpen ? 45 : 0))
-                                .frame(width: 36, height: 36)
-                                .background(
-                                    Circle()
-                                        .fill(lightMode ? Color.white.opacity(0.6) : Color.black.opacity(0.6))
-                                )
-                                .overlay(
-                                    Circle()
-                                        .strokeBorder(
-                                            lightMode ? Color.black.opacity(0.15) : Color.white.opacity(0.2),
-                                            lineWidth: 1
-                                        )
-                                )
-                        }
-
-                        // Expanded menu
-                        if plusMenuOpen {
-                            plusMenu
-                                .offset(y: -180)
-                                .transition(.scale(scale: 0.8, anchor: .bottomLeading).combined(with: .opacity))
-                        }
-                    }
-
-                    // Text input
-                    HStack(spacing: 0) {
-                        TextField("", text: $explorerPrompt, prompt:
-                            Text("Ask ENVI to edit, analyze, or create...")
-                                .font(.spaceMono(12))
-                                .foregroundColor(lightMode ? .black.opacity(0.25) : .white.opacity(0.25))
-                        )
-                        .font(.spaceMono(12))
-                        .foregroundColor(lightMode ? .black.opacity(0.8) : .white.opacity(0.8))
-                        .onTapGesture { plusMenuOpen = false }
-                        .onSubmit {
-                            submitExplorerPrompt()
-                        }
-
-                        // Send arrow
-                        Button {
-                            submitExplorerPrompt()
-                        } label: {
-                            Image(systemName: "arrow.up")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(lightMode ? .black.opacity(0.4) : .white.opacity(0.4))
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .overlay(alignment: .bottom) {
-                        Rectangle()
-                            .fill(lightMode ? Color.black.opacity(0.15) : Color.white.opacity(0.2))
-                            .frame(height: 0.5)
-                    }
-
-                    // Voice button
-                    Button {
-                        openVoice()
-                    } label: {
-                        Image(systemName: "mic")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(lightMode ? .black.opacity(0.5) : .white.opacity(0.5))
-                            .frame(width: 36, height: 36)
-                            .background(
-                                Circle()
-                                    .fill(lightMode ? Color.white.opacity(0.6) : Color.black.opacity(0.6))
-                            )
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(
-                                        lightMode ? Color.black.opacity(0.15) : Color.white.opacity(0.2),
-                                        lineWidth: 1
-                                    )
-                            )
-                    }
-
-                    // Compass reset button
-                    Button {
-                        resetView()
-                    } label: {
-                        compassIcon
-                            .frame(width: 36, height: 36)
-                            .background(
-                                Circle()
-                                    .fill(lightMode ? Color.white.opacity(0.6) : Color.black.opacity(0.6))
-                            )
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(
-                                        lightMode ? Color.black.opacity(0.15) : Color.white.opacity(0.2),
-                                        lineWidth: 1
-                                    )
-                            )
+                        },
+                        onVoiceTap: { openVoice() },
+                        onCompassTap: { resetView() },
+                        onSendTap: { submitExplorerPrompt() }
+                    )
+                    
+                    if plusMenuOpen {
+                        plusMenu
+                            .offset(x: ENVISpacing.xxl, y: -60)
+                            .transition(.scale(scale: 0.8, anchor: .bottomLeading).combined(with: .opacity))
                     }
                 }
-                .padding(.horizontal, ENVISpacing.xxl)
             }
             .padding(.top, ENVISpacing.xxxl)
             .padding(.bottom, ENVISpacing.xl)

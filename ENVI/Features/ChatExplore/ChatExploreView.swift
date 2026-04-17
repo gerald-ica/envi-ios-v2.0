@@ -91,18 +91,11 @@ struct ChatExploreView: View {
     // MARK: - Mode Toggle
 
     private var modeToggle: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: ENVISpacing.xl) {
             ForEach(ExploreMode.allCases, id: \.self) { mode in
                 segmentButton(for: mode)
             }
         }
-        .padding(4)
-        .background(Color.white.opacity(0.08))
-        .clipShape(Capsule())
-        .overlay(
-            Capsule()
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
-        )
     }
 
     private func segmentButton(for mode: ExploreMode) -> some View {
@@ -113,17 +106,17 @@ struct ChatExploreView: View {
                 selectedMode = mode
             }
         } label: {
-            Text(mode.rawValue)
-                .font(.spaceMonoBold(11))
-                .tracking(1.2)
-                .foregroundColor(isSelected ? .black : .white.opacity(0.62))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule()
-                        .fill(isSelected ? Color.white : Color.clear)
-                )
-                .contentShape(Rectangle())
+            VStack(spacing: 4) {
+                Text(mode.rawValue)
+                    .font(.spaceMonoBold(12))
+                    .tracking(1.5)
+                    .foregroundColor(isSelected ? .white : .white.opacity(0.4))
+                
+                Rectangle()
+                    .fill(isSelected ? Color.white : Color.clear)
+                    .frame(height: 2)
+            }
+            .fixedSize()
         }
         .buttonStyle(.plain)
     }
@@ -211,10 +204,23 @@ struct EnhancedChatView: View {
 
             Spacer(minLength: 0)
 
-            EnhancedChatInputBar(onSend: { text in
-                viewModel.inputText = text
-                viewModel.startThread(text)
-            })
+            ZStack(alignment: .bottomLeading) {
+                ENVIBottomComposer(
+                    text: $viewModel.inputText,
+                    lightMode: colorScheme == .light,
+                    isPlusMenuOpen: .constant(false), // Or add state if needed
+                    onPlusTap: { },
+                    onVoiceTap: { },
+                    onCompassTap: { },
+                    onSendTap: {
+                        let trimmed = viewModel.inputText.trimmingCharacters(in: .whitespaces)
+                        guard !trimmed.isEmpty else { return }
+                        viewModel.startThread(trimmed)
+                        viewModel.inputText = ""
+                    }
+                )
+                .padding(.bottom, ENVISpacing.xl)
+            }
         }
         .background(AppBackground(imageName: "chat-home-bg"))
         .onChange(of: seedPrompt) { _, prompt in

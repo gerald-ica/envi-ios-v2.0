@@ -41,29 +41,16 @@ struct ForYouGalleryContainerView: View {
     // MARK: - Header
 
     private var headerBar: some View {
-        HStack(spacing: ENVISpacing.md) {
-            MainAppSearchPill { showSearch = true }
-
-            Spacer(minLength: 0)
-
-            segmentedControl
-
-            Spacer(minLength: 0)
-
-            MainAppContentCalendarIcon { showCalendar = true }
-        }
-        .padding(.horizontal, 16)
-    }
-
-    private var segmentedControl: some View {
-        MainAppTopSegmentSwitch(
-            options: ForYouGalleryViewModel.Segment.allCases.map(\.rawValue),
-            selectedIndex: viewModel.selectedSegment == .forYou ? 0 : 1
-        ) { index in
-            withAnimation(.easeInOut(duration: 0.25)) {
-                viewModel.selectedSegment = index == 0 ? .forYou : .gallery
-            }
-        }
+        MainAppHeader(
+            selectedIndex: viewModel.selectedSegment == .forYou ? 0 : 1,
+            onSegmentChange: { index in
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    viewModel.selectedSegment = index == 0 ? .forYou : .gallery
+                }
+            },
+            onSearch: { showSearch = true },
+            onCalendar: { showCalendar = true }
+        )
     }
 }
 

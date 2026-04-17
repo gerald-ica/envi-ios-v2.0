@@ -76,7 +76,7 @@ struct ForYouSwipeView: View {
                             onDisapprove: { viewModel.disapprove(item.id) },
                             onBookmark: { viewModel.bookmarkCard(id: item.id) }
                         )
-                        .padding(.bottom, index == viewModel.forYouItems.count - 1 ? 0 : -24)
+                        .padding(.bottom, index == viewModel.forYouItems.count - 1 ? 0 : 16)
                         .zIndex(Double(viewModel.forYouItems.count - index))
                     }
                 }
@@ -313,7 +313,7 @@ private struct SwipeableCardView: View {
     /// - Best time:  shape-01.png           (15×15)
     /// - Reach:      eye.fill SF Symbol     (Sketch uses a vector path)
     private var aiScorePreviews: some View {
-        VStack(alignment: .trailing, spacing: 6) {
+        VStack(alignment: .trailing, spacing: 4) {
             scorePill(
                 bitmap: "envi-ai-confidence",
                 size: CGSize(width: 14, height: 10),
@@ -365,7 +365,7 @@ private struct SwipeableCardView: View {
     }
 
     private var cardContent: some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+        VStack(alignment: .leading, spacing: ENVISpacing.sm) {
             Spacer()
 
             Text(item.caption)

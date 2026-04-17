@@ -129,7 +129,7 @@ final class XTwitterConnector {
         //    Cloud Function round-trip so user sees errors instantly.
         var mediaID: String? = nil
         if let mediaURL = mediaPath {
-            try validateLocalMedia(at: mediaURL)
+            try await validateLocalMedia(at: mediaURL)
             let ticket = try await uploadMedia(fileURL: mediaURL)
             mediaID = ticket.mediaID
         }
@@ -206,7 +206,7 @@ final class XTwitterConnector {
         let totalBytes = (attrs[.size] as? NSNumber)?.intValue ?? 0
 
         let mimeType = Self.mimeType(for: fileURL)
-        let durationSeconds = Self.videoDurationSeconds(at: fileURL)
+        let durationSeconds = await Self.videoDurationSeconds(at: fileURL)
 
         // Stage to Cloud Storage via Phase 7's shared signed-URL helper.
         // The storagePath we hand to the Cloud Function is `gs://<bucket>/
@@ -238,7 +238,7 @@ final class XTwitterConnector {
     /// Validate the local file against X constraints BEFORE any network
     /// call. Keeps the UI responsive: user picks a 4GB video, we reject
     /// immediately instead of after a 30-second upload.
-    private func validateLocalMedia(at fileURL: URL) throws {
+    private func validateLocalMedia(at fileURL: URL) async throws {
         let ext = fileURL.pathExtension.lowercased()
         let isVideo = XMediaConstraints.supportedVideoExtensions.contains(ext)
         let isImage = XMediaConstraints.supportedImageExtensions.contains(ext)
@@ -255,7 +255,7 @@ final class XTwitterConnector {
         }
 
         if isVideo {
-            let duration = Self.videoDurationSeconds(at: fileURL)
+            let duration = await Self.videoDurationSeconds(at: fileURL)
             if duration < XMediaConstraints.videoMinSeconds {
                 throw XConnectorError.mediaDurationOutOfRange(seconds: duration)
             }
@@ -324,7 +324,7 @@ final class XTwitterConnector {
     /// compile-time cost for callers that never touch video; loaded
     /// dynamically via Objective-C runtime — simpler and doesn't drag
     /// AVFoundation into other units.
-    private static func videoDurationSeconds(at url: URL) -> Double {
+    private static func videoDurationSeconds(at url: URL) async -> Double {
         // Only attempt for known video extensions.
         let ext = url.pathExtension.lowercased()
         guard XMediaConstraints.supportedVideoExtensions.contains(ext) else {
@@ -334,7 +334,7 @@ final class XTwitterConnector {
         #if canImport(AVFoundation)
         // Bridge in at the call site. Using a runtime check keeps tests
         // on platforms that stub AVFoundation compilable.
-        return DurationProbe.seconds(forFileAt: url)
+        return await DurationProbe.seconds(forFileAt: url)
         #else
         return 0
         #endif
@@ -364,13 +364,19 @@ import AVFoundation
 /// Thin AVURLAsset wrapper. Isolated so the main connector file doesn't
 /// carry the AVFoundation dependency at top-level.
 private enum DurationProbe {
-    static func seconds(forFileAt url: URL) -> Double {
+    static func seconds(forFileAt url: URL) async -> Double {
         let asset = AVURLAsset(url: url)
         // `CMTimeGetSeconds` returns NaN for invalid assets — collapse
         // to 0 so the caller's validation path treats it as a
         // `.mediaDurationOutOfRange(0)` rather than crashing on a
         // NaN comparison.
-        let seconds = CMTimeGetSeconds(asset.duration)
+        let duration: CMTime
+        do {
+            duration = try await asset.load(.duration)
+        } catch {
+            return 0
+        }
+        let seconds = CMTimeGetSeconds(duration)
         return seconds.isFinite ? seconds : 0
     }
 }

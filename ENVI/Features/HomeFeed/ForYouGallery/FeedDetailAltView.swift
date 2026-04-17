@@ -67,7 +67,7 @@ struct FeedDetailAltView: View {
     }
 
     private var aiScorePreviews: some View {
-        VStack(alignment: .trailing, spacing: 6) {
+        VStack(alignment: .trailing, spacing: 4) {
             scorePill(system: "sparkles", text: "\(Int(item.confidenceScore * 100))%")
             scorePill(system: "clock.fill", text: item.bestTime)
             scorePill(system: "eye.fill", text: item.estimatedReach)

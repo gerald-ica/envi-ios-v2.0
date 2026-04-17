@@ -106,7 +106,7 @@ enum MetaConnectorError: Error, LocalizedError {
 /// Shared base for the three Meta-family connectors. Subclasses fix the
 /// `metaPlatform` via their designated init and — if their Graph host
 /// differs — override `baseGraphURL`.
-open class MetaGraphConnector: ObservableObject {
+class MetaGraphConnector: ObservableObject {
 
     // MARK: - Configuration
 
@@ -117,16 +117,16 @@ open class MetaGraphConnector: ObservableObject {
     /// Base URL for the Graph API. Defaults to Facebook Graph v21.0.
     /// `ThreadsConnector` MUST override this to `graph.threads.net/v1.0`.
     ///
-    /// Declared `open var` (not `static`) so subclasses override per-instance
-    /// rather than requiring a new type parameter.
-    open var baseGraphURL: URL {
+    /// Declared as an instance property (not `static`) so subclasses override
+    /// per-instance rather than requiring a new type parameter.
+    var baseGraphURL: URL {
         URL(string: "https://graph.facebook.com/v21.0")!
     }
 
     // MARK: - Published State
 
     /// Current connection state. `nil` before `connect()` resolves.
-    @Published public internal(set) var connection: PlatformConnection?
+    @Published private(set) var connection: PlatformConnection?
 
     // MARK: - Dependencies
 
@@ -145,7 +145,7 @@ open class MetaGraphConnector: ObservableObject {
     ///   - metaPlatform: Which Meta sub-platform this instance wraps.
     ///   - oauthManager: OAuth broker wrapper. Defaults to shared singleton.
     ///   - apiClient: Broker HTTP client. Defaults to shared singleton.
-    public init(
+    init(
         metaPlatform: MetaPlatform,
         oauthManager: SocialOAuthManager = .shared,
         apiClient: APIClient = .shared
@@ -167,7 +167,7 @@ open class MetaGraphConnector: ObservableObject {
     ///   an explicit anchor in SwiftUI previews or tests if needed.
     /// - Returns: Resolved `PlatformConnection` as stored by the broker.
     @discardableResult
-    open func connect(
+    func connect(
         presentationAnchor: ASPresentationAnchor
     ) async throws -> PlatformConnection {
         let platform = metaPlatform.socialPlatform
@@ -182,7 +182,7 @@ open class MetaGraphConnector: ObservableObject {
 
     /// Revoke at the provider + delete broker-side state. Clears
     /// `connection` on success.
-    open func disconnect() async throws {
+    func disconnect() async throws {
         let platform = metaPlatform.socialPlatform
         do {
             try await oauthManager.disconnect(platform: platform)
@@ -197,7 +197,7 @@ open class MetaGraphConnector: ObservableObject {
     /// token is past its 60-day window the broker responds with
     /// `requiresReauth` and this throws `.refreshFailed(needsReauth: true)`.
     @discardableResult
-    open func refreshToken() async throws -> PlatformConnection {
+    func refreshToken() async throws -> PlatformConnection {
         let platform = metaPlatform.socialPlatform
         do {
             let result = try await oauthManager.refreshToken(platform: platform)

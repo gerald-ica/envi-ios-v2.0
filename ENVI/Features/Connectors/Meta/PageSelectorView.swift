@@ -37,11 +37,16 @@ struct PageSelectorView: View {
     // MARK: - Init
 
     init(
-        viewModel: PageSelectorViewModel = PageSelectorViewModel(),
+        viewModel: PageSelectorViewModel,
         onComplete: @escaping (Bool) -> Void
     ) {
         self._viewModel = StateObject(wrappedValue: viewModel)
         self.onComplete = onComplete
+    }
+
+    @MainActor
+    init(onComplete: @escaping (Bool) -> Void) {
+        self.init(viewModel: PageSelectorViewModel(), onComplete: onComplete)
     }
 
     // MARK: - Body

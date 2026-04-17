@@ -45,7 +45,7 @@ import Foundation
 /// Populated from `/rest/organizationAcls` + `/rest/organizationsLookup`
 /// on the server. The iOS side receives a pre-shaped array via
 /// `fetchAdminOrganizations()`; we never call LinkedIn directly.
-struct LinkedInOrganization: Identifiable, Codable, Equatable, Sendable {
+struct LinkedInOrganization: Identifiable, Codable, Equatable, Hashable, Sendable {
     /// Bare organization id (e.g. `"12345"`).
     let id: String
 

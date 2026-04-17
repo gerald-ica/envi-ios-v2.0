@@ -25,9 +25,9 @@ struct MasonryGridView: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: ENVISpacing.md) {
+        HStack(alignment: .top, spacing: 8) {
             ForEach(0..<2, id: \.self) { colIndex in
-                LazyVStack(spacing: ENVISpacing.md) {
+                LazyVStack(spacing: 8) {
                     ForEach(columns[colIndex]) { item in
                         MasonryItemView(item: item)
                     }
@@ -53,17 +53,17 @@ private struct MasonryItemView: View {
 
             // Gradient + title
             LinearGradient(
-                colors: [.clear, .black.opacity(0.6)],
-                startPoint: .top,
+                colors: [.clear, .black.opacity(0.75)],
+                startPoint: .center,
                 endPoint: .bottom
             )
 
-            Text(item.title.uppercased())
-                .font(.spaceMonoBold(11))
-                .tracking(1.5)
+            Text(item.title)
+                .font(.interSemiBold(13))
                 .foregroundColor(.white)
-                .padding(ENVISpacing.md)
+                .lineLimit(2)
+                .padding(10)
         }
-        .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }

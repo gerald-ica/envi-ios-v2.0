@@ -27,8 +27,8 @@ final class ENVITabBar: UIView {
     }
 
     static let defaultTabs: [Tab] = [
-        Tab(iconName: nil, imageName: "shape-15", iconPointSize: 0, imageWidth: 22, imageHeight: 22, persistentDisc: false),
-        Tab(iconName: nil, imageName: "envi-logo", iconPointSize: 0, imageWidth: 26, imageHeight: 21, persistentDisc: false),
+        Tab(iconName: nil, imageName: "shape-15", iconPointSize: 0, imageWidth: 30, imageHeight: 30, persistentDisc: false),
+        Tab(iconName: nil, imageName: "envi-logo", iconPointSize: 0, imageWidth: 30, imageHeight: 25, persistentDisc: false),
         Tab(iconName: "person.fill", imageName: nil, iconPointSize: 19, imageWidth: 0, imageHeight: 0, persistentDisc: true),
     ]
 

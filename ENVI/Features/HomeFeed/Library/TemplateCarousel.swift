@@ -10,15 +10,15 @@ struct TemplateCarousel: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.md) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("SAVED TEMPLATES")
-                .font(.spaceMono(11))
-                .tracking(0.88)
-                .foregroundColor(ENVITheme.textLight(for: colorScheme))
-                .padding(.horizontal, ENVISpacing.xl)
+                .font(.spaceMonoBold(11))
+                .tracking(2.0)
+                .foregroundColor(.white.opacity(0.55))
+                .padding(.horizontal, MainAppSketch.screenInset)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: ENVISpacing.md) {
+                HStack(spacing: 12) {
                     ForEach(templates) { template in
                         LibraryTemplateCardView(
                             template: template,
@@ -28,7 +28,7 @@ struct TemplateCarousel: View {
                         )
                     }
                 }
-                .padding(.horizontal, ENVISpacing.xl)
+                .padding(.horizontal, MainAppSketch.screenInset)
             }
         }
     }
@@ -39,26 +39,29 @@ private struct LibraryTemplateCardView: View {
     let onApply: (TemplateItem) -> Void
     let onDuplicate: (TemplateItem) -> Void
     let onDelete: (TemplateItem) -> Void
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: ENVISpacing.sm) {
+        VStack(alignment: .leading, spacing: 8) {
             Image(template.imageName)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(width: 140, height: 190)
-                .clipShape(RoundedRectangle(cornerRadius: ENVIRadius.md))
+                // 3-up sizing on 393pt screen (393 - 48 margins - 24 gaps = 321 / 3 = 107)
+                .frame(width: 107, height: 148)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-            Text(template.title)
-                .font(.spaceMonoBold(13))
-                .tracking(0.5)
-                .foregroundColor(ENVITheme.text(for: colorScheme))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(template.title)
+                    .font(.interSemiBold(13))
+                    .foregroundColor(MainAppSketch.text)
+                    .lineLimit(1)
 
-            Text(template.category.uppercased())
-                .font(.spaceMono(10))
-                .foregroundColor(ENVITheme.textLight(for: colorScheme))
+                Text(template.category.uppercased())
+                    .font(.spaceMono(10))
+                    .foregroundColor(MainAppSketch.textSecondary)
+                    .lineLimit(1)
+            }
         }
-        .frame(width: 140)
+        .frame(width: 107)
         .onTapGesture { onApply(template) }
         .contextMenu {
             Button("Use Template") { onApply(template) }
