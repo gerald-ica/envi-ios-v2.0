@@ -7,6 +7,12 @@ protocol ContentRepository {
     func duplicateTemplate(templateID: UUID) async throws -> TemplateItem
     func deleteTemplate(templateID: UUID) async throws
 
+    // MARK: - Bookmarks
+    /// Persists the bookmarked state for a feed/library `ContentItem`.
+    /// Called by `FeedDetailView` after an optimistic UI toggle; on throw,
+    /// the caller reverts the local state.
+    func setBookmarked(contentID: UUID, bookmarked: Bool) async throws
+
     // MARK: - Planning CRUD
     func createPlanItem(title: String, platform: SocialPlatform, scheduledAt: Date) async throws -> ContentPlanItem
     func updatePlanItem(id: UUID, title: String?, platform: SocialPlatform?, scheduledAt: Date?, status: ContentPlanItem.Status?) async throws -> ContentPlanItem
@@ -16,6 +22,10 @@ protocol ContentRepository {
 
 final class MockContentRepository: ContentRepository {
     private var planItems: [ContentPlanItem] = ContentPlanItem.mockPlan
+    /// Local bookmark store — matches the UUID of the ContentItem. Persists only
+    /// for the process lifetime (tests + dev). APIContentRepository owns the
+    /// durable path.
+    private(set) var bookmarkedIDs: Set<UUID> = []
 
     func fetchFeedItems() async throws -> [ContentItem] {
         ContentItem.mockFeed
@@ -27,6 +37,14 @@ final class MockContentRepository: ContentRepository {
 
     func fetchContentPlan() async throws -> [ContentPlanItem] {
         planItems
+    }
+
+    func setBookmarked(contentID: UUID, bookmarked: Bool) async throws {
+        if bookmarked {
+            bookmarkedIDs.insert(contentID)
+        } else {
+            bookmarkedIDs.remove(contentID)
+        }
     }
 
     func duplicateTemplate(templateID: UUID) async throws -> TemplateItem {
@@ -132,6 +150,16 @@ final class APIContentRepository: ContentRepository {
         try await apiClient.requestVoid(
             endpoint: "templates/\(templateID.uuidString)",
             method: .delete,
+            requiresAuth: true
+        )
+    }
+
+    func setBookmarked(contentID: UUID, bookmarked: Bool) async throws {
+        let body: SetBookmarkedBody? = SetBookmarkedBody(bookmarked: bookmarked)
+        try await apiClient.requestVoid(
+            endpoint: "content/\(contentID.uuidString)/bookmark",
+            method: .put,
+            body: body,
             requiresAuth: true
         )
     }
@@ -251,6 +279,10 @@ struct UpdatePlanItemBody: Encodable {
 
 struct ReorderPlanItemsBody: Encodable {
     let ids: [String]
+}
+
+struct SetBookmarkedBody: Encodable {
+    let bookmarked: Bool
 }
 
 // MARK: - Planning Response
