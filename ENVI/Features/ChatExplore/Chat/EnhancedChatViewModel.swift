@@ -70,11 +70,19 @@ final class EnhancedChatViewModel: ObservableObject {
 
     private var typingWorkItem: DispatchWorkItem?
 
-    // MARK: - Mock Thread Data (dev environment only)
+    // MARK: - Mock Thread Data (DEBUG builds only)
 
     /// Mock threads are only used in `.dev` environment for preview and offline development.
     /// In `.staging` and `.prod`, unmatched queries are routed to the Oracle API.
+    ///
+    /// Phase 19 Plan 03: the value closure now short-circuits on non-DEBUG
+    /// builds AND the whole string literal block is `#if DEBUG`-gated so
+    /// the ~130 lines of hardcoded mock content never compile into a
+    /// release binary. Access sites (e.g. `resolveThread`) continue to
+    /// reference `mockThreads`; the property survives in release as an
+    /// empty dictionary.
     private let mockThreads: [String: ChatThread] = {
+        #if DEBUG
         guard AppEnvironment.current == .dev else { return [:] }
 
         var threads: [String: ChatThread] = [:]
@@ -190,6 +198,9 @@ final class EnhancedChatViewModel: ObservableObject {
         )
 
         return threads
+        #else
+        return [:]
+        #endif
     }()
 
     // MARK: - Default Thread (dev-only fallback for unrecognized queries)
