@@ -281,9 +281,9 @@
 **Plans:** TBD (3 expected)
 
 Plans:
-- [ ] 14-01: Link `FirebaseFirestore` SPM product to ENVI target (resolves v1.1 STATE blocker #7)
-- [ ] 14-02: Flip `FeatureFlags.connectorsInsightsLive` default to `true` in prod config + verify `AnalyticsRepositoryProvider.resolve()` returns Firestore-backed repo
-- [ ] 14-03: Bind `AccountRepository` to `ProfileViewModel`; remove `User.mock` from production path
+- [x] 14-01: Link `FirebaseFirestore` SPM product to ENVI target (resolves v1.1 STATE blocker #7)
+- [x] 14-02: Flip `FeatureFlags.connectorsInsightsLive` default to `true` in prod config + verify `AnalyticsRepositoryProvider.resolve()` returns Firestore-backed repo
+- [x] 14-03: Bind `AccountRepository` to `ProfileViewModel`; remove `User.mock` from production path
 
 #### Phase 15: p1-routing-layer
 
@@ -375,7 +375,7 @@ Phases execute in numeric order within each milestone.
 | 11. linkedin-connector | v1.1 | 5/5 | Implemented | 2026-04-16 |
 | 12. publish-lifecycle-hardening | v1.1 | 7/7 | Implemented | 2026-04-16 |
 | 13. analytics-insights-readpath | v1.1 | 6/6 | Implemented | 2026-04-16 |
-| 14. p0-analytics-unmock-profile-bind | v1.2 | 0/3 | Not started | - |
+| 14. p0-analytics-unmock-profile-bind | v1.2 | 3/3 | Complete | 2026-04-17 |
 | 15. p1-routing-layer | v1.2 | 0/3 | Not started | - |
 | 16. p1-publishing-tab-modal-entry-points-aifeatures | v1.2 | 0/4 | Not started | - |
 | 17. p2-mock-to-repo-swaps | v1.2 | 0/3 | Not started | - |

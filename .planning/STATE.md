@@ -3,11 +3,11 @@
 ## Current Position
 
 Milestone: **v1.2 Frontend Audit Fixes**
-Phase: **14 of 19** (p0-analytics-unmock-profile-bind — ready to plan)
+Phase: **14 of 19** complete (p0-analytics-unmock-profile-bind — 2026-04-17); next is 15 (p1-routing-layer)
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-04-17 — Milestone v1.2 created, driven by 2026-04-17 Frontend Audit
-Progress: ░░░░░░░░░░ 0% (6 phases)
+Status: Phase 14 complete; ready to plan Phase 15
+Last activity: 2026-04-17 — Phase 14 complete (3/3 plans shipped): FirebaseFirestore+RemoteConfig linked, connectorsInsightsLive default flipped to true, ProfileViewModel bound to real auth user
+Progress: ▓░░░░░░░░░ ~17% (1 of 6 phases complete)
 
 ### v1.1 status (carried forward)
 
@@ -22,7 +22,7 @@ v1.1 Real Social Connectors — implementation complete (Phases 6–13, 2026-04-
 4. **TikTok Sandbox tester allowlist** — add ENVI team members before integration test
 5. **FB App Review** — `pages_manage_posts` scope; `FeatureFlags.canConnectFacebook` stays `false` until approved
 6. **LinkedIn MDP approval** — org scopes locked until email approval arrives (1-5 business days)
-7. **Link FirebaseFirestore SPM product** to ENVI target — Phase 13 Firestore-backed repos are `#if canImport` gated
+7. ~~**Link FirebaseFirestore SPM product** to ENVI target — Phase 13 Firestore-backed repos are `#if canImport` gated~~ **RESOLVED 2026-04-17** (Phase 14-01: `FirebaseFirestore` + `FirebaseRemoteConfig` added to `Package.swift` + `project.yml`; build verified on iPhone 17 Pro)
 
 **Verification commands (run in order):**
 ```bash
@@ -69,9 +69,10 @@ firebase deploy --only functions,firestore:rules,firestore:indexes
 - 2026-04-16: Milestone v1.1 Real Social Connectors created, 8 phases (Phases 6-13). Focus: replace mocks with real broker + 6 provider integrations + insights read-path.
 - 2026-04-16: Phase 7 OAuth broker infrastructure shipped. `functions/src/oauth/` — adapter interface + registry + start/callback/refresh/disconnect/status handlers. iOS: `SocialOAuthManager.useMockOAuth` removed, replaced with `FeatureFlags.connectorsUseMockOAuth` (DEBUG default: true). `ProviderOAuthAdapter` interface locked — Phase 8+ wires concrete adapters.
 - 2026-04-17: Milestone v1.2 Frontend Audit Fixes created, 6 phases (Phases 14-19). Driven by parallel-agent frontend audit report at `Claude Files/ENVI Frontend Audit - 2026-04-17.md` (Obsidian vault). Focus: 60 orphan views, unrouted modals, Phase 13 analytics silently mocked, dead actions on reachable surfaces.
+- 2026-04-17: Phase 14 complete — analytics live, Profile bound to real user. FirebaseFirestore + FirebaseRemoteConfig linked via SPM (resolves v1.1 blocker #7). `connectorsInsightsLive` default flipped to `true` with 7 XCTests pinning provider behavior. `ProfileViewModel` hydrates from `AuthManager.currentUser()` (new bridge extension); `User.mock` confined to Preview/Debug paths with 2 new XCTests.
 
 ## Session Continuity
 
 Last session: 2026-04-17
-Stopped at: Milestone v1.2 initialization — ready to plan Phase 14
+Stopped at: Phase 14 complete (all 3 plans shipped). Ready to plan Phase 15 (p1-routing-layer).
 Resume file: None
