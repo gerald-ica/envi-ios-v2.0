@@ -516,6 +516,7 @@
 		E1C73AE2A34F07B01E3D0003 /* EducationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C73AE2A34F07B01E3D0004 /* EducationViewModelTests.swift */; };
 		E18A01B10001000000000001 /* FeedDetailBookmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18A01B10001000000000002 /* FeedDetailBookmarkTests.swift */; };
 		E18A02B20001000000000001 /* ContentLibrarySettingsConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18A02B20001000000000002 /* ContentLibrarySettingsConnectTests.swift */; };
+		E18A03B30001000000000001 /* TemplateTabActionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18A03B30001000000000002 /* TemplateTabActionsTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1030,6 +1031,7 @@
 		E1C73AE2A34F07B01E3D0004 /* EducationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationViewModelTests.swift; sourceTree = "<group>"; };
 		E18A01B10001000000000002 /* FeedDetailBookmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedDetailBookmarkTests.swift; sourceTree = "<group>"; };
 		E18A02B20001000000000002 /* ContentLibrarySettingsConnectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentLibrarySettingsConnectTests.swift; sourceTree = "<group>"; };
+		E18A03B30001000000000002 /* TemplateTabActionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateTabActionsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1929,6 +1931,7 @@
 				E1C73AE2A34F07B01E3D0004 /* EducationViewModelTests.swift */,
 				E18A01B10001000000000002 /* FeedDetailBookmarkTests.swift */,
 				E18A02B20001000000000002 /* ContentLibrarySettingsConnectTests.swift */,
+				E18A03B30001000000000002 /* TemplateTabActionsTests.swift */,
 			);
 			path = ENVITests;
 			sourceTree = "<group>";
@@ -2790,6 +2793,7 @@
 				E1C73AE2A34F07B01E3D0003 /* EducationViewModelTests.swift in Sources */,
 				E18A01B10001000000000001 /* FeedDetailBookmarkTests.swift in Sources */,
 				E18A02B20001000000000001 /* ContentLibrarySettingsConnectTests.swift in Sources */,
+				E18A03B30001000000000001 /* TemplateTabActionsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
