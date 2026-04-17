@@ -149,20 +149,21 @@ public final class FeatureFlags {
 
     /// Gates the Firestore-backed analytics / advanced / benchmark repositories.
     ///
-    /// - `true`:  `FirestoreBackedAnalyticsRepository`,
+    /// - `true` (default): `FirestoreBackedAnalyticsRepository`,
     ///            `FirestoreBackedAdvancedAnalyticsRepository`, and
     ///            `FirestoreBackedBenchmarkRepository` read from the per-user
     ///            `insights/{provider}/{yyyy-mm-dd}` docs written by the
     ///            nightly Cloud Function sync (see Phase 13-01). Users with
     ///            no connected accounts see `ConnectAccountEmptyStateView`.
-    /// - `false` (default): existing mock/API repositories keep serving the
-    ///            same canned data they shipped in v1.0. Safe rollback path
-    ///            if the sync job regresses.
+    /// - `false`: legacy mock/API path — existing mock/API repositories keep
+    ///            serving the same canned data they shipped in v1.0. Set via
+    ///            Remote Config for rollback if the sync job regresses.
     ///
-    /// Remote Config key: `"connectorsInsightsLive"`. Flipping at runtime
-    /// lets us enable the live path for a staging cohort first, then roll
-    /// to 100% once we've verified the snapshot schema is stable.
-    public var connectorsInsightsLive: Bool = false
+    /// Remote Config key: `"connectorsInsightsLive"`. Flipped to `true` by
+    /// default in Phase 14-02 once `FirebaseFirestore` was linked (14-01) and
+    /// the provider chain was pinned by XCTest. Rollback: set the Remote
+    /// Config key to `false` and call `refreshFromRemoteConfig()`.
+    public var connectorsInsightsLive: Bool = true
 
     // MARK: - Init
 
