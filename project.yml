@@ -106,6 +106,7 @@ targets:
       - path: ENVITests/PublishingTabTests.swift
       - path: ENVITests/Phase16Plan02SettingsEntryPointsTests.swift
       - path: ENVITests/AIToolsMenuTests.swift
+      - path: ENVITests/LibraryToolsMenuTests.swift
     settings:
       base:
         SWIFT_VERSION: "5.0"
