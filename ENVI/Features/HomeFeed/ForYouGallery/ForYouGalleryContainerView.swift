@@ -6,11 +6,16 @@ import SwiftUI
 /// - Search icon (34×32) at left, opens `FeedSearchView`
 /// - For You / Gallery segmented toggle (220×40) centered
 /// - Content Calendar icon (24×24) at right, opens calendar sheet
+///
+/// Phase 15-02: sheets migrated from local `@State` bool flags to
+/// `AppRouter.present(.search)` / `.contentCalendar`. `.sheet(item:)` +
+/// `.fullScreenCover(item:)` attached at this root so every router-
+/// driven destination that can surface from this tab is resolved via
+/// `AppDestinationSheetResolver`.
 struct ForYouGalleryContainerView: View {
 
     @StateObject private var viewModel = ForYouGalleryViewModel()
-    @State private var showSearch = false
-    @State private var showCalendar = false
+    @EnvironmentObject private var router: AppRouter
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -30,11 +35,11 @@ struct ForYouGalleryContainerView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showSearch) {
-            FeedSearchView()
+        .sheet(item: $router.sheet) { destination in
+            AppDestinationSheetResolver(destination: destination)
         }
-        .sheet(isPresented: $showCalendar) {
-            CalendarSheet()
+        .fullScreenCover(item: $router.fullScreen) { destination in
+            AppDestinationFullScreenResolver(destination: destination)
         }
     }
 
@@ -48,36 +53,14 @@ struct ForYouGalleryContainerView: View {
                     viewModel.selectedSegment = index == 0 ? .forYou : .gallery
                 }
             },
-            onSearch: { showSearch = true },
-            onCalendar: { showCalendar = true }
+            onSearch: { router.present(.search) },
+            onCalendar: { router.present(.contentCalendar) }
         )
-    }
-}
-
-/// Sheet host for `ContentCalendarView`, providing the demo days the
-/// calendar expects. Keeps the main container view lean.
-private struct CalendarSheet: View {
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                ContentCalendarView(days: AnalyticsData.mock.calendarDays)
-                    .padding(.top, ENVISpacing.lg)
-            }
-            .background(AppBackground(imageName: "feed-bg"))
-            .navigationTitle("Content Calendar")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
-        }
     }
 }
 
 #Preview {
     ForYouGalleryContainerView()
+        .environmentObject(AppRouter())
         .preferredColorScheme(.dark)
 }

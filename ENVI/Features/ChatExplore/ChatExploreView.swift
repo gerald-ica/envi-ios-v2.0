@@ -11,11 +11,15 @@ enum ExploreMode: String, CaseIterable {
 
 /// Main container that hosts a custom segmented control toggling between
 /// WorldExplorerView (.explore) and EnhancedChatView (.chat).
+///
+/// Phase 15-02: `showHistory` and `showSettings` bool flags replaced with
+/// `router.present(.chatHistory)` / `.contentLibrarySettings`. The
+/// `.sheet(item: $router.sheet)` modifier attached here lets router-
+/// driven sheets originate from this tab.
 struct ChatExploreView: View {
     @State private var selectedMode: ExploreMode = .explore
     @State private var seededChatPrompt: String?
-    @State private var showHistory = false
-    @State private var showSettings = false
+    @EnvironmentObject private var router: AppRouter
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -54,11 +58,11 @@ struct ChatExploreView: View {
         }
         .background(AppBackground(imageName: "chat-home-bg"))
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showHistory) {
-            ChatHistorySheet()
+        .sheet(item: $router.sheet) { destination in
+            AppDestinationSheetResolver(destination: destination)
         }
-        .sheet(isPresented: $showSettings) {
-            ContentLibrarySettingsView()
+        .fullScreenCover(item: $router.fullScreen) { destination in
+            AppDestinationFullScreenResolver(destination: destination)
         }
     }
 
@@ -66,7 +70,7 @@ struct ChatExploreView: View {
 
     private var headerRow: some View {
         HStack(spacing: ENVISpacing.md) {
-            Button { showHistory = true } label: {
+            Button { router.present(.chatHistory) } label: {
                 Image(systemName: "clock.arrow.circlepath")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
@@ -79,7 +83,7 @@ struct ChatExploreView: View {
 
             Spacer()
 
-            Button { showSettings = true } label: {
+            Button { router.present(.contentLibrarySettings) } label: {
                 Image(systemName: "gearshape")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.white.opacity(0.7))
@@ -119,47 +123,6 @@ struct ChatExploreView: View {
             .fixedSize()
         }
         .buttonStyle(.plain)
-    }
-}
-
-// MARK: - Chat History Sheet
-
-/// Placeholder chat-history sheet. Listing the user's prior threads
-/// lives in a larger piece of scope; for now this displays an empty
-/// state so the Sketch-spec header icon has a real destination.
-private struct ChatHistorySheet: View {
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: ENVISpacing.xl) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .font(.system(size: 40, weight: .light))
-                        .foregroundColor(.white.opacity(0.4))
-                    Text("NO PAST CHATS YET")
-                        .font(.spaceMonoBold(12))
-                        .tracking(1.8)
-                        .foregroundColor(.white.opacity(0.55))
-                    Text("Your recent ENVI conversations will appear here.")
-                        .font(.interRegular(13))
-                        .foregroundColor(.white.opacity(0.4))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, ENVISpacing.xxxl)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 120)
-            }
-            .background(Color.black)
-            .navigationTitle("Chat History")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
-        }
-        .preferredColorScheme(.dark)
     }
 }
 
@@ -237,6 +200,7 @@ struct EnhancedChatView: View {
 struct ChatExploreView_Previews: PreviewProvider {
     static var previews: some View {
         ChatExploreView()
+            .environmentObject(AppRouter())
             .preferredColorScheme(.dark)
     }
 }
