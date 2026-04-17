@@ -510,6 +510,8 @@
 		FFCC534379F764D814266252 /* MetricCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F37019812DD5B67C5621B30 /* MetricCardView.swift */; };
 		FA2E5ED97E2D42B2919422AE /* GrowthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8891CD81E4D544D498901FDF /* GrowthViewModel.swift */; };
 		ED0979435D724B2785DE5F5A /* GrowthViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B3CC309181E49B78A6A9BB3 /* GrowthViewModelTests.swift */; };
+		72F2552A90A347FFAE5EC0AD /* SupportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4E087032D84C078A652F07 /* SupportViewModel.swift */; };
+		182A3C0D041842ECBB63119B /* SupportViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A48050F39646A8B3D178D5 /* SupportViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1018,6 +1020,8 @@
 		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8891CD81E4D544D498901FDF /* GrowthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthViewModel.swift; sourceTree = "<group>"; };
 		3B3CC309181E49B78A6A9BB3 /* GrowthViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthViewModelTests.swift; sourceTree = "<group>"; };
+		1E4E087032D84C078A652F07 /* SupportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewModel.swift; sourceTree = "<group>"; };
+		23A48050F39646A8B3D178D5 /* SupportViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1270,6 +1274,7 @@
 			isa = PBXGroup;
 			children = (
 				466EF5E581D21067161AB322 /* SupportCenterView.swift */,
+				1E4E087032D84C078A652F07 /* SupportViewModel.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -1912,6 +1917,7 @@
 				4B9F3CF1A8E72211502286C5 /* ProfileViewModelTests.swift */,
 				5CA673AFE179B9A35FB5A6D0 /* PublishingTabTests.swift */,
 				3B3CC309181E49B78A6A9BB3 /* GrowthViewModelTests.swift */,
+				23A48050F39646A8B3D178D5 /* SupportViewModelTests.swift */,
 			);
 			path = ENVITests;
 			sourceTree = "<group>";
@@ -2749,6 +2755,7 @@
 				5AE76DC12FBA4AA6792A42DB /* XTwitterConnector+Models.swift in Sources */,
 				332C9A42FB5E4BFE027701E3 /* XTwitterConnector.swift in Sources */,
 				FA2E5ED97E2D42B2919422AE /* GrowthViewModel.swift in Sources */,
+				72F2552A90A347FFAE5EC0AD /* SupportViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2766,6 +2773,7 @@
 				EB754680AA48BC14595DF721 /* ProfileViewModelTests.swift in Sources */,
 				EC65EBAF901D35DA977944F1 /* PublishingTabTests.swift in Sources */,
 				ED0979435D724B2785DE5F5A /* GrowthViewModelTests.swift in Sources */,
+				182A3C0D041842ECBB63119B /* SupportViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
