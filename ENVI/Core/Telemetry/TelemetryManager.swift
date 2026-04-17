@@ -111,6 +111,15 @@ final class TelemetryManager {
 
         // Embedding index lifecycle.
         case embeddingIndexRebuilt = "embedding_index_rebuilt"
+
+        // Deep linking — Phase 15-03
+        // Fired when `SceneDelegate` dispatches an inbound
+        // `enviapp://destination/*` URL to `AppRouter.present(...)`.
+        // Also fired when a malformed destination URL is observed so
+        // we have visibility on bad deep links without spamming
+        // crash-report noise.
+        case deepLinkRouted = "deep_link_routed"
+        case deepLinkMalformed = "deep_link_malformed"
     }
 
     // MARK: - Core Tracking
