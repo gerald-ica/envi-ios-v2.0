@@ -19,6 +19,7 @@ struct ProfileView: View {
     var onSignOut: (() -> Void)?
     @State private var showAccountManagement = false
     @State private var showAnalytics = false
+    @State private var showSignOutConfirm = false
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -218,6 +219,55 @@ struct ProfileView: View {
                     SettingsEntryRow(icon: "bell.fill",        title: "Notifications", destination: .notifications),
                 ]
             )
+
+            signOutGroup
+        }
+        .confirmationDialog(
+            "Sign Out?",
+            isPresented: $showSignOutConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Sign Out", role: .destructive) {
+                onSignOut?()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("You'll need to sign in again to access your content.")
+        }
+    }
+
+    /// Destructive sign-out row. Bubbles to `AppCoordinator.onSignOut` via the
+    /// `onSignOut` closure so Firebase, RevenueCat, telemetry, and deep-link
+    /// state all tear down together and the user lands back on SignIn.
+    private var signOutGroup: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("SESSION")
+
+            Button {
+                showSignOutConfirm = true
+            } label: {
+                HStack(spacing: ENVISpacing.md) {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(ENVITheme.error)
+                        .frame(width: 24)
+
+                    Text("Sign Out")
+                        .font(.interMedium(15))
+                        .foregroundColor(ENVITheme.error)
+
+                    Spacer()
+                }
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+            }
+            .buttonStyle(.plain)
+            .background(ENVITheme.surfaceLow(for: colorScheme))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(ENVITheme.error.opacity(0.25), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
     }
 
