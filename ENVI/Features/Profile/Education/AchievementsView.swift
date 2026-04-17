@@ -1,10 +1,18 @@
 import SwiftUI
 
 /// A badge grid showing earned and locked achievement states.
+///
+/// Phase 17 — Plan 03. Previously held `AchievementBadge.mock` as a
+/// `@State` default; now VM-driven via `EducationViewModel` and
+/// `EducationRepository`.
 struct AchievementsView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State private var badges: [AchievementBadge] = AchievementBadge.mock
+    @StateObject private var viewModel: EducationViewModel
     @State private var selectedBadge: AchievementBadge?
+
+    init(viewModel: EducationViewModel = EducationViewModel()) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     private let columns = [
         GridItem(.flexible(), spacing: ENVISpacing.md),
@@ -12,18 +20,27 @@ struct AchievementsView: View {
         GridItem(.flexible(), spacing: ENVISpacing.md),
     ]
 
-    private var earnedCount: Int { badges.filter { $0.isEarned }.count }
+    private var earnedCount: Int { viewModel.achievements.filter { $0.isEarned }.count }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: ENVISpacing.lg) {
                 header
-                statsBar
-                badgeGrid
+
+                if viewModel.isLoading && viewModel.achievements.isEmpty {
+                    ENVILoadingState()
+                } else if let error = viewModel.errorMessage,
+                          viewModel.achievements.isEmpty {
+                    ENVIErrorBanner(message: error)
+                } else {
+                    statsBar
+                    badgeGrid
+                }
             }
             .padding(ENVISpacing.lg)
         }
         .background(ENVITheme.background(for: colorScheme).ignoresSafeArea())
+        .task { await viewModel.loadAchievements() }
         .overlay {
             if let badge = selectedBadge {
                 badgeDetail(badge)
@@ -51,8 +68,8 @@ struct AchievementsView: View {
     private var statsBar: some View {
         HStack(spacing: ENVISpacing.lg) {
             statItem(value: "\(earnedCount)", label: "EARNED")
-            statItem(value: "\(badges.count - earnedCount)", label: "LOCKED")
-            statItem(value: "\(Int(Double(earnedCount) / Double(max(badges.count, 1)) * 100))%", label: "COMPLETE")
+            statItem(value: "\(viewModel.achievements.count - earnedCount)", label: "LOCKED")
+            statItem(value: "\(Int(Double(earnedCount) / Double(max(viewModel.achievements.count, 1)) * 100))%", label: "COMPLETE")
         }
         .padding(ENVISpacing.md)
         .background(ENVITheme.surfaceLow(for: colorScheme))
@@ -88,7 +105,7 @@ struct AchievementsView: View {
                 .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
 
             LazyVGrid(columns: columns, spacing: ENVISpacing.md) {
-                ForEach(badges) { badge in
+                ForEach(viewModel.achievements) { badge in
                     badgeCell(badge)
                         .onTapGesture {
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -200,6 +217,6 @@ struct AchievementsView: View {
 }
 
 #Preview {
-    AchievementsView()
+    AchievementsView(viewModel: .preview())
         .preferredColorScheme(.dark)
 }

@@ -1,28 +1,44 @@
 import SwiftUI
 
 /// Displays a list of tutorial cards with progress indicators and category filtering.
+///
+/// Phase 17 — Plan 03. Previously held `Tutorial.mock` / `LearningPath.mock`
+/// as `@State` defaults; now VM-driven via `EducationViewModel` and
+/// `EducationRepository`.
 struct TutorialListView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @State private var tutorials: [Tutorial] = Tutorial.mock
+    @StateObject private var viewModel: EducationViewModel
     @State private var selectedCategory: Tutorial.Category?
-    @State private var learningPaths: [LearningPath] = LearningPath.mock
+
+    init(viewModel: EducationViewModel = EducationViewModel()) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     private var filteredTutorials: [Tutorial] {
-        guard let category = selectedCategory else { return tutorials }
-        return tutorials.filter { $0.category == category }
+        guard let category = selectedCategory else { return viewModel.tutorials }
+        return viewModel.tutorials.filter { $0.category == category }
     }
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: ENVISpacing.lg) {
                 header
-                categoryFilter
-                learningPathsSection
-                tutorialsSection
+
+                if viewModel.isLoading && viewModel.tutorials.isEmpty {
+                    ENVILoadingState()
+                } else if let error = viewModel.errorMessage,
+                          viewModel.tutorials.isEmpty {
+                    ENVIErrorBanner(message: error)
+                } else {
+                    categoryFilter
+                    learningPathsSection
+                    tutorialsSection
+                }
             }
             .padding(ENVISpacing.lg)
         }
         .background(ENVITheme.background(for: colorScheme).ignoresSafeArea())
+        .task { await viewModel.loadTutorials() }
     }
 
     // MARK: - Header
@@ -87,7 +103,7 @@ struct TutorialListView: View {
                 .tracking(0.88)
                 .foregroundColor(ENVITheme.textSecondary(for: colorScheme))
 
-            ForEach(learningPaths) { path in
+            ForEach(viewModel.learningPaths) { path in
                 learningPathCard(path)
             }
         }
@@ -200,6 +216,6 @@ struct TutorialListView: View {
 }
 
 #Preview {
-    TutorialListView()
+    TutorialListView(viewModel: .preview())
         .preferredColorScheme(.dark)
 }
