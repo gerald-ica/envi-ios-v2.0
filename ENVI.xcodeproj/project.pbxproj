@@ -58,6 +58,7 @@
 		1C752EC430CAF9AD0C48063A /* AuraGateModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84ABAB194C39B0AB2214686 /* AuraGateModifier.swift */; };
 		1CA38236E91718A5739DEC5A /* HookLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C95F120E112488E8098D3534 /* HookLibraryView.swift */; };
 		1CB36FA487F8B14DCF0545F5 /* IdeaBoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1795C66FDBA4718FB46F4183 /* IdeaBoardView.swift */; };
+		1D031B2A7D3DBB9457FE92F6 /* AIToolsMenuTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF43C26E5A6B6F0A045EFC64 /* AIToolsMenuTests.swift */; };
 		1D0E4CEE393FD22D6F70DA50 /* MetaGraphConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBD51DF6BB690DE6B2E1D7FC /* MetaGraphConnector.swift */; };
 		1DD06CC9DED41E26BBC618B7 /* ENVISectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EF03C5C20F1F291F53D454C /* ENVISectionHeader.swift */; };
 		1E5C9C18FD6923D3466F00F9 /* ReliabilityModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 554AF2F3A419D7E75F1EAC5B /* ReliabilityModels.swift */; };
@@ -469,6 +470,7 @@
 		ED48E916810BEDE8D3A1FBA2 /* AIWritingModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52174703847837C02B8EDC17 /* AIWritingModels.swift */; };
 		EED1F6D2D0B0F027842E11DB /* ENVISketchHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA3A1233BF5FD6074D95C4F /* ENVISketchHeader.swift */; };
 		EF023124E95289F45B75F3E0 /* tennis.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 813C28A184529944F7CB312B /* tennis.jpg */; };
+		EF2ADDF60CB1C8689A856887 /* AIToolsMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3318A53AB4448FF321EA8EFF /* AIToolsMenuView.swift */; };
 		F0EA69749B27F2F95844FFAE /* decorative-caption-generator.png in Resources */ = {isa = PBXBuildFile; fileRef = DC25222602AE291BA56A9F91 /* decorative-caption-generator.png */; };
 		F14E0B5C50774A04C6C6138D /* decorative-image-generator.png in Resources */ = {isa = PBXBuildFile; fileRef = 920B91CC273A9F366A28F935 /* decorative-image-generator.png */; };
 		F231F355DA22045498593DB4 /* abstract-7.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CD7FA1FA400C7BC20BD0D77 /* abstract-7.png */; };
@@ -618,6 +620,7 @@
 		31959DEAF7F209FF1865CFD7 /* PageSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageSelectorView.swift; sourceTree = "<group>"; };
 		32F3E849974A835F73F94274 /* MetadataRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataRepository.swift; sourceTree = "<group>"; };
 		32F9B0A455421C9A030A5171 /* decorative-shape-26.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "decorative-shape-26.png"; sourceTree = "<group>"; };
+		3318A53AB4448FF321EA8EFF /* AIToolsMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIToolsMenuView.swift; sourceTree = "<group>"; };
 		333293ABDFCBFB5CFC3CEA5F /* TikTokModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TikTokModels.swift; sourceTree = "<group>"; };
 		347F6BECB74EC8BCAD11E15F /* Inter-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-ExtraBold.ttf"; sourceTree = "<group>"; };
 		3584BF20076E7D2EC0582C09 /* ConnectedAccountsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectedAccountsView.swift; sourceTree = "<group>"; };
@@ -851,6 +854,7 @@
 		AE6931B5D14C6CC58C9F7795 /* CampaignDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampaignDetailView.swift; sourceTree = "<group>"; };
 		AE9532AF2F5BFEBF0E8B7C6F /* MediaScanCoordinator+BackgroundTasks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MediaScanCoordinator+BackgroundTasks.swift"; sourceTree = "<group>"; };
 		AEFE25EF6A4086947F0D7E1E /* AIWritingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIWritingViewModel.swift; sourceTree = "<group>"; };
+		AF43C26E5A6B6F0A045EFC64 /* AIToolsMenuTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIToolsMenuTests.swift; sourceTree = "<group>"; };
 		B0379F9C0D69C19D89CF46A9 /* RepurposingModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepurposingModels.swift; sourceTree = "<group>"; };
 		B06C3E9606869AA9C31AD25E /* ReminderManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderManagerView.swift; sourceTree = "<group>"; };
 		B0C8ED6BD157C3015DDE2DDB /* CalendarRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarRepository.swift; sourceTree = "<group>"; };
@@ -1166,6 +1170,7 @@
 		21CE955D7D3422967DCE72B8 /* ChatExplore */ = {
 			isa = PBXGroup;
 			children = (
+				3318A53AB4448FF321EA8EFF /* AIToolsMenuView.swift */,
 				2B52F6718C0D5682E3FE7F5E /* ChatExploreView.swift */,
 				CFBBFE0D2E3FD4339ED6C71B /* AIFeatures */,
 				2CABF66C0CE7383B555B8818 /* Chat */,
@@ -1888,6 +1893,7 @@
 		BB1D07EEF4F666B6A7805C9F /* ENVITests */ = {
 			isa = PBXGroup;
 			children = (
+				AF43C26E5A6B6F0A045EFC64 /* AIToolsMenuTests.swift */,
 				6229A4A9E5C7CD93D6600A8B /* AppRouterIntegrationTests.swift */,
 				F2AC7091528A70B4C770CCF9 /* AppRouterTests.swift */,
 				BC3C4E708C794534AC1DCBBD /* DeepLinkRouterTests.swift */,
@@ -2347,6 +2353,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF2ADDF60CB1C8689A856887 /* AIToolsMenuView.swift in Sources */,
 				948E0AD443ED07A03BC45885 /* AIVisualEditorView.swift in Sources */,
 				87B25F0EC3FC195D3E093257 /* AIVisualModels.swift in Sources */,
 				AF86B1461ADC0B63429EF29B /* AIVisualRepository.swift in Sources */,
@@ -2735,6 +2742,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1D031B2A7D3DBB9457FE92F6 /* AIToolsMenuTests.swift in Sources */,
 				A6DEA6CD05AC111ABF782A8C /* AppRouterIntegrationTests.swift in Sources */,
 				C1E2F1568D381D117F7302B1 /* AppRouterTests.swift in Sources */,
 				8CC99027DA53D939333F0BE4 /* DeepLinkRouterTests.swift in Sources */,
