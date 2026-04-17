@@ -72,6 +72,8 @@
     <string>ENVI uses the camera to capture new content you can publish to your connected social channels.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>ENVI records audio alongside video when you capture or edit content directly in the app.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>ENVI uses your location to personalize content and recommendations for where you are.</string>
 
     <!-- ================================================================ -->
     <!-- URL schemes — OAuth callback (Phase 06-04)                        -->
