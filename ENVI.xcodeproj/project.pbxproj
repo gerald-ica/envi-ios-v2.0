@@ -512,6 +512,8 @@
 		ED0979435D724B2785DE5F5A /* GrowthViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B3CC309181E49B78A6A9BB3 /* GrowthViewModelTests.swift */; };
 		72F2552A90A347FFAE5EC0AD /* SupportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E4E087032D84C078A652F07 /* SupportViewModel.swift */; };
 		182A3C0D041842ECBB63119B /* SupportViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A48050F39646A8B3D178D5 /* SupportViewModelTests.swift */; };
+		E1C73AE2A34F07B01E3D0001 /* EducationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C73AE2A34F07B01E3D0002 /* EducationViewModel.swift */; };
+		E1C73AE2A34F07B01E3D0003 /* EducationViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1C73AE2A34F07B01E3D0004 /* EducationViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1022,6 +1024,8 @@
 		3B3CC309181E49B78A6A9BB3 /* GrowthViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthViewModelTests.swift; sourceTree = "<group>"; };
 		1E4E087032D84C078A652F07 /* SupportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewModel.swift; sourceTree = "<group>"; };
 		23A48050F39646A8B3D178D5 /* SupportViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewModelTests.swift; sourceTree = "<group>"; };
+		E1C73AE2A34F07B01E3D0002 /* EducationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationViewModel.swift; sourceTree = "<group>"; };
+		E1C73AE2A34F07B01E3D0004 /* EducationViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1918,6 +1922,7 @@
 				5CA673AFE179B9A35FB5A6D0 /* PublishingTabTests.swift */,
 				3B3CC309181E49B78A6A9BB3 /* GrowthViewModelTests.swift */,
 				23A48050F39646A8B3D178D5 /* SupportViewModelTests.swift */,
+				E1C73AE2A34F07B01E3D0004 /* EducationViewModelTests.swift */,
 			);
 			path = ENVITests;
 			sourceTree = "<group>";
@@ -2007,6 +2012,7 @@
 			children = (
 				6B36BDADB2A1DDC638518E84 /* AchievementsView.swift */,
 				6F360AF70D16D2CD99661C7F /* TutorialListView.swift */,
+				E1C73AE2A34F07B01E3D0002 /* EducationViewModel.swift */,
 			);
 			path = Education;
 			sourceTree = "<group>";
@@ -2756,6 +2762,7 @@
 				332C9A42FB5E4BFE027701E3 /* XTwitterConnector.swift in Sources */,
 				FA2E5ED97E2D42B2919422AE /* GrowthViewModel.swift in Sources */,
 				72F2552A90A347FFAE5EC0AD /* SupportViewModel.swift in Sources */,
+				E1C73AE2A34F07B01E3D0001 /* EducationViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2774,6 +2781,7 @@
 				EC65EBAF901D35DA977944F1 /* PublishingTabTests.swift in Sources */,
 				ED0979435D724B2785DE5F5A /* GrowthViewModelTests.swift in Sources */,
 				182A3C0D041842ECBB63119B /* SupportViewModelTests.swift in Sources */,
+				E1C73AE2A34F07B01E3D0003 /* EducationViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
