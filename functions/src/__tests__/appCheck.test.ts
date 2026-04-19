@@ -5,7 +5,8 @@
  *   - invalid token (401)
  *   - debug bypass (passes through iff allowed)
  */
-import type { Request, Response } from "firebase-functions/v2/https";
+import type { Request } from "firebase-functions/v2/https";
+import type { Response } from "express";
 
 import {
   __setAppCheckVerifierForTests,

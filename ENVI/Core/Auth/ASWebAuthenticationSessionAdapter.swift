@@ -115,9 +115,16 @@ extension ASWebAuthenticationSessionAdapter: ASWebAuthenticationPresentationCont
                 return anchor
             }
 
-            preconditionFailure(
-                "ASWebAuthenticationSession requires a UIWindowScene-backed presentation anchor."
-            )
+            // Last-resort fallback — ASWebAuthenticationSession's delegate
+            // contract demands we return *some* anchor, so synthesize a
+            // bare UIWindow rather than crashing the app. The session will
+            // error out on its own if the window isn't attached to a
+            // scene, and the caller's `start()` continuation receives the
+            // error cleanly. Previously this path called
+            // `preconditionFailure`, which turned transient scene-setup
+            // gaps (simulator cold launch, onboarding before the window
+            // becomes key) into hard crashes.
+            return UIWindow()
         }
     }
 }

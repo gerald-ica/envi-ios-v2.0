@@ -94,6 +94,15 @@ struct OnboardingContainerView: View {
         .onChange(of: viewModel.isComplete) { _, isComplete in
             if isComplete { onComplete?() }
         }
+        .task {
+            // Seed an anonymous Firebase identity at the start of
+            // onboarding so the socials step's OAuth broker calls have
+            // a valid UID to bind connections to. Idempotent — returns
+            // immediately if a user is already signed in (e.g. returning
+            // from background, or onboarding re-entered after partial
+            // sign-in).
+            await AuthManager.shared.bootstrapAnonymousIfNeeded()
+        }
     }
 }
 

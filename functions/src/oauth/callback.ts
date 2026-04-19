@@ -24,7 +24,8 @@
  * hits from the user's browser after the provider's 302 — so we run in
  * soft-fail mode here and rely on state JWT for identity binding.
  */
-import { onRequest, type Request, type Response } from "firebase-functions/v2/https";
+import { onRequest, type Request } from "firebase-functions/v2/https";
+import type { Response } from "express";
 
 import { requireAppCheck } from "../lib/appCheck";
 import { getRegion } from "../lib/config";

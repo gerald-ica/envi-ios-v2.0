@@ -45,7 +45,7 @@ import {
   LinkedInPublishError,
 } from "../providers/linkedin-publish";
 
-const log = logger.withContext({ phase: "11", provider: "linkedin-dispatch" });
+const log = logger.withContext({ phase: "11", module: "linkedin-dispatch" });
 
 // ---------------------------------------------------------------------------
 // Types

@@ -29,12 +29,12 @@
  * plumbing as the standard OAuth broker — reuse `requireFirebaseUid` +
  * `requireAppCheck`.
  */
-import { onRequest, type Request, type Response } from "firebase-functions/v2/https";
+import { onRequest, type Request } from "firebase-functions/v2/https";
+import type { Response } from "express";
 import * as admin from "firebase-admin";
 
 import { requireAppCheck } from "../lib/appCheck";
 import { getRegion } from "../lib/config";
-import { logger } from "../lib/logger";
 import { readConnection } from "../lib/tokenStorage";
 import { requireFirebaseUid } from "./auth";
 import { OAuthBrokerError, OAuthBrokerErrorCode } from "./errors";
@@ -48,8 +48,6 @@ import {
   metaInstagramAdapter,
   type MetaPage,
 } from "../providers/meta";
-
-const log = logger.withContext({ phase: "10", route: "metaRoutes" });
 
 // ---------------------------------------------------------------------------
 // GET /meta/pages

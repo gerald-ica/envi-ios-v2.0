@@ -67,16 +67,22 @@ public final class FeatureFlags {
 
     /// Controls the OAuth code path used by `SocialOAuthManager`.
     ///
-    /// - `true`  (default in DEBUG): the mock code path runs — deterministic
-    ///   latency + fake handles, no network. Preserves SwiftUI previews and
-    ///   unit-test determinism without wiring a Functions emulator.
-    /// - `false` (default in release): real round-trip via the Cloud
+    /// - `true`: the mock code path runs — deterministic latency + fake
+    ///   handles, no network. Intended for SwiftUI previews and unit tests
+    ///   only; tests/previews flip this on their own before exercising the
+    ///   manager.
+    /// - `false` (default, DEBUG + release): real round-trip via the Cloud
     ///   Functions OAuth broker (Phase 07) — `POST /oauth/:provider/start`,
     ///   `ASWebAuthenticationSession`, `GET /oauth/:provider/status`.
     ///
     /// Remote Config key: `"connectorsUseMockOAuth"`. Setting it at runtime
     /// lets us flip the mock path on in prod as an emergency brake if a
     /// broker deploy breaks (e.g. provider outage, secret rotation gap).
+    ///
+    /// Production-readiness note: onboarding now bootstraps an anonymous
+    /// Firebase identity so broker calls have a valid UID even before the
+    /// user has completed email/Apple/Google sign-in — so there is no
+    /// reason to mock in DEBUG.
     public var connectorsUseMockOAuth: Bool = false
 
     // MARK: - TikTok Connector (Phase 08)

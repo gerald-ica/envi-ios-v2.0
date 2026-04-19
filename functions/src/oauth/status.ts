@@ -17,7 +17,8 @@
  * Response shape matches `OAuthConnectionResponse` on iOS. Don't rename
  * fields without a coordinated change to `SocialOAuthManager`.
  */
-import { onRequest, type Request, type Response } from "firebase-functions/v2/https";
+import { onRequest, type Request } from "firebase-functions/v2/https";
+import type { Response } from "express";
 import type { firestore } from "firebase-admin";
 
 import { requireAppCheck } from "../lib/appCheck";

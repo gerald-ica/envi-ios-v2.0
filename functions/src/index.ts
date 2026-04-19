@@ -30,6 +30,18 @@ export {
 } from "./oauth";
 
 /**
+ * Path-style dispatcher.
+ *
+ * Cloud Functions v2 routes `…/oauth/*` only to a function literally named
+ * `oauth`, so the individual `oauthStart` / `oauthCallback` / … exports
+ * above are unreachable via the `/oauth/:provider/:action` URLs that the
+ * iOS client and provider consoles rely on. This single export answers
+ * those URLs and delegates to the same pure handlers the per-action
+ * functions use.
+ */
+export { oauth } from "./oauth/router";
+
+/**
  * Phase 8 surface (TikTok sandbox connector):
  *   - connectorsTikTokPublishInit      POST /connectors/tiktok/publish/init
  *   - connectorsTikTokPublishComplete  POST /connectors/tiktok/publish/complete

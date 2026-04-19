@@ -52,7 +52,7 @@ export class InstagramInsightsSync extends InsightsSyncBase {
   readonly provider = "instagram" as const;
 
   async fetchMetrics(
-    uid: string,
+    _uid: string,
     token: string,
     date: string,
     providerUserId: string

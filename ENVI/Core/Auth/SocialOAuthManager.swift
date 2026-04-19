@@ -29,8 +29,18 @@ class SocialOAuthManager {
     /// Process-wide singleton. Backed by the real web auth adapter; prefer
     /// `SocialOAuthManager(session:apiClient:)` from tests.
     static let shared = SocialOAuthManager(
-        apiClient: SocialOAuthManager.makeDefaultAPIClient()
+        apiClient: SocialOAuthManager.sharedBrokerAPIClient
     )
+
+    /// Shared `APIClient` instance pointed at the Cloud Functions broker
+    /// (`AppConfig.connectorFunctionsBaseURL`). Reused by connectors
+    /// (TikTok, X, LinkedIn, Meta, Instagram, Threads, Facebook) so every
+    /// broker-routed HTTP call shares the same connection pool and decoder.
+    ///
+    /// Prefer this over `APIClient.shared` for anything that talks to
+    /// Cloud Functions — `APIClient.shared` targets the legacy app-API host
+    /// and is not served by the broker.
+    static let sharedBrokerAPIClient: APIClient = SocialOAuthManager.makeDefaultAPIClient()
 
     private let apiClient: APIClient
     private let sessionFactory: @MainActor () -> OAuthSession
@@ -39,18 +49,35 @@ class SocialOAuthManager {
     private let tiktokConnectorFlagGate: @Sendable () async -> Bool
     private let xConnectorFlagGate: @Sendable () async -> Bool
 
-    /// Builds an APIClient whose JSONDecoder uses ISO-8601 for `Date` fields.
-    /// The broker emits `tokenExpiresAt` / `lastRefreshedAt` as ISO-8601
-    /// strings (see `status.ts#timestampToIso`), so decoding into
-    /// `PlatformConnection.tokenExpiresAt: Date?` needs an explicit strategy.
+    /// Builds an APIClient that targets the Cloud Functions broker with a
+    /// decoder that parses ISO-8601 date fields.
+    ///
+    /// Why a dedicated client:
+    ///   - Base URL. The default `APIClient.shared` targets
+    ///     `AppConfig.apiBaseURL` (`https://api-<env>.envi.app/v1`), which is
+    ///     the legacy product-API host and does NOT serve `/oauth/*`. The
+    ///     broker lives at `AppConfig.connectorFunctionsBaseURL`
+    ///     (`https://<region>-<project>.cloudfunctions.net`). Pointing the
+    ///     OAuth `POST /oauth/:provider/start` call at the wrong host was
+    ///     the cause of the connect-button hang: the domain wouldn't
+    ///     resolve and URLSession ran out its retry budget before surfacing
+    ///     the error.
+    ///   - Date strategy. The broker emits `tokenExpiresAt` /
+    ///     `lastRefreshedAt` as ISO-8601 strings (see
+    ///     `status.ts#timestampToIso`), so decoding into
+    ///     `PlatformConnection.tokenExpiresAt: Date?` needs an explicit
+    ///     strategy.
     ///
     /// Scoped to the manager rather than flipping `APIClient`'s default so
     /// we don't disturb the 16+ other repositories in the app that parse
     /// server-derived dates with their own conventions.
-    private static func makeDefaultAPIClient() -> APIClient {
+    static func makeDefaultAPIClient() -> APIClient {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        return APIClient(decoder: decoder)
+        return APIClient(
+            baseURL: AppConfig.connectorFunctionsBaseURL,
+            decoder: decoder
+        )
     }
 
     /// - Parameters:

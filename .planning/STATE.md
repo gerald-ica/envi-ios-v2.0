@@ -18,7 +18,7 @@ v1.1 Real Social Connectors — implementation complete (Phases 6–13, 2026-04-
 **Human-gated blockers (hard blockers for staging deploy):**
 1. **Rotate all 11 provider secrets** per `docs/ops/secret-rotation-checklist.md` (2026-04-16 plaintext exposure incident)
 2. **Register 6 sandbox redirect URIs** per `docs/ops/06-06-sandbox-redirect-checklist.md`
-3. **Provision `oauth-state-signing-key`** in Secret Manager (Phase 7)
+3. ~~**Provision `oauth-state-signing-key`** in Secret Manager (Phase 7)~~ **RESOLVED 2026-04-19** (64-char random generated via `openssl rand -base64 48`; version 1 active; `roles/secretmanager.secretAccessor` granted to `471220969990-compute@developer.gserviceaccount.com`. Also granted `roles/datastore.user` to the same runtime SA — PKCE `storeVerifier` was failing PERMISSION_DENIED without it. End-to-end probe now shows 5/5 providers returning valid `authorizationUrl` + signed state JWT from SomethingMore (2)'s registered App Check debug token.)
 4. **TikTok Sandbox tester allowlist** — add ENVI team members before integration test
 5. **FB App Review** — `pages_manage_posts` scope; `FeatureFlags.canConnectFacebook` stays `false` until approved
 6. **LinkedIn MDP approval** — org scopes locked until email approval arrives (1-5 business days)

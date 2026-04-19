@@ -32,7 +32,7 @@ final class ENVITabBar: UIView {
     static let defaultTabs: [Tab] = [
         Tab(iconName: nil, imageName: "shape-15", iconPointSize: 0, imageWidth: 30, imageHeight: 30, persistentDisc: false),
         Tab(iconName: nil, imageName: "envi-logo", iconPointSize: 0, imageWidth: 30, imageHeight: 25, persistentDisc: false),
-        Tab(iconName: nil, imageName: "profile aura", iconPointSize: 0, imageWidth: 30, imageHeight: 30, persistentDisc: false),
+        Tab(iconName: nil, imageName: "profile-aura", iconPointSize: 0, imageWidth: 30, imageHeight: 30, persistentDisc: false),
     ]
 
     var selectedIndex: Int = 0 {

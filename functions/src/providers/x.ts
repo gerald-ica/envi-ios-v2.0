@@ -40,7 +40,8 @@
  * to the iOS envelope `{ error: "rate_limited", retryAfter: ISO }` with
  * HTTP 429. iOS maps via `XConnectorError.rateLimited(retryAfter:)`.
  */
-import { onRequest, type Request, type Response } from "firebase-functions/v2/https";
+import { onRequest, type Request } from "firebase-functions/v2/https";
+import type { Response } from "express";
 import { requireAppCheck } from "../lib/appCheck";
 import { getRegion } from "../lib/config";
 import { logger } from "../lib/logger";

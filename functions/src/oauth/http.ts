@@ -8,7 +8,8 @@
  *   - `buildRedirectUri(provider)`  — canonical `enviapp://oauth-callback/<provider>`.
  *   - `resolveKmsKeyName()`         — fully qualified KMS key path.
  */
-import type { Request, Response } from "firebase-functions/v2/https";
+import type { Request } from "firebase-functions/v2/https";
+import type { Response } from "express";
 import type { firestore } from "firebase-admin";
 
 import {
@@ -111,8 +112,12 @@ export function handleBrokerError(res: Response, err: unknown): void {
     res.status(err.httpStatus).json(err.toResponseBody());
     return;
   }
+  const e = err as Error & { code?: string; stack?: string };
   log.error("oauth broker unhandled error", {
-    message: (err as Error).message,
+    errName: e?.name ?? typeof err,
+    errMsg: e?.message ?? String(err),
+    errCode: e?.code ?? null,
+    errStack: (e?.stack ?? "").split("\n").slice(0, 6).join(" | "),
   });
   res.status(500).json({
     error: OAuthBrokerErrorCode.INTERNAL,

@@ -7,7 +7,6 @@
     "runtime": "nodejs20",
     "ignore": [
       "node_modules",
-      "lib",
       ".git",
       "coverage",
       "src/__tests__",

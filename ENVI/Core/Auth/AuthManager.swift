@@ -102,6 +102,52 @@ final class AuthManager: ObservableObject {
         return Auth.auth().currentUser?.uid
     }
 
+    /// Whether the current Firebase user is the anonymous bootstrap
+    /// identity seeded at onboarding start. Used by `signInWithApple` /
+    /// `signInWithGoogle` / `signInWithOAuthProvider` to decide whether to
+    /// LINK the incoming credential to the existing UID (preserving the
+    /// onboarding-step social connections) or to do a fresh `signIn`.
+    var isCurrentUserAnonymous: Bool {
+        guard FirebaseApp.app() != nil else { return false }
+        return Auth.auth().currentUser?.isAnonymous == true
+    }
+
+    // MARK: - Anonymous Bootstrap (Onboarding)
+
+    /// Sign in anonymously to Firebase if no user is currently active.
+    ///
+    /// The onboarding "Connect your socials" step sits BEFORE the user
+    /// completes email / Apple / Google sign-in, but the OAuth broker
+    /// (`APIClient.request(requiresAuth: true)`) needs a valid Firebase
+    /// ID token to authorise calls. Seeding an anonymous identity at the
+    /// start of onboarding gives the broker a stable UID to bind social
+    /// connections to. When the user later completes real sign-in, the
+    /// `signIn*` methods link the incoming credential to this UID rather
+    /// than creating a new one, so the OAuth connections persist across
+    /// the upgrade from anonymous → credentialed account.
+    ///
+    /// Idempotent: returns immediately if `currentUser` already exists
+    /// (either anonymous or credentialed).
+    ///
+    /// Never throws — if anonymous sign-in itself fails (offline, App
+    /// Check misconfigured, etc.) we surface the problem through
+    /// downstream `APIClient.authToken()` errors rather than blocking
+    /// onboarding UI. The onboarding flow's connect buttons will show
+    /// their own connection-failed state in that case.
+    @discardableResult
+    func bootstrapAnonymousIfNeeded() async -> String? {
+        guard FirebaseApp.app() != nil else { return nil }
+        if let existing = Auth.auth().currentUser {
+            return existing.uid
+        }
+        do {
+            let result = try await Auth.auth().signInAnonymously()
+            return result.user.uid
+        } catch {
+            return nil
+        }
+    }
+
     // MARK: - Email / Password Auth
 
     @discardableResult
@@ -114,6 +160,27 @@ final class AuthManager: ObservableObject {
     @discardableResult
     func createAccount(email: String, password: String) async throws -> UserAuthPayload {
         guard FirebaseApp.app() != nil else { throw AuthError.firebaseNotConfigured }
+        // Phase 07 — if the onboarding anonymous bootstrap signed us in
+        // already, link email/password to it so the onboarding UID
+        // (which owns the social OAuth connections) becomes the
+        // credentialed account. Falls back to plain `createUser` if no
+        // anonymous user is present or if linking fails because the
+        // credential is already tied to a different account.
+        if let anon = Auth.auth().currentUser, anon.isAnonymous {
+            let credential = EmailAuthProvider.credential(
+                withEmail: email,
+                password: password
+            )
+            do {
+                let result = try await anon.link(with: credential)
+                return UserAuthPayload(uid: result.user.uid, email: result.user.email)
+            } catch {
+                // Fall through to normal create so the user still gets
+                // an account — onboarding connections on the orphaned
+                // anonymous UID will be lost, but that's better than
+                // blocking account creation entirely.
+            }
+        }
         let result = try await Auth.auth().createUser(withEmail: email, password: password)
         return UserAuthPayload(uid: result.user.uid, email: result.user.email)
     }
@@ -137,12 +204,33 @@ final class AuthManager: ObservableObject {
             idToken: tokenString,
             rawNonce: currentNonce ?? ""
         )
-        let result = try await Auth.auth().signIn(with: firebaseCredential)
+        let result = try await signInOrLinkToAnonymous(credential: firebaseCredential)
         return UserAuthPayload(
             uid: result.user.uid,
             email: result.user.email,
             displayName: result.user.displayName
         )
+    }
+
+    /// If there's an existing anonymous user (onboarding bootstrap),
+    /// link the incoming credential to that UID so onboarding-era OAuth
+    /// connections survive. Otherwise, perform a normal `signIn`.
+    ///
+    /// If linking fails (most commonly because the credential is already
+    /// bound to a different Firebase account), fall back to signing in
+    /// with the credential — better to let the user into their correct
+    /// account than to strand them at the sign-in screen.
+    private func signInOrLinkToAnonymous(
+        credential: AuthCredential
+    ) async throws -> AuthDataResult {
+        if let anon = Auth.auth().currentUser, anon.isAnonymous {
+            do {
+                return try await anon.link(with: credential)
+            } catch {
+                try? Auth.auth().signOut()
+            }
+        }
+        return try await Auth.auth().signIn(with: credential)
     }
 
     // MARK: - Nonce Helpers
@@ -189,7 +277,7 @@ final class AuthManager: ObservableObject {
             withIDToken: idToken,
             accessToken: result.user.accessToken.tokenString
         )
-        let authResult = try await Auth.auth().signIn(with: credential)
+        let authResult = try await signInOrLinkToAnonymous(credential: credential)
         return UserAuthPayload(
             uid: authResult.user.uid,
             email: authResult.user.email,
@@ -243,7 +331,7 @@ final class AuthManager: ObservableObject {
                 }
             }
         }
-        let result = try await Auth.auth().signIn(with: credential)
+        let result = try await signInOrLinkToAnonymous(credential: credential)
         return UserAuthPayload(
             uid: result.user.uid,
             email: result.user.email,

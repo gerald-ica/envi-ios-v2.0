@@ -64,7 +64,7 @@ import { Buffer } from "node:buffer";
 import { LINKEDIN_API_HEADERS } from "./linkedin";
 import { logger } from "../lib/logger";
 
-const log = logger.withContext({ phase: "11", provider: "linkedin-publish" });
+const log = logger.withContext({ phase: "11", module: "linkedin-publish" });
 
 // ---------------------------------------------------------------------------
 // Constants

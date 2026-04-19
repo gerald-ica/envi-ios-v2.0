@@ -18,7 +18,7 @@
  *
  * Scope
  * -----
- * Query `users/*/connections/*` for `provider IN ("facebook","instagram","threads")`
+ * Query users/{uid}/connections/{provider} for provider IN ("facebook","instagram","threads")
  * AND `expiresAt <= now + 15 days`. Each candidate gets exchanged via
  * `MetaProvider(subPlatform).refresh(...)`. Outcomes:
  *   - Success → write `expiresAt = now + 60d`, `lastRefreshedAt = now`.
@@ -50,9 +50,11 @@ const log = logger.withContext({ phase: "10", cron: "refreshMetaTokens" });
 // Tuning knobs
 // ---------------------------------------------------------------------------
 
-/** How often the cron fires. Google Cloud Scheduler cron syntax isn't
- *  needed here — onSchedule accepts plain "every X days" strings. */
-const SCHEDULE = "every 50 days";
+/** How often the cron fires. Cloud Scheduler rejects long "every N days"
+ *  intervals, so we use a standard cron expression. Runs twice a month
+ *  (1st and 15th at 03:00 UTC), always within the 15-day refresh window
+ *  against Meta's 60-day long-lived token TTL. */
+const SCHEDULE = "0 3 1,15 * *";
 
 /** Only refresh connections within 15 days of expiry. */
 const REFRESH_WINDOW_DAYS = 15;

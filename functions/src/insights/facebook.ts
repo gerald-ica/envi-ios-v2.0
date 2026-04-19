@@ -44,7 +44,7 @@ export class FacebookInsightsSync extends InsightsSyncBase {
   readonly provider = "facebook" as const;
 
   async fetchMetrics(
-    uid: string,
+    _uid: string,
     token: string,
     date: string,
     providerUserId: string

@@ -54,7 +54,7 @@ import type { SupportedProvider } from "../lib/firestoreSchema";
 import { getSecret } from "../lib/secrets";
 import { logger } from "../lib/logger";
 
-const log = logger.withContext({ phase: "10", provider: "meta" });
+const log = logger.withContext({ phase: "10", module: "meta" });
 
 // ---------------------------------------------------------------------------
 // Sub-platform discrimination

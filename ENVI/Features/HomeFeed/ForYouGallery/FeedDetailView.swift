@@ -1,11 +1,18 @@
 import SwiftUI
 
-/// Feed Detail — Sketch artboard "11a - Feed Detail" (393×1320, scrollable).
+/// Feed Detail — Sketch artboard "11 - Feed Detail" (393×1320, scrollable).
 ///
-/// Full-bleed hero image (589pt), back + bookmark overlays, platform tag,
-/// a Post Angle caption card, a 3-stat row (EST. REACH, BEST TIME,
-/// ENVI SCORE), an Edit CTA, and the month Content Calendar. The
-/// alternate 2×2 stat layout lives in `FeedDetailAltView` (11b).
+/// Layout, top to bottom:
+///  • Hero (393×589) with platform tag overlay and top back/bookmark buttons
+///  • INSTAGRAM row — platform label + handle left, bookmark right
+///  • POST ANGLE card — muted grey fill, 3-line caption
+///  • 2×2 STAT GRID — BEST TIME | EST. REACH / ENGAGEMENT | DISCUSSION
+///  • WHY ENVI LIKES IT card — rationale blurb
+///  • EDIT IN EDITOR button (red `#E20000`)
+///  • CONTENT CALENDAR month grid
+///
+/// Bookmark toggle is optimistic through `ContentRepository.setBookmarked`
+/// with rollback + inline toast on failure.
 struct FeedDetailView: View {
 
     let item: ContentItem
@@ -19,11 +26,16 @@ struct FeedDetailView: View {
 
     private let heroHeight: CGFloat = 589
 
+    // Shared design tokens pulled straight from the Sketch spec so the file
+    // stays self-documenting.
+    private let cardFill = Color(hex: "#3E3E3E")
+    private let cardStroke = Color.white.opacity(0.12)
+    private let cardCornerRadius: CGFloat = 18
+    private let editRed = Color(hex: "#E20000")
+    private let editRedLight = Color(hex: "#F20000")
+
     // MARK: - Bookmark state
-    //
-    // `isBookmarked` ships with `ContentItem` (default false) — we drive a local
-    // `@State` mirror so the tap feels instant. On repo failure we rebind to
-    // the prior value + surface a brief inline toast.
+
     @State private var isBookmarked: Bool = false
     @State private var bookmarkErrorVisible: Bool = false
     @State private var bookmarkInFlight: Bool = false
@@ -35,19 +47,31 @@ struct FeedDetailView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 0) {
                     hero
-                    postAngleCard
-                        .padding(.top, ENVISpacing.xl)
-                        .padding(.horizontal, 19)
-                    statsRow
-                        .padding(.top, ENVISpacing.lg)
-                        .padding(.horizontal, 19)
-                    editButton
-                        .padding(.top, ENVISpacing.xxl)
+
+                    instagramRow
+                        .padding(.top, 18)
                         .padding(.horizontal, 16)
+
+                    postAngleCard
+                        .padding(.top, 16)
+                        .padding(.horizontal, 16)
+
+                    statsGrid
+                        .padding(.top, 14)
+                        .padding(.horizontal, 16)
+
+                    whyEnviCard
+                        .padding(.top, 14)
+                        .padding(.horizontal, 16)
+
+                    editInEditorButton
+                        .padding(.top, 20)
+                        .padding(.horizontal, 16)
+
                     calendar
-                        .padding(.top, ENVISpacing.xl)
+                        .padding(.top, 22)
                         .padding(.horizontal, 24)
-                        .padding(.bottom, 120)
+                        .padding(.bottom, 140)
                 }
             }
             .ignoresSafeArea(edges: .top)
@@ -61,8 +85,6 @@ struct FeedDetailView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear {
-            // Seed local mirror from the ContentItem default the first time the
-            // sheet appears. Subsequent toggles drive state directly.
             isBookmarked = item.isBookmarked
         }
     }
@@ -71,7 +93,16 @@ struct FeedDetailView: View {
 
     private var hero: some View {
         ZStack(alignment: .bottomLeading) {
-            if let name = item.imageName, UIImage(named: name) != nil {
+            if let assetID = item.assetLocalIdentifier {
+                ForYouAssetThumbnailView(
+                    assetLocalIdentifier: assetID,
+                    fallbackImageName: item.imageName,
+                    contentMode: .fill
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: heroHeight)
+                .clipped()
+            } else if let name = item.imageName, UIImage(named: name) != nil {
                 Image(name)
                     .resizable()
                     .scaledToFill()
@@ -146,14 +177,11 @@ struct FeedDetailView: View {
         .padding(.top, 36)
     }
 
-    /// Toggles the bookmark optimistically, then persists via `ContentRepository`.
-    /// On failure: reverts the icon + surfaces a 2-second inline toast so the
-    /// user knows the write did not land.
+    /// Optimistic bookmark toggle that reverts + shows a toast on failure.
     private func toggleBookmark() {
         let previous = isBookmarked
         let next = !previous
 
-        // Optimistic flip first — UI responds instantly.
         isBookmarked = next
         bookmarkInFlight = true
 
@@ -162,7 +190,6 @@ struct FeedDetailView: View {
             do {
                 try await repository.setBookmarked(contentID: item.id, bookmarked: next)
             } catch {
-                // Rollback — restore the pre-tap state and flash the toast.
                 isBookmarked = previous
                 withAnimation { bookmarkErrorVisible = true }
                 try? await Task.sleep(for: .seconds(2))
@@ -171,8 +198,6 @@ struct FeedDetailView: View {
         }
     }
 
-    /// Subtle inline error banner shown briefly when bookmark write fails.
-    /// Kept non-modal so it doesn't block the hero or require a tap to dismiss.
     private var bookmarkErrorToast: some View {
         VStack {
             Spacer().frame(height: 96)
@@ -185,6 +210,37 @@ struct FeedDetailView: View {
                 .clipShape(Capsule())
             Spacer()
         }
+    }
+
+    // MARK: - INSTAGRAM row
+
+    private var instagramRow: some View {
+        HStack(spacing: 10) {
+            Image(systemName: item.platform.iconName)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundColor(.white)
+
+            Text(item.platform.rawValue.uppercased())
+                .font(.spaceMonoBold(12))
+                .tracking(1.7)
+                .foregroundColor(.white)
+
+            Text(item.creatorHandle)
+                .font(.interRegular(13))
+                .foregroundColor(.white.opacity(0.58))
+                .lineLimit(1)
+
+            Spacer()
+
+            Button(action: toggleBookmark) {
+                Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+            .buttonStyle(.plain)
+            .disabled(bookmarkInFlight)
+        }
+        .frame(height: 28)
     }
 
     // MARK: - Post Angle Card
@@ -204,92 +260,124 @@ struct FeedDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
         .padding(.vertical, 16)
-        .background(Color(hex: "#2A2A2A"))
+        .background(cardFill)
         .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.white.opacity(0.06), lineWidth: 1)
+            RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                .stroke(cardStroke, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
     }
 
-    // MARK: - Stats row — EST. REACH | BEST TIME | ENVI SCORE
+    // MARK: - 2×2 Stat Grid — BEST TIME | EST. REACH / ENGAGEMENT | DISCUSSION
 
-    private var statsRow: some View {
-        HStack(spacing: 0) {
-            stat(
-                icon: AnyView(eyeIcon),
-                value: item.estimatedReach,
-                label: "EST.\nREACH"
-            )
-            statDivider
-            stat(
-                icon: AnyView(clockIcon),
-                value: item.bestTime,
-                label: "BEST\nTIME"
-            )
-            statDivider
-            stat(
-                icon: AnyView(sparkIcon),
-                value: "\(Int(item.confidenceScore * 100))%",
-                label: "ENVI\nSCORE"
-            )
+    private var statsGrid: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                statCell(
+                    systemName: "clock.fill",
+                    value: item.bestTime,
+                    label: "BEST TIME"
+                )
+                statCell(
+                    systemName: "eye.fill",
+                    value: item.estimatedReach,
+                    label: "EST. REACH"
+                )
+            }
+            HStack(spacing: 10) {
+                statCell(
+                    systemName: "sparkles",
+                    value: "\(Int(item.confidenceScore * 100))%",
+                    label: "ENGAGEMENT"
+                )
+                statCell(
+                    systemName: "bubble.left.and.bubble.right.fill",
+                    value: formattedDiscussion,
+                    label: "DISCUSSION"
+                )
+            }
         }
-        .padding(.vertical, 20)
-        .background(Color(hex: "#2A2A2A"))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color.white.opacity(0.06), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
-    private var statDivider: some View {
-        Rectangle()
-            .fill(Color.white.opacity(0.08))
-            .frame(width: 1, height: 44)
+    /// Compact display for the total of comments + shares.
+    private var formattedDiscussion: String {
+        let total = item.comments + item.shares
+        if total >= 1000 {
+            let k = Double(total) / 1000.0
+            return String(format: "%.1fK", k)
+        }
+        return "\(total)"
     }
 
-    private func stat(icon: AnyView, value: String, label: String) -> some View {
-        HStack(spacing: 10) {
-            icon
+    private func statCell(systemName: String, value: String, label: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: systemName)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.white)
                 .frame(width: 34, height: 34)
                 .background(Color.white.opacity(0.08))
                 .clipShape(Circle())
 
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(value)
                     .font(.interSemiBold(14))
                     .foregroundColor(.white)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 Text(label)
                     .font(.spaceMonoBold(9))
                     .tracking(1.3)
                     .foregroundColor(.white.opacity(0.55))
             }
+
+            Spacer(minLength: 0)
         }
+        .padding(.horizontal, 14)
         .frame(maxWidth: .infinity)
+        .frame(height: 56)
+        .background(cardFill)
+        .overlay(
+            RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                .stroke(cardStroke, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
     }
 
-    private var eyeIcon: some View {
-        Image(systemName: "eye.fill")
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundColor(.white)
+    // MARK: - Why ENVI Likes It
+
+    private var whyEnviCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("WHY ENVI LIKES IT")
+                .font(.spaceMonoBold(10))
+                .tracking(2.0)
+                .foregroundColor(.white.opacity(0.48))
+
+            Text(whyEnviCopy)
+                .font(.interRegular(13))
+                .foregroundColor(.white.opacity(0.84))
+                .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 16)
+        .background(cardFill)
+        .overlay(
+            RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
+                .stroke(cardStroke, lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
     }
 
-    private var clockIcon: some View {
-        Image(systemName: "clock.fill")
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundColor(.white)
+    private var whyEnviCopy: String {
+        let scorePct = Int(item.confidenceScore * 100)
+        let platformName = item.platform.rawValue
+        return "Matches a \(scorePct)% confidence pattern across recent \(platformName) content. Strong visual pacing, an on-brand subject, and posting during your peak window makes this a high-leverage post."
     }
 
-    private var sparkIcon: some View {
-        Image(systemName: "sparkles")
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundColor(.white)
-    }
+    // MARK: - Edit in Editor — red CTA
 
-    // MARK: - Edit button
-
-    private var editButton: some View {
+    private var editInEditorButton: some View {
         Button {
             onApprove?()
             dismiss()
@@ -297,15 +385,22 @@ struct FeedDetailView: View {
             HStack(spacing: 8) {
                 Image(systemName: "pencil")
                     .font(.system(size: 13, weight: .semibold))
-                Text("EDIT")
+                Text("EDIT IN EDITOR")
                     .font(.spaceMonoBold(12))
                     .tracking(1.8)
             }
-            .foregroundColor(.black)
+            .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 48)
-            .background(Color.white)
+            .background(
+                LinearGradient(
+                    colors: [editRedLight, editRed],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .shadow(color: editRed.opacity(0.35), radius: 12, y: 6)
         }
         .buttonStyle(.plain)
     }

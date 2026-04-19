@@ -49,7 +49,7 @@ export class TikTokInsightsSync extends InsightsSyncBase {
   readonly provider = "tiktok" as const;
 
   async fetchMetrics(
-    uid: string,
+    _uid: string,
     token: string,
     date: string,
     providerUserId: string

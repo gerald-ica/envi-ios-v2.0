@@ -10,7 +10,8 @@
  *   - { status: "ok", phase: "06-01", env: "sandbox", timestamp: <iso> }
  *   - App Check middleware is applied (module imports it)
  */
-import type { Request, Response } from "firebase-functions/v2/https";
+import type { Request } from "firebase-functions/v2/https";
+import type { Response } from "express";
 
 jest.mock("firebase-functions/v2/https", () => {
   return {

@@ -25,6 +25,17 @@ final class MainTabBarController: UIViewController {
     private var currentIndex = 0
     private var trackedScrollViews: [UIScrollView] = []
 
+    /// Tap recognizer used to *reveal* the tab bar while the center tab
+    /// (index 1) is active. The world-explorer view auto-hides the pill so
+    /// the 3D helix can breathe; tapping anywhere in the bottom ~80pt strip
+    /// pops it back in. Location filtering happens in the action handler so
+    /// other gestures on the scene stay untouched.
+    private var bottomTapRevealGesture: UITapGestureRecognizer?
+
+    /// Center tab (World Explorer / AI Chat) — code index 1. Kept as a
+    /// named constant so the auto-hide intent is obvious at every use-site.
+    private static let centerTabIndex = 1
+
     /// Shared router injected into each tab's SwiftUI root via
     /// `.environmentObject`.
     private let router = AppRouter.shared
@@ -38,6 +49,7 @@ final class MainTabBarController: UIViewController {
         view.backgroundColor = ENVITheme.UIKit.backgroundDark
         setupViewControllers()
         setupTabBar()
+        setupBottomTapRevealGesture()
         attachViewControllersIfNeeded()
         showViewController(at: 0)
         bindRouter()
@@ -118,6 +130,47 @@ final class MainTabBarController: UIViewController {
         }
     }
 
+    // MARK: - Bottom-Tap Reveal Gesture
+
+    /// Installs a `UITapGestureRecognizer` on the tab-bar controller's root
+    /// view. When the center tab (World Explorer) is active and the pill is
+    /// hidden, a tap in the bottom ~80pt strip of the screen reveals it.
+    /// `cancelsTouchesInView = false` so taps still reach the underlying
+    /// SceneKit / SwiftUI views (helix scene, bottom composer, suggestion
+    /// chips, etc.) — the gesture fires in parallel and is filtered by
+    /// y-location inside the action handler.
+    private func setupBottomTapRevealGesture() {
+        let gesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleBottomTapReveal(_:))
+        )
+        gesture.cancelsTouchesInView = false
+        gesture.delaysTouchesBegan = false
+        gesture.delaysTouchesEnded = false
+        view.addGestureRecognizer(gesture)
+        bottomTapRevealGesture = gesture
+    }
+
+    /// Height of the tap target at the bottom of the screen that reveals the
+    /// hidden pill. Generous enough to catch a comfortable thumb tap but
+    /// narrow enough that taps on the World Explorer bottom composer still
+    /// take priority (composer sits above this strip once the pill is
+    /// hidden).
+    private static let bottomRevealTapZoneHeight: CGFloat = 80
+
+    @objc private func handleBottomTapReveal(_ gesture: UITapGestureRecognizer) {
+        // Only arm the reveal while the center tab is active — everywhere
+        // else the pill is already visible.
+        guard currentIndex == MainTabBarController.centerTabIndex else { return }
+        guard gesture.state == .ended else { return }
+
+        let location = gesture.location(in: view)
+        let threshold = view.bounds.height - MainTabBarController.bottomRevealTapZoneHeight
+        guard location.y >= threshold else { return }
+
+        setTabBarVisible(true, animated: true)
+    }
+
     // MARK: - View Controller Switching
 
     private func showViewController(at index: Int) {
@@ -126,7 +179,7 @@ final class MainTabBarController: UIViewController {
         if currentIndex == index {
             let current = viewControllers[index]
             customTabBar.selectedIndex = index
-            setTabBarVisible(true, animated: false)
+            applyTabBarVisibility(forTabIndex: index, animated: false)
             configureTabBarVisibilityHandling(for: current)
             return
         }
@@ -143,8 +196,21 @@ final class MainTabBarController: UIViewController {
 
         currentIndex = index
         customTabBar.selectedIndex = index
-        setTabBarVisible(true, animated: false)
+        applyTabBarVisibility(forTabIndex: index, animated: true)
         configureTabBarVisibilityHandling(for: newVC)
+    }
+
+    /// Central rule for whether the pill should be visible when a given tab
+    /// becomes active. The center tab (World Explorer) auto-hides the pill so
+    /// the 3D helix reads full-bleed; every other tab shows it by default.
+    /// Scroll-driven visibility continues to override this on tabs where the
+    /// content scroll view is long enough to warrant it.
+    private func applyTabBarVisibility(forTabIndex index: Int, animated: Bool) {
+        if index == MainTabBarController.centerTabIndex {
+            setTabBarVisible(false, animated: animated)
+        } else {
+            setTabBarVisible(true, animated: animated)
+        }
     }
 
     private func attachViewControllersIfNeeded() {
@@ -224,6 +290,11 @@ final class MainTabBarController: UIViewController {
             gestureRecognizer.state == .changed,
             let scrollView = gestureRecognizer.view as? UIScrollView
         else { return }
+
+        // Center tab owns its own pill-hidden rule (auto-hide + bottom-edge
+        // swipe-up to reveal). Skip the scroll-driven toggle there so a
+        // nested scroll view doesn't fight the auto-hide behavior.
+        guard currentIndex != MainTabBarController.centerTabIndex else { return }
 
         let translation = gestureRecognizer.translation(in: scrollView)
         guard abs(translation.y) > abs(translation.x) else { return }

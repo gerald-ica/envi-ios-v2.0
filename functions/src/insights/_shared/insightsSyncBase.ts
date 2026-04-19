@@ -197,7 +197,7 @@ export abstract class InsightsSyncBase {
       }
     }
 
-    log.info("sync complete", result);
+    log.info("sync complete", { ...result });
     return result;
   }
 

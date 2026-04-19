@@ -35,7 +35,7 @@ export class ThreadsInsightsSync extends InsightsSyncBase {
   readonly provider = "threads" as const;
 
   async fetchMetrics(
-    uid: string,
+    _uid: string,
     token: string,
     date: string,
     providerUserId: string

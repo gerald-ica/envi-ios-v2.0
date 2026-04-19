@@ -46,7 +46,16 @@ struct FeedDetailAltView: View {
 
     private var hero: some View {
         ZStack(alignment: .topTrailing) {
-            if let name = item.imageName, UIImage(named: name) != nil {
+            if let assetID = item.assetLocalIdentifier {
+                ForYouAssetThumbnailView(
+                    assetLocalIdentifier: assetID,
+                    fallbackImageName: item.imageName,
+                    contentMode: .fill
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: heroHeight)
+                .clipped()
+            } else if let name = item.imageName, UIImage(named: name) != nil {
                 Image(name)
                     .resizable()
                     .scaledToFill()

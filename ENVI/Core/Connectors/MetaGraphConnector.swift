@@ -148,7 +148,7 @@ class MetaGraphConnector: ObservableObject {
     init(
         metaPlatform: MetaPlatform,
         oauthManager: SocialOAuthManager = .shared,
-        apiClient: APIClient = .shared
+        apiClient: APIClient = SocialOAuthManager.sharedBrokerAPIClient
     ) {
         self.metaPlatform = metaPlatform
         self.oauthManager = oauthManager

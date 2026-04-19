@@ -10,14 +10,23 @@ final class APIClient {
     private let encoder: JSONEncoder
     private let retryPolicy: RetryPolicy
 
-    let baseURL = AppConfig.apiBaseURL
+    let baseURL: URL
 
+    /// - Parameters:
+    ///   - baseURL: Override the API host. Defaults to `AppConfig.apiBaseURL`
+    ///     which is the legacy (pre-Phase 07) ENVI app API host. Callers that
+    ///     need the Cloud Functions broker (OAuth + connector traffic) should
+    ///     pass `AppConfig.connectorFunctionsBaseURL` — see
+    ///     `SocialOAuthManager.makeDefaultAPIClient()` for the canonical
+    ///     example.
     init(
+        baseURL: URL = AppConfig.apiBaseURL,
         session: URLSession = .shared,
         decoder: JSONDecoder = JSONDecoder(),
         encoder: JSONEncoder = JSONEncoder(),
         retryPolicy: RetryPolicy = .default
     ) {
+        self.baseURL = baseURL
         self.session = session
         self.decoder = decoder
         self.encoder = encoder

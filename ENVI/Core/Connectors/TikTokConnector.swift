@@ -52,7 +52,7 @@ actor TikTokConnector {
     private let oauthManager: SocialOAuthManager
 
     init(
-        apiClient: APIClient = .shared,
+        apiClient: APIClient = SocialOAuthManager.sharedBrokerAPIClient,
         urlSession: URLSession = .shared,
         oauthManager: SocialOAuthManager = .shared
     ) {

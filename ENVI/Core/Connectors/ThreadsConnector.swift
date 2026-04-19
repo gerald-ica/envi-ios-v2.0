@@ -105,7 +105,10 @@ final class ThreadsConnector: MetaGraphConnector {
     // MARK: - Init
 
     convenience init() {
-        self.init(oauthManager: .shared, apiClient: .shared)
+        self.init(
+            oauthManager: .shared,
+            apiClient: SocialOAuthManager.sharedBrokerAPIClient
+        )
     }
 
     init(

@@ -393,6 +393,9 @@
 		B03D1157DE06362C5FCA497A /* SupportViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72EBF00D01760AC56D19FAEF /* SupportViewModelTests.swift */; };
 		B0747488E18A0E1DF9F5EBCB /* badge-top-creator.png in Resources */ = {isa = PBXBuildFile; fileRef = 866BB10B30FC6E37DD2DFF11 /* badge-top-creator.png */; };
 		B095FF30144A58A2E6C41E34 /* RepurposeSuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800AD8450282565C31D0C58C /* RepurposeSuggestionsView.swift */; };
+		B2E0A18F4D6C3B7A9E5F1D20 /* ForYouAssetThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2E0A18F4D6C3B7A9E5F1D21 /* ForYouAssetThumbnailView.swift */; };
+		B2E0A18F4D6C3B7A9E5F1D22 /* ForYouIdentityResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2E0A18F4D6C3B7A9E5F1D23 /* ForYouIdentityResolver.swift */; };
+		B2E0A18F4D6C3B7A9E5F1D24 /* ForYouAssemblyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2E0A18F4D6C3B7A9E5F1D25 /* ForYouAssemblyCoordinator.swift */; };
 		B474EAE71FC2AB0BDF7B2BB9 /* EducationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E70B0CDA75491A99C33857 /* EducationViewModel.swift */; };
 		B4CA7CF68329C91E99171A3F /* ChatThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1783A8ABAB70E9E89EEC740C /* ChatThread.swift */; };
 		B51E48E1241544C68FB83965 /* RepositoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19D804F2D3E74602597D7D6 /* RepositoryProvider.swift */; };
@@ -890,7 +893,7 @@
 		96730F93B899979E7662EEE8 /* FirestoreBackedAdvancedAnalyticsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreBackedAdvancedAnalyticsRepository.swift; sourceTree = "<group>"; };
 		99E25F104E67F3377086C8D2 /* ASWebAuthenticationSessionAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASWebAuthenticationSessionAdapterTests.swift; sourceTree = "<group>"; };
 		9AFB4ABC4F7BD65A2091B96B /* ShareLinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareLinkView.swift; sourceTree = "<group>"; };
-		9C366FD4C05E183873BCAD9F /* ENVITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ENVITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C366FD4C05E183873BCAD9F /* ENVITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ENVITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CA0EB30B461EFEB2C930034 /* ContentPieceAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPieceAssembler.swift; sourceTree = "<group>"; };
 		9CD7FA1FA400C7BC20BD0D77 /* abstract-7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "abstract-7.png"; sourceTree = "<group>"; };
 		9D3D716B931F08E8AADB7004 /* ENVI.Debug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ENVI.Debug.entitlements; sourceTree = "<group>"; };
@@ -935,6 +938,9 @@
 		B18AC5917C88F417902A403A /* SpaceMono-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceMono-Bold.ttf"; sourceTree = "<group>"; };
 		B1A63D36B88C55D87763D361 /* AppDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDestination.swift; sourceTree = "<group>"; };
 		B2388A96581DD146671A2149 /* AgencyRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgencyRepository.swift; sourceTree = "<group>"; };
+		B2E0A18F4D6C3B7A9E5F1D21 /* ForYouAssetThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForYouAssetThumbnailView.swift; sourceTree = "<group>"; };
+		B2E0A18F4D6C3B7A9E5F1D23 /* ForYouIdentityResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForYouIdentityResolver.swift; sourceTree = "<group>"; };
+		B2E0A18F4D6C3B7A9E5F1D25 /* ForYouAssemblyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForYouAssemblyCoordinator.swift; sourceTree = "<group>"; };
 		B33739C9807F2590041294B8 /* TemplateCategoryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateCategoryRow.swift; sourceTree = "<group>"; };
 		B3C4670B7793BBD8F34163E4 /* CampaignRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CampaignRepository.swift; sourceTree = "<group>"; };
 		B4AC33801C0AB1BFF1A7E81E /* SchedulingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulingViewModel.swift; sourceTree = "<group>"; };
@@ -1093,7 +1099,7 @@
 		FDE10D585C6BBCCEC20BE96E /* IdeationDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdeationDashboardView.swift; sourceTree = "<group>"; };
 		FE7CA623F68F981DAFBFDCD0 /* SecurityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityRepository.swift; sourceTree = "<group>"; };
 		FF893BDE3A331ECE39048447 /* BillingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingRepository.swift; sourceTree = "<group>"; };
-		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1357,8 +1363,11 @@
 			children = (
 				CB133B045385F269A8DE0053 /* FeedDetailAltView.swift */,
 				F68851826B3F7F6D682B9F9F /* FeedDetailView.swift */,
+				B2E0A18F4D6C3B7A9E5F1D25 /* ForYouAssemblyCoordinator.swift */,
 				848C1F9D37988EF4DA9B0D81 /* ForYouGalleryContainerView.swift */,
 				5DDCA4E82A710F76563C8880 /* ForYouGalleryViewModel.swift */,
+				B2E0A18F4D6C3B7A9E5F1D21 /* ForYouAssetThumbnailView.swift */,
+				B2E0A18F4D6C3B7A9E5F1D23 /* ForYouIdentityResolver.swift */,
 				A4FF848035DEECC9461A5F17 /* ForYouSwipeView.swift */,
 				14A15A5C0ED2CC6FEF02631E /* GalleryGridView.swift */,
 			);
@@ -2719,6 +2728,9 @@
 				77C3600B65F5EFC927068173 /* Font+ENVI.swift in Sources */,
 				89EA434C9020BAC31D2AF9AA /* ForYouGalleryContainerView.swift in Sources */,
 				59949E30072A3802CCA80B3D /* ForYouGalleryViewModel.swift in Sources */,
+				B2E0A18F4D6C3B7A9E5F1D20 /* ForYouAssetThumbnailView.swift in Sources */,
+				B2E0A18F4D6C3B7A9E5F1D22 /* ForYouIdentityResolver.swift in Sources */,
+				B2E0A18F4D6C3B7A9E5F1D24 /* ForYouAssemblyCoordinator.swift in Sources */,
 				8B34E7C9D8892037004542D9 /* ForYouSwipeView.swift in Sources */,
 				DD7C1D1483033F8DD3C34C52 /* GalleryGridView.swift in Sources */,
 				680FA023543CC39738A9F520 /* GoogleSignInButton.swift in Sources */,
@@ -3044,6 +3056,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				DEVELOPMENT_TEAM = QNA8KSH8AR;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3118,6 +3132,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				DEVELOPMENT_TEAM = QNA8KSH8AR;
 				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3141,7 +3157,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZM82DY7PG2;
+				DEVELOPMENT_TEAM = QNA8KSH8AR;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ENVI/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
@@ -3173,7 +3189,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = W5687Z6R55;
+				DEVELOPMENT_TEAM = QNA8KSH8AR;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ENVI/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
@@ -3189,7 +3205,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.geraldwelly.envi.debug;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weareinformal.envi.staging;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

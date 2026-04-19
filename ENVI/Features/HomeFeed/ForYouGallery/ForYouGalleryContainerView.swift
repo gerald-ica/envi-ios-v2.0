@@ -19,12 +19,16 @@ struct ForYouGalleryContainerView: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            AppBackground(imageName: "feed-bg")
+            AppBackground(imageName: "main-bg", vignetteOpacity: 0.0)
 
             VStack(spacing: 0) {
                 headerBar
-                    .padding(.top, ENVISpacing.sm)
-                    .padding(.bottom, ENVISpacing.sm)
+                    // Extra top breathing room below the Dynamic Island.
+                    // ENVISpacing.xl (~20) was close but still felt tight next
+                    // to the status bar — bump to 36pt so the header settles
+                    // clearly below the island.
+                    .padding(.top, 36)
+                    .padding(.bottom, ENVISpacing.md)
 
                 switch viewModel.selectedSegment {
                 case .forYou:

@@ -54,7 +54,7 @@ final class XTwitterConnector {
     ///   - featureFlagGate: Defaults to `FeatureFlags.shared.useXConnector`
     ///     (main-actor read). Tests inject constants.
     init(
-        apiClient: APIClient = .shared,
+        apiClient: APIClient = SocialOAuthManager.sharedBrokerAPIClient,
         oauthManager: SocialOAuthManager = .shared,
         featureFlagGate: @escaping @Sendable () async -> Bool = {
             await MainActor.run { FeatureFlags.shared.useXConnector }

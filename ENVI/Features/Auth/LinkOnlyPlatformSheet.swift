@@ -22,13 +22,13 @@ struct LinkOnlyPlatformSheet: View {
                 .padding(.top, ENVISpacing.xxl)
 
             VStack(spacing: ENVISpacing.sm) {
-                Text("\(platform.rawValue) sign-in coming soon")
+                Text("Link \(platform.rawValue) after signing in")
                     .font(.spaceMonoBold(20))
                     .tracking(-0.5)
                     .foregroundColor(ENVITheme.text(for: colorScheme))
                     .multilineTextAlignment(.center)
 
-                Text("You can't sign in with \(platform.rawValue) yet. Sign in with email, Apple, Google, Meta, or X — then link your \(platform.rawValue) account from Settings → Connected Accounts.")
+                Text("\(platform.rawValue) doesn't support signing into ENVI directly. Sign in with email, Apple, Google, Meta, or X — then connect \(platform.rawValue) on the next screen or anytime from Profile → Connected Platforms.")
                     .font(.interRegular(14))
                     .foregroundColor(ENVITheme.textLight(for: colorScheme))
                     .multilineTextAlignment(.center)

@@ -300,58 +300,69 @@ struct WorldExplorerView: View {
     // MARK: - Right-Side Time Scrubber
 
     private var rightSideScrubber: some View {
-        VStack(spacing: 0) {
-            GeometryReader { geo in
-                ZStack {
-                    MainAppScrubber(
-                        month: scrubDateLabel,
-                        zoom: ExplorerZoomLevel.allCases.map(\.shortLabel),
-                        selectedZoom: zoomLevel.shortLabel
-                    ) { shortLabel in
-                        guard let level = ExplorerZoomLevel.allCases.first(where: { $0.shortLabel == shortLabel }) else {
-                            return
-                        }
-                        zoomLevel = level
-                        sceneController?.zoomLevel = level
+        // Previously wrapped in a VStack + unconstrained GeometryReader, which
+        // made the reader claim the full screen width — so `.alignment:
+        // .trailing` on the outer frame was a no-op and the 41-wide scrubber
+        // column rendered on the LEFT edge. Pinning the GeometryReader to its
+        // intrinsic 41×433 before expanding with trailing alignment is what
+        // actually parks the rail on the right side of the screen.
+        GeometryReader { geo in
+            ZStack {
+                MainAppScrubber(
+                    month: scrubDateLabel,
+                    zoom: ExplorerZoomLevel.allCases.map(\.shortLabel),
+                    selectedZoom: zoomLevel.shortLabel
+                ) { shortLabel in
+                    guard let level = ExplorerZoomLevel.allCases.first(where: { $0.shortLabel == shortLabel }) else {
+                        return
                     }
-
-                    HStack(spacing: 6) {
-                        Text(scrubDateLabel)
-                            .font(.spaceMono(9))
-                            .tracking(1.5)
-                            .foregroundColor(lightMode ? .black.opacity(0.6) : .white.opacity(0.7))
-
-                        Circle()
-                            .fill(lightMode ? Color(hex: "#222222") : .white)
-                            .frame(width: 8, height: 8)
-                            .overlay(
-                                Circle()
-                                    .strokeBorder(lightMode ? Color.black.opacity(0.4) : Color.white.opacity(0.6), lineWidth: 1.5)
-                            )
-                            .shadow(color: lightMode ? .black.opacity(0.2) : .white.opacity(0.4), radius: 3)
-                    }
-                    .position(x: 11, y: geo.size.height * timePosition)
+                    zoomLevel = level
+                    sceneController?.zoomLevel = level
                 }
-                .contentShape(Rectangle())
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { value in
-                            let newPos = max(0, min(1, value.location.y / geo.size.height))
-                            timePosition = newPos
-                            sceneController?.timePosition = Float(newPos)
-                            sceneController?.isPaused = true
-                            sceneController?.userControlling = true
-                            sceneController?.isScrubbing = true
-                        }
-                        .onEnded { _ in
-                            sceneController?.isScrubbing = false
-                        }
-                )
-                .frame(width: 41, height: 433)
+
+                HStack(spacing: 6) {
+                    Text(scrubDateLabel)
+                        .font(.spaceMono(9))
+                        .tracking(1.5)
+                        .foregroundColor(lightMode ? .black.opacity(0.6) : .white.opacity(0.7))
+                        .fixedSize()
+
+                    Circle()
+                        .fill(lightMode ? Color(hex: "#222222") : .white)
+                        .frame(width: 8, height: 8)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(lightMode ? Color.black.opacity(0.4) : Color.white.opacity(0.6), lineWidth: 1.5)
+                        )
+                        .shadow(color: lightMode ? .black.opacity(0.2) : .white.opacity(0.4), radius: 3)
+                }
+                // Center the HStack so the dot sits on the rail (rail is the
+                // 1pt vertical line centered in the 41pt column, i.e. x ≈ 20).
+                // The date label floats to the left of the dot naturally.
+                .position(x: 20.5, y: geo.size.height * timePosition)
             }
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        let newPos = max(0, min(1, value.location.y / geo.size.height))
+                        timePosition = newPos
+                        sceneController?.timePosition = Float(newPos)
+                        sceneController?.isPaused = true
+                        sceneController?.userControlling = true
+                        sceneController?.isScrubbing = true
+                    }
+                    .onEnded { _ in
+                        sceneController?.isScrubbing = false
+                    }
+            )
         }
+        // Lock the GeometryReader to the scrubber's intrinsic size FIRST.
+        .frame(width: 41, height: 433)
+        // Then expand into the containing ZStack and pin to the trailing edge
+        // — this is what actually puts the rail on the right side.
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
-        .padding(.trailing, 64)
+        .padding(.trailing, ENVISpacing.xxl)
     }
 
     private var scrubDateLabel: String {

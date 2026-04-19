@@ -140,7 +140,7 @@ final class LinkedInConnector {
 
     init(
         oauthManager: SocialOAuthManager = .shared,
-        apiClient: APIClient = .shared,
+        apiClient: APIClient = SocialOAuthManager.sharedBrokerAPIClient,
         featureFlagGate: @escaping @Sendable () async -> Bool = {
             await MainActor.run { FeatureFlags.shared.connectorsUseMockOAuth }
         }
