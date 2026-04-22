@@ -2,7 +2,7 @@
 
 **AI-native content operating system for iOS.**
 
-ENVI assembles and edits content pieces from the user's camera roll -- photos, videos, carousels, stories, and reels -- and presents them in an interactive 3D content library. Powered by AI, it provides smart insights, automated editing suggestions, optimal posting times, and engagement analytics across social platforms.
+ENVI is a personalized ai content editor on iOS 26+ app that assembles and edits content pieces from the user's camera roll -- photos, videos, carousels, stories, and reels -- and presents them the final product that they then can swipe to approve or deny to then have it auto scheduled to post. Theres also a new interactive 3D content helix library that presents them a new way of looking at their camera roll and posted content. Powered by AI, the app studies the user to provide personalized smart insights, automated editing, suggestions, optimal posting times, and engagement analytics all based on their users data and social platforms.
 
 **40 feature domains** | **28 feature modules** | **25 API repositories** | **150+ endpoint contracts**
 
