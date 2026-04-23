@@ -4,12 +4,7 @@ on:
   push:
     branches:
       - "feature/usm-**"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "ENVI/Core/USM/**"
-      - "ENVITests/Core/USM/**"
+  workflow_dispatch:
 
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
@@ -17,26 +12,38 @@ concurrency:
 
 jobs:
   xctest:
-    runs-on: macos-14
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: "16.0"
-
-      - name: Cache Xcode build artifacts
+      - name: Cache SPM packages
         uses: actions/cache@v4
         with:
-          path: ~/Library/Developer/Xcode/DerivedData
-          key: "${{ runner.os }}-xcode-${{ hashFiles('ENVI.xcodeproj/project.pbxproj') }}"
-          restore-keys: |
-            ${{ runner.os }}-xcode-
+          path: .build
+          key: spm-${{ runner.os }}-${{ hashFiles('Package.resolved') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Resolve Swift packages
+        run: swift package resolve
+
+      - name: Select simulator
+        id: simulator
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone 16/ {print $2; exit}')
+          if [ -z "$DEVICE_ID" ]; then
+            DEVICE_ID=$(xcrun simctl list devices available | awk -F '[()]' '/iPhone/ {print $2; exit}')
+          fi
+          if [ -z "$DEVICE_ID" ]; then
+            echo "No available iOS Simulator device found"
+            exit 1
+          fi
+          echo "device_id=$DEVICE_ID" >> "$GITHUB_OUTPUT"
 
       - name: Run USM tests
         run: |
           xcodebuild test \
             -scheme ENVI \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
-            -only-testing:ENVITests/UserSelfModelTests
+            -destination "id=${{ steps.simulator.outputs.device_id }}" \
+            -configuration Debug \
+            -only-testing:ENVITests \
+            CODE_SIGNING_ALLOWED=NO
