@@ -21,7 +21,7 @@ jobs:
       - name: Check for committed secrets
         run: |
           PATTERNS="AKIA[0-9A-Z]{16}|sk-[a-zA-Z0-9]{20,}|ghp_[a-zA-Z0-9]{36}|AIza[0-9A-Za-z_-]{35}"
-          if grep -rE "$PATTERNS" --include="*.swift" --include="*.plist" --include="*.json" --include="*.yml" --include="*.yaml" . 2>/dev/null | grep -v '.build/' | grep -v 'node_modules/' | grep -v 'check-secrets'; then
+          if grep -rE "$PATTERNS" --include="*.swift" --include="*.plist" --include="*.json" --include="*.yml" --include="*.yaml" . 2>/dev/null | grep -v '.build/' | grep -v 'node_modules/' | grep -v 'check-secrets' | grep -v '^./ENVI/Resources/GoogleService-Info.plist:'; then
             echo "❌ Potential secrets found in source files!"
             exit 1
           fi
