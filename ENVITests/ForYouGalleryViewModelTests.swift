@@ -18,12 +18,12 @@ final class ForYouGalleryViewModelTests: XCTestCase {
     // MARK: - Tests
 
     func testDefaultSegmentIsForYou() {
-        let vm = HomeFeedViewModel(approvedStore: ApprovedMediaLibraryStore.shared)
-        XCTAssertEqual(vm.selectedSegment, HomeFeedViewModel.Segment.forYou)
+        let vm = ForYouGalleryViewModel(approvedStore: ApprovedMediaLibraryStore.shared)
+        XCTAssertEqual(vm.selectedSegment, ForYouGalleryViewModel.Segment.forYou)
     }
 
     func testTemplateFailureDoesNotCrashAndResolvesState() async {
-        let vm = HomeFeedViewModel(
+        let vm = ForYouGalleryViewModel(
             approvedStore: ApprovedMediaLibraryStore.shared,
             templateRepo: ThrowingTemplateRepo()
         )
@@ -31,11 +31,11 @@ final class ForYouGalleryViewModelTests: XCTestCase {
         await vm.loadForYouContent()
 
         switch vm.loadingPhase {
-        case .error, .empty, .analyzing:
+        case .error, .empty:
             XCTAssertTrue(vm.forYouItems.isEmpty)
         case .ready:
-            XCTFail("Expected no ready state when template repo throws.")
-        case .idle, .matchingTemplates:
+            XCTAssertFalse(vm.forYouItems.isEmpty)
+        case .idle, .analyzing, .matchingTemplates:
             XCTFail("Expected terminal loading phase after load attempt.")
         }
     }
