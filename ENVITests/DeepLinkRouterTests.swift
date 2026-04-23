@@ -24,9 +24,9 @@ final class DeepLinkRouterTests: XCTestCase {
     }
 
     func testDestinationWithIdPayload() {
+        // Sprint-03: campaignDetail deep-link route is hidden.
         let url = URL(string: "enviapp://destination/campaignDetail?id=abc")!
-        XCTAssertEqual(DeepLinkRouter.destination(from: url),
-                       .campaignDetail(id: "abc"))
+        XCTAssertNil(DeepLinkRouter.destination(from: url))
     }
 
     func testUnknownDestinationReturnsNil() {
@@ -39,7 +39,7 @@ final class DeepLinkRouterTests: XCTestCase {
         XCTAssertNil(DeepLinkRouter.destination(
             from: URL(string: "enviapp://destination")!))
 
-        // Case that requires an id payload but none supplied
+        // Case that requires an id payload but none supplied (route hidden in Sprint-03)
         XCTAssertNil(DeepLinkRouter.destination(
             from: URL(string: "enviapp://destination/campaignDetail")!))
 

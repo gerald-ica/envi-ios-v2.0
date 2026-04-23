@@ -157,10 +157,14 @@ struct AppDestinationFullScreenResolver: View {
     var body: some View {
         switch destination {
         case .contentEditor:
-            // Phase 16 will wire the real editor — keep a clearly
-            // labelled placeholder for now so a full-screen cover that
-            // slips through doesn't ship a blank screen.
-            PlaceholderSheetView(destination: destination)
+            // Sprint-03: contentEditor deep-link route is disabled in DeepLinkRouter.
+            // If reached via other means, show a graceful unavailable state.
+            ContentUnavailableView {
+                Label("EDITOR UNAVAILABLE", systemImage: "pencil.slash")
+            } description: {
+                Text("The editor cannot be opened from this context.")
+            }
+            .preferredColorScheme(.dark)
 
         default:
             PlaceholderSheetView(destination: destination)

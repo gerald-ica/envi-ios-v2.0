@@ -234,6 +234,9 @@ public struct DimensionReducer: Sendable {
                 XT[j * n + i] = X[i * d + j]
             }
         }
+        // S(n x n) = X(n x d) * XT(d x n)
+        // vDSP_mmul signature: C[M,N] = A[M,P] * B[P,N], so M=n, N=n, P=d.
+        // (Previously swapped to M=n,N=d,P=n — corrupted heap when d != n.)
         X.withUnsafeBufferPointer { xb in
             XT.withUnsafeBufferPointer { xtb in
                 S.withUnsafeMutableBufferPointer { sb in
@@ -242,8 +245,8 @@ public struct DimensionReducer: Sendable {
                         xtb.baseAddress!, 1,
                         sb.baseAddress!, 1,
                         vDSP_Length(n),
-                        vDSP_Length(d),
-                        vDSP_Length(n)
+                        vDSP_Length(n),
+                        vDSP_Length(d)
                     )
                 }
             }

@@ -47,3 +47,20 @@ jobs:
             -configuration Debug \
             -only-testing:ENVITests \
             CODE_SIGNING_ALLOWED=NO
+
+      # Sprint-03: Device-lane template for Vision-dependent tests.
+      # Uncomment and add a self-hosted runner with real-device access
+      # (ANE / CoreML espresso context) to run EmbeddingIndexTests
+      # and SimilarityEngineTests which fail on simulator.
+      #
+      # device-test:
+      #   runs-on: [self-hosted, macos, ios-device]
+      #   steps:
+      #     - uses: actions/checkout@v4
+      #     - name: Run Vision tests on device
+      #       run: |
+      #         xcodebuild test \
+      #           -scheme ENVI \
+      #           -destination 'platform=iOS,id=${{ secrets.DEVICE_UDID }}' \
+      #           -only-testing:ENVITests/EmbeddingIndexTests \
+      #           -only-testing:ENVITests/SimilarityEngineTests

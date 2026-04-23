@@ -41,7 +41,8 @@ enum DeepLinkRouter {
         "commerce": { _ in .commerce },
         "experiments": { _ in .experiments },
         "metadata": { _ in .metadata },
-        "publishing": { _ in .publishing },
+        // Sprint-03: hidden — routes to PlaceholderSheetView. Re-enable when Publishing tab is fully wired.
+        // "publishing": { _ in .publishing },
         "contentCalendar": { _ in .contentCalendar },
         "repurposing": { _ in .repurposing },
         "search": { _ in .search },
@@ -54,25 +55,29 @@ enum DeepLinkRouter {
         "imageGenerator": { _ in .imageGenerator },
         "notifications": { _ in .notifications },
         "security": { _ in .security },
-        "billing": { _ in .billing },
-        "education": { _ in .education },
-        "support": { _ in .support },
-        "subscription": { _ in .subscription },
+        // Sprint-03: hidden profile-adjacent routes — no real UI wired yet.
+        // "billing": { _ in .billing },
+        // "education": { _ in .education },
+        // "support": { _ in .support },
+        // "subscription": { _ in .subscription },
         "chatHistory": { _ in .chatHistory },
         "contentLibrarySettings": { _ in .contentLibrarySettings },
-        "exportSheet": { _ in .exportSheet },
-        "mediaPicker": { _ in .mediaPicker },
-        "phPicker": { _ in .phPicker },
+        // Sprint-03: hidden library/tool routes — no real UI wired yet.
+        // "exportSheet": { _ in .exportSheet },
+        // "mediaPicker": { _ in .mediaPicker },
+        // "phPicker": { _ in .phPicker },
 
         // Id-payload destinations
-        "campaignDetail": { url in
-            guard let id = queryValue(url: url, name: "id") else { return nil }
-            return .campaignDetail(id: id)
-        },
-        "contentEditor": { url in
-            guard let id = queryValue(url: url, name: "id") else { return nil }
-            return .contentEditor(contentID: id)
-        }
+        // Sprint-03: campaignDetail hidden — no detail view wired yet.
+        // "campaignDetail": { url in
+        //     guard let id = queryValue(url: url, name: "id") else { return nil }
+        //     return .campaignDetail(id: id)
+        // },
+        // Sprint-03: contentEditor hidden — EditorContainerView requires ContentPiece/ContentItem, not just an ID.
+        // "contentEditor": { url in
+        //     guard let id = queryValue(url: url, name: "id") else { return nil }
+        //     return .contentEditor(contentID: id)
+        // }
     ]
 
     // MARK: - Public API

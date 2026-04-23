@@ -102,6 +102,11 @@ final class ASWebAuthenticationSessionAdapter: NSObject, OAuthSession {
             ?? activeWindowScene?.windows.first
             ?? activeWindowScene.map { UIWindow(windowScene: $0) }
     }
+
+    @MainActor
+    private static func fallbackPresentationAnchor() -> ASPresentationAnchor {
+        defaultPresentationAnchor() ?? UIWindow(frame: UIScreen.main.bounds)
+    }
 }
 
 // MARK: - ASWebAuthenticationPresentationContextProviding
@@ -124,7 +129,7 @@ extension ASWebAuthenticationSessionAdapter: ASWebAuthenticationPresentationCont
             // `preconditionFailure`, which turned transient scene-setup
             // gaps (simulator cold launch, onboarding before the window
             // becomes key) into hard crashes.
-            return UIWindow()
+            return ASWebAuthenticationSessionAdapter.fallbackPresentationAnchor()
         }
     }
 }

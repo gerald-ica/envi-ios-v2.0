@@ -46,13 +46,13 @@ final class MediaScanCoordinatorTests: XCTestCase {
     /// Fake PHAsset that only needs to answer `localIdentifier`.
     /// PHAsset.localIdentifier is a read-only property, so we
     /// subclass and override it.
-    private final class FakePHAsset: PHAsset {
+    private final class FakePHAsset: PHAsset, @unchecked Sendable {
         private let _id: String
         init(id: String) {
             self._id = id
             super.init()
         }
-        required init() {
+        override required init() {
             self._id = UUID().uuidString
             super.init()
         }
