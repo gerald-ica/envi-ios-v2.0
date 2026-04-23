@@ -1,6 +1,8 @@
 {
   "projects": {
-    "default": "envi-by-informal-staging"
+    "default": "envi-by-informal-staging",
+    "staging": "envi-by-informal-staging",
+    "production": "envi-by-informal"
   },
   "targets": {},
   "etags": {}
