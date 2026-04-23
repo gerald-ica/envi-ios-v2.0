@@ -551,6 +551,10 @@
 		FE24BF57A576F3463827BA58 /* decorative-shape-19.png in Resources */ = {isa = PBXBuildFile; fileRef = 0EC18D66658FFD338E95F9D7 /* decorative-shape-19.png */; };
 		FF3A9BB8AECA714C783471BC /* PageSelectorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D367A0F4C8C7169D8BB4F14D /* PageSelectorViewModel.swift */; };
 		FFCC534379F764D814266252 /* MetricCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F37019812DD5B67C5621B30 /* MetricCardView.swift */; };
+		F1A1B1C1D1E1F10111213151 /* UserSelfModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1B1C1D1E1F10111213141 /* UserSelfModel.swift */; };
+		F1A1B1C1D1E1F10111213152 /* USMCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1B1C1D1E1F10111213142 /* USMCache.swift */; };
+		F1A1B1C1D1E1F10111213153 /* USMSyncActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1B1C1D1E1F10111213143 /* USMSyncActor.swift */; };
+		F1A1B1C1D1E1F10111213154 /* UserSelfModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1A1B1C1D1E1F10111213144 /* UserSelfModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1100,6 +1104,10 @@
 		FE7CA623F68F981DAFBFDCD0 /* SecurityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityRepository.swift; sourceTree = "<group>"; };
 		FF893BDE3A331ECE39048447 /* BillingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingRepository.swift; sourceTree = "<group>"; };
 		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F1A1B1C1D1E1F10111213141 /* UserSelfModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSelfModel.swift; sourceTree = "<group>"; };
+		F1A1B1C1D1E1F10111213142 /* USMCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = USMCache.swift; sourceTree = "<group>"; };
+		F1A1B1C1D1E1F10111213143 /* USMSyncActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = USMSyncActor.swift; sourceTree = "<group>"; };
+		F1A1B1C1D1E1F10111213144 /* UserSelfModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Core/USM/UserSelfModelTests.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1922,6 +1930,7 @@
 				457BD113DA87EBF254866347 /* Storage */,
 				3934A21FFD5D472718F7C9DD /* Telemetry */,
 				ADDF255D0ED10B66821D39F7 /* Templates */,
+				F1A1B1C1D1E1F10111213145 /* USM */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -2044,8 +2053,19 @@
 				08B3EDA67175CA6B617C2EC1 /* SchedulingViewModelTests.swift */,
 				72EBF00D01760AC56D19FAEF /* SupportViewModelTests.swift */,
 				56AE6A4D5D1C5FF10835F28E /* TemplateTabActionsTests.swift */,
+				F1A1B1C1D1E1F10111213144 /* UserSelfModelTests.swift */,
 			);
 			path = ENVITests;
+			sourceTree = "<group>";
+		};
+		F1A1B1C1D1E1F10111213145 /* USM */ = {
+			isa = PBXGroup;
+			children = (
+				F1A1B1C1D1E1F10111213141 /* UserSelfModel.swift */,
+				F1A1B1C1D1E1F10111213142 /* USMCache.swift */,
+				F1A1B1C1D1E1F10111213143 /* USMSyncActor.swift */,
+			);
+			path = USM;
 			sourceTree = "<group>";
 		};
 		C33EB98285929A58223A6C8A /* Connectors */ = {
@@ -2915,6 +2935,9 @@
 				67761A88D23310958A1EDBD6 /* UpgradePromptView.swift in Sources */,
 				8E3D1572C22915158FE3D244 /* UsageDashboardView.swift in Sources */,
 				0FA0E0FA2A8AE68FEA3CB21C /* User.swift in Sources */,
+				F1A1B1C1D1E1F10111213151 /* UserSelfModel.swift in Sources */,
+				F1A1B1C1D1E1F10111213152 /* USMCache.swift in Sources */,
+				F1A1B1C1D1E1F10111213153 /* USMSyncActor.swift in Sources */,
 				8948C1B71DC28952EC319E72 /* UserDefaultsManager.swift in Sources */,
 				77CF36F2845F89ED6C978695 /* VideoEditService.swift in Sources */,
 				BAB3B73EF1CEC81902E4B68F /* VideoTemplateModels.swift in Sources */,
@@ -2973,6 +2996,7 @@
 				05C70CEDAC1CFDF433563918 /* TemplateTabActionsTests.swift in Sources */,
 				483AF92D05B0197443898813 /* TikTokConnectorTests.swift in Sources */,
 				A1D22FE780A827EA13D479ED /* TikTokIntegrationTests.swift in Sources */,
+				F1A1B1C1D1E1F10111213154 /* UserSelfModelTests.swift in Sources */,
 				93BCC3D0CBD3974BC2F52DA6 /* VideoTemplateModelsTests.swift in Sources */,
 				8E4F7E0FF94C0AFCC51210FF /* XTwitterConnectorTests.swift in Sources */,
 			);
