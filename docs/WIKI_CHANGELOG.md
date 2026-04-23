@@ -4,6 +4,7 @@ All timestamps are **UTC** unless noted. Update this file whenever wiki pages or
 
 | Date (UTC) | Time (UTC) | Author | Change |
 |------------|------------|--------|--------|
+| 2026-04-23 | 05:19 UTC | Repo hygiene pass | Refreshed README + wiki source to match current `main`: USM PRs #36/#37 merged, CI green, modernized setup/testing/build docs, corrected APIClient/auth/connectors/USM status, and updated roadmap caveats. |
 | 2026-04-03 | Initial pass | Engineering docs | Created `docs/github-wiki/` mirror for GitHub Wiki: Home, Architecture, User-Flows, Features, Business-Logic, Models, APIs, Data Connect, ENVI Brain, Subscriptions, Design System, Roadmap, Build, Components sidebar. Added this changelog and `docs/github-wiki/SYNC-TO-GITHUB-WIKI.md`. |
 | 2026-04-03 | Verification pass 2 | Engineering docs | Added `Testing-and-SPM.md`; documented `LocationPermissionManager` in Business-Logic; sidebar + Home links updated. |
 | 2026-04-03 | Verification pass 3 | Engineering docs | README links to wiki folder; Architecture notes RevenueCatUI; Testing page documents `swift test` vs Xcode caveat. |

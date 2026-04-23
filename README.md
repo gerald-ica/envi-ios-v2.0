@@ -6,6 +6,12 @@ ENVI assembles and edits content pieces from the user's camera roll -- photos, v
 
 **40 feature domains** | **28 feature modules** | **25 API repositories** | **150+ endpoint contracts**
 
+## Repo Status
+
+- `main` includes the merged USM foundation and onboarding work from PRs [#36](https://github.com/gerald-ica/envi-ios-v2.0/pull/36) and [#37](https://github.com/gerald-ica/envi-ios-v2.0/pull/37).
+- The new User Self-Model path is gated by `FeatureFlags.shared.usmEnabled` and `FeatureFlags.shared.usmOnboardingEnabled`, with DEBUG defaults on and release defaults off.
+- The USM onboarding flow is still staging-scaffolded: [`OnboardingCoordinator.swift`](ENVI/Features/Auth/OnboardingCoordinator.swift) currently hardcodes a debug user UUID and local `mintDebugJWT()` helper. Do not treat that path as production-ready until the Firebase UID -> backend account exchange is wired.
+
 ## Features
 
 - **Template Tab** -- Camera-roll-native video/photo templates. ENVI scans the user's Photos library with Apple's Vision framework (9 ML requests per asset), classifies every photo and video, and shows templates pre-populated with the user's own content. Templates rank by how well the user's media matches each slot -- "4/4 slots filled" means ready to export in one tap. Dynamic catalog delivery via Lynx-in-WKWebView lets new templates ship without App Store updates.
@@ -88,7 +94,7 @@ ENVI uses a **SwiftUI + UIKit hybrid** architecture targeting **iOS 26.0+**.
 ### Navigation
 
 - **AppCoordinator** — Root coordinator managing auth flow (Splash → Onboarding → Sign In) and main app flow
-- **MainTabBarController** — Custom UIKit tab bar controller hosting 6 tabs with a floating pill-shaped tab bar
+- **MainTabBarController** — Custom UIKit tab bar controller hosting 3 tabs with a floating pill-shaped tab bar (For You/Gallery, Chat/Explore, Profile)
 - **OnboardingCoordinator** — Manages onboarding flow including Photos permission request and template scan progress
 
 ### Layer Structure
@@ -96,30 +102,30 @@ ENVI uses a **SwiftUI + UIKit hybrid** architecture targeting **iOS 26.0+**.
 ```
 ENVI/
 ├── App/                    # App delegate, scene delegate, root coordinator
+├── Components/             # Reusable design system components
 ├── Core/
 │   ├── AI/                 # ENVI Brain, ContentAnalyzer, PredictionEngine
+│   ├── Auth/               # Firebase auth, App Check, social OAuth broker
 │   ├── Config/             # AppEnvironment, FeatureFlags
 │   ├── Design/             # ENVITheme, ENVITypography, ENVISpacing, ThemeManager
-│   ├── Editing/            # VideoEditService (AVFoundation)
 │   ├── Embedding/          # SimilarityEngine, DimensionReducer (UMAP), DensityClusterer (HDBSCAN), EmbeddingIndex
 │   ├── Extensions/         # Color+ENVI, Font+ENVI, View+Extensions
 │   ├── Media/              # MediaClassifier, VisionAnalysisEngine, ClassificationCache, MediaScanCoordinator, ThermalAwareScheduler
 │   ├── Networking/         # APIClient, ContentPieceAssembler
 │   ├── Storage/            # UserDefaultsManager, PhotoLibraryManager
 │   ├── Templates/          # TemplateMatchEngine, TemplateRanker, TemplateCatalogClient, TemplateManifest
-│   └── Telemetry/          # TelemetryManager (Firebase Analytics)
-├── Components/             # Reusable design system components (ENVIButton, ENVICard, ENVIChip, etc.)
+│   ├── Telemetry/          # TelemetryManager (Firebase Analytics)
+│   └── USM/                # User Self-Model schema, cache, sync
 ├── Features/
-│   ├── Auth/               # Splash, onboarding (incl. template scan progress), sign in
-│   ├── Feed/               # Swipeable card stack, AI insight pills
-│   ├── Library/            # Masonry grid, template carousel
-│   ├── Templates/          # TemplateTabView, TemplateCardView, TemplatePreviewView, TemplatePlayerView, LynxWebView, SwiftLynxBridge
+│   ├── Auth/               # Splash, legacy onboarding, sign in
 │   ├── ChatExplore/        # Dual-mode Chat + World Explorer
-│   ├── Analytics/          # KPI cards, engagement charts, content calendar
+│   ├── Connectors/         # Meta-family connector UI
+│   ├── HomeFeed/           # For You/Gallery, templates, feed, library
+│   ├── Modals/             # Shared modal surfaces
 │   ├── Profile/            # Stats, connected platforms, settings
-│   ├── Editor/             # Video editor with timeline + toolbar (UIKit)
-│   └── Export/             # Export sheet with AI captions + progress overlay
-├── Models/                 # User, ContentItem, ChatMessage, Platform, AnalyticsData, VideoTemplateModels
+│   ├── Publishing/         # Publishing queue and related UI
+│   └── USM/                # Feature-flagged USM onboarding flow
+├── Models/                 # User, ContentItem, ContentPiece, LibraryItem, analytics, templates
 └── Navigation/             # Coordinator protocol, MainTabBarController
 ```
 
@@ -194,7 +200,7 @@ Wiki source files are in `docs/github-wiki/`. See `docs/github-wiki/SYNC-TO-GITH
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/your-feature`)
 3. Follow the repository pattern: Protocol -> Mock -> API -> Provider
-4. Ensure the app builds and tests pass (`swift test`)
+4. Ensure the app builds and simulator tests pass (`xcodebuild test -scheme ENVI -destination 'platform=iOS Simulator,name=iPhone 16' CODE_SIGNING_ALLOWED=NO`)
 5. Submit a pull request with a clear description
 
 See the [Architecture wiki page](https://github.com/gerald-ica/envi-ios-v2.0/wiki/Architecture) for coding patterns and conventions.

@@ -4,6 +4,8 @@
 **Driver:** Cowork agent on behalf of Gerald (gerald@weareinformal.com)
 **Scope:** Everything in §3 Sprint 2 of `Envi_Execution_Plan.md` (tasks 2.1 → 2.6)
 **Repos touched:** `envi-ios-v2` (iOS), `ENVI-OUS-BRAIN` (FastAPI). Web repo (`envious-brain-web`) is not required for Sprint 2 after re-scoping — assembler + 4 onboarding screens are entirely native + API.
+**Merged:** PR #37 merged to `main` on 2026-04-23 05:07 UTC; post-merge CI (`Build and test (iOS simulator)` + `USM iOS CI / xctest`) passed on 2026-04-23
+**Post-merge caveat:** `OnboardingCoordinator.swift` still uses a hardcoded debug user + local JWT signer for the USM path and must be finished before release enablement
 
 This file is the single source of truth for what got done, when, and by whom.
 Every agent leaves a note here before exiting.
@@ -295,4 +297,3 @@ All 6 tasks on the ledger are `done`. Final verification pass:
 **Blocker on activation:** Sprint 1's KMS keyring + migration 011 must be applied before staging `/recompute` can succeed. Documented as prereq §0 in `GERALD_NEXT_STEPS.md`.
 
 **Commits + push:** sandbox `.git/index.lock` still stuck in the iOS repo; no `gh` binary either. Both commits + pushes are Gerald-side per `GERALD_NEXT_STEPS.md` §6.
-

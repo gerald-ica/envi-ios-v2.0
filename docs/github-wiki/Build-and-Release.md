@@ -1,12 +1,12 @@
 # Build & release
 
-**Last updated:** 2026-04-03 UTC
+**Last updated:** 2026-04-23 UTC
 
 ## Requirements
 
-- **Xcode:** 15.0+
+- **Xcode:** 26.0+
 - **Deployment target:** iOS **26.0+**
-- **macOS:** 14.0+ recommended (Sonoma)
+- **macOS:** 26.0+ recommended (Tahoe)
 
 ## Open & build
 
@@ -20,9 +20,10 @@ Select the **ENVI** app scheme, choose an iOS simulator or device, then press **
 
 Do not run the package workspace on a physical device. The Swift package is for module/test management; the installable product is the app target in `ENVI.xcodeproj`.
 
-## Bundle ID
+## Bundle IDs
 
-`com.informal.envi`
+- **Release / staging:** `com.weareinformal.envi.staging`
+- **Debug override:** `com.geraldwelly.envi.debug`
 
 ## Fonts
 
@@ -45,6 +46,19 @@ Photo library usage strings and other privacy keys live in the app target’s **
 ## Data Connect (backend only)
 
 Deploy via Firebase CLI after adding `firebase.json` and configuring projects. See [Firebase Data Connect](Firebase-Data-Connect).
+
+## CI
+
+Current GitHub Actions checks:
+
+- **Build and test (iOS simulator)** — full simulator build + test on pull requests to `main`
+- **xctest** (workflow `USM iOS CI`) — targeted simulator validation used during the USM rollout
+
+Both checks passed on the merged USM Sprint 2 branch on 2026-04-23 UTC.
+
+## USM release note
+
+The merged USM onboarding path is still staging-scaffolded in `OnboardingCoordinator.swift`. It currently uses a hardcoded debug user UUID and local `mintDebugJWT()` signer for the brain staging environment. Keep the USM flags off in release until that exchange is replaced with a real Firebase UID -> backend account/auth flow.
 
 ## Release checklist (suggested)
 

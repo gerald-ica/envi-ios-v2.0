@@ -1,6 +1,6 @@
 # Features & requirements
 
-**Last updated:** 2026-04-15 UTC
+**Last updated:** 2026-04-23 UTC
 
 This page maps **product intent** (README + code) to **implementation status**.
 
@@ -48,8 +48,8 @@ This page maps **product intent** (README + code) to **implementation status**.
 
 | Requirement | Status | Notes |
 |-------------|--------|--------|
-| Conversational UI | **Implemented** | Enhanced chat + legacy chat files |
-| Thread / typing simulation | **Implemented** | `EnhancedChatViewModel` |
+| Conversational UI | **Implemented** | `ChatExploreView` + `EnhancedChatViewModel` |
+| Thread / typing simulation | **Implemented** | Enhanced chat path active; legacy chat files are no longer the primary UI |
 | Real LLM backend | **Not implemented** | Mock threads + optional `ENVIBrain` local synthesis path |
 | Voice UI | **Shell** | Timer / UI present; verify capture pipeline |
 
@@ -58,7 +58,7 @@ This page maps **product intent** (README + code) to **implementation status**.
 | Requirement | Status | Notes |
 |-------------|--------|--------|
 | KPI / charts / calendar UI | **Implemented** | SwiftUI components |
-| Live platform data | **Not implemented** | `AnalyticsData.mock` |
+| Live platform data | **Partial** | Firestore-backed connector insights exist behind feature flags / connected-account prerequisites; fallback/mock paths still exist |
 
 ## Content editor
 
@@ -72,7 +72,8 @@ This page maps **product intent** (README + code) to **implementation status**.
 | Requirement | Status | Notes |
 |-------------|--------|--------|
 | Model types (`Platform`, connections) | **Implemented** | Mock user in Profile |
-| OAuth / API posting | **Not implemented** | No network layer |
+| OAuth broker flow | **Implemented** | `SocialOAuthManager` + broker-routed provider flows with Firebase auth |
+| Provider-specific publish / account routes | **Partial** | X, TikTok sandbox, LinkedIn, and Meta-family scaffolding exist; rollout depends on backend secrets, app review, and per-provider readiness |
 
 ## Feed
 
@@ -101,7 +102,9 @@ This page maps **product intent** (README + code) to **implementation status**.
 |-------------|--------|--------|
 | Multi-step onboarding | **Implemented** | Persists to UserDefaults |
 | Photos permission | **Implemented** | `PhotoLibraryManager` |
-| Real authentication | **Verify** | Sign-in UI present; token/session storage TBD |
+| Real authentication | **Implemented** | Firebase email / Apple / Google + anonymous bootstrap for pre-auth connector flows |
+| USM schema/cache/sync layer | **Implemented** | `UserSelfModel`, `USMCache`, `USMSyncActor` merged in PR #36 |
+| USM onboarding flow | **Implemented behind flags** | PR #37 merged; still staging-scaffolded and not release-ready because onboarding auth exchange is hardcoded in `OnboardingCoordinator.swift` |
 
 ## Subscriptions
 
