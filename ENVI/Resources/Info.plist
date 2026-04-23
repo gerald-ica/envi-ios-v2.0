@@ -118,6 +118,17 @@
     <false/>
 
     <!-- ================================================================ -->
+    <!-- Build-time secrets (see Config/Secrets.xcconfig.template)         -->
+    <!--                                                                   -->
+    <!-- `$(REVENUECAT_API_KEY)` is substituted by Xcode at build time     -->
+    <!-- from the gitignored `Config/Secrets.xcconfig`. `PurchaseConstants`-->
+    <!-- reads it at runtime via `Bundle.main.infoDictionary`, so the      -->
+    <!-- key never appears in a committed source file.                     -->
+    <!-- ================================================================ -->
+    <key>REVENUECAT_API_KEY</key>
+    <string>$(REVENUECAT_API_KEY)</string>
+
+    <!-- ================================================================ -->
     <!-- Custom fonts (restored Sprint-03 regression fix)                  -->
     <!--                                                                   -->
     <!-- UIAppFonts registers the bundled .ttf files with UIKit so         -->

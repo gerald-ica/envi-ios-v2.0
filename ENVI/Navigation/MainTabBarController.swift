@@ -8,7 +8,11 @@ import Combine
 /// Tab 1: World Explorer / AI Chat (ENVI logo center)
 /// Tab 2: Profile + Settings (circle icon)
 ///
-/// Pill: 210pt wide, #7A56C4 fill, 3 icons (Home / Profile / Publishing — see ENVITabBar.pillWidth).
+/// Pill: 164pt wide, #7A56C4 fill, 3 icons (Home / World Explorer / Profile — see ENVITabBar.pillWidth).
+///
+/// Publishing is not a tab. It surfaces as a top-right nav icon inside the
+/// For You / Gallery header (`MainAppHeader`), which calls
+/// `router.present(.publishing)` to sheet-present `PublishingTabView`.
 ///
 /// Phase 15-02: owns a shared `AppRouter` instance that every tab root
 /// receives via `.environmentObject(router)`. `router.selectedTab` is
@@ -94,13 +98,7 @@ final class MainTabBarController: UIViewController {
         )
         profileVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
 
-        // Tab 3: Publishing (Sprint-03)
-        let publishingView = PublishingTabView()
-            .environmentObject(router)
-        let publishingVC = UIHostingController(rootView: publishingView)
-        publishingVC.view.backgroundColor = ENVITheme.UIKit.backgroundDark
-
-        viewControllers = [forYouGalleryVC, chatExploreVC, profileVC, publishingVC]
+        viewControllers = [forYouGalleryVC, chatExploreVC, profileVC]
     }
 
     /// Builds Tab 0 — the For You / Gallery dual-mode view.

@@ -37,7 +37,19 @@ final class PurchaseManager: NSObject, ObservableObject {
     // MARK: - Configuration
 
     /// Call once at app launch — typically from `AppDelegate.didFinishLaunchingWithOptions`.
+    ///
+    /// If the RevenueCat API key hasn't been populated in
+    /// `Config/Secrets.xcconfig` (PurchaseConstants.isConfigured is
+    /// false), this is a no-op and a warning is logged. The rest of
+    /// the app still runs — subscription gating will treat everyone as
+    /// non-Aura in that build.
     func configure() {
+        guard PurchaseConstants.isConfigured else {
+            print("⚠️ [PurchaseManager] REVENUECAT_API_KEY is missing or still the template placeholder. " +
+                  "Copy Config/Secrets.xcconfig.template to Config/Secrets.xcconfig and fill in the real " +
+                  "public `appl_` key from the RevenueCat dashboard. Subscriptions are disabled for this build.")
+            return
+        }
         Purchases.logLevel = .debug
         Purchases.configure(withAPIKey: PurchaseConstants.apiKey)
         Purchases.shared.delegate = self

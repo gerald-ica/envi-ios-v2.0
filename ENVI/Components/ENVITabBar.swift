@@ -12,9 +12,13 @@ import UIKit
 ///
 /// When a tab is selected, a 45×45 white circle appears behind its icon and the
 /// icon tints to the pill color for contrast on the white circle.
+///
+/// Publishing is NOT a tab — it lives as a top-right nav icon inside the
+/// For You / Gallery header (see `MainAppHeader`). The pill stays at the
+/// Sketch "Main App" width of 164pt for the 3-tab layout.
 final class ENVITabBar: UIView {
 
-    static let pillWidth: CGFloat = 210
+    static let pillWidth: CGFloat = 164
     static let pillHeight: CGFloat = 64
 
     struct Tab {
@@ -33,7 +37,6 @@ final class ENVITabBar: UIView {
         Tab(iconName: nil, imageName: "shape-15", iconPointSize: 0, imageWidth: 30, imageHeight: 30, persistentDisc: false),
         Tab(iconName: nil, imageName: "envi-logo", iconPointSize: 0, imageWidth: 30, imageHeight: 25, persistentDisc: false),
         Tab(iconName: nil, imageName: "profile-aura", iconPointSize: 0, imageWidth: 30, imageHeight: 30, persistentDisc: false),
-        Tab(iconName: "paperplane", imageName: nil, iconPointSize: 22, imageWidth: 26, imageHeight: 26, persistentDisc: false),
     ]
 
     var selectedIndex: Int = 0 {

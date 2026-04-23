@@ -24,6 +24,12 @@ targets:
   ENVI:
     type: application
     platform: iOS
+    # Build-time secrets (e.g. REVENUECAT_API_KEY) come from the
+    # gitignored `Config/Secrets.xcconfig`. Template in
+    # `Config/Secrets.xcconfig.template` shows the expected keys.
+    configFiles:
+      Debug: Config/Secrets.xcconfig
+      Release: Config/Secrets.xcconfig
     sources:
       - path: ENVI
         excludes:

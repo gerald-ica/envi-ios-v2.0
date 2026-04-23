@@ -41,8 +41,7 @@ enum DeepLinkRouter {
         "commerce": { _ in .commerce },
         "experiments": { _ in .experiments },
         "metadata": { _ in .metadata },
-        // Sprint-03: hidden — routes to PlaceholderSheetView. Re-enable when Publishing tab is fully wired.
-        // "publishing": { _ in .publishing },
+        "publishing": { _ in .publishing },
         "contentCalendar": { _ in .contentCalendar },
         "repurposing": { _ in .repurposing },
         "search": { _ in .search },
