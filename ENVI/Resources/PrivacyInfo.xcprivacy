@@ -45,38 +45,34 @@
             </array>
         </dict>
     </array>
+    <!-- NSPrivacyAccessedAPITypes only accepts Apple's "required reason API"
+         categories. Camera, Microphone and Location are NOT required-reason
+         APIs — they're governed by the NS*UsageDescription keys in Info.plist
+         (which we already set). Listing them here with made-up reason strings
+         makes the manifest invalid at App Store Connect upload.
+
+         Valid categories we actually hit:
+         - FileTimestamp — Photos framework surfaces asset modification dates
+           when we render classification results in the gallery (C617.1 =
+           "Inspect user's own files for the app's functionality").
+         - UserDefaults — Used throughout for settings, scan checkpoints, and
+           feature flags (CA92.1 = "App's own functionality"). -->
     <key>NSPrivacyAccessedAPITypes</key>
     <array>
         <dict>
             <key>NSPrivacyAccessedAPIType</key>
-            <string>NSPrivacyAccessedAPICamera</string>
+            <string>NSPrivacyAccessedAPICategoryFileTimestamp</string>
             <key>NSPrivacyAccessedAPITypeReasons</key>
             <array>
-                <string>NSPrivacyAccessedAPITypeReasonCaptureMedia</string>
+                <string>C617.1</string>
             </array>
         </dict>
         <dict>
             <key>NSPrivacyAccessedAPIType</key>
-            <string>NSPrivacyAccessedAPIMicrophone</string>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
             <key>NSPrivacyAccessedAPITypeReasons</key>
             <array>
-                <string>NSPrivacyAccessedAPITypeReasonCaptureAudio</string>
-            </array>
-        </dict>
-        <dict>
-            <key>NSPrivacyAccessedAPIType</key>
-            <string>NSPrivacyAccessedAPILocation</string>
-            <key>NSPrivacyAccessedAPITypeReasons</key>
-            <array>
-                <string>NSPrivacyAccessedAPITypeReasonCurrentLocation</string>
-            </array>
-        </dict>
-        <dict>
-            <key>NSPrivacyAccessedAPIType</key>
-            <string>NSPrivacyAccessedAPITypeFileTimestamp</string>
-            <key>NSPrivacyAccessedAPITypeReasons</key>
-            <array>
-                <string>NSPrivacyAccessedAPITypeReasonDisplayFile</string>
+                <string>CA92.1</string>
             </array>
         </dict>
     </array>

@@ -150,9 +150,15 @@
     <array>
         <string>processing</string>
     </array>
+    <!-- Must match every identifier passed to `BGTaskScheduler.register(forTaskWithIdentifier:)`.
+         `com.envi.mediaclassifier.fullscan` is registered in
+         MediaScanCoordinator+BackgroundTasks.swift and submitted as a
+         BGProcessingTaskRequest to continue the camera-roll classification
+         in the background. Without this entry iOS returns
+         BGTaskSchedulerErrorDomain code 1 ("Not permitted") at registration. -->
     <key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>
-        <string>com.weareinformal.envi.staging.usm-recompute</string>
+        <string>com.envi.mediaclassifier.fullscan</string>
     </array>
 </dict>
 </plist>
