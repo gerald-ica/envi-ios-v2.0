@@ -171,6 +171,33 @@ public final class FeatureFlags {
     /// will expose the admin surfaces app-wide without a resubmission.
     public var showAdminTools: Bool = false
 
+    // MARK: - USM (Sprint 1 + 2)
+
+    /// Master kill-switch for the User Self-Model feature.
+    /// - `true`: USM cache + sync + onboarding + recompute enabled.
+    /// - `false` (default in release): USM pipeline inactive; legacy code paths only.
+    /// Remote Config key: `"usmEnabled"`.
+    public var usmEnabled: Bool = {
+        #if DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }()
+
+    /// Controls whether the USM 4-screen onboarding coordinator is used.
+    /// Requires `usmEnabled == true`. When both flags are on, new users see the
+    /// USM-specific flow (name, DOB+time, birth place, current location) instead
+    /// of the legacy `OnboardingCoordinator`.
+    /// Remote Config key: `"usmOnboardingEnabled"`.
+    public var usmOnboardingEnabled: Bool = {
+        #if DEBUG
+        return true
+        #else
+        return false
+        #endif
+    }()
+
     // MARK: - Init
 
     /// Private to enforce singleton use. Tests that need an isolated
@@ -241,6 +268,18 @@ public final class FeatureFlags {
         let insightsLiveValue = rc.configValue(forKey: insightsLiveKey)
         if insightsLiveValue.dataValue.count > 0 {
             self.connectorsInsightsLive = insightsLiveValue.boolValue
+        }
+
+        let usmEnabledKey = "usmEnabled"
+        let usmEnabledValue = rc.configValue(forKey: usmEnabledKey)
+        if usmEnabledValue.dataValue.count > 0 {
+            self.usmEnabled = usmEnabledValue.boolValue
+        }
+
+        let usmOnboardingEnabledKey = "usmOnboardingEnabled"
+        let usmOnboardingEnabledValue = rc.configValue(forKey: usmOnboardingEnabledKey)
+        if usmOnboardingEnabledValue.dataValue.count > 0 {
+            self.usmOnboardingEnabled = usmOnboardingEnabledValue.boolValue
         }
     }
     #endif
