@@ -153,15 +153,18 @@ open ENVI.xcodeproj
 
 `Package.swift` is kept for dependency resolution and tests. The physical-device build must use the app target from `ENVI.xcodeproj`, because a Swift package executable isn't an installable `.app` bundle.
 
-### Template Tab Setup
+### Background task identifiers
 
-Before running on a physical device, add to `Info.plist`:
+`ENVI/Resources/Info.plist` registers the background task identifiers the app is allowed to schedule. As of Sprint 03 it lists:
+
 ```xml
 <key>BGTaskSchedulerPermittedIdentifiers</key>
 <array>
-    <string>com.envi.mediaclassifier.fullscan</string>
+    <string>com.weareinformal.envi.staging.usm-recompute</string>
 </array>
 ```
+
+Add additional identifiers (e.g. for the media-classifier full-scan task) here before registering them with `BGTaskScheduler`, otherwise iOS will silently refuse to run the task.
 
 ### Bundle ID
 
@@ -171,12 +174,15 @@ com.weareinformal.envi.staging
 
 ## Fonts
 
-The app uses two custom font families bundled in the app:
+The app uses two custom font families bundled in `ENVI/Resources/Fonts/`:
 
 - **Space Mono** (Regular, Bold, Italic, Bold Italic) — headings, labels, navigation, buttons
 - **Inter** (Regular, Medium, SemiBold, Bold, ExtraBold, Black) — body text, descriptions
 
-Fonts are registered at app launch via `ENVITypography.registerFonts()`.
+Registration happens two ways and both must stay in sync with the `.ttf` files on disk:
+
+1. **Declarative** — `UIAppFonts` in `ENVI/Resources/Info.plist` lists all 10 font filenames, so iOS registers them during process bootstrap before any UI renders.
+2. **Programmatic** — `ENVITypography.registerFonts()` calls `CTFontManagerRegisterFontsForURL` at scene-delegate launch as a belt-and-suspenders fallback.
 
 ## Documentation (GitHub Wiki)
 
