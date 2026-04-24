@@ -16,6 +16,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Prepare Secrets.xcconfig
+        # Config/Secrets.xcconfig is gitignored; xcodegen wires it into
+        # the project via `configFiles`, so the build fails without it.
+        # CI runs the test suite with the template placeholder —
+        # PurchaseConstants detects it and skips RevenueCat init.
+        run: |
+          if [ ! -f Config/Secrets.xcconfig ]; then
+            cp Config/Secrets.xcconfig.template Config/Secrets.xcconfig
+            echo "ℹ️  Copied Secrets.xcconfig.template → Secrets.xcconfig (CI placeholder)."
+          fi
+
       - name: Cache SPM packages
         uses: actions/cache@v4
         with:
