@@ -34,7 +34,14 @@ struct AppDestinationSheetResolver: View {
         case .contentLibrarySettings:
             ContentLibrarySettingsView()
 
-        // MARK: - Publishing (Phase 16-01)
+        // MARK: - Publishing (Phase 16-01 / Sprint-03 3-tab revision)
+
+        case .publishing:
+            // Top-right-corner action on the For You header sheet-presents
+            // the scheduling queue. Was formerly tab 4; promoted to a
+            // router-first destination so it's reachable from any tab
+            // that attaches `.sheet(item: $router.sheet)`.
+            PublishingTabView()
 
         case .schedulePost:
             SchedulePostSheetHost()
@@ -138,12 +145,8 @@ struct AppDestinationSheetResolver: View {
             .preferredColorScheme(.dark)
 
         default:
-            // Phase 16-02+ will fill the remaining arms: admin,
-            // agency, brandKit, campaigns, commerce, community,
-            // enterprise, experiments, metadata, publishing,
-            // repurposing, teams, collaboration, campaignDetail,
-            // + all 7 AIFeatures + 6 Profile sub-sections
-            // + exportSheet/mediaPicker/phPicker.
+            // Phase 16-02+ will fill the remaining arms: campaignDetail,
+            // + 6 Profile sub-sections + exportSheet/mediaPicker/phPicker.
             PlaceholderSheetView(destination: destination)
         }
     }
@@ -157,10 +160,14 @@ struct AppDestinationFullScreenResolver: View {
     var body: some View {
         switch destination {
         case .contentEditor:
-            // Phase 16 will wire the real editor — keep a clearly
-            // labelled placeholder for now so a full-screen cover that
-            // slips through doesn't ship a blank screen.
-            PlaceholderSheetView(destination: destination)
+            // Sprint-03: contentEditor deep-link route is disabled in DeepLinkRouter.
+            // If reached via other means, show a graceful unavailable state.
+            ContentUnavailableView {
+                Label("EDITOR UNAVAILABLE", systemImage: "pencil.slash")
+            } description: {
+                Text("The editor cannot be opened from this context.")
+            }
+            .preferredColorScheme(.dark)
 
         default:
             PlaceholderSheetView(destination: destination)

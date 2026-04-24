@@ -2,16 +2,12 @@ import SwiftUI
 
 /// Top-level view for Tab 0 — For You / Gallery dual-mode.
 ///
-/// Per Sketch "10 - Feed" artboard:
+/// Per Sketch "10 - Feed" artboard + post-Sprint-03 3-tab revision:
 /// - Search icon (34×32) at left, opens `FeedSearchView`
 /// - For You / Gallery segmented toggle (220×40) centered
-/// - Content Calendar icon (24×24) at right, opens calendar sheet
-///
-/// Phase 15-02: sheets migrated from local `@State` bool flags to
-/// `AppRouter.present(.search)` / `.contentCalendar`. `.sheet(item:)` +
-/// `.fullScreenCover(item:)` attached at this root so every router-
-/// driven destination that can surface from this tab is resolved via
-/// `AppDestinationSheetResolver`.
+/// - Right-side cluster: calendar icon (24×24) + publishing paperplane
+///   pill (34×32). Publishing is the rightmost action per the 3-tab spec
+///   (Publishing is NOT a tab — it surfaces from here).
 struct ForYouGalleryContainerView: View {
 
     @StateObject private var viewModel = ForYouGalleryViewModel()
@@ -58,7 +54,8 @@ struct ForYouGalleryContainerView: View {
                 }
             },
             onSearch: { router.present(.search) },
-            onCalendar: { router.present(.contentCalendar) }
+            onCalendar: { router.present(.contentCalendar) },
+            onPublishing: { router.present(.publishing) }
         )
     }
 }

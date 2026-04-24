@@ -17,7 +17,7 @@ on:
 
 jobs:
   build-and-upload:
-    runs-on: macos-14
+    runs-on: macos-26
     timeout-minutes: 45
     environment: production
 
@@ -63,6 +63,25 @@ jobs:
           path: .build
           key: spm-${{ runner.os }}-${{ hashFiles('Package.resolved') }}
           restore-keys: spm-${{ runner.os }}-
+
+      - name: Prepare Secrets.xcconfig
+        # Writes the REVENUECAT_API_KEY secret into the gitignored
+        # Config/Secrets.xcconfig that xcodegen wires through
+        # $(REVENUECAT_API_KEY) in Info.plist. Falls back to the
+        # template placeholder if the secret isn't set — TestFlight
+        # will then ship with subscriptions disabled.
+        env:
+          REVENUECAT_API_KEY: ${{ secrets.REVENUECAT_API_KEY }}
+        run: |
+          if [ -n "$REVENUECAT_API_KEY" ]; then
+            cat > Config/Secrets.xcconfig <<EOF
+          REVENUECAT_API_KEY = $REVENUECAT_API_KEY
+          EOF
+            echo "✅ Secrets.xcconfig written from GitHub secret."
+          else
+            cp Config/Secrets.xcconfig.template Config/Secrets.xcconfig
+            echo "⚠️  REVENUECAT_API_KEY secret not set — using template placeholder. Subscriptions will be disabled in this build."
+          fi
 
       - name: Resolve packages
         run: swift package resolve

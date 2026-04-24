@@ -35,3 +35,6 @@ Pods/
 .firebase/
 .vscode/
 dataconnect/.dataconnect/
+
+# Build-time secrets — the `.template` sibling file stays committed.
+Config/Secrets.xcconfig

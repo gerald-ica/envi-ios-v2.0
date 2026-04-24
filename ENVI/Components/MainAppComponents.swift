@@ -147,6 +147,34 @@ struct MainAppContentCalendarIcon: View {
     }
 }
 
+/// Top-right Publishing entry point — a 34×32 white pill with a black
+/// paperplane glyph that mirrors `MainAppSearchPill`. Sits next to the
+/// calendar icon in `MainAppHeader` and sheet-presents `PublishingTabView`.
+struct MainAppPublishingIcon: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.white)
+                    .frame(width: 34, height: 32)
+
+                Image(systemName: "paperplane.fill")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundColor(Color(hex: "#0D0D0D"))
+                    // Paperplane glyph is heavy on the lower-left — a touch
+                    // of counter-rotation keeps it optically centered in the
+                    // pill and reads as "about to send".
+                    .rotationEffect(.degrees(-12))
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Publishing")
+        .accessibilityHint("Open the scheduling queue")
+    }
+}
+
 struct MainAppUtilityIcon: View {
     let systemName: String
     let action: () -> Void
@@ -457,13 +485,20 @@ struct MainAppHeader: View {
     let onSegmentChange: (Int) -> Void
     let onSearch: () -> Void
     let onCalendar: () -> Void
+    let onPublishing: () -> Void
 
     var body: some View {
         ZStack {
-            HStack {
+            HStack(spacing: 0) {
                 MainAppSearchPill(action: onSearch)
                 Spacer()
-                MainAppContentCalendarIcon(action: onCalendar)
+                // Right-side cluster: calendar (content planning) +
+                // publishing (scheduling/queue). Publishing is the
+                // rightmost corner action per the 3-tab product spec.
+                HStack(spacing: 10) {
+                    MainAppContentCalendarIcon(action: onCalendar)
+                    MainAppPublishingIcon(action: onPublishing)
+                }
             }
 
             MainAppTopSegmentSwitch(

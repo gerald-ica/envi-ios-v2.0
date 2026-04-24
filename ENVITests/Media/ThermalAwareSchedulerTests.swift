@@ -80,11 +80,13 @@ final class ThermalAwareSchedulerTests: XCTestCase {
         let telemetry = CaptureTelemetry()
         let scheduler = ThermalAwareScheduler(provider: provider, telemetry: telemetry)
 
-        XCTAssertEqual(await scheduler.currentBudget, .full)
+        let budgetBefore = await scheduler.currentBudget
+        XCTAssertEqual(budgetBefore, .full)
 
         provider.set(thermal: .serious)
         await scheduler.systemStateDidChange()
-        XCTAssertEqual(await scheduler.currentBudget, .minimal)
+        let budgetAfter = await scheduler.currentBudget
+        XCTAssertEqual(budgetAfter, .minimal)
 
         let changed = telemetry.events.contains { $0.0 == "media_scan_thermal_state_changed" }
         XCTAssertTrue(changed, "Expected a state-changed telemetry event")
@@ -97,7 +99,8 @@ final class ThermalAwareSchedulerTests: XCTestCase {
         let telemetry = CaptureTelemetry()
         let scheduler = ThermalAwareScheduler(provider: provider, telemetry: telemetry)
 
-        XCTAssertEqual(await scheduler.currentBudget, .none)
+        let budgetNone = await scheduler.currentBudget
+        XCTAssertEqual(budgetNone, .none)
 
         let waited = expectation(description: "waitForWorkSlot resumes")
         Task {

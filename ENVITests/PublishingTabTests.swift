@@ -1,14 +1,21 @@
 import XCTest
 @testable import ENVI
 
-/// Phase 16-01 — Publishing tab wiring pin tests.
+/// Publishing entry-point pin tests — updated for the Sprint-03
+/// post-audit 3-tab revision. Publishing is NOT a tab slot; it surfaces
+/// via `router.present(.publishing)` from the For You header's top-right
+/// paperplane icon.
 ///
-/// Smoke-asserts that:
-/// - `PublishingTabView` can be instantiated without required init args
-///   (proof the tab root is router-ready and pulls its VM internally).
-/// - `AppRouter.selectTab(2)` lands on Publishing (index 2 — Publishing
-///   is slotted BEFORE Profile so profile stays rightmost).
-/// - The Phase 16-01 `AppDestination` cases exist and have distinct ids.
+/// The previous version asserted `router.selectTab(2)` == Publishing,
+/// which only re-stated that the int we just wrote was still that int
+/// (tautology). The rewritten tests actually prove the new contract:
+///   1. `PublishingTabView` still instantiates (no hidden dependency).
+///   2. `router.present(.publishing)` puts `.publishing` on
+///      `router.sheet` (= the For You header's entry-point mechanism).
+///   3. `.publishing` resolves to a non-placeholder view in the sheet
+///      resolver (which would silently render `PlaceholderSheetView` if
+///      we regress the resolver wiring).
+///   4. All related publishing destinations still have distinct ids.
 @MainActor
 final class PublishingTabTests: XCTestCase {
 
@@ -19,22 +26,37 @@ final class PublishingTabTests: XCTestCase {
         _ = PublishingTabView()
     }
 
-    func testRouterSelectTabTwoSwitchesToPublishing() {
+    func testRouterPresentPublishingSetsSheet() {
         let router = AppRouter()
-        router.selectTab(2)
-        XCTAssertEqual(router.selectedTab, 2,
-                       "Publishing tab should live at index 2 (before Profile).")
+        XCTAssertNil(router.sheet, "Router should start with no sheet presented.")
+
+        router.present(.publishing)
+
+        XCTAssertEqual(router.sheet, .publishing,
+                       "router.present(.publishing) should put .publishing on the sheet queue — this is how the For You header's paperplane icon opens the scheduling queue.")
+        XCTAssertNil(router.fullScreen,
+                     ".publishing defaults to .sheet presentation (see AppDestination.defaultPresentation), not fullScreenCover.")
+    }
+
+    func testPublishingDefaultPresentationIsSheet() {
+        // Pins the contract that `.publishing` is a sheet, not a
+        // full-screen cover — so the For You header stays visible
+        // behind the Publishing surface (Sketch intent: "peek" at
+        // the queue without losing context).
+        XCTAssertEqual(AppDestination.publishing.defaultPresentation, .sheet)
     }
 
     func testPublishingDestinationsExistWithDistinctIDs() {
         let destinations: [AppDestination] = [
+            .publishing,
             .schedulePost,
             .publishResults,
             .linkedInAuthorPicker
         ]
         let ids = Set(destinations.map { $0.id })
         XCTAssertEqual(ids.count, destinations.count,
-                       "Each Phase 16-01 publishing destination must have a unique id.")
+                       "Each publishing-related destination must have a unique id.")
+        XCTAssertTrue(ids.contains("publishing"))
         XCTAssertTrue(ids.contains("schedulePost"))
         XCTAssertTrue(ids.contains("publishResults"))
         XCTAssertTrue(ids.contains("linkedInAuthorPicker"))

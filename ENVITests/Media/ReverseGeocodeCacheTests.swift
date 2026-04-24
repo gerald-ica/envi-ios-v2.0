@@ -5,6 +5,7 @@
 
 import XCTest
 import CoreLocation
+import MapKit
 @testable import ENVI
 
 // MARK: - Mock Geocoder
@@ -19,13 +20,10 @@ final class MockGeocoder: ReverseGeocoding, @unchecked Sendable {
 
     var throwError: Error?
 
-    /// Fixed placemark-ish result. We can't easily construct a full CLPlacemark
-    /// with all fields set via public API, but reverseGeocodeLocation returns
-    /// placemarks whose fields may be nil — the cache still produces a PlaceInfo
-    /// from the first placemark, so any CLPlacemark stand-in works.
-    var result: [CLPlacemark] = [CLPlacemark()]
+    /// Fixed map-item result. ReverseGeocoding protocol v2 returns [MKMapItem].
+    var result: [MKMapItem] = [MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D()))]
 
-    func reverseGeocode(_ location: CLLocation) async throws -> [CLPlacemark] {
+    func reverseGeocode(_ location: CLLocation) async throws -> [MKMapItem] {
         lock.lock()
         _callCount += 1
         lock.unlock()
@@ -64,9 +62,10 @@ final class ReverseGeocodeCacheTests: XCTestCase {
 
         // Base: Las Vegas Strip ~ 36.1147, -115.1728
         // All offsets < 0.00005 so they round to the identical 4-decimal key.
+        // (Max 5 points to stay safely under the 0.00005 half-unit boundary.)
         let base = CLLocationCoordinate2D(latitude: 36.1147, longitude: -115.1728)
         var coords: [CLLocationCoordinate2D] = []
-        for i in 0..<10 {
+        for i in 0..<5 {
             let jitter = Double(i) * 0.00001 // < 1.1 meters per step
             coords.append(CLLocationCoordinate2D(
                 latitude: base.latitude + jitter,

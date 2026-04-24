@@ -79,7 +79,8 @@ struct LibraryView: View {
                 withAnimation(.easeInOut(duration: 0.2)) { segmentIndex = idx }
             },
             onSearch: { showSearch = true },
-            onCalendar: { showCalendar = true }
+            onCalendar: { showCalendar = true },
+            onPublishing: { router.present(.publishing) }
         )
     }
 

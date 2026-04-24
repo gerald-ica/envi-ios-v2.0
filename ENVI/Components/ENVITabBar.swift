@@ -3,7 +3,7 @@ import UIKit
 /// 3-pill floating tab bar.
 ///
 /// Per Sketch spec:
-/// - Pill fill: `#4A5FB2` (the "purple aura")
+/// - Pill fill: `#7A56C4` (the "purple aura", Sprint-03 design-system color)
 /// - Inner white glow at top edge: shadow #FFFFFF@72% blur=8 offset=(0,4) — creates
 ///   a luminous highlight that reads as a translucent aura
 /// - Tab 0: `shape-15` (home/feed bitmap), 30×30
@@ -12,6 +12,10 @@ import UIKit
 ///
 /// When a tab is selected, a 45×45 white circle appears behind its icon and the
 /// icon tints to the pill color for contrast on the white circle.
+///
+/// Publishing is NOT a tab — it lives as a top-right nav icon inside the
+/// For You / Gallery header (see `MainAppHeader`). The pill stays at the
+/// Sketch "Main App" width of 164pt for the 3-tab layout.
 final class ENVITabBar: UIView {
 
     static let pillWidth: CGFloat = 164
@@ -51,8 +55,8 @@ final class ENVITabBar: UIView {
     private let topGlow = CAGradientLayer()
     private let stackView = UIStackView()
 
-    // Sketch spec: pill fill #4A5FB2 (purple aura).
-    private let pillColor = UIColor(red: 0x4A / 255.0, green: 0x5F / 255.0, blue: 0xB2 / 255.0, alpha: 1.0)
+    // Design-system aura: #7A56C4 (updated Sprint-03).
+    private let pillColor = UIColor(red: 0x7A / 255.0, green: 0x56 / 255.0, blue: 0xC4 / 255.0, alpha: 1.0)
     private let activeCircleSize: CGFloat = 45
 
     init(tabs: [Tab] = ENVITabBar.defaultTabs) {

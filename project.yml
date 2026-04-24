@@ -24,11 +24,16 @@ targets:
   ENVI:
     type: application
     platform: iOS
+    # Build-time secrets (e.g. REVENUECAT_API_KEY) come from the
+    # gitignored `Config/Secrets.xcconfig`. Template in
+    # `Config/Secrets.xcconfig.template` shows the expected keys.
+    configFiles:
+      Debug: Config/Secrets.xcconfig
+      Release: Config/Secrets.xcconfig
     sources:
       - path: ENVI
         excludes:
           - "Resources/Info.plist"
-          - "SupportingFiles/Info.plist"
           - "Resources/App logo/**"
           - "Resources/Images/Sample Users Photos/**"
           - "_Archive/**"
@@ -37,6 +42,8 @@ targets:
       - path: ENVI/Resources/Images
       - path: ENVI/Resources/SymbolsIconsDecor
       - path: ENVI/Resources/GoogleService-Info.plist
+      - path: ENVI/Resources/banned_terms.json
+      - path: ENVI/Resources/PrivacyInfo.xcprivacy
       - path: ENVI/Features/Templates/Resources
     settings:
       base:
@@ -117,13 +124,18 @@ targets:
       - path: ENVITests/EnhancedChatViewModelTests.swift
       - path: ENVITests/ForYouGalleryViewModelTests.swift
       - path: ENVITests/SchedulingViewModelTests.swift
+      # Sprint 03 — USM test suite (tracked in git, now wired into Xcode target)
+      - path: ENVITests/Core/USM/UserSelfModelTests.swift
+      - path: ENVITests/Core/USM/USMOnboardingCoordinatorTests.swift
+      - path: ENVITests/Core/USM/CitySearchClientTests.swift
+      - path: ENVITests/Core/USM/TestSupport/StubUSMRecomputeClient.swift
+      # Sprint 03 — Voice + Archetype skeleton tests
+      - path: ENVITests/Core/Voice/VoiceGuardTests.swift
+      - path: ENVITests/Core/VisualArchetypeEngineTests.swift
       # Phase 19 Plan 03 — un-rotted pre-existing tests:
       - path: ENVITests/Embedding/DensityClustererTests.swift
-      # FIXME(19-03): DimensionReducerTests.testUMAPPreservesClusterSeparation
-      # asserts silhouette > 0.5 on a seeded UMAP reduction but observes
-      # ~0.075 on the current simulator build — likely a UMAP hyperparam
-      # drift. Flaky but probably a real regression to investigate. v1.3.
-      # - path: ENVITests/Embedding/DimensionReducerTests.swift
+      # Sprint-03: UMAP hyperparams tuned for small-N fixture; re-enabled.
+      - path: ENVITests/Embedding/DimensionReducerTests.swift
       # FIXME(19-03): EmbeddingIndex tests require Vision espresso context
       # (CoreML/ANE) which is unavailable on iOS simulator. Device-lane only.
       # - path: ENVITests/Embedding/EmbeddingIndexTests.swift
@@ -159,19 +171,10 @@ targets:
       - path: ENVITests/Media/ClassificationCacheTests.swift
       - path: ENVITests/Media/MediaClassifierTests.swift
       - path: ENVITests/Media/MediaMetadataExtractorTests.swift
-      # FIXME(19-03): 3 Media tests fail under Swift 6 strict concurrency.
-      # MediaScanCoordinatorTests — missing `override` keyword on subclass
-      #   method (protocol signature changed out from under the test).
-      # ThermalAwareSchedulerTests — `await` inside XCTAssertEqual autoclosure
-      #   not permitted; needs `let budget = await …; XCTAssertEqual(budget, …)`
-      #   rewrite across ~8 assertions.
-      # ReverseGeocodeCacheTests — MockGeocoder doesn't conform to
-      #   `ReverseGeocoding` protocol (signature drift).
-      # All three are straightforward fixes but exceed the 10-min/file
-      # time-box. Deferred to v1.3 test un-rot sweep.
-      # - path: ENVITests/Media/MediaScanCoordinatorTests.swift
-      # - path: ENVITests/Media/ReverseGeocodeCacheTests.swift
-      # - path: ENVITests/Media/ThermalAwareSchedulerTests.swift
+      # Sprint-03: Swift 6 concurrency fixes applied; re-enabled.
+      - path: ENVITests/Media/MediaScanCoordinatorTests.swift
+      - path: ENVITests/Media/ReverseGeocodeCacheTests.swift
+      - path: ENVITests/Media/ThermalAwareSchedulerTests.swift
       # FIXME(19-03): Vision tests fail on simulator with
       # "Failed to create espresso context" — CoreML/VisionKit runtime
       # is unavailable on iPhone simulator without real-device ANE access.

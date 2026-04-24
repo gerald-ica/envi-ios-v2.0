@@ -116,5 +116,60 @@
     <!-- ================================================================ -->
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
+
+    <!-- ================================================================ -->
+    <!-- Build-time secrets (see Config/Secrets.xcconfig.template)         -->
+    <!--                                                                   -->
+    <!-- `$(REVENUECAT_API_KEY)` is substituted by Xcode at build time     -->
+    <!-- from the gitignored `Config/Secrets.xcconfig`. `PurchaseConstants`-->
+    <!-- reads it at runtime via `Bundle.main.infoDictionary`, so the      -->
+    <!-- key never appears in a committed source file.                     -->
+    <!-- ================================================================ -->
+    <key>REVENUECAT_API_KEY</key>
+    <string>$(REVENUECAT_API_KEY)</string>
+
+    <!-- ================================================================ -->
+    <!-- Custom fonts (restored Sprint-03 regression fix)                  -->
+    <!--                                                                   -->
+    <!-- UIAppFonts registers the bundled .ttf files with UIKit so         -->
+    <!-- `UIFont(name: …)` can resolve them at runtime. The .ttf assets    -->
+    <!-- ship via PBXResourcesBuildPhase; this key is what lets the OS     -->
+    <!-- actually load them. Without it, every custom-font lookup returns  -->
+    <!-- nil and the UI silently falls back to system fonts.               -->
+    <!--                                                                   -->
+    <!-- Keep this list in sync with the .ttf files under                  -->
+    <!-- ENVI/Resources/Fonts/.                                            -->
+    <!-- ================================================================ -->
+    <key>UIAppFonts</key>
+    <array>
+        <string>Inter-Regular.ttf</string>
+        <string>Inter-Medium.ttf</string>
+        <string>Inter-SemiBold.ttf</string>
+        <string>Inter-Bold.ttf</string>
+        <string>Inter-ExtraBold.ttf</string>
+        <string>Inter-Black.ttf</string>
+        <string>SpaceMono-Regular.ttf</string>
+        <string>SpaceMono-Bold.ttf</string>
+        <string>SpaceMono-Italic.ttf</string>
+        <string>SpaceMono-BoldItalic.ttf</string>
+    </array>
+
+    <!-- ================================================================ -->
+    <!-- Background execution (Phase Sprint-03)                            -->
+    <!-- ================================================================ -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>processing</string>
+    </array>
+    <!-- Must match every identifier passed to `BGTaskScheduler.register(forTaskWithIdentifier:)`.
+         `com.envi.mediaclassifier.fullscan` is registered in
+         MediaScanCoordinator+BackgroundTasks.swift and submitted as a
+         BGProcessingTaskRequest to continue the camera-roll classification
+         in the background. Without this entry iOS returns
+         BGTaskSchedulerErrorDomain code 1 ("Not permitted") at registration. -->
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>com.envi.mediaclassifier.fullscan</string>
+    </array>
 </dict>
 </plist>
