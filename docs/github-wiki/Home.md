@@ -8,13 +8,13 @@
 
 | Field | Value |
 |-------|--------|
-| **Wiki last updated** | 2026-04-16 UTC |
+| **Wiki last updated** | 2026-04-23 UTC |
 | **Source of truth** | Main repo `README.md`, `ENVI/` Swift sources, `dataconnect/` |
 | **Changelog** | Main repo `docs/WIKI_CHANGELOG.md` |
 
 ## Overview
 
-ENVI is an AI-native content operating system for creators, teams, and agencies. It spans 28+ feature domains covering the full content lifecycle: ideation, creation, editing, scheduling, publishing, analytics, and monetization. The iOS client communicates with a Firebase Auth + Data Connect backend through a typed API facade with protocol-backed repositories.
+ENVI is an AI-native content operating system for creators, teams, and agencies. It spans 28+ feature domains covering the full content lifecycle: ideation, creation, editing, scheduling, publishing, analytics, and monetization. The iOS client uses Firebase Auth, a typed API client, connector broker routes, and feature-flagged USM plumbing; Firebase Data Connect artifacts remain in-repo for backend work.
 
 ### Key capabilities
 
@@ -25,6 +25,12 @@ ENVI is an AI-native content operating system for creators, teams, and agencies.
 - **Multi-Platform Publishing** -- Scheduling queue, recurring posts, distribution rules, and cross-platform status reconciliation
 - **Analytics Suite** -- Performance reports, audience demographics, benchmarks, trend intelligence, A/B experiments, and retention cohorts
 - **Monetization** -- RevenueCat-powered Aura subscription, billing, commerce offers, and marketplace UGC
+
+## Current repo state
+
+- **USM merged:** PRs `#36` and `#37` are merged into `main`, bringing `UserSelfModel`, `USMCache`, `USMSyncActor`, and the 4-step USM onboarding flow into the app.
+- **CI green:** `Build and test (iOS simulator)` and `USM iOS CI / xctest` both passed on 2026-04-23 UTC after the workflow cleanup.
+- **Not production-ready yet:** the USM onboarding route is still staging-only because `OnboardingCoordinator.swift` uses a hardcoded debug user and local `mintDebugJWT()` signer.
 
 ## Quick links
 
@@ -52,8 +58,8 @@ ENVI is an AI-native content operating system for creators, teams, and agencies.
 
 - **Stack:** SwiftUI + UIKit hybrid, SceneKit (World Explorer), iOS **26.0+**, Xcode **26.0+**. SPM dependencies: SDWebImage, Lottie, RevenueCat, Firebase (Auth, Analytics, Crashlytics), GoogleSignIn.
 - **Navigation:** `AppCoordinator` -> Splash / Onboarding / Sign-in -> `MainTabBarController` (3 tabs: For You/Gallery, World Explorer, Profile).
-- **Data layer:** Protocol-backed repositories with Mock -> API implementations. Firebase Auth for identity. Typed `APIClient` with retry policy and auth token injection.
-- **Backend (in repo):** Firebase Data Connect schema + connectors under `dataconnect/`. Deploy via Firebase CLI.
+- **Data layer:** Protocol-backed repositories with Mock -> API implementations. Firebase Auth for identity. Typed `APIClient` with retry policy, Firebase ID-token auth, and broker-specific clients for connector traffic.
+- **Backend (in repo):** REST contracts and Firebase/Data Connect artifacts both exist. Current iOS runtime paths lean on `APIClient`, Cloud Functions broker routes, and Oracle/brain endpoints rather than a direct Data Connect client.
 - **Monetization:** RevenueCat with **Aura** entitlement; paywall and Customer Center SwiftUI views.
 - **AI:** ENVI Brain on-device synthesis + Oracle API fallback for server-side AI (caption, script, visual editing, ideation).
 - **Feature domains:** 28+ domains implemented across auth, content, AI, analytics, publishing, collaboration, teams, commerce, and more.

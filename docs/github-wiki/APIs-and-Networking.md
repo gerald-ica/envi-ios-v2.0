@@ -1,23 +1,39 @@
 # APIs & networking
 
-**Last updated:** 2026-04-03 UTC
+**Last updated:** 2026-04-23 UTC
 
 ## REST (`APIClient.swift`)
 
 | Item | Value |
 |------|--------|
-| **Base URL** | `https://api.envi.app/v1` |
-| **Implementation** | **Placeholder only** |
-| **`mockRequest`** | Always throws `APIError.notImplemented` |
-| **Errors** | `networkError`, `decodingError`, `unauthorized`, `notImplemented` |
-
-**Future work:** Define real endpoints (auth, content assembly, analytics ingestion), request/response `Codable` types, and replace stub with `URLSession` (or Alamofire, etc.).
+| **Base URL** | `AppConfig.apiBaseURL` by default; connector traffic uses `AppConfig.connectorFunctionsBaseURL` |
+| **Implementation** | Real `URLSession` client with JSON encode/decode and Firebase ID-token auth |
+| **Retry policy** | 3 attempts; retries `408`, `429`, `500`, `502`, `503`, `504` |
+| **Errors** | `invalidURL`, `networkError`, `decodingError`, `unauthorized`, `httpError`, `firebaseNotConfigured`, `missingAuthToken`, `retryExhausted` |
 
 ## Content assembly queue (`ContentPieceAssembler.swift`)
 
-**Intended product behavior (from comments):** Queue `PHAsset` local identifiers → upload → backend AI → receive `ContentPiece` for World Explorer.
+**Product behavior:** Queue `PHAsset` local identifiers → upload via `ContentAssemblyTransport` → backend AI → receive `ContentPiece` for World Explorer / library surfaces.
 
-**Current behavior:** **Stub** — `enqueueForAssembly` increments queue, stores completion handlers, **no** upload or network. Delegate callbacks exist for future wiring.
+**Current behavior:** Real client-side queue orchestration exists in `ContentPieceAssembler`. The default transport is `APIContentAssemblyTransport()`, per-item retries run up to 3 attempts, and delegate callbacks/completions are fired for success/failure.
+
+## Connector auth / broker layer
+
+- `SocialOAuthManager` drives the real OAuth broker flow:
+  - `POST /oauth/{provider}/start`
+  - `ASWebAuthenticationSession`
+  - `GET /oauth/{provider}/status`
+- Provider-specific connector adapters exist for X, TikTok, LinkedIn, and Meta-family surfaces.
+- Connector traffic uses a dedicated `APIClient` pointed at `AppConfig.connectorFunctionsBaseURL`, not the legacy app API host.
+
+## USM networking
+
+- `USMSyncActor` talks to:
+  - `GET /api/v1/users/{user_id}/self-model`
+  - `PUT /api/v1/users/{user_id}/self-model`
+  - `POST /api/v1/users/{user_id}/self-model/recompute`
+- `USMRecomputeClient` powers the 4-step USM onboarding flow.
+- **Current caveat:** `OnboardingCoordinator.swift` still seeds that flow with a hardcoded debug user + local JWT signer for staging smoke tests. The networking layer is merged, but the auth bootstrap is not yet production-complete.
 
 ## GraphQL (Firebase Data Connect)
 
@@ -32,7 +48,7 @@ Not called from iOS today. Operations live under `dataconnect/example/queries.gq
 
 ## Security note
 
-Do **not** commit production API keys or `GoogleService-Info.plist` secrets into the wiki. Reference file locations only.
+Do **not** commit production secrets into the wiki. The checked-in `ENVI/Resources/GoogleService-Info.plist` is client configuration for the staging iOS app, not a server-side secret, but backend credentials and signing material still belong in Secret Manager / runtime config only.
 
 ---
 

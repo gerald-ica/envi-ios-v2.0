@@ -1,6 +1,6 @@
 # Roadmap & coming soon
 
-**Last updated:** 2026-04-03 UTC
+**Last updated:** 2026-04-23 UTC
 
 This page lists **known gaps** and **intended next passes** inferred from code comments and placeholder UX. Treat as engineering backlog, not a committed product roadmap.
 
@@ -19,21 +19,24 @@ This page lists **known gaps** and **intended next passes** inferred from code c
 | **Analytics** | `AnalyticsData.mock` | Retention cohorts, source attribution, creator growth analytics |
 | **AI subsystems** | Mock engagement / trends | Oracle API fallback path + production annotations |
 | **Social OAuth** | Not started | All 6 platforms with token lifecycle |
+| **USM foundation** | Not in app | `UserSelfModel`, `USMCache`, `USMSyncActor`, and USM onboarding are merged into `main` |
+| **CI workflows** | Broken / stale branch-only checks | `iOS CI` and `USM iOS CI` both passed on the merged USM branch |
 
 ## Remaining placeholder areas
 
 | Area | Current state | Intended direction |
 |------|---------------|-------------------|
+| **USM production auth bootstrap** | Merged flow still uses hardcoded debug UUID + local JWT signer | Replace with Firebase UID -> backend account mapping and a real token exchange endpoint |
 | **Chat** | Mock threads + partial Brain | LLM backend, durable threads |
-| **World Explorer count** | ~1600 / 2000 placeholder nodes | Match real library size |
-| **Helix textures** | Placeholder image generation | User / server-provided thumbnails |
+| **World Explorer count** | Sample-backed density still visible in parts of the app | Drive the helix fully from real user content/library state |
+| **Cross-platform live data** | Connector and Firestore insight paths exist, but provider readiness is uneven | Finish live metrics / posting coverage provider by provider |
 
 ## Backend / infra
 
 | Item | Status |
 |------|--------|
 | **`firebase.json`** | Added with Data Connect deploy runbook |
-| **iOS ↔ Firebase** | Firebase Auth, Analytics, Crashlytics, Core declared in `Package.swift` |
+| **iOS ↔ Firebase** | Firebase Auth, Analytics, Crashlytics, App Check, Firestore, Remote Config, Core declared in `Package.swift` |
 | **`GetTemplateDetails` / `CreateDemoData` PUBLIC** | Security review before production |
 
 ## How this page stays current
@@ -41,4 +44,4 @@ This page lists **known gaps** and **intended next passes** inferred from code c
 1. Grep the codebase for: `placeholder`, `stub`, `not wired`, `mock`, `not implemented`, `next pass`.
 2. Update this table and **`docs/WIKI_CHANGELOG.md`** with **UTC date/time**.
 
-**Last grep-based audit:** 2026-04-03 UTC.
+**Last grep-based audit:** 2026-04-23 UTC.

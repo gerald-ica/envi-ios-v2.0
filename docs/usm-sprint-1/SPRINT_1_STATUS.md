@@ -5,6 +5,7 @@
 **Scope:** Everything in §3 Sprint 1 of `Envi_Execution_Plan.md` (tasks 1.1 → 1.10)
 **Repos touched:** `envi-ios-v2` (iOS), `ENVI-OUS-BRAIN` (FastAPI)
 **Web repo:** `envious-brain-web` — no Sprint 1 work required; first touch is Sprint 2
+**Merged:** PR #36 merged to `main` on 2026-04-23 04:23 UTC
 
 This file is the single source of truth for what got done, when, and by whom.
 Every agent leaves a note here before exiting.
@@ -126,4 +127,3 @@ All 10 tasks on the ledger are `done`. Exit criteria are all Gerald-gated (pytes
 **Files delivered (count):**
 - Brain: 10 files — 4 plugin (`schema.py`, `crypto.py`, `assembler.py`, `forecasts.py`), 1 migration, 1 route, 1 app.py edit, 1 pyproject edit, 3 tests + `conftest.py` + `__init__.py`, 3 terraform, 1 CI workflow, 1 PR body.
 - iOS: 5 files — 3 core (`UserSelfModel.swift`, `USMCache.swift`, `USMSyncActor.swift`), 1 test, 1 CI workflow, 1 PR body, 1 status doc, 1 Gerald checklist.
-

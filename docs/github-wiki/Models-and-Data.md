@@ -1,6 +1,6 @@
 # Models & data
 
-**Last updated:** 2026-04-16 UTC
+**Last updated:** 2026-04-23 UTC
 
 ## Swift models (`ENVI/Models/`)
 
@@ -17,7 +17,16 @@
 | `ChatThread.swift` | `ChatThread`, `ThreadMetric`, `MetricTrend` | Structured thread content |
 | `ChatMessage.swift` | `ChatMessage`, `DataCard` | Chat bubbles; `mockThread` |
 | `AnalyticsData.swift` | `AnalyticsData`, `KPI`, `DailyMetric`, `CalendarDay` | Dashboard; `mock` |
+| `LibraryItem.swift` | `LibraryItem` | Unified library / gallery item model used by HomeFeed and profile-adjacent surfaces |
 | `VideoTemplateModels.swift` | `VideoTemplate`, `TemplateSlot`, `MediaRequirements`, `PopulatedTemplate` | Template definitions with 15+ filter dimensions for slot matching |
+
+## User Self-Model layer (`ENVI/Core/USM/`)
+
+| File | Primary types | Role |
+|------|---------------|------|
+| `UserSelfModel.swift` | `UserSelfModel`, `Identity`, `USMAstroBlock`, `USMPsychBlock`, `USMDynamicBlock`, `USMVisualBlock`, `USMPredictBlock`, `USMNeuroBlock`, `JSONValue` | Codable/Sendable mirror of the backend self-model schema |
+| `USMCache.swift` | `USMCache`, `USMCacheRecord` | SwiftData-backed cache keyed by user + schema version |
+| `USMSyncActor.swift` | `USMSyncActor`, `USMSyncError`, transport/auth protocols | Pull/push/recompute client with retry + cache-first reads |
 
 ## Backend schema (Data Connect) — different domain
 
@@ -37,13 +46,7 @@ Postgres-backed GraphQL tables in `dataconnect/schema/schema.gql`:
 | Model | File | Role |
 |-------|------|------|
 | `ClassifiedAsset` | `Core/Media/Models/ClassifiedAsset.swift` | Cached classification results -- scene labels, aesthetics score, face count, GPS, feature print hash. Indexed query fields for fast lookup. |
-
-## Library UI models
-
-Defined in `LibraryViewModel.swift` (same feature folder):
-
-- **`LibraryItem`** — grid item; `mockItems` + factory from `ContentItem`
-- **`TemplateItem`** — carousel templates; `mockTemplates`
+| `USMCacheRecord` | `Core/USM/USMCache.swift` | Cached JSON payload, block versions, payload hash, and recompute timestamp for the User Self-Model |
 
 ---
 

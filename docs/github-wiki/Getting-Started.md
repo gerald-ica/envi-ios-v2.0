@@ -1,13 +1,13 @@
 # Getting Started
 
-**Last updated:** 2026-04-03 UTC
+**Last updated:** 2026-04-23 UTC
 
 This guide walks through setting up the ENVI iOS development environment from scratch.
 
 ## Prerequisites
 
-- **Xcode 15.0+** (download from the Mac App Store or [developer.apple.com](https://developer.apple.com/xcode/))
-- **macOS 14.0+** (Sonoma) recommended
+- **Xcode 26.0+** (download from the Mac App Store or [developer.apple.com](https://developer.apple.com/xcode/))
+- **macOS 26.0+** (Tahoe) recommended
 - **iOS 26.0+** simulator or physical device
 - **Git** (included with Xcode Command Line Tools)
 
@@ -28,18 +28,25 @@ This fetches the following SPM dependencies:
 - **SDWebImage** -- async image loading and caching
 - **Lottie** -- animation playback
 - **RevenueCat** + **RevenueCatUI** -- subscription management, paywalls, and Customer Center
-- **Firebase** (Auth, Analytics, Crashlytics, Core) -- identity, telemetry, and crash reporting
+- **Firebase** (Auth, Analytics, Crashlytics, App Check, Firestore, Remote Config, Core) -- identity, telemetry, live insights, feature flags, and crash reporting
+- **GoogleSignIn** -- Google identity provider
 
 ## 3. Firebase setup
 
-The app uses Firebase Auth for identity. To run against a Firebase project:
+The checked-in app target is currently wired for the staging bundle identifier:
 
-1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-2. Add an iOS app with bundle ID `com.informal.envi`
-3. Download the generated `GoogleService-Info.plist`
-4. Place it in the `ENVI/` directory (this file is gitignored)
+- **Release / staging bundle ID:** `com.weareinformal.envi.staging`
+- **Debug bundle ID override:** `com.geraldwelly.envi.debug`
+- **Checked-in plist path:** `ENVI/Resources/GoogleService-Info.plist`
 
-For local development without Firebase, the app falls back to mock authentication flows.
+If you want to point the app at a different Firebase project:
+
+1. Add the matching iOS app in Firebase for your intended bundle ID.
+2. Replace `ENVI/Resources/GoogleService-Info.plist` with the matching plist.
+3. Update `project.yml` bundle identifiers if you are changing away from the current staging/debug IDs.
+4. Regenerate the project if needed (`xcodegen generate`).
+
+Auth uses Firebase directly, and DEBUG builds install the App Check debug provider before `FirebaseApp.configure()`. Release builds use DeviceCheck-backed App Check.
 
 ## 4. Environment configuration
 
@@ -51,7 +58,7 @@ ENVI supports three environments configured via runtime config:
 | `staging` | Integration testing | API repositories against staging backend |
 | `prod` | Production | API repositories against production backend |
 
-The environment is determined by the `EnvironmentModel` configuration source. In `dev` mode, all repositories return mock/sample data without requiring a running backend.
+The environment is determined by `AppConfig` / `FeatureFlags`. In addition to backend host selection, Firebase Remote Config can override runtime flags such as `usmEnabled`, `usmOnboardingEnabled`, and connector gates.
 
 ## 5. Open in Xcode
 
@@ -75,14 +82,17 @@ envi-ios-v2.0/
 │   ├── App/                 # AppDelegate, SceneDelegate, AppCoordinator
 │   ├── Core/
 │   │   ├── AI/              # ENVI Brain + analyzers
-│   │   ├── Data/            # Repository protocols and implementations
+│   │   ├── Auth/            # Firebase auth, App Check, social OAuth broker
 │   │   ├── Design/          # ENVITheme, ENVITypography, ENVISpacing
+│   │   ├── Embedding/       # SimilarityEngine, UMAP, HDBSCAN, EmbeddingIndex
 │   │   ├── Extensions/      # Swift extensions
+│   │   ├── Media/           # Classification cache, classifier, scan coordinator
 │   │   ├── Networking/      # APIClient, ContentPieceAssembler
-│   │   ├── Purchases/       # PurchaseManager (RevenueCat)
-│   │   └── Storage/         # UserDefaults, PhotoLibrary, Location
+│   │   ├── Storage/         # UserDefaults, PhotoLibrary, Location
+│   │   ├── Telemetry/       # Analytics / event tracking
+│   │   └── USM/             # User Self-Model schema, cache, sync
 │   ├── Components/          # Reusable design system UI components
-│   ├── Features/            # Feature modules (28 domains)
+│   ├── Features/            # Auth, HomeFeed, ChatExplore, Profile, Publishing, USM
 │   ├── Models/              # Domain and UI models
 │   ├── Navigation/          # Coordinator protocols, MainTabBarController
 │   └── Resources/           # Assets, fonts, plists
@@ -107,9 +117,14 @@ Fonts are registered automatically at app launch via `ENVITypography.registerFon
 ### Running tests
 
 ```bash
-swift test
+xcodebuild test \
+  -scheme ENVI \
+  -destination 'platform=iOS Simulator,name=iPhone 16' \
+  CODE_SIGNING_ALLOWED=NO
 # or in Xcode: Cmd+U
 ```
+
+`swift test` is still useful for quick package validation, but the app's CI and the authoritative local verification path both run through `xcodebuild test` against the `ENVI.xcodeproj` app scheme.
 
 ### Checking for secrets in code
 
@@ -134,6 +149,7 @@ See [Firebase Data Connect](Firebase-Data-Connect) for full backend setup.
 | "Attempted to install `ENVI` which is not a .app bundle" | Open `ENVI.xcodeproj` and run the app scheme instead of the Swift package workspace |
 | Fonts not rendering | Ensure `ENVITypography.registerFonts()` is called in the app delegate |
 | Firebase auth errors | Verify `GoogleService-Info.plist` is present and matches your Firebase project |
+| USM onboarding appears but fails immediately | The merged USM path is still staging-scaffolded; verify `usmEnabled` / `usmOnboardingEnabled` and do not expect release-ready auth exchange yet |
 | Photos permission denied | Reset simulator via Device > Erase All Content and Settings |
 
 ## Next steps
