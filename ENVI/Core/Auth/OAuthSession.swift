@@ -41,6 +41,7 @@ protocol OAuthSession: AnyObject {
 enum OAuthSessionError: Error, Equatable, LocalizedError {
     case userCancelled
     case callbackURLInvalid(URL)
+    case presentationAnchorUnavailable
     case sessionAlreadyActive
 
     var errorDescription: String? {
@@ -49,6 +50,8 @@ enum OAuthSessionError: Error, Equatable, LocalizedError {
             return "You cancelled the sign-in."
         case .callbackURLInvalid(let url):
             return "Received an invalid callback from the provider: \(url.absoluteString)"
+        case .presentationAnchorUnavailable:
+            return "Unable to present sign-in because no active window scene is available."
         case .sessionAlreadyActive:
             return "Another sign-in is already in progress."
         }

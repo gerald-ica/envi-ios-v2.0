@@ -78,18 +78,15 @@ public final class ReverseEditingPipeline: ObservableObject {
     }
 
     public struct MatchingConfig: Sendable {
-        public var platform: SocialPlatform?
         public var topK: Int
         public var minScore: Double
         public var enableExtendedTaxonomy: Bool  // Use v3.0 7-factor scoring
 
         public init(
-            platform: SocialPlatform? = nil,
             topK: Int = 10,
             minScore: Double = 0.3,
             enableExtendedTaxonomy: Bool = true
         ) {
-            self.platform = platform
             self.topK = topK
             self.minScore = minScore
             self.enableExtendedTaxonomy = enableExtendedTaxonomy
@@ -383,43 +380,3 @@ public final class ReverseEditingPipeline: ObservableObject {
     }
 }
 
-// MARK: - Platform enum (matching current app's SocialPlatform)
-
-@available(iOS 26, *)
-public enum SocialPlatform: String, Codable, Sendable, CaseIterable, Identifiable {
-    case instagram = "Instagram"
-    case tiktok = "TikTok"
-    case youtube = "YouTube"
-    case x = "X"
-    case linkedin = "LinkedIn"
-    case threads = "Threads"
-
-    public var id: String { rawValue }
-}
-
-// MARK: - VideoTemplateCategory stub (references current app's type)
-// This is a re-export so the pipeline can compile standalone.
-// In the merged app, this is provided by VideoTemplateModels.swift.
-
-@available(iOS 26, *)
-public enum VideoTemplateCategory: String, Codable, Sendable, CaseIterable, Identifiable {
-    case grwm, cooking, ootd, travel, fitness, product, beauty, lifestyle, fashion, food, educational, entertainment
-
-    public var id: String { rawValue }
-    public var displayName: String {
-        switch self {
-        case .grwm: return "GRWM"
-        case .cooking: return "Cooking"
-        case .ootd: return "OOTD"
-        case .travel: return "Travel"
-        case .fitness: return "Fitness"
-        case .product: return "Product"
-        case .beauty: return "Beauty"
-        case .lifestyle: return "Lifestyle"
-        case .fashion: return "Fashion"
-        case .food: return "Food"
-        case .educational: return "Educational"
-        case .entertainment: return "Entertainment"
-        }
-    }
-}

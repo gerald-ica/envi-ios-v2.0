@@ -279,7 +279,7 @@ struct FormatPill: View {
                 .font(.subheadline.weight(isSelected ? .semibold : .regular))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.accentColor : Color.secondary.opacity(0.1))
+                .background(isSelected ? Color(hex: 0x7A56C4) : Color.secondary.opacity(0.1))
                 .foregroundStyle(isSelected ? .white : .primary)
                 .clipShape(Capsule())
         }
@@ -323,11 +323,11 @@ struct CategoryPill: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
-            .foregroundStyle(isSelected ? .accentColor : .secondary)
+            .background(isSelected ? Color(hex: 0x7A56C4).opacity(0.15) : Color.clear)
+            .foregroundStyle(isSelected ? Color(hex: 0x7A56C4) : .secondary)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.2), lineWidth: 1)
+                    .stroke(isSelected ? Color(hex: 0x7A56C4) : Color.secondary.opacity(0.2), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
@@ -390,8 +390,8 @@ struct FilterChip: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
-        .background(Color.accentColor.opacity(0.1))
-        .foregroundStyle(.accentColor)
+        .background(Color(hex: 0x7A56C4).opacity(0.1))
+        .foregroundStyle(Color(hex: 0x7A56C4))
         .clipShape(Capsule())
     }
 }

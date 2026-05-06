@@ -52,7 +52,7 @@ public struct StyleExplorerView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { showBeforeAfter.toggle() }) {
                         Image(systemName: showBeforeAfter ? "slider.horizontal.below.rectangle" : "slider.horizontal.below.rectangle")
-                            .foregroundStyle(showBeforeAfter ? .accentColor : .primary)
+                            .foregroundStyle(showBeforeAfter ? Color(hex: 0x7A56C4) : .primary)
                     }
                 }
             }
@@ -149,7 +149,7 @@ struct FamilyPill: View {
                 .font(.subheadline.weight(isSelected ? .semibold : .regular))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.accentColor : Color.secondary.opacity(0.1))
+                .background(isSelected ? Color(hex: 0x7A56C4) : Color.secondary.opacity(0.1))
                 .foregroundStyle(isSelected ? .white : .primary)
                 .clipShape(Capsule())
         }
@@ -366,7 +366,7 @@ struct StyleCell: View {
                     Text(style.rawValue)
                         .font(.caption)
                         .lineLimit(1)
-                        .foregroundStyle(isSelected ? .accentColor : .primary)
+                        .foregroundStyle(isSelected ? Color(hex: 0x7A56C4) : .primary)
 
                     Spacer(minLength: 0)
 
@@ -379,11 +379,11 @@ struct StyleCell: View {
             }
         }
         .padding(8)
-        .background(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
+        .background(isSelected ? Color(hex: 0x7A56C4).opacity(0.1) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                .stroke(isSelected ? Color(hex: 0x7A56C4) : Color.clear, lineWidth: 2)
         )
     }
 
@@ -392,14 +392,6 @@ struct StyleCell: View {
         let hash = abs(style.rawValue.hash)
         let hue = Double(hash % 360) / 360.0
         return Color(hue: hue, saturation: 0.6, brightness: 0.9)
-    }
-}
-
-// MARK: - VisualStyleFamily Display Extension
-
-extension VisualStyleFamily {
-    var displayName: String {
-        return rawValue
     }
 }
 

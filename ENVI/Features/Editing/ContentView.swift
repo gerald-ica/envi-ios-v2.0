@@ -40,7 +40,7 @@ public struct ContentView: View {
                 }
                 .tag(Tab.history)
         }
-        .accentColor(.accentColor)
+        Color(hex: 0x7A56C4)(Color(hex: 0x7A56C4))
         .onAppear {
             // Check first launch
             if !UserDefaults.standard.bool(forKey: "hasSeenOnboarding") {
@@ -180,7 +180,7 @@ struct EmptyEditState: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 14)
-                .background(Color.accentColor)
+                .background(Color(hex: 0x7A56C4))
                 .clipShape(Capsule())
             }
             .padding(.top, 16)
@@ -217,7 +217,7 @@ struct ApprovedState: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 14)
-                    .background(Color.accentColor)
+                    .background(Color(hex: 0x7A56C4))
                     .clipShape(Capsule())
             }
             .padding(.top, 16)
@@ -255,7 +255,7 @@ struct NoMoreMatchesState: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 14)
-                    .background(Color.accentColor)
+                    .background(Color(hex: 0x7A56C4))
                     .clipShape(Capsule())
             }
             .padding(.top, 16)
@@ -287,7 +287,7 @@ struct CancelledState: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 14)
-                    .background(Color.accentColor)
+                    .background(Color(hex: 0x7A56C4))
                     .clipShape(Capsule())
             }
             .padding(.top, 16)
@@ -326,7 +326,7 @@ struct ErrorState: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 14)
-                    .background(Color.accentColor)
+                    .background(Color(hex: 0x7A56C4))
                     .clipShape(Capsule())
             }
             .padding(.top, 16)
@@ -384,7 +384,7 @@ struct OnboardingView: View {
             let page = pages[currentPage]
             Image(systemName: page.icon)
                 .font(.system(size: 80))
-                .foregroundStyle(.accentColor)
+                .foregroundStyle(Color(hex: 0x7A56C4))
                 .symbolRenderingMode(.hierarchical)
                 .padding(.bottom, 16)
 
@@ -403,7 +403,7 @@ struct OnboardingView: View {
             HStack(spacing: 8) {
                 ForEach(0..<pages.count, id: \.self) { index in
                     Circle()
-                        .fill(currentPage == index ? Color.accentColor : Color.secondary.opacity(0.3))
+                        .fill(currentPage == index ? Color(hex: 0x7A56C4) : Color.secondary.opacity(0.3))
                         .frame(width: 8, height: 8)
                 }
             }
@@ -425,7 +425,7 @@ struct OnboardingView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color.accentColor)
+                    .background(Color(hex: 0x7A56C4))
                     .clipShape(Capsule())
             }
             .padding(.horizontal, 32)

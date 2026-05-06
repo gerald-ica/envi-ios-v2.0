@@ -46,19 +46,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - URL Handling (OAuth callback + DeepLinkRouter + Google Sign-In)
     //
-    // Phase 06-04 — incoming `enviapp://oauth-callback/{provider}?...` URLs
-    // are dispatched to `OAuthCallbackHandler.handle(_:)` first.
-    //
-    // Phase 15-03 — non-OAuth `enviapp://destination/*` URLs are parsed by
-    // `DeepLinkRouter` and dispatched through `AppRouter.shared`. If the
-    // app isn't yet showing the main tab bar (still on Splash/SignIn),
-    // the destination is stashed as a pending deep link and replayed
-    // once the main tab bar appears.
-    //
-    // Anything that doesn't match either shape falls through to Google
-    // Sign-In's existing handler.
-    func application(_ app: UIApplication, open url: URL,
-                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+    // Scene-based URL delivery is handled in `SceneDelegate`. This shared
+    // helper keeps the routing logic in one place for both cold-launch
+    // `connectionOptions.urlContexts` and `scene(_:openURLContexts:)`.
+    static func handleIncomingURL(_ url: URL) -> Bool {
         switch OAuthCallbackHandler.handle(url) {
         case .handled, .invalid:
             // `.handled` — payload parsed + posted via NotificationCenter.

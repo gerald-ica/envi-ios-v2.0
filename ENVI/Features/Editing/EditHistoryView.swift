@@ -481,7 +481,7 @@ struct DetailRow: View {
 // MARK: - SwiftData Model
 
 @Model
-public final class EditRecord: Sendable {
+public final class EditRecord {
     @Attribute(.unique) public var id: UUID
     public var templateName: String
     public var styleName: String

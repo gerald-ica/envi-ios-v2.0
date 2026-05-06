@@ -11,7 +11,7 @@ import Foundation
 
 // MARK: - Content Format Enum
 @available(iOS 26, *)
-enum ContentFormat: String, Codable, Sendable, CaseIterable {
+enum ENVIContentFormat: String, Codable, Sendable, CaseIterable {
     case photo = "photo"
     case carousel = "carousel"
     case video = "video"
@@ -38,7 +38,7 @@ enum ContentArchetype: Codable, Sendable, Hashable {
     case story(StoryArchetype)
     case newFormat(NewFormatArchetype)
 
-    var format: ContentFormat {
+    var format: ENVIContentFormat {
         switch self {
         case .photo: return .photo
         case .carousel: return .carousel

@@ -117,7 +117,7 @@ public actor TemplateMatchingEngine {
     public struct TemplateDefinition: Sendable, Hashable, Identifiable {
         public let id: String
         public let name: String
-        public let format: ContentFormat
+        public let format: String  // "photo", "carousel", "video", "story", "newFormat"
         public let category: VideoTemplateCategory?
         public let style: String?
         public let niche: String?
@@ -127,7 +127,7 @@ public actor TemplateMatchingEngine {
         public init(
             id: String,
             name: String,
-            format: ContentFormat,
+            format: String,
             category: VideoTemplateCategory? = nil,
             style: String? = nil,
             niche: String? = nil,
@@ -485,23 +485,3 @@ public actor UserStyleHistory {
     }
 }
 
-// MARK: - ContentFormat enum (for cross-format matching)
-
-@available(iOS 26, *)
-public enum ContentFormat: String, Codable, Sendable, CaseIterable {
-    case photo = "photo"
-    case carousel = "carousel"
-    case video = "video"
-    case story = "story"
-    case newFormat = "newFormat"
-
-    public var displayName: String {
-        switch self {
-        case .photo: return "Photo"
-        case .carousel: return "Carousel"
-        case .video: return "Video"
-        case .story: return "Story"
-        case .newFormat: return "New Format"
-        }
-    }
-}

@@ -15,7 +15,7 @@ import Foundation
 /// ENVI brand design tokens — single source of truth for colors, typography, and spacing.
 /// Aligned with the app's dark-mode-first design system.
 @available(iOS 26, *)
-public enum ENVITheme {
+public enum ENVIStyleTheme {
 
     // MARK: Brand Colors
     public static let brandPurple = ENVIColor(hex: 0x7A56C4)

@@ -42,19 +42,19 @@ public actor MediaAnalysisEngine {
             }
         }
 
-        public var format: ContentFormat {
+        public var format: String {
             switch self {
-            case .photo: return .photo
-            case .video: return .video
-            case .livePhoto: return .newFormat
-            case .carousel: return .carousel
+            case .photo: return "photo"
+            case .video: return "video"
+            case .livePhoto: return "newFormat"
+            case .carousel: return "carousel"
             }
         }
     }
 
     public struct MediaFeatureVector: Codable, Sendable, Hashable {
         public let sourceID: String
-        public let format: ContentFormat
+        public let format: String  // "photo", "carousel", "video", "story", "newFormat"
         public let vibeEmbedding: [Float]       // 32-dim (UMAP-reduced)
         public let aestheticScores: AestheticScores
         public let sceneLabels: [SceneLabel]
@@ -67,7 +67,7 @@ public actor MediaAnalysisEngine {
 
         public init(
             sourceID: String,
-            format: ContentFormat,
+            format: String,
             vibeEmbedding: [Float],
             aestheticScores: AestheticScores,
             sceneLabels: [SceneLabel],
