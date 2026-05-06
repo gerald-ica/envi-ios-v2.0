@@ -8,7 +8,7 @@ public struct EditHistoryView: View {
     @Query(sort: \EditRecord.createdAt, order: .reverse) private var records: [EditRecord]
     @State private var filter: HistoryFilter = .all
     @State private var dateRange: DateRangeFilter = .allTime
-    @State private var formatFilter: ContentFormat?
+    @State private var formatFilter: ENVIContentFormat?
     @State private var searchQuery: String = ""
     @State private var selectedRecord: EditRecord?
     @State private var showExportSheet: Bool = false
@@ -231,7 +231,7 @@ enum DateRangeFilter: String, CaseIterable {
 struct HistoryFilterBar: View {
     @Binding var filter: HistoryFilter
     @Binding var dateRange: DateRangeFilter
-    @Binding var formatFilter: ContentFormat?
+    @Binding var formatFilter: ENVIContentFormat?
     let onClear: () -> Void
 
     var body: some View {
@@ -261,7 +261,7 @@ struct HistoryFilterBar: View {
                     Button("All Formats") {
                         formatFilter = nil
                     }
-                    ForEach(ContentFormat.allCases, id: \.self) { format in
+                    ForEach(ENVIContentFormat.allCases, id: \.self) { format in
                         Button(format.displayName) {
                             formatFilter = format
                         }
@@ -486,7 +486,7 @@ public final class EditRecord {
     public var templateName: String
     public var styleName: String
     public var nicheName: String
-    public var format: ContentFormat
+    public var format: ENVIContentFormat
     public var decision: EditDecision
     public var createdAt: Date
     public var thumbnailData: Data?
@@ -500,7 +500,7 @@ public final class EditRecord {
         templateName: String,
         styleName: String,
         nicheName: String,
-        format: ContentFormat,
+        format: ENVIContentFormat,
         decision: EditDecision,
         createdAt: Date = Date(),
         thumbnailData: Data? = nil,
@@ -548,9 +548,9 @@ public enum EditDecision: String, Codable, Sendable, CaseIterable {
     }
 }
 
-// MARK: - ContentFormat Display Extension
+// MARK: - ENVIContentFormat Display Extension
 
-extension ContentFormat {
+extension ENVIContentFormat {
     var displayName: String {
         switch self {
         case .photo: return "Photo"

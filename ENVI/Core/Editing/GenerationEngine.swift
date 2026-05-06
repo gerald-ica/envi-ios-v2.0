@@ -245,7 +245,7 @@ public actor ModelAssetManager: Sendable {
 
     public func download(
         named name: String,
-        decryptionKey: SymmetricKey? = nil
+        decryptionKey: ENVISymmetricKey? = nil
     ) async throws -> ModelAsset {
         guard let asset = assets[name] else {
             throw GenerationError.modelMissing(name: name)
@@ -266,7 +266,7 @@ public actor ModelAssetManager: Sendable {
             }
 
             // Verify checksum
-            let computedHash = SHA256.hash(data: data).compactMap { String(format: "%02x", $0) }.joined()
+            let computedHash = ENVISHA256.hash(data: data).compactMap { String(format: "%02x", $0) }.joined()
             guard computedHash == asset.checksumSHA256 else {
                 throw GenerationError.checksumMismatch(
                     name: name,
@@ -308,7 +308,7 @@ public actor ModelAssetManager: Sendable {
            FileManager.default.fileExists(atPath: localPath.path) {
             // Verify checksum of local file
             if let data = try? Data(contentsOf: localPath) {
-                let computedHash = SHA256.hash(data: data).compactMap { String(format: "%02x", $0) }.joined()
+                let computedHash = ENVISHA256.hash(data: data).compactMap { String(format: "%02x", $0) }.joined()
                 if computedHash == asset.checksumSHA256 {
                     var mutableAsset = asset
                     mutableAsset.state = .ready
@@ -330,7 +330,7 @@ public actor ModelAssetManager: Sendable {
         assets[name] = asset
     }
 
-    private func decrypt(data: Data, key: SymmetricKey) throws -> Data {
+    private func decrypt(data: Data, key: ENVISymmetricKey) throws -> Data {
         // Placeholder: integrate with CryptoKit AES-GCM or your encryption scheme
         // For production, replace with actual ChaChaPoly or AES-GCM decryption
         return data
@@ -772,7 +772,7 @@ public actor GenerationEngine {
 
 // MARK: - Hash Helpers
 
-struct SHA256 {
+struct ENVISHA256 {
     static func hash(data: Data) -> [UInt8] {
         var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
         data.withUnsafeBytes { buffer in
@@ -782,7 +782,7 @@ struct SHA256 {
     }
 }
 
-struct SymmetricKey: Sendable {
+struct ENVISymmetricKey: Sendable {
     let data: Data
 }
 
