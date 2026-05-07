@@ -8,6 +8,7 @@ import Combine
 /// `AchievementBadge.mock` in `@State` defaults and never called
 /// `EducationRepository`. Now backed by
 /// `EducationRepositoryProvider.shared.repository`.
+@MainActor
 final class EducationViewModel: ObservableObject {
     // MARK: - State
     @Published var tutorials: [Tutorial] = []
@@ -25,7 +26,6 @@ final class EducationViewModel: ObservableObject {
 
     // MARK: - Loading
 
-    @MainActor
     func loadTutorials() async {
         isLoading = true
         errorMessage = nil
@@ -44,7 +44,6 @@ final class EducationViewModel: ObservableObject {
         isLoading = false
     }
 
-    @MainActor
     func loadAchievements() async {
         isLoading = true
         errorMessage = nil

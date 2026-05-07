@@ -2,7 +2,9 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Agency & Multi-Client Operations feature set (D25: ENVI-0601–ENVI-0625).
+@MainActor
 final class AgencyViewModel: ObservableObject {
+    nonisolated(unsafe) let repository: AgencyRepository
     // MARK: - Dashboard
     @Published var dashboard: AgencyDashboard = AgencyDashboard()
     @Published var isLoadingDashboard = false
@@ -27,8 +29,6 @@ final class AgencyViewModel: ObservableObject {
 
     // MARK: - Error
     @Published var errorMessage: String?
-
-    private let repository: AgencyRepository
 
     init(repository: AgencyRepository = AgencyRepositoryProvider.shared.repository) {
         self.repository = repository

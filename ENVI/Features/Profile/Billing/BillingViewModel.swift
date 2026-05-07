@@ -25,7 +25,7 @@ final class BillingViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let repository: BillingRepository
+    private nonisolated(unsafe) let repository: BillingRepository
     private let purchaseManager: PurchaseManager
 
     // MARK: - Init

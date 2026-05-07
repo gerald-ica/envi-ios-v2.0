@@ -32,7 +32,7 @@ final class SecurityViewModel: ObservableObject {
     // MARK: - General
     @Published var errorMessage: String?
 
-    private let repository: SecurityRepository
+    private nonisolated(unsafe) let repository: SecurityRepository
 
     init(repository: SecurityRepository = SecurityRepositoryProvider.shared.repository) {
         self.repository = repository

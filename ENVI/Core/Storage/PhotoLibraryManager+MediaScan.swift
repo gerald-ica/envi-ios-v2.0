@@ -53,7 +53,7 @@ extension PhotoLibraryManager {
         _ coordinator: MediaScanCoordinator
     ) -> MediaScanCoordinator {
         coordinatorBox.coordinator = coordinator
-        coordinator.registerChangeObserver(on: .shared)
+        coordinator.registerChangeObserver(on: PhotoLibraryManager.shared)
         return coordinator
     }
 }

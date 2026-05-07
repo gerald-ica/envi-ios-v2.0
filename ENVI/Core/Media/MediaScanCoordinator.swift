@@ -85,7 +85,7 @@ struct MediaScanProgress: Equatable {
 
 // MARK: - MediaScanCoordinator
 
-final class MediaScanCoordinator: ObservableObject {
+final class MediaScanCoordinator: ObservableObject, @unchecked Sendable {
 
     // MARK: Published state
 
@@ -119,7 +119,7 @@ final class MediaScanCoordinator: ObservableObject {
     init(
         classifier: MediaClassifierProtocol,
         cache: ClassificationCache,
-        library: PHAssetProviding = PhotoLibraryManager.shared,
+        library: PHAssetProviding,
         defaults: UserDefaults = .standard
     ) {
         self.classifier = classifier
@@ -197,7 +197,7 @@ final class MediaScanCoordinator: ObservableObject {
     /// Wires this coordinator into `PhotoLibraryManager.changeDelegate`.
     /// When the library mutates, `photoLibraryDidChange` is called and
     /// we kick off an incremental classification of the new assets.
-    public func registerChangeObserver(on manager: PhotoLibraryManager = .shared) {
+    public func registerChangeObserver(on manager: PhotoLibraryManager) {
         manager.changeDelegate = self
     }
 

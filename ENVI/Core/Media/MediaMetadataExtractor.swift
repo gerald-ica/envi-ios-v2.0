@@ -251,14 +251,16 @@ enum MediaMetadataExtractor {
     }
 
     private static func avAsset(for asset: PHAsset) async -> AVAsset? {
-        await withCheckedContinuation { continuation in
+        nonisolated(unsafe) var storedAsset: AVAsset?
+        return await withCheckedContinuation { (continuation: CheckedContinuation<AVAsset?, Never>) in
             let options = PHVideoRequestOptions()
             options.isNetworkAccessAllowed = false
             options.deliveryMode = .fastFormat
             options.version = .current
 
             PHImageManager.default().requestAVAsset(forVideo: asset, options: options) { avAsset, _, _ in
-                continuation.resume(returning: avAsset)
+                storedAsset = avAsset
+                continuation.resume(returning: storedAsset)
             }
         }
     }

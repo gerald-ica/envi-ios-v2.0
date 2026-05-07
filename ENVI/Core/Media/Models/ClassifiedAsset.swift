@@ -26,7 +26,7 @@ import SwiftData
 public let kCurrentClassifierVersion: Int = 1
 
 @Model
-public final class ClassifiedAsset {
+public final class ClassifiedAsset: @unchecked Sendable {
 
     // MARK: - Identity
 

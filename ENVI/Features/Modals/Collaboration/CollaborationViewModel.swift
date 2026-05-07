@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Collaboration, Review, and Approvals feature set.
+@MainActor
 final class CollaborationViewModel: ObservableObject {
     // MARK: - Reviews
     @Published var reviewRequests: [ReviewRequest] = []
@@ -29,7 +30,7 @@ final class CollaborationViewModel: ObservableObject {
     // MARK: - Sheet State
     @Published var isShowingShareSheet = false
 
-    private let repository: CollaborationRepository
+    private nonisolated(unsafe) let repository: CollaborationRepository
 
     init(repository: CollaborationRepository = CollaborationRepositoryProvider.shared.repository) {
         self.repository = repository

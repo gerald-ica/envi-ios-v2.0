@@ -18,7 +18,7 @@ final class SystemHealthViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let repository: AdminRepository
+    private nonisolated(unsafe) let repository: AdminRepository
 
     // MARK: - Init
 

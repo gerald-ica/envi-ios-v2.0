@@ -88,9 +88,10 @@ actor MediaClassifier {
         if let onDisk = try? ClassificationCache() {
             return MediaClassifier(cache: onDisk)
         }
-        // swiftlint:disable:next force_try
-        let fallback = try! ClassificationCache(inMemory: true)
-        return MediaClassifier(cache: fallback)
+        if let fallback = try? ClassificationCache(inMemory: true) {
+            return MediaClassifier(cache: fallback)
+        }
+        fatalError("Unable to create classification cache")
     }()
 
     // MARK: - Public API

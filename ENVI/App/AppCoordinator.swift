@@ -4,6 +4,7 @@ import SwiftUI
 /// Root coordinator that manages the app's navigation flow.
 /// First-run flow: Splash → Onboarding → Main app
 /// Signed-out flow: Splash → Sign In → Main app
+@MainActor
 final class AppCoordinator: ParentCoordinator {
     var navigationController: UINavigationController
     var childCoordinators: [Coordinator] = []
@@ -47,6 +48,7 @@ final class AppCoordinator: ParentCoordinator {
     }
 
     // MARK: - Onboarding
+    @MainActor
     private func showOnboarding() {
         let coordinator = OnboardingCoordinator(navigationController: navigationController)
         onboardingCoordinator = coordinator
@@ -56,9 +58,7 @@ final class AppCoordinator: ParentCoordinator {
             }
             self?.showMainApp()
         }
-        Task { @MainActor in
-            coordinator.start()
-        }
+        coordinator.start()
     }
 
     // MARK: - Sign In

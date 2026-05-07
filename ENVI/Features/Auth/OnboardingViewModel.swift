@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// Manages state for the onboarding flow.
+@MainActor
 final class OnboardingViewModel: ObservableObject {
     enum Step: Int, CaseIterable {
         case name = 0

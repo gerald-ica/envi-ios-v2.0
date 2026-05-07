@@ -4,7 +4,7 @@ import Combine
 import MapKit
 
 /// Manages access to the user's current location during onboarding.
-final class LocationPermissionManager: NSObject, ObservableObject {
+final class LocationPermissionManager: NSObject, ObservableObject, @unchecked Sendable {
 
     enum AuthorizationStatus: Equatable {
         case notDetermined
@@ -38,7 +38,7 @@ final class LocationPermissionManager: NSObject, ObservableObject {
     @Published private(set) var authorizationStatus: AuthorizationStatus = .notDetermined
     @Published private(set) var currentLocationName: String?
 
-    nonisolated(unsafe) static let shared = LocationPermissionManager()
+    static let shared = LocationPermissionManager()
 
     private let locationManager = CLLocationManager()
 
@@ -60,14 +60,17 @@ final class LocationPermissionManager: NSObject, ObservableObject {
 }
 
 extension LocationPermissionManager: CLLocationManagerDelegate {
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatus = AuthorizationStatus(clStatus: manager.authorizationStatus)
-        if authorizationStatus.isAuthorized {
-            requestCurrentLocation()
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        let status = manager.authorizationStatus
+        Task { @MainActor in
+            authorizationStatus = AuthorizationStatus(clStatus: status)
+            if authorizationStatus.isAuthorized {
+                requestCurrentLocation()
+            }
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.first else { return }
         let coordinate = location.coordinate
 
@@ -79,7 +82,7 @@ extension LocationPermissionManager: CLLocationManagerDelegate {
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         // Leave the current location name unchanged; the UI can still reflect permission state.
     }
 

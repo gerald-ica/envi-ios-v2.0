@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for scheduling, queue monitoring, and distribution management.
+@MainActor
 final class SchedulingViewModel: ObservableObject {
 
     // MARK: - Published State
@@ -18,7 +19,7 @@ final class SchedulingViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private let repository: SchedulingRepository
+    private nonisolated(unsafe) let repository: SchedulingRepository
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init

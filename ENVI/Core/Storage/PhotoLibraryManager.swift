@@ -22,6 +22,7 @@ protocol PhotoLibraryChangeDelegate: AnyObject {
     func photoLibraryDidChange(insertedCount: Int, removedCount: Int, updatedCount: Int)
 }
 
+@MainActor
 final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChangeObserver {
 
     // MARK: - Authorization Status
@@ -64,20 +65,20 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
     // MARK: - Published Properties
 
     /// Current authorization status, published for SwiftUI observation.
-    @Published private(set) var authorizationStatus: AuthorizationStatus = .notDetermined
+    @Published nonisolated(unsafe) private(set) var authorizationStatus: AuthorizationStatus = .notDetermined
 
     /// Number of media items available in the user's library.
-    @Published private(set) var availableMediaCount: Int = 0
+    @Published nonisolated(unsafe) private(set) var availableMediaCount: Int = 0
 
     /// Delegate for receiving library change events.
-    weak var changeDelegate: PhotoLibraryChangeDelegate?
+    nonisolated(unsafe) weak var changeDelegate: PhotoLibraryChangeDelegate?
 
     /// Cached fetch result for change observer diffing.
-    private var cachedFetchResult: PHFetchResult<PHAsset>?
+    nonisolated(unsafe) private var cachedFetchResult: PHFetchResult<PHAsset>?
 
     // MARK: - Singleton
 
-    nonisolated(unsafe) static let shared = PhotoLibraryManager()
+    static let shared = PhotoLibraryManager()
 
     private override init() {
         super.init()
@@ -102,7 +103,7 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
         return mapped
     }
 
-    func refreshAuthorizationStatus() {
+    nonisolated func refreshAuthorizationStatus() {
         let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         authorizationStatus = AuthorizationStatus(phStatus: currentStatus)
     }
@@ -119,7 +120,7 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
     ///   - limit: Maximum number of assets to fetch. Defaults to 100.
     ///   - mediaTypes: Which media types to include. Defaults to images and videos.
     /// - Returns: An array of PHAsset references for further processing.
-    func fetchRecentMedia(
+    nonisolated func fetchRecentMedia(
         limit: Int = 100,
         mediaTypes: [PHAssetMediaType] = [.image, .video]
     ) -> [PHAsset] {
@@ -149,7 +150,7 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
 
     /// Fetches a count of all media in the user's library.
     /// Useful for displaying stats in the profile or onboarding flow.
-    func totalMediaCount() -> Int {
+    nonisolated func totalMediaCount() -> Int {
         guard authorizationStatus.isAuthorized else {
             return 0
         }
@@ -192,9 +193,9 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
         let updated = changeDetails.changedObjects.count
 
         // Update cached result on the main thread
-        MainActor.assumeIsolated {
-            self.cachedFetchResult = changeDetails.fetchResultAfterChanges
-            self.availableMediaCount = changeDetails.fetchResultAfterChanges.count
+        MainActor.assumeIsolated { [unowned self, fetchResult = changeDetails.fetchResultAfterChanges, count = changeDetails.fetchResultAfterChanges.count] in
+            self.cachedFetchResult = fetchResult
+            self.availableMediaCount = count
             self.changeDelegate?.photoLibraryDidChange(
                 insertedCount: inserted,
                 removedCount: removed,

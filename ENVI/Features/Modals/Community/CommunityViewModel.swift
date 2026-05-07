@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for Community Inbox (D26) and Audience CRM (D27).
+@MainActor
 final class CommunityViewModel: ObservableObject {
     // MARK: - Inbox
     @Published var messages: [InboxMessage] = []
@@ -33,7 +34,7 @@ final class CommunityViewModel: ObservableObject {
     // MARK: - Quick Replies
     @Published var quickReplies: [QuickReply] = QuickReply.defaults
 
-    private let repository: CommunityRepository
+    private nonisolated(unsafe) let repository: CommunityRepository
 
     init(repository: CommunityRepository = CommunityRepositoryProvider.shared.repository) {
         self.repository = repository

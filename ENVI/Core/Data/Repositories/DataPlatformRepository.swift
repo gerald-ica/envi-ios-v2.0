@@ -86,7 +86,7 @@ final class APIDataPlatformRepository: DataPlatformRepository {
 // MARK: - Provider
 
 enum DataPlatformRepositoryProvider {
-    static var shared = RepositoryProvider<DataPlatformRepository>(
+    nonisolated(unsafe) static var shared = RepositoryProvider<DataPlatformRepository>(
         dev: MockDataPlatformRepository(),
         api: APIDataPlatformRepository()
     )

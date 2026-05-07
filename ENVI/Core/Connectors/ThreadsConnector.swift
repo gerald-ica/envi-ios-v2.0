@@ -100,7 +100,7 @@ final class ThreadsConnector: MetaGraphConnector {
 
     // MARK: - Singleton
 
-    nonisolated(unsafe) static let shared = ThreadsConnector()
+    static let shared = ThreadsConnector()
 
     // MARK: - Init
 

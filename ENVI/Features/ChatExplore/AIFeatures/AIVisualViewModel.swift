@@ -29,7 +29,7 @@ final class AIVisualViewModel: ObservableObject {
     // MARK: - General
     @Published var errorMessage: String?
 
-    private let repository: AIVisualRepository
+    private nonisolated(unsafe) let repository: AIVisualRepository
 
     init(repository: AIVisualRepository = AIVisualRepositoryProvider.shared.repository) {
         self.repository = repository

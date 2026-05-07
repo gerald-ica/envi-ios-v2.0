@@ -7,6 +7,7 @@ import Combine
 /// held `SupportTicket.mockList` / `FAQArticle.mockList` in `@State`
 /// defaults and never called `SupportRepository`. Now backed by
 /// `SupportRepositoryProvider.shared.repository`.
+@MainActor
 final class SupportViewModel: ObservableObject {
     // MARK: - State
     @Published var tickets: [SupportTicket] = []
@@ -16,7 +17,7 @@ final class SupportViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private let repository: SupportRepository
+    private nonisolated(unsafe) let repository: SupportRepository
 
     init(repository: SupportRepository = SupportRepositoryProvider.shared.repository) {
         self.repository = repository

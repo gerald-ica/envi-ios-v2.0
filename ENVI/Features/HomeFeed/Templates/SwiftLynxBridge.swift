@@ -27,6 +27,9 @@
 
 import Foundation
 import WebKit
+import os
+
+private let lynxLogger = Logger(subsystem: "com.weareinformal.ENVI", category: "LynxBridge")
 
 // MARK: - Public message payload types (Codable, cross-layer)
 
@@ -173,7 +176,7 @@ public final class DefaultSwiftLynxBridgeLogger: SwiftLynxBridgeLogger, @uncheck
     public init() {}
     public func bridgeDidRejectMessage(name: String, error: SwiftLynxBridgeError) {
         #if DEBUG
-        print("[SwiftLynxBridge] rejected \(name): \(error)")
+        lynxLogger.error("rejected \\(name): \\(error)")
         #endif
     }
 }

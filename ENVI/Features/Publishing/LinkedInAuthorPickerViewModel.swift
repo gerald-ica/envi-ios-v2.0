@@ -97,7 +97,7 @@ final class LinkedInAuthorPickerViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let connector: LinkedInConnector
+    private nonisolated(unsafe) let connector: LinkedInConnector
     private let connectionProvider: @Sendable () async throws -> PlatformConnection
 
     /// - Parameters:

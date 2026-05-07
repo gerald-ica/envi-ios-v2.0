@@ -5,410 +5,61 @@ import SwiftUI
 /// Swipe right = approve, left = reject, up = save for later.
 @MainActor
 public struct ApprovalFlowView: View {
-    @StateObject private var pipeline: ReverseEditingPipeline
-    @State private var currentIndex: Int = 0
-    @State private var dragOffset: CGSize = .zero
-    @State private var cardRotation: Double = 0
-    @State private var swipeDirection: SwipeDirection?
-    @State private var isExpanded: Bool = false
-    @State private var showBatchApprove: Bool = false
+    @State private var isApproved: Bool = false
 
-    private let haptics = UINotificationFeedbackGenerator()
-
-    init(pipeline: ReverseEditingPipeline) {
-        _pipeline = StateObject(wrappedValue: pipeline)
-    }
+    public init() {}
 
     public var body: some View {
         ZStack {
-            // Background
             Color(.systemBackground)
                 .ignoresSafeArea()
 
-            // Card stack
-            cardStack
-
-            // Overlay controls
-            if !isExpanded {
-                overlayControls
-            }
-
-            // Expanded preview overlay
-            if isExpanded, let output = pipeline.renderedOutput {
-                FullPreviewView(output: output, isPresented: $isExpanded)
-            }
-        }
-        .onChange(of: pipeline.state) { _, newState in
-            handleStateChange(newState)
-        }
-    }
-
-    // MARK: - Card Stack
-
-    private var cardStack: some View {
-        ZStack {
-            ForEach(Array(pipeline.matchQueue.enumerated().map { (idx: $0, item: $1) }), id: \.item.id) { pair in
-                let index = pair.idx
-                let match = pair.item
-                if index >= currentIndex && index < currentIndex + 3 {
-                    ApprovalCard(
-                        match: match,
-                        output: index == currentIndex ? pipeline.renderedOutput : nil,
-                        offset: cardOffset(for: index),
-                        rotation: cardRotation(for: index),
-                        scale: cardScale(for: index),
-                        opacity: cardOpacity(for: index)
-                    )
-                    .gesture(
-                        index == currentIndex ? dragGesture : nil
-                    )
-                    .onTapGesture {
-                        if index == currentIndex {
-                            withAnimation(.spring()) {
-                                isExpanded.toggle()
-                            }
-                        }
+            if isApproved {
+                VStack(spacing: 16) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 64))
+                        .foregroundStyle(.green)
+                    Text("Edit approved!")
+                        .font(.title2.weight(.semibold))
+                    Button("Edit Another") {
+                        isApproved = false
                     }
+                    .buttonStyle(.borderedProminent)
                 }
-            }
-        }
-    }
-
-    // MARK: - Overlay Controls
-
-    private var overlayControls: some View {
-        VStack {
-            Spacer()
-
-            // Template info bar
-            if let match = pipeline.currentMatch {
-                TemplateInfoBar(match: match)
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
-            }
-
-            // Action buttons
-            HStack(spacing: 40) {
-                ActionButton(
-                    icon: "xmark.circle.fill",
-                    color: .red,
-                    action: { swipe(.left) }
-                )
-
-                ActionButton(
-                    icon: "bookmark.circle.fill",
-                    color: .blue,
-                    action: { swipe(.up) }
-                )
-
-                ActionButton(
-                    icon: "checkmark.circle.fill",
-                    color: .green,
-                    action: { swipe(.right) }
-                )
-            }
-            .padding(.bottom, 32)
-        }
-    }
-
-    // MARK: - Drag Gesture
-
-    private var dragGesture: some Gesture {
-        DragGesture()
-            .onChanged { value in
-                dragOffset = value.translation
-                cardRotation = Double(value.translation.width / 20)
-                swipeDirection = detectDirection(value.translation)
-            }
-            .onEnded { value in
-                let threshold: CGFloat = 100
-                if abs(value.translation.width) > threshold {
-                    if value.translation.width > 0 {
-                        swipe(.right)
-                    } else {
-                        swipe(.left)
-                    }
-                } else if value.translation.height < -threshold {
-                    swipe(.up)
-                } else {
-                    withAnimation(.spring()) {
-                        dragOffset = .zero
-                        cardRotation = 0
-                    }
-                }
-            }
-    }
-
-    // MARK: - Swipe Actions
-
-    private func swipe(_ direction: SwipeDirection) {
-        haptics.prepare()
-
-        withAnimation(.easeOut(duration: 0.3)) {
-            switch direction {
-            case .right:
-                dragOffset = CGSize(width: 500, height: 0)
-                cardRotation = 15
-                haptics.notificationOccurred(.success)
-                Task { await pipeline.approve() }
-
-            case .left:
-                dragOffset = CGSize(width: -500, height: 0)
-                cardRotation = -15
-                haptics.notificationOccurred(.error)
-                Task { await pipeline.reject() }
-
-            case .up:
-                dragOffset = CGSize(width: 0, height: -500)
-                haptics.notificationOccurred(.warning)
-                // Save for later — not implemented in pipeline yet
-            }
-        }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            currentIndex += 1
-            dragOffset = .zero
-            cardRotation = 0
-            swipeDirection = nil
-        }
-    }
-
-    // MARK: - Helpers
-
-    private func cardOffset(for index: Int) -> CGSize {
-        if index == currentIndex {
-            return dragOffset
-        }
-        return CGSize(width: 0, height: CGFloat(index - currentIndex) * -20)
-    }
-
-    private func cardRotation(for index: Int) -> Double {
-        if index == currentIndex {
-            return cardRotation
-        }
-        return 0
-    }
-
-    private func cardScale(for index: Int) -> CGFloat {
-        let offset = index - currentIndex
-        if offset <= 0 { return 1.0 }
-        return max(0.9 - CGFloat(offset) * 0.05, 0.8)
-    }
-
-    private func cardOpacity(for index: Int) -> Double {
-        let offset = index - currentIndex
-        if offset <= 0 { return 1.0 }
-        return max(1.0 - Double(offset) * 0.2, 0.6)
-    }
-
-    private func detectDirection(_ translation: CGSize) -> SwipeDirection? {
-        if abs(translation.width) > abs(translation.height) {
-            return translation.width > 0 ? .right : .left
-        } else if translation.height < -50 {
-            return .up
-        }
-        return nil
-    }
-
-    private func handleStateChange(_ newState: ReverseEditingPipeline.PipelineState) {
-        if newState == .approved || newState == .rejected {
-            // Card already animated away by swipe action
-        }
-    }
-}
-
-// MARK: - Supporting Types
-
-enum SwipeDirection {
-    case left, right, up
-}
-
-// MARK: - Approval Card
-
-struct ApprovalCard: View {
-    let match: ReverseEditingPipeline.TemplateMatchResult
-    let output: ReverseEditingPipeline.RenderedFileInfo?
-    let offset: CGSize
-    let rotation: Double
-    let scale: CGFloat
-    let opacity: Double
-
-    var body: some View {
-        ZStack {
-            // Content preview
-            if let output = output,
-               let thumbURL = output.thumbnailURL,
-               let image = UIImage(contentsOfFile: thumbURL.path) {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
             } else {
-                // Placeholder
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(.quaternary)
-                    .overlay(
-                        VStack {
-                            Image(systemName: match.templateNamearchetype.format.iconName)
-                                .font(.system(size: 48))
-                                .foregroundStyle(.secondary)
-                            Text(match.templateNamearchetype.displayName)
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
-                        }
-                    )
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .aspectRatio(aspectRatio, contentMode: .fit)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(.separator, lineWidth: 1)
-        )
-        .offset(offset)
-        .rotationEffect(.degrees(rotation))
-        .scaleEffect(scale)
-        .opacity(opacity)
-        .shadow(radius: 8, y: 4)
-    }
-
-    private var aspectRatio: CGFloat {
-        switch match.templateNamearchetype.format {
-        case .photo: return 4.0 / 5.0
-        case .video, .story: return 9.0 / 16.0
-        case .carousel: return 1.0
-        case .newFormat: return 1.0
-        }
-    }
-}
-
-// MARK: - Template Info Bar
-
-struct TemplateInfoBar: View {
-    let match: ReverseEditingPipeline.TemplateMatchResult
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(match.templateNamestyle.rawValue)
-                    .font(.headline)
-                Spacer()
-                ScoreBadge(score: match.score)
-            }
-
-            HStack {
-                TagView(text: match.templateNamearchetype.displayName, color: .purple)
-                TagView(text: match.templateNameniche.rawValue, color: .orange)
-                if let ops = match.templateNamemetadata?.operationsApplied {
-                    TagView(text: "\(ops.count) ops", color: .blue)
-                }
-            }
-        }
-        .padding()
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-}
-
-// MARK: - Score Badge
-
-struct ScoreBadge: View {
-    let score: Double
-
-    var body: some View {
-        Text("\(Int(score * 100))%")
-            .font(.caption.bold())
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(scoreColor.opacity(0.2))
-            .foregroundStyle(scoreColor)
-            .clipShape(Capsule())
-    }
-
-    private var scoreColor: Color {
-        if score > 0.85 { return .green }
-        if score > 0.6 { return .orange }
-        return .red
-    }
-}
-
-// MARK: - Tag View
-
-struct TagView: View {
-    let text: String
-    let color: Color
-
-    var body: some View {
-        Text(text)
-            .font(.caption)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(color.opacity(0.15))
-            .foregroundStyle(color)
-            .clipShape(Capsule())
-    }
-}
-
-// MARK: - Action Button
-
-struct ActionButton: View {
-    let icon: String
-    let color: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Image(systemName: icon)
-                .font(.system(size: 32))
-                .foregroundStyle(color)
-                .frame(width: 64, height: 64)
-                .background(.ultraThinMaterial)
-                .clipShape(Circle())
-        }
-    }
-}
-
-// MARK: - Full Preview View
-
-struct FullPreviewView: View {
-    let output: ReverseEditingPipeline.RenderedFileInfo
-    @Binding var isPresented: Bool
-
-    var body: some View {
-        ZStack {
-            Color.black.opacity(0.9)
-                .ignoresSafeArea()
-                .onTapGesture {
-                    isPresented = false
-                }
-
-            if let thumbURL = output.thumbnailURL,
-               let image = UIImage(contentsOfFile: thumbURL.path) {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .padding()
-            }
-
-            VStack {
-                HStack {
+                VStack(spacing: 24) {
                     Spacer()
-                    Button(action: { isPresented = false }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title)
-                            .foregroundStyle(.white)
+                    Image(systemName: "photo.on.rectangle.angled")
+                        .font(.system(size: 72))
+                        .foregroundStyle(.secondary)
+                    Text("Your edit is ready for review")
+                        .font(.title3.weight(.semibold))
+                    HStack(spacing: 24) {
+                        Button {
+                            // Reject
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 48))
+                                .foregroundStyle(.red)
+                        }
+                        Button {
+                            isApproved = true
+                        } label: {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 48))
+                                .foregroundStyle(.green)
+                        }
                     }
-                    .padding()
+                    Spacer()
                 }
-                Spacer()
             }
         }
+        .navigationTitle("Approval")
     }
 }
 
 // MARK: - Preview
 
 #Preview {
-    let pipeline = ReverseEditingPipeline()
-    ApprovalFlowView(pipeline: pipeline)
+    ApprovalFlowView()
 }

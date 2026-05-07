@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Library screen.
+@MainActor
 final class LibraryViewModel: ObservableObject {
     enum FilterType: String, CaseIterable {
         case all = "All"
@@ -27,7 +28,7 @@ final class LibraryViewModel: ObservableObject {
     @Published var planOperationErrorMessage: String?
     @Published var templateToApply: TemplateItem? = nil
     private var cancellables = Set<AnyCancellable>()
-    private let repository: ContentRepository
+    private nonisolated(unsafe) let repository: ContentRepository
 
     init(repository: ContentRepository = ContentRepositoryProvider.shared.repository) {
         self.repository = repository

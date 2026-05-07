@@ -1,6 +1,9 @@
 import Foundation
 import RevenueCat
 import Combine
+import os
+
+private let purchaseLogger = Logger(subsystem: "com.weareinformal.ENVI", category: "Purchases")
 
 /// Singleton that owns the RevenueCat lifecycle.
 /// Publishes reactive state so SwiftUI views can observe subscription status.
@@ -45,9 +48,7 @@ final class PurchaseManager: NSObject, ObservableObject {
     /// non-Aura in that build.
     func configure() {
         guard PurchaseConstants.isConfigured else {
-            print("⚠️ [PurchaseManager] REVENUECAT_API_KEY is missing or still the template placeholder. " +
-                  "Copy Config/Secrets.xcconfig.template to Config/Secrets.xcconfig and fill in the real " +
-                  "public `appl_` key from the RevenueCat dashboard. Subscriptions are disabled for this build.")
+            purchaseLogger.warning("REVENUECAT_API_KEY is missing or still the template placeholder. Copy Config/Secrets.xcconfig.template to Config/Secrets.xcconfig and fill in the real public `appl_` key from the RevenueCat dashboard. Subscriptions are disabled for this build.")
             return
         }
         Purchases.logLevel = .debug

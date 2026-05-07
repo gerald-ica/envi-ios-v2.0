@@ -19,7 +19,12 @@ import PhotosUI
 enum ContentLibrary {
 
     /// Reuse the same placeholder image pool shown on the For You feed.
-    static let imageNames: [String] = FeedViewModel.imageNames
+    static let imageNames: [String] = [
+        "Closer", "chopsticks", "culture-food", "cyclist", "desert-car",
+        "fashion-group", "fire-stunt", "industrial-girl", "jacket",
+        "office-girl", "parking-garage", "red-silhouette", "runway",
+        "studio-fashion", "subway", "suit-phone", "tennis"
+    ]
 
     /// Force helix content to use the For You placeholder set.
     static let pieces: [ContentPiece] = ContentPiece.sampleLibrary.enumerated().map { index, piece in

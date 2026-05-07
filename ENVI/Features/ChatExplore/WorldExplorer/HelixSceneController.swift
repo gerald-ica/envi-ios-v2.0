@@ -74,6 +74,7 @@ enum ExplorerViewMode: String {
 ///
 /// Content pieces represent already-edited assets from the user's camera roll.
 /// The piece count is driven by the user's actual library size via `contentPieceCount` init parameter.
+
 final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
     // MARK: - Configuration (matches React STREAM_CONFIG exactly)
@@ -243,9 +244,7 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
         isSetUp = true
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
-            self?.onSceneReady?()
-        }
+        onSceneReady?()
     }
 
     // MARK: - Texture Loading
@@ -1122,6 +1121,7 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
     // MARK: - Tap Handling
 
+    @MainActor
     @objc func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
         guard let scnView = scnView else { return }
 
@@ -1148,8 +1148,10 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
                     targetCamPos = SCNVector3(px.x + dist * 0.3, px.y + dist * 0.2, px.z + dist)
                     selectedContentId = contentId
 
-                    DispatchQueue.main.async { [weak self] in
-                        self?.onNodeTapped?(contentId)
+                    MainActor.assumeIsolated {
+                        Task {
+                            self.onNodeTapped?(contentId)
+                        }
                     }
                     return
                 }
@@ -1189,8 +1191,10 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             targetCamPos = SCNVector3(px.x + dist * 0.3, px.y + dist * 0.2, px.z + dist)
             selectedContentId = contentId
 
-            DispatchQueue.main.async { [weak self] in
-                self?.onNodeTapped?(contentId)
+            MainActor.assumeIsolated {
+                Task {
+                    self.onNodeTapped?(contentId)
+                }
             }
         }
     }

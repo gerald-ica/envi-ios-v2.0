@@ -28,7 +28,7 @@ enum DeepLinkRouter {
     ///
     /// Case names use the exact enum-case spelling so the URL round-trip
     /// matches developer intuition.
-    private static let caseRegistry: [String: (URL) -> AppDestination?] = [
+    private nonisolated(unsafe) static let caseRegistry: [String: (URL) -> AppDestination?] = [
         // No-payload destinations
         "admin": { _ in .admin },
         "enterprise": { _ in .enterprise },

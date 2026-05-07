@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Repurposing & Cross-Format Production feature set (D17).
+@MainActor
 final class RepurposingViewModel: ObservableObject {
     // MARK: - Jobs
     @Published var jobs: [RepurposeJob] = []
@@ -21,7 +22,7 @@ final class RepurposingViewModel: ObservableObject {
     @Published var selectedTargetFormats: Set<RepurposeFormat> = []
     @Published var isCreatingJob = false
 
-    private let repository: RepurposingRepository
+    private nonisolated(unsafe) let repository: RepurposingRepository
 
     init(repository: RepurposingRepository = RepurposingRepositoryProvider.shared.repository) {
         self.repository = repository

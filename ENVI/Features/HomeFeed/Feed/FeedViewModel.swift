@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the feed screen. Manages the card stack data.
+@MainActor
 final class FeedViewModel: ObservableObject {
     @Published var items: [ContentItem] = []
     @Published var selectedTab: FeedTab = .forYou
@@ -10,7 +11,7 @@ final class FeedViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var loadErrorMessage: String?
 
-    private let repository: ContentRepository
+    private nonisolated(unsafe) let repository: ContentRepository
 
     enum FeedTab: String, CaseIterable {
         case forYou = "For You"

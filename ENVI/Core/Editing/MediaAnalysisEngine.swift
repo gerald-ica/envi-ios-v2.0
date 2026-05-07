@@ -423,8 +423,10 @@ public actor MediaAnalysisEngine {
         let height = CVPixelBufferGetHeight(a)
         guard width == CVPixelBufferGetWidth(b), height == CVPixelBufferGetHeight(b) else { return 0 }
 
-        let aData = CVPixelBufferGetBaseAddress(a)!.assumingMemoryBound(to: UInt8.self)
-        let bData = CVPixelBufferGetBaseAddress(b)!.assumingMemoryBound(to: UInt8.self)
+        guard let aBase = CVPixelBufferGetBaseAddress(a),
+              let bBase = CVPixelBufferGetBaseAddress(b) else { return 0 }
+        let aData = aBase.assumingMemoryBound(to: UInt8.self)
+        let bData = bBase.assumingMemoryBound(to: UInt8.self)
         let bytesPerRow = CVPixelBufferGetBytesPerRow(a)
 
         var totalDiff: Int = 0

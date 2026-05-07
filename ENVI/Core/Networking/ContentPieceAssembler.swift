@@ -74,7 +74,7 @@ enum AssemblyState: Equatable {
 /// - Monitor processing status
 /// - Download assembled content pieces
 /// - Cache results locally for the World Explorer
-final class ContentPieceAssembler: ObservableObject {
+final class ContentPieceAssembler: ObservableObject, @unchecked Sendable {
 
     // MARK: - Properties
 
@@ -111,7 +111,7 @@ final class ContentPieceAssembler: ObservableObject {
 
     // MARK: - Singleton
 
-    static let shared = ContentPieceAssembler()
+    nonisolated(unsafe) static let shared = ContentPieceAssembler()
 
     init(transport: ContentAssemblyTransport = APIContentAssemblyTransport()) {
         self.transport = transport
@@ -172,6 +172,7 @@ final class ContentPieceAssembler: ObservableObject {
         guard !isProcessing else { return }
         isProcessing = true
 
+        // Sendable-safe via @unchecked Sendable
         Task { @MainActor in
             await processQueue()
         }

@@ -50,10 +50,10 @@ final class ForYouGalleryViewModel: ObservableObject {
 
     private let approvedStore: ApprovedMediaLibraryStore
     private let matchEngine: TemplateMatchEngine
-    private let templateRepo: VideoTemplateRepository
+    nonisolated(unsafe) private let templateRepo: VideoTemplateRepository
     private let embeddingIndex: EmbeddingIndex
     private let identityResolver: ForYouIdentityResolver
-    private let assemblyCoordinator: ForYouAssemblyCoordinator
+    nonisolated(unsafe) private let assemblyCoordinator: ForYouAssemblyCoordinator
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Seen Items Tracker

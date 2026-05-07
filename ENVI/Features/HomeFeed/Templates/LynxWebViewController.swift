@@ -104,9 +104,13 @@ final class LynxWebViewController: UIViewController {
 
     deinit {
         // Prevent the userContentController from retaining handlers past VC life.
-        let ucc = webView?.configuration.userContentController
-        for name in bridgeConfig.messageHandlers.keys {
-            ucc?.removeScriptMessageHandler(forName: sanitize(name))
+        MainActor.assumeIsolated {
+            let ucc = webView?.configuration.userContentController
+            let handlers = bridgeConfig.messageHandlers.keys
+            for name in handlers {
+                let sanitizedName = sanitize(name)
+                ucc?.removeScriptMessageHandler(forName: sanitizedName)
+            }
         }
     }
 

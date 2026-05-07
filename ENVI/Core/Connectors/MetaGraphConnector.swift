@@ -106,6 +106,7 @@ enum MetaConnectorError: Error, LocalizedError {
 /// Shared base for the three Meta-family connectors. Subclasses fix the
 /// `metaPlatform` via their designated init and — if their Graph host
 /// differs — override `baseGraphURL`.
+@MainActor
 class MetaGraphConnector: ObservableObject {
 
     // MARK: - Configuration
@@ -132,11 +133,11 @@ class MetaGraphConnector: ObservableObject {
 
     /// Reused so every Meta sub-platform uses the same broker pipeline
     /// (`/oauth/{slug}/start`, `/callback`, `/refresh`, `/disconnect`).
-    private let oauthManager: SocialOAuthManager
+    private nonisolated(unsafe) let oauthManager: SocialOAuthManager
 
     /// API client used for publish delegation + Meta-specific read paths
     /// (`GET /meta/pages`, `POST /meta/ig-account-type`).
-    internal let apiClient: APIClient
+    internal nonisolated(unsafe) let apiClient: APIClient
 
     // MARK: - Init
 
@@ -215,9 +216,10 @@ class MetaGraphConnector: ObservableObject {
     /// Delegate a publish job to the broker's shared `/publish/jobs` path.
     /// Subclasses build their own payload and call this helper rather than
     /// each duplicating the APIClient wiring.
-    internal func submitPublishJob<Body: Encodable>(
+    @MainActor
+    internal func submitPublishJob<Body: Encodable & Sendable>(
         endpoint: String,
-        body: Body
+        body: sending Body
     ) async throws -> PublishTicket {
         let response: PublishJobResponse = try await apiClient.request(
             endpoint: endpoint,

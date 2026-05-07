@@ -1,4 +1,7 @@
 import Foundation
+import os
+
+private let projectLogger = Logger(subsystem: "com.weareinformal.ENVI", category: "Editor")
 
 final class EditorProjectManager: ObservableObject {
     nonisolated(unsafe) static let shared = EditorProjectManager()
@@ -163,7 +166,7 @@ final class EditorProjectManager: ObservableObject {
             let data = try encoder.encode(projects)
             UserDefaults.standard.set(data, forKey: storageKey)
         } catch {
-            print("[EditorProjectManager] Failed to save projects: \(error)")
+            projectLogger.error("Failed to save projects: \(error)")
         }
     }
 
@@ -172,7 +175,7 @@ final class EditorProjectManager: ObservableObject {
         do {
             projects = try decoder.decode([EditorProject].self, from: data)
         } catch {
-            print("[EditorProjectManager] Failed to load projects: \(error)")
+            projectLogger.error("Failed to load projects: \(error)")
         }
     }
 
@@ -194,7 +197,7 @@ final class EditorProjectManager: ObservableObject {
             try data.write(to: fileURL, options: .atomic)
             return fileURL
         } catch {
-            print("[EditorProjectManager] Failed to export project: \(error)")
+            projectLogger.error("Failed to export project: \(error)")
             return nil
         }
     }
@@ -210,7 +213,7 @@ final class EditorProjectManager: ObservableObject {
             }
             return project
         } catch {
-            print("[EditorProjectManager] Failed to import project: \(error)")
+            projectLogger.error("Failed to import project: \(error)")
             return nil
         }
     }

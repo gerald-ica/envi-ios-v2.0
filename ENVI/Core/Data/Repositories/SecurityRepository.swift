@@ -107,8 +107,9 @@ final class APISecurityRepository: SecurityRepository {
 
 // MARK: - Provider
 
+@MainActor
 enum SecurityRepositoryProvider {
-    static var shared = RepositoryProvider<SecurityRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<SecurityRepository>(
         dev: MockSecurityRepository(),
         api: APISecurityRepository()
     )

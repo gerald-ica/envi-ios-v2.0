@@ -2,6 +2,7 @@ import UIKit
 
 /// Singleton haptic feedback manager for ENVI.
 /// Centralises all haptic triggers so callers stay decoupled from UIKit generators.
+@MainActor
 final class HapticManager {
     static let shared = HapticManager()
     private init() {}

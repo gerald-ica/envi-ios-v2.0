@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for Teams, Roles, and Workspaces (Domain D24).
+@MainActor
 final class TeamViewModel: ObservableObject {
     // MARK: - Workspaces
     @Published var workspaces: [Workspace] = []
@@ -35,7 +36,7 @@ final class TeamViewModel: ObservableObject {
     // MARK: - Error
     @Published var errorMessage: String?
 
-    private let repository: TeamRepository
+    private nonisolated(unsafe) let repository: TeamRepository
 
     init(repository: TeamRepository = TeamRepositoryProvider.shared.repository) {
         self.repository = repository

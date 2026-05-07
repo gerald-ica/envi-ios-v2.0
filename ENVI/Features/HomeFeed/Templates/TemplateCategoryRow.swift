@@ -61,7 +61,7 @@ private struct TemplateCategoryRow_Previews: View {
     // All 5 mock templates, no matched assets (preview renders placeholder tiles).
     let templates: [PopulatedTemplate] = VideoTemplate.mockLibrary.map { template in
         let slots = template.slots.map { FilledSlot(slot: $0, matchedAsset: nil) }
-        PopulatedTemplate(
+        return PopulatedTemplate(
             template: template,
             filledSlots: slots,
             fillRate: 0.0,

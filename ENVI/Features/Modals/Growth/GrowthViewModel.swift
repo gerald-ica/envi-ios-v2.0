@@ -9,6 +9,7 @@ import Combine
 /// `GrowthRepository` entirely. The repository is wired via
 /// `GrowthRepositoryProvider.shared.repository` so dev builds continue to
 /// receive mock data and staging/prod builds hit the real API.
+@MainActor
 final class GrowthViewModel: ObservableObject {
     // MARK: - Dashboard State
     @Published var metrics: [GrowthMetric] = []
@@ -23,7 +24,7 @@ final class GrowthViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private let repository: GrowthRepository
+    nonisolated(unsafe) private let repository: GrowthRepository
 
     init(repository: GrowthRepository = GrowthRepositoryProvider.shared.repository) {
         self.repository = repository

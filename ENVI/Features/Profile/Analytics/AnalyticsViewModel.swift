@@ -18,7 +18,7 @@ final class AnalyticsViewModel: ObservableObject {
     /// `ConnectAccountEmptyStateView` in place of the KPI strip.
     @Published var showEmptyState = false
 
-    private let repository: AnalyticsRepository
+    private nonisolated(unsafe) let repository: AnalyticsRepository
 
     init(repository: AnalyticsRepository? = nil) {
         // Resolve the repository lazily so the FeatureFlags main-actor read

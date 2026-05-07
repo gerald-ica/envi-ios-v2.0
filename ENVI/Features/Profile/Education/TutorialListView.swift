@@ -7,7 +7,7 @@ import SwiftUI
 /// `EducationRepository`.
 struct TutorialListView: View {
     @Environment(\.colorScheme) private var colorScheme
-    @StateObject private var viewModel: EducationViewModel
+    @StateObject private nonisolated(unsafe) var viewModel: EducationViewModel
     @State private var selectedCategory: Tutorial.Category?
 
     init(viewModel: EducationViewModel = EducationViewModel()) {
