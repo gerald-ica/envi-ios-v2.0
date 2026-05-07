@@ -56,7 +56,9 @@ final class AppCoordinator: ParentCoordinator {
             }
             self?.showMainApp()
         }
-        coordinator.start()
+        Task { @MainActor in
+            coordinator.start()
+        }
     }
 
     // MARK: - Sign In

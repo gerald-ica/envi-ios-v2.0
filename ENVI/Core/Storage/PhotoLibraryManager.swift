@@ -183,7 +183,7 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
     }
 
     /// Called by the Photos framework when the library changes.
-    func photoLibraryDidChange(_ changeInstance: PHChange) {
+    nonisolated func photoLibraryDidChange(_ changeInstance: PHChange) {
         guard let previousResult = cachedFetchResult else { return }
         guard let changeDetails = changeInstance.changeDetails(for: previousResult) else { return }
 
@@ -192,11 +192,9 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
         let updated = changeDetails.changedObjects.count
 
         // Update cached result on the main thread
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+        MainActor.assumeIsolated {
             self.cachedFetchResult = changeDetails.fetchResultAfterChanges
             self.availableMediaCount = changeDetails.fetchResultAfterChanges.count
-
             self.changeDelegate?.photoLibraryDidChange(
                 insertedCount: inserted,
                 removedCount: removed,

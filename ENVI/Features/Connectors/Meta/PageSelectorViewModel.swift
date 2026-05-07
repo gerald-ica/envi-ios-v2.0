@@ -63,7 +63,7 @@ final class PageSelectorViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let apiClient: APIClient
+    private nonisolated(unsafe) let apiClient: APIClient
 
     // MARK: - Init
 

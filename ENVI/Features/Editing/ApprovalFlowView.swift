@@ -15,7 +15,7 @@ public struct ApprovalFlowView: View {
 
     private let haptics = UINotificationFeedbackGenerator()
 
-    public init(pipeline: ReverseEditingPipeline) {
+    init(pipeline: ReverseEditingPipeline) {
         _pipeline = StateObject(wrappedValue: pipeline)
     }
 
@@ -47,7 +47,9 @@ public struct ApprovalFlowView: View {
 
     private var cardStack: some View {
         ZStack {
-            ForEach(Array(pipeline.matchQueue.enumerated()), id: \1.self) { index, match in
+            ForEach(Array(pipeline.matchQueue.enumerated().map { (idx: $0, item: $1) }), id: \.item.id) { pair in
+                let index = pair.idx
+                let match = pair.item
                 if index >= currentIndex && index < currentIndex + 3 {
                     ApprovalCard(
                         match: match,
@@ -224,8 +226,8 @@ enum SwipeDirection {
 // MARK: - Approval Card
 
 struct ApprovalCard: View {
-    let match: TemplateMatchingEngine.TemplateMatch
-    let output: TemplateExecutionEngine.RenderedOutput?
+    let match: ReverseEditingPipeline.TemplateMatchResult
+    let output: ReverseEditingPipeline.RenderedFileInfo?
     let offset: CGSize
     let rotation: Double
     let scale: CGFloat
@@ -246,10 +248,10 @@ struct ApprovalCard: View {
                     .fill(.quaternary)
                     .overlay(
                         VStack {
-                            Image(systemName: match.template.archetype.format.iconName)
+                            Image(systemName: match.templateNamearchetype.format.iconName)
                                 .font(.system(size: 48))
                                 .foregroundStyle(.secondary)
-                            Text(match.template.archetype.displayName)
+                            Text(match.templateNamearchetype.displayName)
                                 .font(.headline)
                                 .foregroundStyle(.secondary)
                         }
@@ -271,7 +273,7 @@ struct ApprovalCard: View {
     }
 
     private var aspectRatio: CGFloat {
-        switch match.template.archetype.format {
+        switch match.templateNamearchetype.format {
         case .photo: return 4.0 / 5.0
         case .video, .story: return 9.0 / 16.0
         case .carousel: return 1.0
@@ -283,21 +285,21 @@ struct ApprovalCard: View {
 // MARK: - Template Info Bar
 
 struct TemplateInfoBar: View {
-    let match: TemplateMatchingEngine.TemplateMatch
+    let match: ReverseEditingPipeline.TemplateMatchResult
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(match.template.style.rawValue)
+                Text(match.templateNamestyle.rawValue)
                     .font(.headline)
                 Spacer()
                 ScoreBadge(score: match.score)
             }
 
             HStack {
-                TagView(text: match.template.archetype.displayName, color: .purple)
-                TagView(text: match.template.niche.rawValue, color: .orange)
-                if let ops = match.template.metadata?.operationsApplied {
+                TagView(text: match.templateNamearchetype.displayName, color: .purple)
+                TagView(text: match.templateNameniche.rawValue, color: .orange)
+                if let ops = match.templateNamemetadata?.operationsApplied {
                     TagView(text: "\(ops.count) ops", color: .blue)
                 }
             }
@@ -369,7 +371,7 @@ struct ActionButton: View {
 // MARK: - Full Preview View
 
 struct FullPreviewView: View {
-    let output: TemplateExecutionEngine.RenderedOutput
+    let output: ReverseEditingPipeline.RenderedFileInfo
     @Binding var isPresented: Bool
 
     var body: some View {

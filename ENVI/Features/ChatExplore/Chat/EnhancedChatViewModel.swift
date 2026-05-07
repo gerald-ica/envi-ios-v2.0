@@ -252,7 +252,7 @@ final class EnhancedChatViewModel: ObservableObject {
         isHome = false
         isTyping = true
 
-        Task { @MainActor in
+        Task {
             let resolved = await resolveThread(for: query)
             activeThread = resolved
             isTyping = false

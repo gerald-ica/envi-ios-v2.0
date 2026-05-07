@@ -21,7 +21,7 @@ final class ExperimentViewModel: ObservableObject {
     @Published var isShowingEditor = false
     @Published var isShowingResults = false
 
-    private let repository: ExperimentRepository
+    private nonisolated(unsafe) let repository: ExperimentRepository
 
     init(repository: ExperimentRepository = ExperimentRepositoryProvider.shared.repository) {
         self.repository = repository

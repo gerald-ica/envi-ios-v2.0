@@ -106,7 +106,7 @@ final class ReverseEditingPipeline: ObservableObject {
         }
     }
 
-    struct TemplateMatchResult: Sendable, Identifiable {
+    public struct TemplateMatchResult: Sendable, Identifiable {
         let id: String
         let templateID: String
         let templateName: String

@@ -185,7 +185,7 @@ struct FeedDetailView: View {
         isBookmarked = next
         bookmarkInFlight = true
 
-        Task { @MainActor in
+        Task {
             defer { bookmarkInFlight = false }
             do {
                 try await repository.setBookmarked(contentID: item.id, bookmarked: next)

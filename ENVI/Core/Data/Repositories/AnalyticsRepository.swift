@@ -74,7 +74,7 @@ enum AnalyticsRepositoryProvider {
     /// `FeatureFlags` is `@MainActor`; for call-sites that resolve from
     /// non-main contexts (ViewModel init, background tasks) use
     /// ``resolve()`` which hops to the main actor to read the flag.
-    static var shared = RepositoryProvider<AnalyticsRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<AnalyticsRepository>(
         dev: MockAnalyticsRepository(),
         api: APIAnalyticsRepository()
     )

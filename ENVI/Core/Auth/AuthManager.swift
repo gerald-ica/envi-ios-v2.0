@@ -8,7 +8,7 @@ import CryptoKit
 import GoogleSignIn
 
 final class AuthManager: ObservableObject {
-    static let shared = AuthManager()
+    nonisolated(unsafe) static let shared = AuthManager()
 
     // MARK: - Auth State Observation
 

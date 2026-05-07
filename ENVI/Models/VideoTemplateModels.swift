@@ -430,9 +430,9 @@ struct AudioTrackRef: Codable, Equatable {
 struct FilledSlot: Identifiable {
     var id: UUID { slot.id }
     let slot: TemplateSlot
-    let matchedAsset: ClassifiedAsset?
+    nonisolated(unsafe) let matchedAsset: ClassifiedAsset?
     let matchScore: Double
-    let alternates: [ClassifiedAsset]
+    nonisolated(unsafe) let alternates: [ClassifiedAsset]
 
     init(
         slot: TemplateSlot,
@@ -447,7 +447,7 @@ struct FilledSlot: Identifiable {
     }
 }
 
-struct PopulatedTemplate: Identifiable, Hashable {
+struct PopulatedTemplate: Identifiable, Hashable, Sendable {
     static func == (lhs: PopulatedTemplate, rhs: PopulatedTemplate) -> Bool {
         lhs.id == rhs.id
     }

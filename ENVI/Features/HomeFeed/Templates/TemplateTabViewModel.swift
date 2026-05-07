@@ -55,12 +55,12 @@ final class TemplateTabViewModel {
 
     // MARK: - Dependencies
 
-    private let repo: VideoTemplateRepository
+    private nonisolated(unsafe) let repo: VideoTemplateRepository
+    private nonisolated(unsafe) let scanner: MediaScanCoordinator
     private let matcher: TemplateMatchEngine
     private let ranker: TemplateRanker
     private let cache: ClassificationCache
     private let index: EmbeddingIndex
-    private let scanner: MediaScanCoordinator
     /// Injected UserDefaults shim so tests can use a fresh domain.
     /// Defaults to the shared singleton — production code stays unchanged.
     private let preferences: UserDefaultsManager
@@ -223,7 +223,7 @@ final class TemplateTabViewModel {
     func swap(
         slot: TemplateSlot,
         in populated: PopulatedTemplate,
-        to asset: ClassifiedAsset
+        to asset: sending ClassifiedAsset
     ) async {
         let updated = await matcher.swap(slot: slot, in: populated, to: asset)
         replace(populated: updated)
@@ -231,7 +231,7 @@ final class TemplateTabViewModel {
 
     /// Emits a chosen template into the selection AsyncStream for a
     /// coordinator to pick up (Phase 5 will present preview UI).
-    func select(_ populated: PopulatedTemplate) {
+    func select(_ populated: sending PopulatedTemplate) {
         selectionContinuation.yield(populated)
     }
 

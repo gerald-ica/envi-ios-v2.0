@@ -17,7 +17,7 @@ final class EducationViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
 
-    private let repository: EducationRepository
+    private nonisolated(unsafe) let repository: EducationRepository
 
     init(repository: EducationRepository = EducationRepositoryProvider.shared.repository) {
         self.repository = repository
