@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 final class PublishingManager {
     static let shared = PublishingManager()
 
@@ -99,7 +100,7 @@ final class PublishingManager {
         )
     }
 
-    private static let iso8601Formatter: ISO8601DateFormatter = {
+    nonisolated(unsafe) private static let iso8601Formatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
         return formatter

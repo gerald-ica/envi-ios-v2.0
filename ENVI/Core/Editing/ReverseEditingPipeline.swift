@@ -22,7 +22,7 @@ import SwiftUI
 /// Designed to work alongside the current app's existing TemplateMatchEngine.
 @MainActor
 @available(iOS 26, *)
-public final class ReverseEditingPipeline: ObservableObject {
+final class ReverseEditingPipeline: ObservableObject {
 
     // MARK: - Published State
 
@@ -106,17 +106,17 @@ public final class ReverseEditingPipeline: ObservableObject {
         }
     }
 
-    public struct TemplateMatchResult: Sendable, Identifiable {
-        public let id: String
-        public let templateID: String
-        public let templateName: String
-        public let score: Double
-        public let category: VideoTemplateCategory?
-        public let style: String?
-        public let niche: String?
-        public let operationsCount: Int
+    struct TemplateMatchResult: Sendable, Identifiable {
+        let id: String
+        let templateID: String
+        let templateName: String
+        let score: Double
+        let category: VideoTemplateCategory?
+        let style: String?
+        let niche: String?
+        let operationsCount: Int
 
-        public init(
+        init(
             id: String = UUID().uuidString,
             templateID: String,
             templateName: String,

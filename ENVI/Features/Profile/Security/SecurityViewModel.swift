@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Security, Privacy, Compliance, and Governance feature set.
+@MainActor
 final class SecurityViewModel: ObservableObject {
     // MARK: - Policies
     @Published var policies: [SecurityPolicy] = []

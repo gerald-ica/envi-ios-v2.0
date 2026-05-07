@@ -80,8 +80,9 @@ final class APIEducationRepository: EducationRepository {
 
 // MARK: - Provider
 
+@MainActor
 enum EducationRepositoryProvider {
-    static var shared = RepositoryProvider<EducationRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<EducationRepository>(
         dev: MockEducationRepository(),
         api: APIEducationRepository()
     )

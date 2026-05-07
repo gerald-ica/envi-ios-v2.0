@@ -29,7 +29,7 @@ public actor TemplateRegistry {
     private var archetypeIndex: [ContentArchetype: [TemplateDefinition]] = [:]
     private var styleIndex: [VisualStyle: [TemplateDefinition]] = [:]
     private var nicheIndex: [ContentNiche: [TemplateDefinition]] = [:]
-    private var operationIndex: [AlgorithmicOperation: [TemplateDefinition]] = [:]
+    private var operationIndex: [String: [TemplateDefinition]] = [:]
     private var platformIndex: [Platform: [TemplateDefinition]] = [:]
     private var formatIndex: [ContentFormat: [TemplateDefinition]] = [:]
 
@@ -49,8 +49,8 @@ public actor TemplateRegistry {
         public let archetype: ContentArchetype
         public let style: VisualStyle
         public let niche: ContentNiche
-        public let requiredOperations: [AlgorithmicOperation]
-        public let optionalOperations: [AlgorithmicOperation]
+        public let requiredOperations: [String]
+        public let optionalOperations: [String]
         public let platform: Platform
         public let estimatedRenderTime: TimeInterval
         public let complexityScore: Double // 0.0 - 1.0
@@ -61,8 +61,8 @@ public actor TemplateRegistry {
             archetype: ContentArchetype,
             style: VisualStyle,
             niche: ContentNiche,
-            requiredOperations: [AlgorithmicOperation] = [],
-            optionalOperations: [AlgorithmicOperation] = [],
+            requiredOperations: [String] = [],
+            optionalOperations: [String] = [],
             platform: Platform = .general,
             estimatedRenderTime: TimeInterval = 1.0,
             complexityScore: Double = 0.5,
@@ -196,7 +196,7 @@ public actor TemplateRegistry {
         _ videoTemplate: VideoTemplate,
         style: VisualStyle = .Minimal,
         niche: ContentNiche = .GeneralLifestyle,
-        operations: [AlgorithmicOperation]? = nil
+        operations: [String]? = nil
     ) -> TemplateDefinition {
         let archetype = ContentArchetype.video(
             VideoArchetype(rawValue: videoTemplate.category) ?? .V1
@@ -270,7 +270,7 @@ public actor TemplateRegistry {
         archetypes: [ContentArchetype]? = nil,
         styles: [VisualStyle]? = nil,
         niches: [ContentNiche]? = nil,
-        operations: [AlgorithmicOperation]? = nil,
+        operations: [String]? = nil,
         platforms: [Platform]? = nil,
         formats: [ContentFormat]? = nil,
         maxComplexity: Double? = nil,
@@ -435,8 +435,8 @@ public actor TemplateRegistry {
         return tags
     }
 
-    private static func inferOperations(from videoTemplate: VideoTemplate) -> [AlgorithmicOperation] {
-        var ops: [AlgorithmicOperation] = []
+    private static func inferOperations(from videoTemplate: VideoTemplate) -> [String] {
+        var ops: [String] = []
         if videoTemplate.requiresAudio {
             ops.append(.MusicSFXMatching)
         }

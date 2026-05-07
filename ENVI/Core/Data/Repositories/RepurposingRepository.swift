@@ -100,8 +100,9 @@ enum RepurposingError: LocalizedError {
 
 // MARK: - Provider
 
+@MainActor
 enum RepurposingRepositoryProvider {
-    static var shared = RepositoryProvider<RepurposingRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<RepurposingRepository>(
         dev: MockRepurposingRepository(),
         api: APIRepurposingRepository()
     )

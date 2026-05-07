@@ -57,11 +57,11 @@ struct TemplateCategoryRow: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview("TemplateCategoryRow — For You") {
+private struct TemplateCategoryRow_Previews: View {
     // All 5 mock templates, no matched assets (preview renders placeholder tiles).
     let templates: [PopulatedTemplate] = VideoTemplate.mockLibrary.map { template in
         let slots = template.slots.map { FilledSlot(slot: $0, matchedAsset: nil) }
-        return PopulatedTemplate(
+        PopulatedTemplate(
             template: template,
             filledSlots: slots,
             fillRate: 0.0,
@@ -69,24 +69,26 @@ struct TemplateCategoryRow: View {
         )
     }
 
-    return ScrollView {
-        VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
-            TemplateCategoryRow(
-                title: "For You",
-                templates: templates,
-                onSelect: { _ in },
-                onDuplicate: { _ in },
-                onHide: { _ in }
-            )
-            TemplateCategoryRow(
-                title: "GRWM",
-                templates: Array(templates.prefix(3)),
-                onSelect: { _ in }
-            )
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: ENVISpacing.xxl) {
+                TemplateCategoryRow(
+                    title: "For You",
+                    templates: templates,
+                    onSelect: { _ in },
+                    onDuplicate: { _ in },
+                    onHide: { _ in }
+                )
+                TemplateCategoryRow(
+                    title: "GRWM",
+                    templates: Array(templates.prefix(3)),
+                    onSelect: { _ in }
+                )
+            }
+            .padding(.vertical, ENVISpacing.xl)
         }
-        .padding(.vertical, ENVISpacing.xl)
+        .background(Color.black)
+        .preferredColorScheme(.dark)
     }
-    .background(Color.black)
-    .preferredColorScheme(.dark)
 }
 #endif

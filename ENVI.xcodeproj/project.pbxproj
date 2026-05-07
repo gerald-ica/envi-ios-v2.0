@@ -545,7 +545,6 @@
 		E3AC034B1909D79061E09513 /* CalendarRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8ED6BD157C3015DDE2DDB /* CalendarRepository.swift */; };
 		E3CC288B0A62BBA9EFCB4B17 /* decorative-shape-21.png in Resources */ = {isa = PBXBuildFile; fileRef = F74E5806461A5639C760C04F /* decorative-shape-21.png */; };
 		E4390B92D3651BFEC3ECD4B0 /* ContactListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8ABF2220A1219D83982346 /* ContactListView.swift */; };
-		E4B000A01AC8B722C80A4E6C /* OperationRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E23A3E999CEAA9112477C55B /* OperationRegistry.swift */; };
 		E5924B46A47F06C2B1C585F7 /* ENVIBrainConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4FA38E993AFD27AE16B7FF2 /* ENVIBrainConfig.swift */; };
 		E5B28BBB6962083DF861C982 /* ASWebAuthenticationSessionAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E25F104E67F3377086C8D2 /* ASWebAuthenticationSessionAdapterTests.swift */; };
 		E655D63C7AEF65801583DAF6 /* Inter-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 347F6BECB74EC8BCAD11E15F /* Inter-ExtraBold.ttf */; };
@@ -988,7 +987,7 @@
 		9700597A8070305D34BEA457 /* main-bg@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "main-bg@3x.png"; sourceTree = "<group>"; };
 		99E25F104E67F3377086C8D2 /* ASWebAuthenticationSessionAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASWebAuthenticationSessionAdapterTests.swift; sourceTree = "<group>"; };
 		9AFB4ABC4F7BD65A2091B96B /* ShareLinkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareLinkView.swift; sourceTree = "<group>"; };
-		9C366FD4C05E183873BCAD9F /* ENVITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ENVITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C366FD4C05E183873BCAD9F /* ENVITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ENVITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CA0EB30B461EFEB2C930034 /* ContentPieceAssembler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPieceAssembler.swift; sourceTree = "<group>"; };
 		9CCF0481CFF766DCD61422DA /* EditHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditHistoryView.swift; sourceTree = "<group>"; };
 		9CD7FA1FA400C7BC20BD0D77 /* abstract-7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "abstract-7.png"; sourceTree = "<group>"; };
@@ -1054,7 +1053,7 @@
 		B6B099B58578FC4D33349E6C /* abstract-decoration-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "abstract-decoration-1.png"; sourceTree = "<group>"; };
 		B6DC35158AB421D49C5B1ACC /* ENVIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENVIApp.swift; sourceTree = "<group>"; };
 		B8041708F5084DBC0D72C87D /* ObjectRemoval.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ObjectRemoval.metal; sourceTree = "<group>"; };
-		B8BB413E65BB6FFCC3933044 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		B8BB413E65BB6FFCC3933044 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B939DBC6CB6E119944B938FF /* EducationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationModels.swift; sourceTree = "<group>"; };
 		B96A338C649D1D906FA44CDC /* VideoTemplateModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoTemplateModelsTests.swift; sourceTree = "<group>"; };
 		B99FB31BA2F5647598D478BC /* SegmentBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentBuilderView.swift; sourceTree = "<group>"; };
@@ -1158,7 +1157,6 @@
 		E1D177C01053A19BDB9E21EB /* InstagramConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstagramConnector.swift; sourceTree = "<group>"; };
 		E216697FE08D87DE9AD5D228 /* IntegrationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationModels.swift; sourceTree = "<group>"; };
 		E21B728DC42948EFA1942B20 /* TemplateRankerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateRankerTests.swift; sourceTree = "<group>"; };
-		E23A3E999CEAA9112477C55B /* OperationRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationRegistry.swift; sourceTree = "<group>"; };
 		E252901180BB131AE55D15CE /* CitySearchClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CitySearchClientTests.swift; sourceTree = "<group>"; };
 		E27BF6BCB89EED41FAE3FDCE /* decorative-shape-16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "decorative-shape-16.png"; sourceTree = "<group>"; };
 		E2AD9DFCF2E03A2427AD91C9 /* ReferralView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralView.swift; sourceTree = "<group>"; };
@@ -1218,7 +1216,7 @@
 		FE27B38D6D63D3586753CBA5 /* USMOnboardingEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = USMOnboardingEntry.swift; sourceTree = "<group>"; };
 		FE7CA623F68F981DAFBFDCD0 /* SecurityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityRepository.swift; sourceTree = "<group>"; };
 		FF893BDE3A331ECE39048447 /* BillingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingRepository.swift; sourceTree = "<group>"; };
-		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1656,7 +1654,6 @@
 			children = (
 				ACE1F2C5552C872EA9010BBD /* ContentArchetype.swift */,
 				62577995421C53E73303B176 /* NicheModels.swift */,
-				E23A3E999CEAA9112477C55B /* OperationRegistry.swift */,
 				E709756F1866E76BE6817C84 /* StyleModels.swift */,
 			);
 			path = ContentArchetypes;
@@ -3109,7 +3106,6 @@
 				F66D50D48A6D5FCE896776EA /* OnboardingViewModel.swift in Sources */,
 				82FDC3CC1D490F0A8AF1C04F /* OnboardingWhereBornView.swift in Sources */,
 				8BAEF8713F9A1DB73964551E /* OnboardingWhereFromView.swift in Sources */,
-				E4B000A01AC8B722C80A4E6C /* OperationRegistry.swift in Sources */,
 				E7014D15B6C24A53DDAD7C76 /* OracleAPIClient.swift in Sources */,
 				61EF766BAEBB93F0A383E460 /* PageSelectorView.swift in Sources */,
 				FF3A9BB8AECA714C783471BC /* PageSelectorViewModel.swift in Sources */,
@@ -3339,7 +3335,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -3373,7 +3368,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -3394,7 +3388,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -3423,7 +3416,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -3457,7 +3449,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -3471,7 +3462,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
@@ -3506,7 +3496,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7P76H55MAW;
+				DEVELOPMENT_TEAM = ZM82DY7PG2;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ENVI/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
@@ -3540,7 +3530,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7P76H55MAW;
+				DEVELOPMENT_TEAM = W5687Z6R55;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ENVI/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";

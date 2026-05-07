@@ -378,50 +378,54 @@ private struct ShimmerTile: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview("TemplateCardView — mock (no media)") {
-    let template = VideoTemplate.mockLibrary[0]
-    let filled = template.slots.map { FilledSlot(slot: $0, matchedAsset: nil) }
-    let populated = PopulatedTemplate(
-        template: template,
-        filledSlots: filled,
-        fillRate: 0.0,
-        overallScore: 0.0
-    )
+private struct TemplateCardView_Previews: View {
+    var body: some View {
+        let template = VideoTemplate.mockLibrary[0]
+        let filled = template.slots.map { FilledSlot(slot: $0, matchedAsset: nil) }
+        let populated = PopulatedTemplate(
+            template: template,
+            filledSlots: filled,
+            fillRate: 0.0,
+            overallScore: 0.0
+        )
 
-    return TemplateCardView(
-        populated: populated,
-        onTap: {},
-        onDuplicate: {},
-        onHide: {}
-    )
-    .padding()
-    .background(Color.black)
-    .preferredColorScheme(.dark)
+        TemplateCardView(
+            populated: populated,
+            onTap: {},
+            onDuplicate: {},
+            onHide: {}
+        )
+        .padding()
+        .background(Color.black)
+        .preferredColorScheme(.dark)
+    }
 }
 
-#Preview("TemplateCardView — partial fill (placeholder tiles)") {
-    let template = VideoTemplate.mockLibrary[2] // OOTD, 4 slots
-    // Simulate 2/4 filled by passing matchedAsset=nil for half of them.
-    // Real matched assets require a live Photos library, so the preview
-    // still renders placeholder tiles — the fill pill + text still exercise.
-    let filled = template.slots.enumerated().map { idx, slot in
-        FilledSlot(slot: slot, matchedAsset: nil)
-    }
-    let populated = PopulatedTemplate(
-        template: template,
-        filledSlots: filled,
-        fillRate: 0.5,
-        overallScore: 0.5
-    )
+private struct TemplateCardView_PartialFill_Previews: View {
+    var body: some View {
+        let template = VideoTemplate.mockLibrary[2] // OOTD, 4 slots
+        // Simulate 2/4 filled by passing matchedAsset=nil for half of them.
+        // Real matched assets require a live Photos library, so the preview
+        // still renders placeholder tiles — the fill pill + text still exercise.
+        let filled = template.slots.enumerated().map { idx, slot in
+            FilledSlot(slot: slot, matchedAsset: nil)
+        }
+        let populated = PopulatedTemplate(
+            template: template,
+            filledSlots: filled,
+            fillRate: 0.5,
+            overallScore: 0.5
+        )
 
-    return TemplateCardView(
-        populated: populated,
-        onTap: {},
-        onDuplicate: {},
-        onHide: {}
-    )
-    .padding()
-    .background(Color.black)
-    .preferredColorScheme(.dark)
+        TemplateCardView(
+            populated: populated,
+            onTap: {},
+            onDuplicate: {},
+            onHide: {}
+        )
+        .padding()
+        .background(Color.black)
+        .preferredColorScheme(.dark)
+    }
 }
 #endif

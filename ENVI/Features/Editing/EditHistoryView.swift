@@ -205,9 +205,34 @@ public struct EditHistoryView: View {
         encoder.dateEncodingStrategy = .iso8601
         encoder.outputFormatting = .prettyPrinted
 
-        guard let data = try? encoder.encode(filteredRecords) else { return nil }
+        let exportRecords = filteredRecords.map { record in
+            EditRecordExport(
+                templateName: record.templateName,
+                styleName: record.styleName,
+                nicheName: record.nicheName,
+                format: record.format.rawValue,
+                decision: record.decision.rawValue,
+                createdAt: record.createdAt,
+                renderTime: record.renderTime,
+                operationsApplied: record.operationsApplied
+            )
+        }
+
+        guard let data = try? encoder.encode(exportRecords) else { return nil }
         return String(data: data, encoding: .utf8)
     }
+}
+
+/// Codable mirror for JSON export (EditRecord is a @Model class, not directly Encodable)
+private struct EditRecordExport: Codable {
+    let templateName: String
+    let styleName: String
+    let nicheName: String
+    let format: String
+    let decision: String
+    let createdAt: Date
+    let renderTime: TimeInterval
+    let operationsApplied: [String]
 }
 
 // MARK: - Filter Types
@@ -436,15 +461,15 @@ struct RecordDetailView: View {
 
                     // Details
                     VStack(alignment: .leading, spacing: 12) {
-                        DetailRow(label: "Template", value: record.templateName)
-                        DetailRow(label: "Style", value: record.styleName)
-                        DetailRow(label: "Niche", value: record.nicheName)
-                        DetailRow(label: "Format", value: record.format.displayName)
-                        DetailRow(label: "Decision", value: record.decision.rawValue)
-                        DetailRow(label: "Date", value: record.createdAt.formatted())
-                        DetailRow(label: "Render Time", value: String(format: "%.1fs", record.renderTime))
+                        EditDetailRow(label: "Template", value: record.templateName)
+                        EditDetailRow(label: "Style", value: record.styleName)
+                        EditDetailRow(label: "Niche", value: record.nicheName)
+                        EditDetailRow(label: "Format", value: record.format.displayName)
+                        EditDetailRow(label: "Decision", value: record.decision.rawValue)
+                        EditDetailRow(label: "Date", value: record.createdAt.formatted())
+                        EditDetailRow(label: "Render Time", value: String(format: "%.1fs", record.renderTime))
                         if !record.operationsApplied.isEmpty {
-                            DetailRow(label: "Operations", value: record.operationsApplied.joined(separator: ", "))
+                            EditDetailRow(label: "Operations", value: record.operationsApplied.joined(separator: ", "))
                         }
                     }
                     .padding()
@@ -461,7 +486,7 @@ struct RecordDetailView: View {
     }
 }
 
-struct DetailRow: View {
+struct EditDetailRow: View {
     let label: String
     let value: String
 
@@ -550,17 +575,6 @@ public enum EditDecision: String, Codable, Sendable, CaseIterable {
 
 // MARK: - ENVIContentFormat Display Extension
 
-extension ENVIContentFormat {
-    var displayName: String {
-        switch self {
-        case .photo: return "Photo"
-        case .video: return "Video"
-        case .carousel: return "Carousel"
-        case .story: return "Story"
-        case .newFormat: return "New Format"
-        }
-    }
-}
 
 // MARK: - Preview
 

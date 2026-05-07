@@ -188,8 +188,9 @@ enum BrandKitError: LocalizedError {
 
 // MARK: - Provider
 
+@MainActor
 enum BrandKitRepositoryProvider {
-    static var shared = RepositoryProvider<BrandKitRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<BrandKitRepository>(
         dev: MockBrandKitRepository(),
         api: APIBrandKitRepository()
     )

@@ -76,8 +76,9 @@ final class APIBenchmarkRepository: BenchmarkRepository {
 
 // MARK: - Provider
 
+@MainActor
 enum BenchmarkRepositoryProvider {
-    static var shared = RepositoryProvider<BenchmarkRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<BenchmarkRepository>(
         dev: MockBenchmarkRepository(),
         api: APIBenchmarkRepository()
     )

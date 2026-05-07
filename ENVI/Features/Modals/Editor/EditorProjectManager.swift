@@ -1,8 +1,7 @@
 import Foundation
 
-/// Manages editor project persistence: save, load, auto-save, and recent projects.
 final class EditorProjectManager: ObservableObject {
-    static let shared = EditorProjectManager()
+    nonisolated(unsafe) static let shared = EditorProjectManager()
 
     @Published var projects: [EditorProject] = []
     @Published var currentProject: EditorProject?

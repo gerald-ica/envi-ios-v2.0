@@ -23,7 +23,7 @@ final class BenchmarkViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let repository: BenchmarkRepository
+    private nonisolated(unsafe) let repository: BenchmarkRepository
 
     // MARK: - Init
 
