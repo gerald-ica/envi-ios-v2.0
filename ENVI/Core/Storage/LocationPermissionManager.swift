@@ -38,7 +38,7 @@ final class LocationPermissionManager: NSObject, ObservableObject {
     @Published private(set) var authorizationStatus: AuthorizationStatus = .notDetermined
     @Published private(set) var currentLocationName: String?
 
-    static let shared = LocationPermissionManager()
+    nonisolated(unsafe) static let shared = LocationPermissionManager()
 
     private let locationManager = CLLocationManager()
 

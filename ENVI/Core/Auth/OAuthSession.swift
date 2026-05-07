@@ -17,7 +17,7 @@ import Foundation
 /// Main-actor isolation is intentional here: the system auth session presents
 /// UIKit-owned UI and must be driven from the main actor.
 @MainActor
-protocol OAuthSession: AnyObject {
+protocol OAuthSession: AnyObject, Sendable {
     /// Open the provider's authorization URL in a secure web context and
     /// suspend until the OS re-invokes us via `callbackScheme`.
     ///

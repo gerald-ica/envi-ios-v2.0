@@ -2,7 +2,7 @@ import Foundation
 
 /// Manages persistent user preferences via UserDefaults.
 final class UserDefaultsManager {
-    static let shared = UserDefaultsManager()
+    nonisolated(unsafe) static let shared = UserDefaultsManager()
     private let defaults = UserDefaults.standard
 
     private init() {}

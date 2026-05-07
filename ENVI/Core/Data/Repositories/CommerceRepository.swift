@@ -130,8 +130,9 @@ final class APICommerceRepository: CommerceRepository {
 
 // MARK: - Factory
 
+@MainActor
 enum CommerceRepositoryProvider {
-    static var shared = RepositoryProvider<CommerceRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<CommerceRepository>(
         dev: MockCommerceRepository(),
         api: APICommerceRepository()
     )

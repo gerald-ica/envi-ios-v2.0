@@ -404,20 +404,6 @@ struct FullPreviewView: View {
     }
 }
 
-// MARK: - ContentFormat Icon Extension
-
-extension ContentFormat {
-    var iconName: String {
-        switch self {
-        case .photo: return "photo"
-        case .video: return "video"
-        case .carousel: return "square.grid.2x2"
-        case .story: return "rectangle.portrait"
-        case .newFormat: return "sparkles"
-        }
-    }
-}
-
 // MARK: - Preview
 
 #Preview {

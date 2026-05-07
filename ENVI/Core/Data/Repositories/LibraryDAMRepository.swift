@@ -188,8 +188,9 @@ final class APILibraryDAMRepository: LibraryDAMRepository {
 
 // MARK: - Provider
 
+@MainActor
 enum LibraryDAMRepositoryProvider {
-    static var shared = RepositoryProvider<LibraryDAMRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<LibraryDAMRepository>(
         dev: MockLibraryDAMRepository(),
         api: APILibraryDAMRepository()
     )

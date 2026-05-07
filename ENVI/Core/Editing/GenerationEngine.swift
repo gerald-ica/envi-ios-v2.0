@@ -337,19 +337,19 @@ public actor ModelAssetManager: Sendable {
     }
 }
 
-// MARK: - Placeholder Types for OracleAPIClient
+// MARK: - Placeholder Types for Remote Generation
 
-public protocol OracleAPIClient: Sendable {
+public protocol ENVIRemoteGenerationClient: Sendable {
     func submitOnDeviceFallback(pipeline: String, input: AnySendable) async throws -> AnySendable
 }
 
-// MARK: - Placeholder Types for ThermalAwareScheduler
+// MARK: - Placeholder Types for ENVIThermalScheduler
 
 public enum WorkBudget: Sendable {
     case none, minimal, reduced, full
 }
 
-public protocol ThermalAwareScheduler: Sendable {
+public protocol ENVIThermalScheduler: Sendable {
     var currentBudget: WorkBudget { get }
     func waitForWorkSlot() async
     func batchSize(for pipeline: String) -> Int
@@ -362,8 +362,8 @@ public actor GenerationEngine {
     // MARK: - Internal State
 
     private let modelAssetManager: ModelAssetManager
-    private let thermalScheduler: ThermalAwareScheduler
-    private let remoteClient: OracleAPIClient?
+    private let thermalScheduler: ENVIThermalScheduler
+    private let remoteClient: ENVIRemoteGenerationClient?
 
     private var modelCache: [String: MLModel] = [:]
     private var pendingRequests: [UUID: Task<InferenceResult, Error>] = [:]
@@ -382,8 +382,8 @@ public actor GenerationEngine {
 
     public init(
         modelAssetManager: ModelAssetManager,
-        thermalScheduler: ThermalAwareScheduler,
-        remoteClient: OracleAPIClient? = nil
+        thermalScheduler: ENVIThermalScheduler,
+        remoteClient: ENVIRemoteGenerationClient? = nil
     ) {
         self.modelAssetManager = modelAssetManager
         self.thermalScheduler = thermalScheduler
@@ -1104,12 +1104,12 @@ public struct InpaintingPipeline: PipelineProtocol {
     public let supportedThermalReduction = true  // supports resolution reduction on .minimal
 
     private let assetManager: ModelAssetManager
-    private let thermalScheduler: ThermalAwareScheduler
+    private let thermalScheduler: ENVIThermalScheduler
     private let metalDevice: MTLDevice?
 
     public init(
         assetManager: ModelAssetManager,
-        thermalScheduler: ThermalAwareScheduler,
+        thermalScheduler: ENVIThermalScheduler,
         metalDevice: MTLDevice? = MTLCreateSystemDefaultDevice()
     ) {
         self.assetManager = assetManager

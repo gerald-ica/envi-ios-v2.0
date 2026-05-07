@@ -156,7 +156,7 @@ private typealias EmptySupportBody = EmptyBody
 // MARK: - Provider
 
 enum SupportRepositoryProvider {
-    static var shared = RepositoryProvider<SupportRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<SupportRepository>(
         dev: MockSupportRepository(),
         api: APISupportRepository()
     )

@@ -173,8 +173,9 @@ enum AIWritingError: LocalizedError {
 
 // MARK: - Provider
 
+@MainActor
 enum AIWritingRepositoryProvider {
-    static var shared = RepositoryProvider<AIWritingRepository>(
+    nonisolated(unsafe) static var shared = RepositoryProvider<AIWritingRepository>(
         dev: MockAIWritingRepository(),
         api: APIAIWritingRepository()
     )

@@ -1,6 +1,6 @@
 import Foundation
 
-final class OracleAPIClient {
+final class OracleAPIClient: Sendable {
     static let shared = OracleAPIClient()
 
     private init() {}

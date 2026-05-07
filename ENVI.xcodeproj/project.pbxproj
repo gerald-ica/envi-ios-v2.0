@@ -575,7 +575,6 @@
 		F231F355DA22045498593DB4 /* abstract-7.png in Resources */ = {isa = PBXBuildFile; fileRef = 9CD7FA1FA400C7BC20BD0D77 /* abstract-7.png */; };
 		F2584BA34D28503F87152613 /* AgencyDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B235905F37AB55F90EA431 /* AgencyDashboardView.swift */; };
 		F2821CA0B7ECE71D7E8ADCA5 /* DensityClusterer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A867AFE555F2CEB530F1FAE /* DensityClusterer.swift */; };
-		F290FC9FCCB6E3C810B9E7D9 /* TransformEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A4BCF8191B8CED91911F148 /* TransformEngine.swift */; };
 		F2C3CECB917ABAF1086EEF82 /* shape-01.png in Resources */ = {isa = PBXBuildFile; fileRef = F1DF5379F0372DE7BEB922D9 /* shape-01.png */; };
 		F329512BDDF4D4E317EDD15A /* StyleTransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5BF877346070079C522EFC /* StyleTransferView.swift */; };
 		F32C33F77D3C8BC3922961B2 /* desert-car.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 6E103E6C8EE92A9120D21870 /* desert-car.jpg */; };
@@ -597,7 +596,6 @@
 		F7DF42F849F6591804A53732 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 35DC9D3D157DF735E3D960BF /* FirebaseCrashlytics */; };
 		F82945D52B1EF97C322FFB01 /* badge-streak-7.png in Resources */ = {isa = PBXBuildFile; fileRef = 67B7A9889F25647F227F5148 /* badge-streak-7.png */; };
 		F9196B05129CA90A7C432B2B /* ShareLinkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AFB4ABC4F7BD65A2091B96B /* ShareLinkView.swift */; };
-		F95B6DE475B94B4BE64993C4 /* NicheModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62577995421C53E73303B176 /* NicheModels.swift */; };
 		F976762A5B519FDBB3445030 /* AccessibilitySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E583AA89CC8F8CA63AC21710 /* AccessibilitySettingsView.swift */; };
 		FA8247CAD88C903C98B30D00 /* EnhancedChatViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03565964802697C1F183B343 /* EnhancedChatViewModel.swift */; };
 		FC1C0F3303425CD605563DC4 /* ENVIBottomComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B6459034FC95B1A6DD814DB /* ENVIBottomComposer.swift */; };
@@ -827,7 +825,6 @@
 		56D5D9514BE94516DB9FDC9F /* AppleSignInButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInButton.swift; sourceTree = "<group>"; };
 		5730DCCE3203EB806C7CBAF5 /* ENVIFilterChip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENVIFilterChip.swift; sourceTree = "<group>"; };
 		59A17FA15F31754DF2AAB2D0 /* PostTimeHeatmapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostTimeHeatmapView.swift; sourceTree = "<group>"; };
-		5A4BCF8191B8CED91911F148 /* TransformEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformEngine.swift; sourceTree = "<group>"; };
 		5A867AFE555F2CEB530F1FAE /* DensityClusterer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DensityClusterer.swift; sourceTree = "<group>"; };
 		5AA1FD130D2DC202A4A979F3 /* badge-analytics-pro.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "badge-analytics-pro.png"; sourceTree = "<group>"; };
 		5B2675FCAB069A010D225BF8 /* SmartCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartCollectionView.swift; sourceTree = "<group>"; };
@@ -858,7 +855,6 @@
 		6192D04E294AD90E9ABA8F1A /* ContractManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContractManagerView.swift; sourceTree = "<group>"; };
 		61C63D4474E4F751CA186CDC /* CreatorGrowthSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatorGrowthSnapshot.swift; sourceTree = "<group>"; };
 		6229A4A9E5C7CD93D6600A8B /* AppRouterIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouterIntegrationTests.swift; sourceTree = "<group>"; };
-		62577995421C53E73303B176 /* NicheModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NicheModels.swift; sourceTree = "<group>"; };
 		62F478C0857925C27C292FA1 /* TelemetryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryManager.swift; sourceTree = "<group>"; };
 		6307D43573CD764ADCC0982A /* ExportComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportComposer.swift; sourceTree = "<group>"; };
 		646E3C29A01D73A3E1D50E22 /* USMCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = USMCache.swift; sourceTree = "<group>"; };
@@ -1653,7 +1649,6 @@
 			isa = PBXGroup;
 			children = (
 				ACE1F2C5552C872EA9010BBD /* ContentArchetype.swift */,
-				62577995421C53E73303B176 /* NicheModels.swift */,
 				E709756F1866E76BE6817C84 /* StyleModels.swift */,
 			);
 			path = ContentArchetypes;
@@ -1996,7 +1991,6 @@
 				3C398D9E3B4AA4838E97A183 /* ReverseEditingPipeline.swift */,
 				B23946BBDFAE33720F8F5B68 /* TemplateExecutionEngine.swift */,
 				829988F477F59DB92A5A0A85 /* TemplateMatchingEngine.swift */,
-				5A4BCF8191B8CED91911F148 /* TransformEngine.swift */,
 				09C08596B8806648849A470E /* VideoEditService.swift */,
 			);
 			path = Editing;
@@ -3089,7 +3083,6 @@
 				FFCC534379F764D814266252 /* MetricCardView.swift in Sources */,
 				FC79CDE85704012C5041B6D6 /* MobileUXModels.swift in Sources */,
 				6C6472F789D09B681E0B5DF2 /* NavigationCoordinator.swift in Sources */,
-				F95B6DE475B94B4BE64993C4 /* NicheModels.swift in Sources */,
 				3B63B5886DEB07D4AE7566D4 /* NotificationListView.swift in Sources */,
 				7999046E138DEA94F267121B /* NotificationRepository.swift in Sources */,
 				800722AE2234199DBBFEBECB /* NotificationViewModel.swift in Sources */,
@@ -3224,7 +3217,6 @@
 				0EB374EA726CE04ED6C8FDD2 /* TikTokModels.swift in Sources */,
 				A352DE9CD6665C44688E824D /* TikTokSandboxErrorView.swift in Sources */,
 				7DD9B01A6A43FB5E9DB662E3 /* TimelineView.swift in Sources */,
-				F290FC9FCCB6E3C810B9E7D9 /* TransformEngine.swift in Sources */,
 				2F1F1E864AD419085439CF6E /* TrendCardView.swift in Sources */,
 				6706F8485BE8CF7A7F65E84A /* TrendForecaster.swift in Sources */,
 				5208A35D6BFC61019D38B497 /* TutorialListView.swift in Sources */,

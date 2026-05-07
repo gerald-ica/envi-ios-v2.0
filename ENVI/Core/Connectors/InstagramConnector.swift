@@ -116,7 +116,7 @@ final class InstagramConnector: MetaGraphConnector {
 
     // MARK: - Singleton
 
-    static let shared = InstagramConnector()
+    nonisolated(unsafe) static let shared = InstagramConnector()
 
     // MARK: - Init
 

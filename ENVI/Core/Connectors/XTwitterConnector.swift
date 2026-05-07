@@ -40,7 +40,7 @@ final class XTwitterConnector {
 
     /// Process-wide singleton. Wraps the shared APIClient + the
     /// SocialOAuthManager singleton. Tests inject their own via `init(...)`.
-    static let shared = XTwitterConnector()
+    nonisolated(unsafe) static let shared = XTwitterConnector()
 
     private let apiClient: APIClient
     private let oauthManager: SocialOAuthManager

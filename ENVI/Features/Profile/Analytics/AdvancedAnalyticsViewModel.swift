@@ -27,7 +27,7 @@ final class AdvancedAnalyticsViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let repository: AdvancedAnalyticsRepository
+    private nonisolated(unsafe) let repository: AdvancedAnalyticsRepository
 
     // MARK: - Init
 

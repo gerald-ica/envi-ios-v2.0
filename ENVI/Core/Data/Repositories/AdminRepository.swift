@@ -93,8 +93,9 @@ final class APIAdminRepository: AdminRepository {
 
 // MARK: - Provider
 
+@MainActor
 enum AdminRepositoryProvider {
-    static var shared = RepositoryProvider<AdminRepository>(
+    nonisolated(unsafe) static var shared = RepositoryProvider<AdminRepository>(
         dev: MockAdminRepository(),
         api: APIAdminRepository()
     )

@@ -10,7 +10,7 @@ final class ThemeManager: ObservableObject {
         case system
     }
 
-    static let shared = ThemeManager()
+    nonisolated(unsafe) static let shared = ThemeManager()
 
     @Published var mode: AppearanceMode {
         didSet {

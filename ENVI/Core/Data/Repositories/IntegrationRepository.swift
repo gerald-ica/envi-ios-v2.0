@@ -186,8 +186,9 @@ final class APIIntegrationRepository: IntegrationRepository {
 
 // MARK: - Factory
 
+@MainActor
 enum IntegrationRepositoryProvider {
-    static var shared = RepositoryProvider<IntegrationRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<IntegrationRepository>(
         dev: MockIntegrationRepository(),
         api: APIIntegrationRepository()
     )

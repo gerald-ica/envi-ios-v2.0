@@ -31,8 +31,9 @@ final class CampaignViewModel: ObservableObject {
     @Published var isShowingBriefEditor = false
     @Published var isShowingSprintBoard = false
 
-    private let repository: CampaignRepository
+    private nonisolated(unsafe) let repository: CampaignRepository
 
+    @MainActor
     init(repository: CampaignRepository = CampaignRepositoryProvider.shared.repository) {
         self.repository = repository
         Task {

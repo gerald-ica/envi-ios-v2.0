@@ -128,7 +128,7 @@ final class APIEnterpriseRepository: EnterpriseRepository {
 // MARK: - Factory
 
 enum EnterpriseRepositoryProvider {
-    static var shared = RepositoryProvider<EnterpriseRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<EnterpriseRepository>(
         dev: MockEnterpriseRepository(),
         api: APIEnterpriseRepository()
     )

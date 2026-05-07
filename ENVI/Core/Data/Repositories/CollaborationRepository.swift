@@ -175,8 +175,9 @@ enum CollaborationError: LocalizedError {
 
 // MARK: - Provider
 
+@MainActor
 enum CollaborationRepositoryProvider {
-    static var shared = RepositoryProvider<CollaborationRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<CollaborationRepository>(
         dev: MockCollaborationRepository(),
         api: APICollaborationRepository()
     )

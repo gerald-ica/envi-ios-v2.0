@@ -129,8 +129,9 @@ enum AIVisualError: LocalizedError {
 
 // MARK: - Provider
 
+@MainActor
 enum AIVisualRepositoryProvider {
-    static var shared = RepositoryProvider<AIVisualRepository>(
+    nonisolated(unsafe) static var shared = RepositoryProvider<AIVisualRepository>(
         dev: MockAIVisualRepository(),
         api: APIAIVisualRepository()
     )

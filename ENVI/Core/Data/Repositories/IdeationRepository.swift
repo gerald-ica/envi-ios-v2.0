@@ -161,8 +161,9 @@ enum IdeationError: LocalizedError {
 
 // MARK: - Provider
 
+@MainActor
 enum IdeationRepositoryProvider {
-    static var shared = RepositoryProvider<IdeationRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<IdeationRepository>(
         dev: MockIdeationRepository(),
         api: APIIdeationRepository()
     )

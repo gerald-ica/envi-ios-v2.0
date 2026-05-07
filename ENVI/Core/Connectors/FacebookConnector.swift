@@ -72,7 +72,7 @@ final class FacebookConnector: MetaGraphConnector {
 
     /// Shared instance wired to the default OAuth manager + API client.
     /// Tests instantiate directly with mock collaborators.
-    @MainActor nonisolated(unsafe) static let shared = FacebookConnector()
+    nonisolated(unsafe) static let shared = FacebookConnector()
 
     // MARK: - Init
 

@@ -137,8 +137,9 @@ final class APIAdvancedAnalyticsRepository: AdvancedAnalyticsRepository {
 
 // MARK: - Provider
 
+@MainActor
 enum AdvancedAnalyticsRepositoryProvider {
-    static var shared = RepositoryProvider<AdvancedAnalyticsRepository>(
+    nonisolated(unsafe) static var shared = RepositoryProvider<AdvancedAnalyticsRepository>(
         dev: MockAdvancedAnalyticsRepository(),
         api: APIAdvancedAnalyticsRepository()
     )

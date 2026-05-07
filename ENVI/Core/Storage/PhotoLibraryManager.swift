@@ -77,7 +77,7 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
 
     // MARK: - Singleton
 
-    static let shared = PhotoLibraryManager()
+    nonisolated(unsafe) static let shared = PhotoLibraryManager()
 
     private override init() {
         super.init()

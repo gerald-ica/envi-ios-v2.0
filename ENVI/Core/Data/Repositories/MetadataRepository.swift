@@ -177,7 +177,7 @@ enum MetadataError: LocalizedError {
 // MARK: - Provider
 
 enum MetadataRepositoryProvider {
-    static var shared = RepositoryProvider<MetadataRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<MetadataRepository>(
         dev: MockMetadataRepository(),
         api: APIMetadataRepository()
     )

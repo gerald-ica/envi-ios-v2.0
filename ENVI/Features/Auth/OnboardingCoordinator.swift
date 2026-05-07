@@ -146,18 +146,12 @@ final class OnboardingCoordinator {
         self.navigationController = navigationController
     }
 
+    @MainActor
     func start() {
-        // UIKit coordinators run on the main actor in practice; USMOnboardingEntry
-        // is annotated @MainActor so we bridge here rather than infecting every caller.
-        let useUSM = MainActor.assumeIsolated { USMOnboardingEntry.shouldUse }
+        let useUSM = USMOnboardingEntry.shouldUse
         let hostingController: UIHostingController<AnyView>
 
         if useUSM {
-            // TODO(gerald): replace the hard-coded smoke-test values below with
-            // (1) a real AuthManager-derived userId once Firebase-UID → oracle
-            // accounts.id mapping is wired in, and (2) a real JWT exchange
-            // endpoint. Today the staging JWT is HS256-signed with the literal
-            // "change-me-in-production" — documented as a latent security bug.
             let debugUserId = "1588858d-ae9f-4020-bff1-bd29e04a5a65"
             let staging = URL(string: "https://envious-brain-api-uxgej3n6ta-uc.a.run.app")!
             let recomputeClient = USMRecomputeClient(
@@ -166,14 +160,12 @@ final class OnboardingCoordinator {
             )
             let citySearchClient = CitySearchClient(baseURL: staging)
 
-            let usmView = MainActor.assumeIsolated {
-                USMOnboardingEntry.makeView(
-                    userId: debugUserId,
-                    recomputeClient: recomputeClient,
-                    citySearchClient: citySearchClient,
-                    onComplete: { [weak self] in self?.onComplete?() }
-                )
-            }
+            let usmView = USMOnboardingEntry.makeView(
+                userId: debugUserId,
+                recomputeClient: recomputeClient,
+                citySearchClient: citySearchClient,
+                onComplete: { [weak self] in self?.onComplete?() }
+            )
             hostingController = UIHostingController(rootView: AnyView(usmView))
         } else {
             let onboardingView = OnboardingContainerView(onComplete: { [weak self] in

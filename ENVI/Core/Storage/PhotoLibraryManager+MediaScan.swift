@@ -32,7 +32,7 @@ extension PhotoLibraryManager {
         var coordinator: MediaScanCoordinator?
     }
 
-    private static let coordinatorBox = CoordinatorBox()
+    private nonisolated(unsafe) static let coordinatorBox = CoordinatorBox()
 
     /// Lazily-built coordinator. Returns `nil` until
     /// `configureScanCoordinator(_:)` has been called, so the call site

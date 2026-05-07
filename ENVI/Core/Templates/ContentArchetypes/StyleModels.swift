@@ -956,7 +956,7 @@ public enum StyleCompatibilityMatrix: Sendable {
         "video": [
             .OriginalBase: 0.85,
             .Motion: 0.9,
-            .Cinematic: 0.9,
+            .VideoGenres: 0.9,
             .ModernDigital: 0.75,
             .BoldAndGraphic: 0.7,
             .EmotionalTone: 0.8,
@@ -992,7 +992,7 @@ public enum StyleCompatibilityMatrix: Sendable {
 
     /// Hot-path cache for frequently-used archetype x style combinations.
     /// Populated at runtime from CDN bundles or local seed data.
-    private static var _precomputed: [String: Double] = [
+    private static nonisolated(unsafe) var _precomputed: [String: Double] = [
         // Photo archetypes x popular styles (seed data)
         "P1_Minimal": 0.95,
         "P1_Clean": 0.9,
@@ -1249,7 +1249,7 @@ public struct StyleFilterOptions: Sendable, Hashable {
         }
 
         // Filter by minimum compatibility score
-        if let archetype = _archetypeContext, let minScore = minCompatibilityScore {
+        if let archetype = Self._archetypeContext, let minScore = minCompatibilityScore {
             result = result.filter {
                 StyleCompatibilityMatrix.score(archetype: archetype, style: $0) >= minScore
             }
@@ -1273,7 +1273,7 @@ public struct StyleFilterOptions: Sendable, Hashable {
     }
 
     // Context for compatibility scoring — set before applying filters.
-    private static var _archetypeContext: String?
+    private static nonisolated(unsafe) var _archetypeContext: String?
 
     public static func setArchetypeContext(_ archetypeID: String) {
         _archetypeContext = archetypeID

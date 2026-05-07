@@ -1,3 +1,4 @@
+import AVFoundation
 //  MediaAnalysisEngine.swift
 //  ENVI v3.0 — iOS 26+ / Swift 6
 //
@@ -190,7 +191,7 @@ public actor MediaAnalysisEngine {
 
     /// Enrich a feature vector with the current app's ClassificationCache data.
     /// This merges the v3.0 aesthetic/motion/color analysis with the existing
-    /// label classification and embedding index results.
+    /// label classification results.
     public func enrich(
         _ vector: MediaFeatureVector,
         with classifiedAsset: ClassifiedAsset
@@ -200,20 +201,10 @@ public actor MediaAnalysisEngine {
             SceneLabel(label: $0, confidence: 0.8)
         }
 
-        // Merge embedding from EmbeddingIndex if available
-        var embedding = vector.vibeEmbedding
-        if !classifiedAsset.embedding.isEmpty {
-            let classifiedEmbed = classifiedAsset.embedding.map { Float($0) }
-            if classifiedEmbed.count == embedding.count {
-                // Average the two embeddings
-                embedding = zip(embedding, classifiedEmbed).map { ($0 + $1) / 2.0 }
-            }
-        }
-
         return MediaFeatureVector(
             sourceID: vector.sourceID,
             format: vector.format,
-            vibeEmbedding: embedding,
+            vibeEmbedding: vector.vibeEmbedding,
             aestheticScores: vector.aestheticScores,
             sceneLabels: Array(Set(existingLabels + vector.sceneLabels).prefix(5)),
             dominantColors: vector.dominantColors,

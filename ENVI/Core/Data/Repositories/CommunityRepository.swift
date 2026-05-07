@@ -190,8 +190,9 @@ enum CommunityError: LocalizedError {
 
 // MARK: - Provider
 
+@MainActor
 enum CommunityRepositoryProvider {
-    static var shared = RepositoryProvider<CommunityRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<CommunityRepository>(
         dev: MockCommunityRepository(),
         api: APICommunityRepository()
     )

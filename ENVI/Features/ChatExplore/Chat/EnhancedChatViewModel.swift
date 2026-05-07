@@ -381,6 +381,7 @@ final class EnhancedChatViewModel: ObservableObject {
     // MARK: - Oracle API
 
     /// Fetch a full chat thread from the Oracle API client (used when Oracle is explicitly enabled).
+    @MainActor
     private func fetchOracleThread(_ query: String) async -> ChatThread? {
         do {
             return try await OracleAPIClient.shared.fetchThread(query: query)
