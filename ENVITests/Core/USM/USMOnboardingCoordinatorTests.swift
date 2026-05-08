@@ -235,10 +235,10 @@ final class USMOnboardingCoordinatorTests: XCTestCase {
 
     private func makeSampleResponse() -> USMRecomputeResponse {
         USMRecomputeResponse(
-            status: "success",
+            status: "recomputation_completed",
             modelVersion: 1,
-            recomputationStartedAt: "2026-04-22T12:00:00Z",
-            recomputationCompletedAt: "2026-04-22T12:05:00Z"
+            recomputedAt: "2026-04-22T12:00:00Z",
+            completedAt: "2026-04-22T12:00:00Z"
         )
     }
 }
