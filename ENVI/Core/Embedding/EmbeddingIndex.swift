@@ -127,7 +127,7 @@ public actor EmbeddingIndex {
     /// runs Tasks 1-3, and persists a checkpoint.
     public func rebuild(from cache: ClassificationCache) async {
         // 1. Load + filter + cap.
-        let all: [ClassifiedAsset]
+        let all: [ClassifiedAssetRecord]
         do {
             all = try await cache.fetchAll()
         } catch {
@@ -305,7 +305,7 @@ public actor EmbeddingIndex {
     /// decide whether to schedule a rebuild.
     public func isStale(for cache: ClassificationCache) async -> Bool {
         guard let saved = contentHash else { return true }
-        let all: [ClassifiedAsset]
+        let all: [ClassifiedAssetRecord]
         do {
             all = try await cache.fetchAll()
         } catch {
@@ -320,7 +320,7 @@ public actor EmbeddingIndex {
     /// Cap `assets` to the most-recent `max` entries (prefers `creationDate`,
     /// falls back to `classifiedAt` when creationDate is nil). Drops assets
     /// without a feature print.
-    static func boundAssets(_ assets: [ClassifiedAsset], max: Int) -> [ClassifiedAsset] {
+    static func boundAssets(_ assets: [ClassifiedAssetRecord], max: Int) -> [ClassifiedAssetRecord] {
         let withPrint = assets.filter { $0.featurePrint != nil }
         guard withPrint.count > max else {
             // Still deterministic-order this for hashing stability.
@@ -340,7 +340,7 @@ public actor EmbeddingIndex {
 
     /// Deterministic content hash: SHA-256 over (localIdentifier | classifiedAt)
     /// pairs, sorted by localIdentifier so input order cannot perturb the hash.
-    static func hash(for assets: [ClassifiedAsset]) -> String {
+    static func hash(for assets: [ClassifiedAssetRecord]) -> String {
         var pairs: [(String, Double)] = assets.map {
             ($0.localIdentifier, $0.classifiedAt.timeIntervalSinceReferenceDate)
         }

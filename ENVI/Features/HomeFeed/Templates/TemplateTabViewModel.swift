@@ -56,7 +56,7 @@ final class TemplateTabViewModel {
     // MARK: - Dependencies
 
     private nonisolated(unsafe) let repo: VideoTemplateRepository
-    private nonisolated(unsafe) let scanner: MediaScanCoordinator
+    private let scanner: MediaScanCoordinator
     private let matcher: TemplateMatchEngine
     private let ranker: TemplateRanker
     private let cache: ClassificationCache

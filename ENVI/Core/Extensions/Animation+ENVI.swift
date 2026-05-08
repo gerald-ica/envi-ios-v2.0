@@ -10,7 +10,7 @@ extension Animation {
     static let enviEaseOut = Animation.easeOut(duration: 0.25)
 
     /// Soft ease-in for fade-in appearances.
-     nonisolated(unsafe) static let enviFadeIn = Animation.easeIn(duration: 0.3)
+    static let enviFadeIn = Animation.easeIn(duration: 0.3)
 
     /// Slower ease-in-out for ambient / background animations.
     static let enviSlow = Animation.easeInOut(duration: 0.6)
@@ -20,11 +20,11 @@ extension Animation {
 
 extension AnyTransition {
     /// Slide from trailing on insertion, slide to leading on removal — with opacity.
-     nonisolated(unsafe) static let enviSlide = AnyTransition.asymmetric(
+    nonisolated(unsafe) static let enviSlide = AnyTransition.asymmetric(
         insertion: .move(edge: .trailing).combined(with: .opacity),
         removal: .move(edge: .leading).combined(with: .opacity)
     )
 
     /// Simple opacity fade using the ENVI fade-in curve.
-     nonisolated(unsafe) static let enviFade = AnyTransition.opacity.animation(.enviFadeIn)
+    nonisolated(unsafe) static let enviFade = AnyTransition.opacity.animation(.enviFadeIn)
 }

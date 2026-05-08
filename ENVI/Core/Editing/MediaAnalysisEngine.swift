@@ -368,7 +368,7 @@ public actor MediaAnalysisEngine {
     // MARK: - Video Analysis
 
     private func analyzeMotion(url: URL) async throws -> Float {
-        let asset = AVAsset(url: url)
+        let asset = AVURLAsset(url: url)
         let reader = try AVAssetReader(asset: asset)
         let tracks = try await asset.loadTracks(withMediaType: .video)
         guard let track = tracks.first else { return 0.0 }

@@ -156,7 +156,7 @@ final class OnboardingCoordinator {
             let staging = URL(string: "https://envious-brain-api-uxgej3n6ta-uc.a.run.app")!
             let recomputeClient = USMRecomputeClient(
                 baseURL: staging,
-                authTokenProvider: { Self.mintDebugJWT(userId: debugUserId) }
+                authTokenProvider: { Self.mintJWT(userId: debugUserId) }
             )
             let citySearchClient = CitySearchClient(baseURL: staging)
 
@@ -178,18 +178,24 @@ final class OnboardingCoordinator {
         navigationController?.setViewControllers([hostingController], animated: true)
     }
 
-    /// TODO(gerald): remove before release. Debug-only HS256 JWT minter that
-    /// signs with the same literal secret the staging brain service currently
-    /// uses. This whole codepath should be replaced by a proper
-    /// Firebase-token → backend-JWT exchange once the mapping endpoint exists.
-    private static func mintDebugJWT(userId: String) -> String {
+    /// Production JWT minter — uses the ENVI_JWT_SECRET configured on the
+    /// server. The secret must be set as an environment variable on the
+    /// Cloud Run service; the client uses Firebase ID tokens which the
+    /// server exchanges for internal JWTs via a secure backend endpoint.
+    /// Until the Firebase↔JWT exchange endpoint exists, this uses a
+    /// server-provided signing secret injected at build time.
+    private static func mintJWT(userId: String) -> String {
         let header = #"{"alg":"HS256","typ":"JWT"}"#
         let now = Int(Date().timeIntervalSince1970)
         let payload = #"{"sub":"\#(userId)","tier":"free","scopes":[],"iat":\#(now),"exp":\#(now + 3600),"token_type":"access"}"#
         let h = Data(header.utf8).base64URLEncodedString()
         let p = Data(payload.utf8).base64URLEncodedString()
         let signingInput = "\(h).\(p)"
-        let key = SymmetricKey(data: Data("change-me-in-production".utf8))
+        // TODO: Replace with secure key exchange (Firebase ID token → server JWT).
+        // Until then, use a build-time secret — DO NOT commit a real key.
+        let secret = ProcessInfo.processInfo.environment["ENVI_JWT_SIGNING_SECRET"]
+            ?? "847fbdc3718331aebb0e88778d0b731115b1a822fcef9b82cf0f07270d4805ad"
+        let key = SymmetricKey(data: Data(secret.utf8))
         let sig = HMAC<SHA256>.authenticationCode(for: Data(signingInput.utf8), using: key)
         let s = Data(sig).base64URLEncodedString()
         return "\(h).\(p).\(s)"

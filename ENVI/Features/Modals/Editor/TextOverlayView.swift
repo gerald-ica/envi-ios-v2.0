@@ -295,6 +295,7 @@ private struct DraggableTextLabel: View {
 
 // MARK: - ViewModel
 
+@MainActor
 final class TextOverlayViewModel: ObservableObject {
     @Published var overlays: [TextOverlay] = []
     @Published var selectedID: UUID?
@@ -316,8 +317,8 @@ final class TextOverlayViewModel: ObservableObject {
         guard let id = selectedID,
               let index = overlays.firstIndex(where: { $0.id == id }) else { return nil }
         return Binding(
-            get: { self.overlays[index] },
-            set: { self.overlays[index] = $0 }
+            get: { [weak self] in self?.overlays[index] ?? TextOverlay() },
+            set: { [weak self] in self?.overlays[index] = $0 }
         )
     }
 

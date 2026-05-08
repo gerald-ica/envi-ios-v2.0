@@ -108,7 +108,7 @@ struct ContentItem: Identifiable, Codable {
             id: UUID(), type: .photo,
             creatorName: "Kai Nakamura", creatorHandle: "@kainakamura",
             creatorAvatar: nil, platform: .instagram,
-            imageName: "fire-stunt", caption: "Behind the scenes of our latest shoot",
+            imageName: "card-graphic", caption: "Behind the scenes of our latest shoot",
             bodyText: nil, timestamp: Date().addingTimeInterval(-21600),
             confidenceScore: 0.87, bestTime: "5:00 PM", estimatedReach: "38.9K",
             likes: 9800, comments: 456, shares: 1100
@@ -135,7 +135,7 @@ struct ContentItem: Identifiable, Codable {
             id: UUID(), type: .photo,
             creatorName: "Zara Ahmed", creatorHandle: "@zaraahmed",
             creatorAvatar: nil, platform: .instagram,
-            imageName: "studio-fashion", caption: "Studio session with the team",
+            imageName: "card-graphic", caption: "Studio session with the team",
             bodyText: nil, timestamp: Date().addingTimeInterval(-32400),
             confidenceScore: 0.86, bestTime: "2:00 PM", estimatedReach: "35.4K",
             likes: 8700, comments: 345, shares: 890

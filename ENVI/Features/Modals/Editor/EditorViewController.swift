@@ -704,7 +704,7 @@ final class EditorViewController: UIViewController {
 
     private func previewImage() -> UIImage? {
         guard let imageName = contentItem?.imageName ?? contentPiece?.imageName else {
-            return loadImage(named: "runway") ?? loadImage(named: "studio-fashion")
+            return loadImage(named: "runway") ?? loadImage(named: "card-graphic")
         }
 
         return loadImage(named: imageName)

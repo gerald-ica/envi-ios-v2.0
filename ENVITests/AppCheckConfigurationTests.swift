@@ -16,12 +16,14 @@ import FirebaseAppCheck
 /// runtime assertion matches the current build configuration.
 final class AppCheckConfigurationTests: XCTestCase {
 
+    @MainActor
     func testConfigureAppCheckCanBeCalledSafelyBeforeFirebaseConfigure() {
         // Should not throw, should not crash.
         AuthManager.configureAppCheck()
         AuthManager.configureAppCheck() // idempotent
     }
 
+    @MainActor
     func testConfigureAppCheckInstallsDebugFactoryInDebugBuilds() {
         #if DEBUG
         AuthManager.configureAppCheck()

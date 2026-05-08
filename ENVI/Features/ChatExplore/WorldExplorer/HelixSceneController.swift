@@ -202,7 +202,7 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
 
     // MARK: - Setup
 
-    func setupScene(in scnView: SCNView) {
+    @MainActor func setupScene(in scnView: SCNView) {
         self.scnView = scnView
 
         let scene = SCNScene()
@@ -1148,10 +1148,8 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
                     targetCamPos = SCNVector3(px.x + dist * 0.3, px.y + dist * 0.2, px.z + dist)
                     selectedContentId = contentId
 
-                    MainActor.assumeIsolated {
-                        Task {
-                            self.onNodeTapped?(contentId)
-                        }
+                    Task { @MainActor in
+                        self.onNodeTapped?(contentId)
                     }
                     return
                 }
@@ -1191,10 +1189,8 @@ final class HelixSceneController: NSObject, SCNSceneRendererDelegate {
             targetCamPos = SCNVector3(px.x + dist * 0.3, px.y + dist * 0.2, px.z + dist)
             selectedContentId = contentId
 
-            MainActor.assumeIsolated {
-                Task {
-                    self.onNodeTapped?(contentId)
-                }
+            Task { @MainActor in
+                self.onNodeTapped?(contentId)
             }
         }
     }

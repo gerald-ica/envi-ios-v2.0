@@ -53,7 +53,7 @@ import Combine
 /// 4. **Multiple concurrent experiments**: autoresearch runs one experiment
 ///    at a time. A content creator may have multiple posts in flight. We
 ///    track up to `maxConcurrentExperiments` simultaneously.
-final class ResearchLoop: ObservableObject {
+final class ResearchLoop: ObservableObject, @unchecked Sendable {
 
     // MARK: - Types
 
@@ -147,7 +147,9 @@ final class ResearchLoop: ObservableObject {
             withTimeInterval: ENVIBrainConfig.backgroundLoopIntervalSeconds,
             repeats: true
         ) { [weak self] _ in
-            self?.advanceLoop()
+            DispatchQueue.main.async {
+                self?.advanceLoop()
+            }
         }
     }
 

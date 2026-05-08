@@ -11,8 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
-        // Register fonts
-        ENVITypography.registerFonts()
+        // Fonts are auto-registered via Info.plist UIAppFonts.
 
         let window = UIWindow(windowScene: windowScene)
         self.window = window

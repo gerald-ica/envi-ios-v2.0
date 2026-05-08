@@ -53,7 +53,7 @@ final class ForYouGalleryViewModel: ObservableObject {
     nonisolated(unsafe) private let templateRepo: VideoTemplateRepository
     private let embeddingIndex: EmbeddingIndex
     private let identityResolver: ForYouIdentityResolver
-    nonisolated(unsafe) private let assemblyCoordinator: ForYouAssemblyCoordinator
+    private let assemblyCoordinator: ForYouAssemblyCoordinator
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Seen Items Tracker
@@ -516,7 +516,7 @@ final class ForYouGalleryViewModel: ObservableObject {
             // Deterministic ID so re-suggesting the same asset across launches
             // doesn't duplicate tiles and doesn't collide with approved items.
             let stableID = "suggestion-" + asset.localIdentifier
-            let fallbackImage = type == .videos ? "fire-stunt" : "studio-fashion"
+            let fallbackImage = "card-graphic"
 
             collected.append(
                 LibraryItem(

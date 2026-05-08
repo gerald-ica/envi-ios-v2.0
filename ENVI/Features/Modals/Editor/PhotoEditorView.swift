@@ -627,7 +627,7 @@ final class PhotoEditorViewModel: ObservableObject {
     ]
 
     init() {
-        if let img = UIImage(named: "studio-fashion") ?? UIImage(named: "runway") {
+        if let img = UIImage(named: "card-graphic") ?? UIImage(named: "runway") {
             originalImage = img
             editedImage = img
         }

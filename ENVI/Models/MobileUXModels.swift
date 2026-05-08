@@ -61,7 +61,7 @@ enum HapticFeedback: String, Codable, CaseIterable, Identifiable {
     var displayName: String { rawValue.capitalized }
 
     /// Trigger the corresponding UIKit haptic.
-    func fire() {
+    @MainActor func fire() {
         switch self {
         case .light:
             UIImpactFeedbackGenerator(style: .light).impactOccurred()

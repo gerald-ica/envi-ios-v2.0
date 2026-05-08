@@ -111,7 +111,7 @@ final class ContentPieceAssembler: ObservableObject, @unchecked Sendable {
 
     // MARK: - Singleton
 
-    nonisolated(unsafe) static let shared = ContentPieceAssembler()
+    static let shared = ContentPieceAssembler()
 
     init(transport: ContentAssemblyTransport = APIContentAssemblyTransport()) {
         self.transport = transport

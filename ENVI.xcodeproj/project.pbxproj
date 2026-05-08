@@ -2644,7 +2644,7 @@
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					02F75898D3F5656C6FA4BCB6 = {
-						DevelopmentTeam = ZM82DY7PG2;
+						DevelopmentTeam = 7P76H55MAW;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -3457,7 +3457,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZM82DY7PG2;
+				DEVELOPMENT_TEAM = 7P76H55MAW;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ENVI/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
@@ -3490,7 +3490,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZM82DY7PG2;
+				DEVELOPMENT_TEAM = 7P76H55MAW;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ENVI/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";

@@ -679,17 +679,18 @@ struct ContentCalendarFullView: View {
     private func handleDrop(providers: [NSItemProvider], hour: Int) -> Bool {
         guard let provider = providers.first else { return false }
         provider.loadObject(ofClass: NSString.self) { object, _ in
-            guard let idString = object as? String,
-                  let slotID = UUID(uuidString: idString),
-                  let slot = self.viewModel.calendarSlots.first(where: { $0.id == slotID }) else { return }
+            let idString = object as? String
+            Task { @MainActor in
+                guard let idString,
+                      let slotID = UUID(uuidString: idString),
+                      let slot = self.viewModel.calendarSlots.first(where: { $0.id == slotID }) else { return }
 
-            let calendar = Calendar.current
-            var comps = calendar.dateComponents([.year, .month, .day], from: self.viewModel.selectedDate)
-            comps.hour = hour
-            comps.minute = 0
+                let calendar = Calendar.current
+                var comps = calendar.dateComponents([.year, .month, .day], from: self.viewModel.selectedDate)
+                comps.hour = hour
+                comps.minute = 0
 
-            if let newDate = calendar.date(from: comps) {
-                Task { @MainActor in
+                if let newDate = calendar.date(from: comps) {
                     await self.viewModel.rescheduleSlot(slot, to: newDate)
                 }
             }

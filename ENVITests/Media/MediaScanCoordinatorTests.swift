@@ -10,6 +10,7 @@ import XCTest
 import Photos
 @testable import ENVI
 
+@MainActor
 final class MediaScanCoordinatorTests: XCTestCase {
 
     // MARK: - Mocks
@@ -21,24 +22,28 @@ final class MediaScanCoordinatorTests: XCTestCase {
 
         func classifyBatch(
             _ assets: [PHAsset],
-            progress: ((Int, Int) -> Void)?
-        ) async -> [ClassifiedAsset] {
+            progress: (@Sendable (Int, Int) -> Void)?
+        ) async -> [ClassifiedAssetRecord] {
             batchCalls.append(assets)
             progress?(assets.count, assets.count)
             return assets.map { asset in
-                ClassifiedAsset(
-                    localIdentifier: asset.localIdentifier,
-                    metadata: Data(),
-                    visionAnalysis: Data()
+                ClassifiedAssetRecord(
+                    asset: ClassifiedAsset(
+                        localIdentifier: asset.localIdentifier,
+                        metadata: Data(),
+                        visionAnalysis: Data()
+                    )
                 )
             }
         }
 
-        func classify(_ asset: PHAsset, priority: TaskPriority) async throws -> ClassifiedAsset {
-            ClassifiedAsset(
-                localIdentifier: asset.localIdentifier,
-                metadata: Data(),
-                visionAnalysis: Data()
+        func classify(_ asset: PHAsset, priority: TaskPriority) async throws -> ClassifiedAssetRecord {
+            ClassifiedAssetRecord(
+                asset: ClassifiedAsset(
+                    localIdentifier: asset.localIdentifier,
+                    metadata: Data(),
+                    visionAnalysis: Data()
+                )
             )
         }
     }
@@ -111,9 +116,8 @@ final class MediaScanCoordinatorTests: XCTestCase {
         let newAssets = makeAssets(count: 5)
         library.assets = newAssets + existing
 
-        let classified = await coordinator.lazyRescan()
+        await coordinator.lazyRescan()
 
-        XCTAssertEqual(classified.count, 5)
         XCTAssertEqual(classifier.batchCalls.count, 1)
         XCTAssertEqual(classifier.batchCalls.first?.count, 5)
         XCTAssertEqual(

@@ -25,7 +25,7 @@ describe("state — sign + verify round-trip", () => {
 
   it("signs claims and verifies back to the same uid/provider", async () => {
     useStubSigningKey("a-very-long-testing-signing-key-12345");
-    const now = 1_700_000_000;
+    const now = Math.floor(Date.now() / 1000);
     const token = await signState({
       uid: "alice",
       provider: "tiktok",

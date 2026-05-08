@@ -26,12 +26,12 @@ final class TemplateActionsStubClassifier: MediaClassifierProtocol, @unchecked S
     func classifyBatch(
         _ assets: [PHAsset],
         progress: ((Int, Int) -> Void)?
-    ) async -> [ClassifiedAsset] { [] }
+    ) async -> [ClassifiedAssetRecord] { [] }
 
     func classify(
         _ asset: PHAsset,
         priority: TaskPriority
-    ) async throws -> ClassifiedAsset {
+    ) async throws -> ClassifiedAssetRecord {
         throw NSError(domain: "StubMediaClassifier", code: -1)
     }
 }

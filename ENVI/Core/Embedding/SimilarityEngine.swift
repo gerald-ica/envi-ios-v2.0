@@ -164,7 +164,7 @@ public actor SimilarityEngine {
 
         let seed: ClassifiedAsset?
         do {
-            seed = try await cache.fetch(localIdentifier: assetID)
+            seed = try await cache.fetch(localIdentifier: assetID)?.makeClassifiedAsset()
         } catch {
             return []
         }
@@ -172,7 +172,7 @@ public actor SimilarityEngine {
 
         let all: [ClassifiedAsset]
         do {
-            all = try await cache.fetchAll()
+            all = try await cache.fetchAll().map { $0.makeClassifiedAsset() }
         } catch {
             return []
         }
@@ -196,7 +196,7 @@ public actor SimilarityEngine {
     /// If input feature-prints disagree on dimension (shouldn't happen
     /// in production but could during a schema migration), vectors whose
     /// dimension doesn't match the first decoded vector are dropped.
-    public func buildIndex(for assets: [ClassifiedAsset]) -> EmbeddingIndexSnapshot {
+    public func buildIndex(for assets: sending [ClassifiedAssetRecord]) -> EmbeddingIndexSnapshot {
         var ids: [String] = []
         var rows: [[Float]] = []
         var dim: Int = 0

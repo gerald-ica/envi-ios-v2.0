@@ -131,7 +131,7 @@ extension MediaScanCoordinator {
     private func backgroundTaskHandle(task: BGProcessingTask, budget: BackgroundTaskBudget, work: Task<(), Never>) {
         Task {
             _ = await work.value
-            await scheduleBackgroundScan()
+            scheduleBackgroundScan()
             await budget.endTracking()
             task.setTaskCompleted(success: true)
         }
@@ -144,10 +144,12 @@ extension MediaScanCoordinator {
     /// (task expiration), the thermal guard between chunks, and the
     /// BackgroundTaskBudget's checkpoint threshold.
     func runBackgroundSweep() async {
-        let allAssets = library.fetchRecentMedia(
-            limit: .max,
-            mediaTypes: [.image, .video]
-        )
+        let allAssets = await MainActor.run {
+            library.fetchRecentMedia(
+                limit: .max,
+                mediaTypes: [.image, .video]
+            )
+        }
         guard !allAssets.isEmpty else { return }
 
         // Resume from the checkpoint, if any. Prefer the new budget

@@ -156,7 +156,7 @@ struct CaptionGeneratorView: View {
             if !caption.hashtagSuggestions.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: ENVISpacing.xs) {
-                        ForEach(caption.hashtagSuggestions, id: \.self) { tag in
+                        ForEach(Array(caption.hashtagSuggestions.enumerated()), id: \.offset) { _, tag in
                             Text(tag)
                                 .font(.spaceMono(11))
                                 .foregroundColor(ENVITheme.textSecondary(for: colorScheme))

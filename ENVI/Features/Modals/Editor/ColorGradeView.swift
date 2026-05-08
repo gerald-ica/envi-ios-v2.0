@@ -276,7 +276,7 @@ final class ColorGradeViewModel: ObservableObject {
 
     init() {
         // Load a default preview image
-        if let img = UIImage(named: "studio-fashion") ?? UIImage(named: "runway") {
+        if let img = UIImage(named: "card-graphic") ?? UIImage(named: "runway") {
             originalImage = img
             gradedImage = img
         }

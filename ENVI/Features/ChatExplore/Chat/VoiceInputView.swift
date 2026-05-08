@@ -206,7 +206,9 @@ struct VoiceInputView: View {
     private func startTimer() {
         elapsedSeconds = 0
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            elapsedSeconds += 1
+            DispatchQueue.main.async {
+                self.elapsedSeconds += 1
+            }
         }
     }
 

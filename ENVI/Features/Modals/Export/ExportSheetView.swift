@@ -63,7 +63,7 @@ struct ExportSheetView: View {
 
                     // Hashtags
                     FlowLayout(spacing: ENVISpacing.sm) {
-                        ForEach(hashtags, id: \.self) { tag in
+                        ForEach(Array(hashtags.enumerated()), id: \.offset) { _, tag in
                             Text(tag)
                                 .font(.interMedium(13))
                                 .foregroundColor(ENVITheme.text(for: colorScheme))

@@ -1,4 +1,4 @@
-import SwiftUI
+@preconcurrency import SwiftUI
 
 /// Tag cloud manager with color-coded categories, search, create/edit/delete, and usage counts.
 struct TagManagerView: View {
@@ -181,8 +181,36 @@ struct TagManagerView: View {
 
 // MARK: - Wrapping HStack
 
+/// Tracks mutable layout state for alignment guides during a single synchronous layout pass.
+private final class LayoutState: @unchecked Sendable {
+    private var width: CGFloat = .zero
+    private var height: CGFloat = .zero
+
+    func leadingOffset(width itemWidth: CGFloat, height itemHeight: CGFloat, gWidth: CGFloat, isLast: Bool) -> CGFloat {
+        if abs(width - itemWidth) > gWidth {
+            width = 0
+            height -= itemHeight + ENVISpacing.sm
+        }
+        let result = width
+        if isLast {
+            width = 0
+        } else {
+            width -= itemWidth + ENVISpacing.sm
+        }
+        return result
+    }
+
+    func topOffset(isLast: Bool) -> CGFloat {
+        let result = height
+        if isLast {
+            height = 0
+        }
+        return result
+    }
+}
+
 /// Simple flow layout for tag chips.
-private struct WrappingHStack<Item: Identifiable, Content: View>: View {
+private struct WrappingHStack<Item: Identifiable & Sendable, Content: View>: View {
     let items: [Item]
     let content: (Item) -> Content
 
@@ -196,33 +224,20 @@ private struct WrappingHStack<Item: Identifiable, Content: View>: View {
     }
 
     private func generateContent(in geometry: GeometryProxy) -> some View {
-        var width = CGFloat.zero
-        var height = CGFloat.zero
+        let layout = LayoutState()
+        let gWidth = geometry.size.width
+        let lastIndex = items.indices.last
 
         return ZStack(alignment: .topLeading) {
-            ForEach(items) { item in
+            ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                 content(item)
                     .padding(.trailing, ENVISpacing.sm)
                     .padding(.bottom, ENVISpacing.sm)
                     .alignmentGuide(.leading) { d in
-                        if abs(width - d.width) > geometry.size.width {
-                            width = 0
-                            height -= d.height + ENVISpacing.sm
-                        }
-                        let result = width
-                        if item.id as AnyHashable == items.last?.id as AnyHashable {
-                            width = 0
-                        } else {
-                            width -= d.width + ENVISpacing.sm
-                        }
-                        return result
+                        layout.leadingOffset(width: d.width, height: d.height, gWidth: gWidth, isLast: index == lastIndex)
                     }
                     .alignmentGuide(.top) { _ in
-                        let result = height
-                        if item.id as AnyHashable == items.last?.id as AnyHashable {
-                            height = 0
-                        }
-                        return result
+                        layout.topOffset(isLast: index == lastIndex)
                     }
             }
         }

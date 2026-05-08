@@ -34,9 +34,9 @@ struct TemplateOnboardingProgressView: View {
     @State private var thumbnailTick: Int = 0
     @State private var hasContinued: Bool = false
 
-    /// 1Hz mosaic refresh. We read from `ClassificationCache.fetchAll()`
-    /// on tick, so the grid reflects whatever Task 5's classifier has
-    /// written so far without needing a push notification hook.
+    /// 1Hz mosaic refresh. We read cached local identifiers on tick, so
+    /// the grid reflects whatever Task 5's classifier has written so far
+    /// without moving SwiftData model instances across actor boundaries.
     private let mosaicTimer = Timer
         .publish(every: 1.0, on: .main, in: .common)
         .autoconnect()
@@ -197,9 +197,8 @@ struct TemplateOnboardingProgressView: View {
         guard let cache = try? ClassificationCache() else { return }
         let identifiers: [String]
         do {
-            let all = try await cache.fetchAll()
-            let tail = Array(all.suffix(9))
-            identifiers = tail.map { $0.localIdentifier }
+            let allIdentifiers = try await cache.fetchAllLocalIdentifiers()
+            identifiers = Array(allIdentifiers.suffix(9))
         } catch {
             return
         }

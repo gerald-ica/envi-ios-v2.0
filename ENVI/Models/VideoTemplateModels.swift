@@ -427,12 +427,12 @@ struct AudioTrackRef: Codable, Equatable {
 // runtime-only types intentionally omit Codable conformance. They are
 // produced by the TemplateMatchEngine and consumed by the UI layer.
 
-struct FilledSlot: Identifiable {
+struct FilledSlot: Identifiable, @unchecked Sendable {
     var id: UUID { slot.id }
     let slot: TemplateSlot
-    nonisolated(unsafe) let matchedAsset: ClassifiedAsset?
+    let matchedAsset: ClassifiedAsset?
     let matchScore: Double
-    nonisolated(unsafe) let alternates: [ClassifiedAsset]
+    let alternates: [ClassifiedAsset]
 
     init(
         slot: TemplateSlot,

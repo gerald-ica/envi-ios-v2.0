@@ -256,7 +256,7 @@ actor TemplateMatchEngine {
 
         let base: [ClassifiedAsset]
         do {
-            base = try await cache.query(predicate: predicate)
+            base = try await cache.query(predicate: predicate).map { $0.makeClassifiedAsset() }
         } catch {
             return []
         }
