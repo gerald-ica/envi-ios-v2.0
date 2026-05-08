@@ -35,11 +35,26 @@ final class AppCoordinator: ParentCoordinator {
     }
 
     // MARK: - Post-Splash Routing
+    //
+    // Sign-in-first flow (changed from onboarding-first 2026-05-08):
+    //
+    //   restored session ──► main app
+    //   no session, finished onboarding ──► sign-in (returning user)
+    //   no session, never onboarded ──► sign-in (new user can sign in OR
+    //                                              tap Sign Up → onboarding)
+    //
+    // The previous design dropped first-time users straight into
+    // onboarding and bootstrapped an anonymous Firebase identity in the
+    // background. That meant the OAuth screen was effectively
+    // unreachable for fresh installs in DEBUG (USM onboarding has no
+    // social-sign-in step), and users who wanted to sign in had no way
+    // to do so without first sending themselves through the full
+    // onboarding flow. Flipping the gate to "is there a real user?"
+    // instead of "have they been here before?" makes the OAuth screen
+    // the canonical entry point.
     private func handlePostSplash() {
-        if !UserDefaultsManager.shared.hasCompletedOnboarding {
-            showOnboarding()
-        } else if AuthManager.shared.restoreSession() {
-            // ENVI-0007: Cross-device session restore — rehydrate Firebase Auth state
+        if AuthManager.shared.restoreSession() {
+            // ENVI-0007: cross-device session restore.
             syncPurchasesWithAuth()
             showMainApp()
         } else {
@@ -65,8 +80,18 @@ final class AppCoordinator: ParentCoordinator {
     private func showSignIn() {
         let signInView = SignInView(
             onSignIn: { [weak self] in
-                self?.syncPurchasesWithAuth()
-                self?.showMainApp()
+                guard let self else { return }
+                self.syncPurchasesWithAuth()
+                // After OAuth/email sign-in, route by whether the user
+                // has ever finished onboarding. A fresh install signing
+                // in for the first time still needs to capture USM
+                // inputs; a returning user (e.g. cross-device) skips
+                // straight to the main app.
+                if UserDefaultsManager.shared.hasCompletedOnboarding {
+                    self.showMainApp()
+                } else {
+                    self.showOnboarding()
+                }
             },
             onCreateAccount: { [weak self] in
                 self?.showOnboarding()
