@@ -28,7 +28,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.weareinformal.envi.staging.oauth</string>
+			<string>com.weareinformal.envi.oauth</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>enviapp</string>
@@ -38,10 +38,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.weareinformal.envi.staging.googlesignin</string>
+			<string>com.weareinformal.envi.googlesignin</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.471220969990-a6as0oqueq6f69l391f94fa4n5f6k3g5</string>
+				<string>com.googleusercontent.apps.471220969990-gb2gj7g34ce23r4j3l3tnr8i2inrpcm9</string>
 			</array>
 		</dict>
 	</array>
@@ -99,6 +99,7 @@
 		<string>fetch</string>
 		<string>nearby-interaction</string>
 		<string>location</string>
+		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string></string>
@@ -109,6 +110,13 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
