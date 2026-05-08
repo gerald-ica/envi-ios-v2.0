@@ -1,7 +1,7 @@
 import Foundation
 import Photos
 import ImageIO
-import AVFoundation
+@preconcurrency import AVFoundation
 import CoreLocation
 
 // MARK: - MediaMetadataExtractor
@@ -251,18 +251,17 @@ enum MediaMetadataExtractor {
     }
 
     private static func avAsset(for asset: PHAsset) async -> AVAsset? {
-        nonisolated(unsafe) var storedAsset: AVAsset?
-        return await withCheckedContinuation { (continuation: CheckedContinuation<AVAsset?, Never>) in
+        let boxedAsset = await withCheckedContinuation { (continuation: CheckedContinuation<UnsafeSendableAVAsset, Never>) in
             let options = PHVideoRequestOptions()
             options.isNetworkAccessAllowed = false
             options.deliveryMode = .fastFormat
             options.version = .current
 
             PHImageManager.default().requestAVAsset(forVideo: asset, options: options) { avAsset, _, _ in
-                storedAsset = avAsset
-                continuation.resume(returning: storedAsset)
+                continuation.resume(returning: UnsafeSendableAVAsset(avAsset))
             }
         }
+        return boxedAsset.value
     }
 
     private static func describeVideoTrack(_ track: AVAssetTrack) async -> VideoTrackMetadata {
@@ -311,6 +310,14 @@ enum MediaMetadataExtractor {
             return s
         }
         return String(format: "0x%08X", code)
+    }
+}
+
+private struct UnsafeSendableAVAsset: @unchecked Sendable {
+    let value: AVAsset?
+
+    init(_ value: AVAsset?) {
+        self.value = value
     }
 }
 
