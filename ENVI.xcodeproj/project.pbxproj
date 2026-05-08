@@ -1033,7 +1033,7 @@
 		B6B099B58578FC4D33349E6C /* abstract-decoration-1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "abstract-decoration-1.png"; sourceTree = "<group>"; };
 		B6DC35158AB421D49C5B1ACC /* ENVIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ENVIApp.swift; sourceTree = "<group>"; };
 		B8041708F5084DBC0D72C87D /* ObjectRemoval.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = ObjectRemoval.metal; sourceTree = "<group>"; };
-		B8BB413E65BB6FFCC3933044 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		B8BB413E65BB6FFCC3933044 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B939DBC6CB6E119944B938FF /* EducationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EducationModels.swift; sourceTree = "<group>"; };
 		B96A338C649D1D906FA44CDC /* VideoTemplateModelsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoTemplateModelsTests.swift; sourceTree = "<group>"; };
 		B99FB31BA2F5647598D478BC /* SegmentBuilderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentBuilderView.swift; sourceTree = "<group>"; };
@@ -1062,7 +1062,7 @@
 		C55E10515D7F7FE3B2B729D3 /* GrowthDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthDashboardView.swift; sourceTree = "<group>"; };
 		C56C0A956D3D308474EB27A3 /* ScheduleQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleQueueView.swift; sourceTree = "<group>"; };
 		C67DFB638B222D356CFDDB63 /* abstract-9.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "abstract-9.jpg"; sourceTree = "<group>"; };
-		C69B717066E3B5762C118D73 /* IdeationViewModel.swift.bak */ = {isa = PBXFileReference; path = IdeationViewModel.swift.bak; sourceTree = "<group>"; };
+		C69B717066E3B5762C118D73 /* IdeationViewModel.swift.bak */ = {isa = PBXFileReference; lastKnownFileType = text; path = IdeationViewModel.swift.bak; sourceTree = "<group>"; };
 		C70B906C66A00D26E0BA0CF8 /* industrial-girl.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "industrial-girl.jpg"; sourceTree = "<group>"; };
 		C733D640478198BB3326B7F3 /* fractal-glass-style-transfer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "fractal-glass-style-transfer.png"; sourceTree = "<group>"; };
 		C76743D3E6A59D926B57AA07 /* AdvancedSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedSearchView.swift; sourceTree = "<group>"; };
@@ -1196,7 +1196,7 @@
 		FE27B38D6D63D3586753CBA5 /* USMOnboardingEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = USMOnboardingEntry.swift; sourceTree = "<group>"; };
 		FE7CA623F68F981DAFBFDCD0 /* SecurityRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityRepository.swift; sourceTree = "<group>"; };
 		FF893BDE3A331ECE39048447 /* BillingRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingRepository.swift; sourceTree = "<group>"; };
-		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FFFE87A397B8FEA95504E43B /* ENVI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ENVI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3456,7 +3456,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZM82DY7PG2;
+				DEVELOPMENT_TEAM = 7P76H55MAW;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ENVI/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
@@ -3489,7 +3489,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = W5687Z6R55;
+				DEVELOPMENT_TEAM = 7P76H55MAW;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = ENVI/Resources/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "ENVI uses the camera to capture new content.";
@@ -3505,7 +3505,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 2.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.geraldwelly.envi.debug;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weareinformal.envi.staging;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

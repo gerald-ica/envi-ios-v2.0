@@ -1,0 +1,193 @@
+{
+  "identifier" : "ENVI-LOCAL-STOREKIT-CONFIG",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "5DB30001",
+      "localizations" : [
+        {
+          "description" : "200 Pay-as-you-go units. 1 unit = 1 AI caption / TRIBE refresh / forecast recompute.",
+          "displayName" : "Token Pack — 200 units",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "payg_pack_200",
+      "referenceName" : "PAYG 200-unit Pack",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "envi-staging",
+    "_developerTeamID" : "ZM82DY7PG2",
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21500001",
+      "localizations" : [
+        {
+          "description" : "Aura subscription tiers — Aura and Aura Pro are mutually exclusive.",
+          "displayName" : "Aura",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "Aura",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "19.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "21500101",
+          "introductoryOffer" : {
+            "displayPrice" : "0.00",
+            "internalID" : "21500111",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Solo creator plan. Daily posting. Full analytics. 7-day free trial.",
+              "displayName" : "Aura — Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "aura_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Aura Monthly",
+          "subscriptionGroupID" : "21500001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "192.00",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "21500102",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Solo creator plan. Save 20% billed annually ($16/mo equivalent).",
+              "displayName" : "Aura — Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "aura_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Aura Yearly",
+          "subscriptionGroupID" : "21500001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "99.99",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "21500103",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Studio plan. Multi-brand, real-time TRIBE, full archetype engine.",
+              "displayName" : "Aura Pro — Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "aura_pro_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Aura Pro Monthly",
+          "subscriptionGroupID" : "21500001",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "960.00",
+          "familyShareable" : false,
+          "groupNumber" : 4,
+          "internalID" : "21500104",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Studio plan billed annually. Save 20% ($80/mo equivalent).",
+              "displayName" : "Aura Pro — Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "aura_pro_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Aura Pro Yearly",
+          "subscriptionGroupID" : "21500001",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    },
+    {
+      "id" : "21500002",
+      "localizations" : [
+        {
+          "description" : "Power add-on — stacks on Aura Pro.",
+          "displayName" : "Power",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "Power",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "199.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "21500201",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "High-usage add-on. Real-time TRIBE, dedicated GPU slice, unlimited socials.",
+              "displayName" : "Power — Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "power_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Power Monthly",
+          "subscriptionGroupID" : "21500002",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "1920.00",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "21500202",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Power add-on billed annually. Save 20% ($160/mo equivalent).",
+              "displayName" : "Power — Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "power_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Power Yearly",
+          "subscriptionGroupID" : "21500002",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

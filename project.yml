@@ -69,9 +69,11 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
       configs:
         Debug:
+          # Debug shares bundle ID + Firebase project with staging so a
+          # single GoogleService-Info.plist works. If we ever want a true
+          # debug environment, register `com.weareinformal.envi.debug` in
+          # Firebase + RevenueCat and bifurcate via per-config plists.
           CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.Debug.entitlements"
-          DEVELOPMENT_TEAM: "W5687Z6R55"
-          PRODUCT_BUNDLE_IDENTIFIER: "com.geraldwelly.envi.debug"
         Release:
           CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.entitlements"
     dependencies:
