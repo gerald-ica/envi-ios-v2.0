@@ -344,6 +344,7 @@
 		8EC4ADD599841B6A6732A8F0 /* PricingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76D153AAC50E16327FCC9510 /* PricingView.swift */; };
 		8EC8FF93417363DDC570A038 /* decorative-idea-board.png in Resources */ = {isa = PBXBuildFile; fileRef = ABC5A48DE5E94171C299C587 /* decorative-idea-board.png */; };
 		8ECE0A49363695FAE581737B /* suit-phone.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 18F81E87245851B4F8060696 /* suit-phone.jpg */; };
+		8F8E10118B9DD649E203B6AD /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = DC8E72D459376EA1EA6CC620 /* FacebookCore */; };
 		9076840B153E386902E5404A /* ContactDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25F54A80901565D7A9FAEEF8 /* ContactDetailView.swift */; };
 		9089CFD769CFDD253663ACB4 /* ENVIButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85DCD8D843E6BD7B610525CD /* ENVIButton.swift */; };
 		90FE53F9DA3DA7580A4E8067 /* USMOnboardingEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE27B38D6D63D3586753CBA5 /* USMOnboardingEntry.swift */; };
@@ -573,6 +574,7 @@
 		F3534B0947AAA5CB755343E7 /* ENVIToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9D203F9F53669B2DD58B2F1 /* ENVIToggle.swift */; };
 		F3ACCB53129BBC1A3E8D4662 /* TagManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EA03520A9FFC88FA0DB3C8 /* TagManagerView.swift */; };
 		F43317043D6F53EA6E75EE5D /* TemplateCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDA44DF067F99D659A64ECC3 /* TemplateCardView.swift */; };
+		F504A58D59A5D2749B538429 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 283FF407BA8E0CC9D4F61D50 /* FacebookLogin */; };
 		F586E352F12BEF5756D63460 /* decorative-shape-17.png in Resources */ = {isa = PBXBuildFile; fileRef = F3D9C98A8A3874F33FFDC638 /* decorative-shape-17.png */; };
 		F59FD005E436EF76FBA63B95 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 41A7B5C949AAB576F4A90642 /* RevenueCatUI */; };
 		F65E6B56A98F49BA6AD9FA39 /* MetadataRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F3E849974A835F73F94274 /* MetadataRepository.swift */; };
@@ -1216,6 +1218,8 @@
 				2DF8EE1FA60A3CC764A7ADE3 /* FirebaseRemoteConfig in Frameworks */,
 				6F987CF68A8AB8E0C7425C74 /* FirebaseCore in Frameworks */,
 				A276F3A6040F75E35170535C /* GoogleSignIn in Frameworks */,
+				8F8E10118B9DD649E203B6AD /* FacebookCore in Frameworks */,
+				F504A58D59A5D2749B538429 /* FacebookLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2611,6 +2615,8 @@
 				1F73444D402E074BFDA19AC8 /* FirebaseRemoteConfig */,
 				224F10C4C7CF85C34652FC4F /* FirebaseCore */,
 				2F0EABA330874E2089C45583 /* GoogleSignIn */,
+				DC8E72D459376EA1EA6CC620 /* FacebookCore */,
+				283FF407BA8E0CC9D4F61D50 /* FacebookLogin */,
 			);
 			productName = ENVI;
 			productReference = FFFE87A397B8FEA95504E43B /* ENVI.app */;
@@ -2659,6 +2665,7 @@
 			mainGroup = 99B83CB477575C8DDEF923F9;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				8F55A0CB3C1A4492291B5A6F /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
 				AAA7D4464998702BEE1AFE5F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				1816C830FC50987C67B404A9 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				A65FA0BE87F67C2380F82BEF /* XCRemoteSwiftPackageReference "lottie-spm" */,
@@ -3554,6 +3561,14 @@
 				minimumVersion = 8.0.0;
 			};
 		};
+		8F55A0CB3C1A4492291B5A6F /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/facebook-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 17.0.0;
+			};
+		};
 		9BBA734C48FC8F07BBE4FBEF /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
@@ -3604,6 +3619,11 @@
 			package = AAA7D4464998702BEE1AFE5F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
 		};
+		283FF407BA8E0CC9D4F61D50 /* FacebookLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8F55A0CB3C1A4492291B5A6F /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookLogin;
+		};
 		2F0EABA330874E2089C45583 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1816C830FC50987C67B404A9 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
@@ -3648,6 +3668,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AAA7D4464998702BEE1AFE5F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAppCheck;
+		};
+		DC8E72D459376EA1EA6CC620 /* FacebookCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8F55A0CB3C1A4492291B5A6F /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

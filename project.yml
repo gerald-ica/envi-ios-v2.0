@@ -20,6 +20,9 @@ packages:
   GoogleSignIn:
     url: https://github.com/google/GoogleSignIn-iOS.git
     from: "8.0.0"
+  Facebook:
+    url: https://github.com/facebook/facebook-ios-sdk.git
+    from: "17.0.0"
 targets:
   ENVI:
     type: application
@@ -100,6 +103,10 @@ targets:
         product: FirebaseCore
       - package: GoogleSignIn
         product: GoogleSignIn
+      - package: Facebook
+        product: FacebookCore
+      - package: Facebook
+        product: FacebookLogin
   ENVITests:
     type: bundle.unit-test
     platform: iOS

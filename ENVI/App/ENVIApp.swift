@@ -2,6 +2,7 @@ import UIKit
 import RevenueCat
 import FirebaseCore
 import GoogleSignIn
+import FBSDKCoreKit
 import os
 
 private let appLaunchLogger = Logger(subsystem: "com.weareinformal.ENVI", category: "AppLaunch")
@@ -40,6 +41,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Configure RevenueCat SDK
         PurchaseManager.shared.configure()
 
+        // Facebook SDK — required for "Sign in with Facebook" because Meta
+        // updated their TOS in 2024 to mandate the FB iOS SDK on iOS;
+        // Firebase's generic OAuthProvider("facebook.com") path now throws
+        // a fatal error at runtime. The SDK reads FacebookAppID,
+        // FacebookClientToken, and FacebookDisplayName from Info.plist.
+        ApplicationDelegate.shared.application(
+            application,
+            didFinishLaunchingWithOptions: launchOptions
+        )
+
         // Baseline analytics heartbeat for app lifecycle.
         TelemetryManager.shared.track(.appLaunched)
 
@@ -58,12 +69,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {}
 
-    // MARK: - URL Handling (OAuth callback + DeepLinkRouter + Google Sign-In)
+    // MARK: - URL Handling (OAuth callback + DeepLinkRouter + Google + Facebook Sign-In)
     //
     // Scene-based URL delivery is handled in `SceneDelegate`. This shared
     // helper keeps the routing logic in one place for both cold-launch
     // `connectionOptions.urlContexts` and `scene(_:openURLContexts:)`.
     static func handleIncomingURL(_ url: URL) -> Bool {
+        // Facebook returns its OAuth handshake as fb<APPID>://authorize/...
+        // Hand the URL to the FB SDK first; it claims its own scheme and
+        // returns false for everything else.
+        if ApplicationDelegate.shared.application(
+            UIApplication.shared,
+            open: url,
+            sourceApplication: nil,
+            annotation: [UIApplication.OpenURLOptionsKey.annotation: [:]]
+        ) {
+            return true
+        }
+
         switch OAuthCallbackHandler.handle(url) {
         case .handled, .invalid:
             // `.handled` — payload parsed + posted via NotificationCenter.

@@ -6,6 +6,7 @@ import FirebaseAppCheck
 import AuthenticationServices
 import CryptoKit
 import GoogleSignIn
+import FBSDKLoginKit
 
 @MainActor
 final class AuthManager: ObservableObject {
@@ -288,17 +289,87 @@ final class AuthManager: ObservableObject {
 
     // MARK: - Sign In with Meta / X (Firebase OAuthProvider)
 
-    /// Sign in using Facebook as the identity provider. Uses Firebase's built-in
-    /// web-based OAuth flow (ASWebAuthenticationSession under the hood), so no
-    /// Facebook SDK dependency is required. Requires the Facebook provider to
-    /// be enabled in Firebase Console with a valid App ID + App Secret.
+    /// Sign in using Facebook as the identity provider.
+    ///
+    /// Two-step handshake required by Meta as of 2024 (their TOS now mandates
+    /// the Facebook iOS SDK on iOS — Firebase's generic
+    /// `OAuthProvider("facebook.com")` path raises a fatal error at runtime):
+    ///
+    /// 1. `LoginManager.logIn(permissions:)` opens the FB-app/Safari handoff,
+    ///    returns a Facebook access token on success.
+    /// 2. `FacebookAuthProvider.credential(withAccessToken:)` wraps that token
+    ///    in a Firebase `AuthCredential`. Firebase then signs the user in (or
+    ///    links to the existing anonymous identity) just like every other
+    ///    provider, so downstream code that reads `Auth.auth().currentUser`
+    ///    keeps working unchanged.
+    ///
+    /// Requires:
+    /// - `FacebookAppID`, `FacebookClientToken`, `FacebookDisplayName` in
+    ///   Info.plist (read by the SDK at launch).
+    /// - `fb<APPID>` URL scheme in `CFBundleURLTypes` for the SDK callback.
+    /// - `fbapi`, `fbauth2`, `fb-messenger-share-api`, `fbshareextension` in
+    ///   `LSApplicationQueriesSchemes` so the SDK can detect the FB app.
+    /// - Facebook provider enabled in Firebase Console (Auth → Sign-in
+    ///   method → Facebook) with a valid App ID + App Secret.
     @discardableResult
     @MainActor
     func signInWithFacebook() async throws -> UserAuthPayload {
-        try await signInWithOAuthProvider(
-            providerID: "facebook.com",
-            scopes: ["email", "public_profile"]
+        guard FirebaseApp.app() != nil else { throw AuthError.firebaseNotConfigured }
+
+        let loginManager = LoginManager()
+        let permissions = ["email", "public_profile"]
+
+        // The FB SDK's callback can fire off-main and `LoginManagerLoginResult`
+        // is not Sendable, so we project the only fields we care about
+        // (cancellation flag + token string) into Sendable scalars before
+        // crossing the actor boundary.
+        let token: String = try await withCheckedThrowingContinuation { continuation in
+            let presenter = Self.topViewController()
+            loginManager.logIn(permissions: permissions, from: presenter) { result, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                guard let result else {
+                    continuation.resume(throwing: AuthError.invalidCredential)
+                    return
+                }
+                if result.isCancelled {
+                    continuation.resume(throwing: AuthError.invalidCredential)
+                    return
+                }
+                guard let tokenString = result.token?.tokenString else {
+                    continuation.resume(throwing: AuthError.invalidCredential)
+                    return
+                }
+                continuation.resume(returning: tokenString)
+            }
+        }
+
+        let credential = FacebookAuthProvider.credential(withAccessToken: token)
+        let authResult = try await signInOrLinkToAnonymous(credential: credential)
+        return UserAuthPayload(
+            uid: authResult.user.uid,
+            email: authResult.user.email,
+            displayName: authResult.user.displayName
         )
+    }
+
+    /// Walk the active scene's window hierarchy to find the top-most view
+    /// controller — the FB SDK's `logIn(from:)` needs a presenter that's
+    /// actually on screen, and `UIApplication.keyWindow` is deprecated in
+    /// scene-based apps.
+    @MainActor
+    private static func topViewController() -> UIViewController? {
+        let scene = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }
+        let window = scene?.windows.first { $0.isKeyWindow } ?? scene?.windows.first
+        var top = window?.rootViewController
+        while let presented = top?.presentedViewController {
+            top = presented
+        }
+        return top
     }
 
     /// Sign in using X (formerly Twitter) as the identity provider. Firebase
