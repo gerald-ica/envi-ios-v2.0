@@ -22,7 +22,7 @@ packages:
     from: "8.0.0"
   Facebook:
     url: https://github.com/facebook/facebook-ios-sdk.git
-    from: "17.0.0"
+    from: "18.0.0"
 targets:
   ENVI:
     type: application
