@@ -78,11 +78,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Facebook returns its OAuth handshake as fb<APPID>://authorize/...
         // Hand the URL to the FB SDK first; it claims its own scheme and
         // returns false for everything else.
+        //
+        // The annotation dictionary is intentionally empty — we don't have
+        // sourceApplication/annotation context here (SceneDelegate only
+        // forwards the URL itself), and referencing
+        // `UIApplication.OpenURLOptionsKey.annotation` is deprecated in
+        // iOS 26. FBSDK's `annotation:` is `Any?` so an empty `[:]` is
+        // accepted without invoking Apple's deprecated symbol.
         if ApplicationDelegate.shared.application(
             UIApplication.shared,
             open: url,
             sourceApplication: nil,
-            annotation: [UIApplication.OpenURLOptionsKey.annotation: [:]]
+            annotation: [:]
         ) {
             return true
         }
