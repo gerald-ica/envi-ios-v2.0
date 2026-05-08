@@ -49,7 +49,7 @@ targets:
       - path: ENVI/Features/Editing           # v3.0 — SwiftUI editing module
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.weareinformal.envi.staging
+        PRODUCT_BUNDLE_IDENTIFIER: com.weareinformal.envi
         INFOPLIST_FILE: "ENVI/Resources/Info.plist"
         GENERATE_INFOPLIST_FILE: "NO"
         INFOPLIST_KEY_UILaunchStoryboardName: ""
