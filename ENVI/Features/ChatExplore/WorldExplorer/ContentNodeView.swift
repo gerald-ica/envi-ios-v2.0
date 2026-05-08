@@ -342,7 +342,7 @@ struct ContentNodeView: View {
         let bgColor: Color = lightMode ? Color.black.opacity(0.05) : Color.white.opacity(0.05)
         let borderColor: Color = lightMode ? Color.black.opacity(0.1) : Color.white.opacity(0.1)
         FlowLayout(spacing: ENVISpacing.xs) {
-            ForEach(content.tags, id: \.self) { tag in
+            ForEach(Array(content.tags.enumerated()), id: \.offset) { _, tag in
                 Text(tag.uppercased())
                     .font(.spaceMono(10))
                     .tracking(1.0)

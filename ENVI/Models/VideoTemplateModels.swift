@@ -427,7 +427,7 @@ struct AudioTrackRef: Codable, Equatable {
 // runtime-only types intentionally omit Codable conformance. They are
 // produced by the TemplateMatchEngine and consumed by the UI layer.
 
-struct FilledSlot: Identifiable {
+struct FilledSlot: Identifiable, @unchecked Sendable {
     var id: UUID { slot.id }
     let slot: TemplateSlot
     let matchedAsset: ClassifiedAsset?
@@ -447,7 +447,7 @@ struct FilledSlot: Identifiable {
     }
 }
 
-struct PopulatedTemplate: Identifiable, Hashable {
+struct PopulatedTemplate: Identifiable, Hashable, Sendable {
     static func == (lhs: PopulatedTemplate, rhs: PopulatedTemplate) -> Bool {
         lhs.id == rhs.id
     }

@@ -268,6 +268,8 @@ final class SplashSpiralView: UIView {
     }
 
     deinit {
-        stopAnimation()
+        MainActor.assumeIsolated {
+            stopAnimation()
+        }
     }
 }

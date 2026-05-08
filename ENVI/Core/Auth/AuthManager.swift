@@ -7,6 +7,7 @@ import AuthenticationServices
 import CryptoKit
 import GoogleSignIn
 
+@MainActor
 final class AuthManager: ObservableObject {
     static let shared = AuthManager()
 

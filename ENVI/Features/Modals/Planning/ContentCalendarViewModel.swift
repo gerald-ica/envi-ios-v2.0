@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the full content calendar.
+@MainActor
 final class ContentCalendarViewModel: ObservableObject {
 
     // MARK: - Published State
@@ -20,7 +21,7 @@ final class ContentCalendarViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private let repository: CalendarRepository
+    private nonisolated(unsafe) let repository: CalendarRepository
     private var cancellables = Set<AnyCancellable>()
 
     // MARK: - Init

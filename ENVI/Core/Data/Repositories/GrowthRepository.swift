@@ -141,8 +141,9 @@ private struct ShareableAssetBody: Encodable {
 
 // MARK: - Provider
 
+@MainActor
 enum GrowthRepositoryProvider {
-    static var shared = RepositoryProvider<GrowthRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<GrowthRepository>(
         dev: MockGrowthRepository(),
         api: APIGrowthRepository()
     )

@@ -164,7 +164,7 @@ public actor SimilarityEngine {
 
         let seed: ClassifiedAsset?
         do {
-            seed = try await cache.fetch(localIdentifier: assetID)
+            seed = try await cache.fetch(localIdentifier: assetID)?.makeClassifiedAsset()
         } catch {
             return []
         }
@@ -172,7 +172,7 @@ public actor SimilarityEngine {
 
         let all: [ClassifiedAsset]
         do {
-            all = try await cache.fetchAll()
+            all = try await cache.fetchAll().map { $0.makeClassifiedAsset() }
         } catch {
             return []
         }
@@ -196,7 +196,7 @@ public actor SimilarityEngine {
     /// If input feature-prints disagree on dimension (shouldn't happen
     /// in production but could during a schema migration), vectors whose
     /// dimension doesn't match the first decoded vector are dropped.
-    public func buildIndex(for assets: [ClassifiedAsset]) -> EmbeddingIndexSnapshot {
+    public func buildIndex(for assets: sending [ClassifiedAssetRecord]) -> EmbeddingIndexSnapshot {
         var ids: [String] = []
         var rows: [[Float]] = []
         var dim: Int = 0
@@ -240,9 +240,10 @@ public actor SimilarityEngine {
         var matrix = [Float](repeating: 0, count: n * d)
         for (i, row) in snapshot.vectors.enumerated() {
             matrix.withUnsafeMutableBufferPointer { buf in
+                guard let dest = buf.baseAddress?.advanced(by: i * d) else { return }
                 row.withUnsafeBufferPointer { src in
-                    buf.baseAddress!.advanced(by: i * d)
-                        .update(from: src.baseAddress!, count: d)
+                    guard let srcPtr = src.baseAddress else { return }
+                    dest.update(from: srcPtr, count: d)
                 }
             }
         }
@@ -252,12 +253,15 @@ public actor SimilarityEngine {
 
         // matrix [n x d] * query [d x 1] = out [n x 1]
         matrix.withUnsafeBufferPointer { mBuf in
+            guard let mPtr = mBuf.baseAddress else { return }
             normalizedQuery.withUnsafeBufferPointer { qBuf in
+                guard let qPtr = qBuf.baseAddress else { return }
                 out.withUnsafeMutableBufferPointer { oBuf in
+                    guard let oPtr = oBuf.baseAddress else { return }
                     vDSP_mmul(
-                        mBuf.baseAddress!, 1,
-                        qBuf.baseAddress!, 1,
-                        oBuf.baseAddress!, 1,
+                        mPtr, 1,
+                        qPtr, 1,
+                        oPtr, 1,
                         vDSP_Length(n),
                         vDSP_Length(1),
                         vDSP_Length(d)
@@ -332,15 +336,18 @@ public actor SimilarityEngine {
         // we want. Compute the L2 norm directly, then scale.
         var sumSq: Float = 0
         v.withUnsafeBufferPointer { buf in
-            vDSP_svesq(buf.baseAddress!, 1, &sumSq, n)
+            guard let ptr = buf.baseAddress else { return }
+            vDSP_svesq(ptr, 1, &sumSq, n)
         }
         let norm = sqrtf(sumSq)
         guard norm > 0 else { return v }
 
         var inv = 1 / norm
         v.withUnsafeBufferPointer { vbuf in
+            guard let vPtr = vbuf.baseAddress else { return }
             out.withUnsafeMutableBufferPointer { obuf in
-                vDSP_vsmul(vbuf.baseAddress!, 1, &inv, obuf.baseAddress!, 1, n)
+                guard let oPtr = obuf.baseAddress else { return }
+                vDSP_vsmul(vPtr, 1, &inv, oPtr, 1, n)
             }
         }
         return out

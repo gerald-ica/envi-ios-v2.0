@@ -24,10 +24,18 @@ struct AppBackground: View {
         ZStack {
             Color.black
 
-            Image(imageName)
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
+            // Use named image if available; fall back to the default texture.
+            if imageName == "bg-texture-09" {
+                Image(imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+            } else {
+                Image("bg-texture-09")
+                    .resizable()
+                    .scaledToFill()
+                    .ignoresSafeArea()
+            }
 
             // Vignette fade to near-black at the edges so text stays readable.
             RadialGradient(

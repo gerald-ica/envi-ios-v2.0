@@ -17,7 +17,7 @@ import Foundation
 /// Main-actor isolation is intentional here: the system auth session presents
 /// UIKit-owned UI and must be driven from the main actor.
 @MainActor
-protocol OAuthSession: AnyObject {
+protocol OAuthSession: AnyObject, Sendable {
     /// Open the provider's authorization URL in a secure web context and
     /// suspend until the OS re-invokes us via `callbackScheme`.
     ///
@@ -41,6 +41,7 @@ protocol OAuthSession: AnyObject {
 enum OAuthSessionError: Error, Equatable, LocalizedError {
     case userCancelled
     case callbackURLInvalid(URL)
+    case presentationAnchorUnavailable
     case sessionAlreadyActive
 
     var errorDescription: String? {
@@ -49,6 +50,8 @@ enum OAuthSessionError: Error, Equatable, LocalizedError {
             return "You cancelled the sign-in."
         case .callbackURLInvalid(let url):
             return "Received an invalid callback from the provider: \(url.absoluteString)"
+        case .presentationAnchorUnavailable:
+            return "Unable to present sign-in because no active window scene is available."
         case .sessionAlreadyActive:
             return "Another sign-in is already in progress."
         }

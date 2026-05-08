@@ -25,6 +25,103 @@ import SwiftData
 /// value to purge stale entries.
 public let kCurrentClassifierVersion: Int = 1
 
+/// Sendable projection used when `ClassifiedAsset` data needs to cross
+/// actor boundaries before being rehydrated into a SwiftData model.
+public struct ClassifiedAssetRecord: Sendable {
+    public let localIdentifier: String
+    public let classifiedAt: Date
+    public let classifierVersion: Int
+    public let metadata: Data
+    public let visionAnalysis: Data
+    public let featurePrint: Data?
+    public let aestheticsScore: Double
+    public let isUtility: Bool
+    public let faceCount: Int
+    public let personCount: Int
+    public let topLabels: [String]
+    public let mediaType: Int
+    public let mediaSubtypeRaw: UInt
+    public let creationDate: Date?
+    public let latitude: Double?
+    public let longitude: Double?
+
+    public init(
+        localIdentifier: String,
+        classifiedAt: Date,
+        classifierVersion: Int,
+        metadata: Data,
+        visionAnalysis: Data,
+        featurePrint: Data?,
+        aestheticsScore: Double,
+        isUtility: Bool,
+        faceCount: Int,
+        personCount: Int,
+        topLabels: [String],
+        mediaType: Int,
+        mediaSubtypeRaw: UInt,
+        creationDate: Date?,
+        latitude: Double?,
+        longitude: Double?
+    ) {
+        self.localIdentifier = localIdentifier
+        self.classifiedAt = classifiedAt
+        self.classifierVersion = classifierVersion
+        self.metadata = metadata
+        self.visionAnalysis = visionAnalysis
+        self.featurePrint = featurePrint
+        self.aestheticsScore = aestheticsScore
+        self.isUtility = isUtility
+        self.faceCount = faceCount
+        self.personCount = personCount
+        self.topLabels = topLabels
+        self.mediaType = mediaType
+        self.mediaSubtypeRaw = mediaSubtypeRaw
+        self.creationDate = creationDate
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+
+    public init(asset: ClassifiedAsset) {
+        self.localIdentifier = asset.localIdentifier
+        self.classifiedAt = asset.classifiedAt
+        self.classifierVersion = asset.classifierVersion
+        self.metadata = asset.metadata
+        self.visionAnalysis = asset.visionAnalysis
+        self.featurePrint = asset.featurePrint
+        self.aestheticsScore = asset.aestheticsScore
+        self.isUtility = asset.isUtility
+        self.faceCount = asset.faceCount
+        self.personCount = asset.personCount
+        self.topLabels = asset.topLabels
+        self.mediaType = asset.mediaType
+        self.mediaSubtypeRaw = asset.mediaSubtypeRaw
+        self.creationDate = asset.creationDate
+        self.latitude = asset.latitude
+        self.longitude = asset.longitude
+    }
+
+    public func makeClassifiedAsset() -> ClassifiedAsset {
+        ClassifiedAsset(
+            localIdentifier: localIdentifier,
+            classifiedAt: classifiedAt,
+            classifierVersion: classifierVersion,
+            metadata: metadata,
+            visionAnalysis: visionAnalysis,
+            featurePrint: featurePrint,
+            aestheticsScore: aestheticsScore,
+            isUtility: isUtility,
+            faceCount: faceCount,
+            personCount: personCount,
+            topLabels: topLabels,
+            mediaType: mediaType,
+            mediaSubtypeRaw: mediaSubtypeRaw,
+            creationDate: creationDate,
+            latitude: latitude,
+            longitude: longitude
+        )
+    }
+}
+
 @Model
 public final class ClassifiedAsset {
 

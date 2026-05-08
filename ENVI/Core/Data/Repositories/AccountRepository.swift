@@ -104,8 +104,9 @@ final class APIAccountRepository: AccountRepository {
 
 // MARK: - Factory
 
+@MainActor
 enum AccountRepositoryProvider {
-    static var shared = RepositoryProvider<AccountRepository>(
+    nonisolated(unsafe) static var shared = RepositoryProvider<AccountRepository>(
         dev: MockAccountRepository(),
         api: APIAccountRepository()
     )

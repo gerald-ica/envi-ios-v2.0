@@ -10,20 +10,12 @@ final class ThemeManager: ObservableObject {
         case system
     }
 
-    static let shared = ThemeManager()
+    nonisolated(unsafe) static let shared = ThemeManager()
 
     @Published var mode: AppearanceMode {
         didSet {
             UserDefaults.standard.set(mode.rawValue, forKey: "envi_appearance_mode")
             applyMode()
-        }
-    }
-
-    var colorScheme: ColorScheme? {
-        switch mode {
-        case .light:  return .light
-        case .dark:   return .dark
-        case .system: return nil
         }
     }
 
@@ -33,14 +25,25 @@ final class ThemeManager: ObservableObject {
         applyMode()
     }
 
-    func applyMode() {
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
-        let style: UIUserInterfaceStyle
-        switch mode {
-        case .light:  style = .light
-        case .dark:   style = .dark
-        case .system: style = .unspecified
+    nonisolated func applyMode() {
+        let currentMode = self.mode
+        DispatchQueue.main.async {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
+            let style: UIUserInterfaceStyle
+            switch currentMode {
+            case .light:  style = .light
+            case .dark:   style = .dark
+            case .system: style = .unspecified
+            }
+            windowScene.windows.forEach { $0.overrideUserInterfaceStyle = style }
         }
-        windowScene.windows.forEach { $0.overrideUserInterfaceStyle = style }
+    }
+
+    var colorScheme: ColorScheme? {
+        switch mode {
+        case .light:  return .light
+        case .dark:   return .dark
+        case .system: return nil
+        }
     }
 }

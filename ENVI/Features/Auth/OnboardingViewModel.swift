@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// Manages state for the onboarding flow.
+@MainActor
 final class OnboardingViewModel: ObservableObject {
     enum Step: Int, CaseIterable {
         case name = 0
@@ -213,13 +214,14 @@ final class OnboardingViewModel: ObservableObject {
     }
 
     /// Initiates OAuth connection for the given platform.
+    @MainActor
     func connectPlatform(_ platform: SocialPlatform) {
         guard connectingPlatform == nil else { return }
         connectingPlatform = platform
         connectionErrorPlatform = nil
         connectionErrorMessage = nil
 
-        Task { @MainActor in
+        Task {
             do {
                 let connection = try await SocialOAuthManager.shared.connect(platform: platform)
                 platformConnections[platform] = connection

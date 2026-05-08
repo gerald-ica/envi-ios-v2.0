@@ -11,8 +11,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
 
-        // Register fonts
-        ENVITypography.registerFonts()
+        // Fonts are auto-registered via Info.plist UIAppFonts.
 
         let window = UIWindow(windowScene: windowScene)
         self.window = window
@@ -24,6 +23,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let coordinator = AppCoordinator(window: window)
         self.appCoordinator = coordinator
         coordinator.start()
+
+        for context in connectionOptions.urlContexts {
+            _ = AppDelegate.handleIncomingURL(context.url)
+        }
+    }
+
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        for context in URLContexts {
+            _ = AppDelegate.handleIncomingURL(context.url)
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}

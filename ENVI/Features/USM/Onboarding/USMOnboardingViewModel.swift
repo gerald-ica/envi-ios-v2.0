@@ -57,8 +57,22 @@ public struct USMRecomputeRequest: Encodable {
 public struct USMRecomputeResponse: Decodable {
     public let status: String
     public let modelVersion: Int
-    public let recomputationStartedAt: String
-    public let recomputationCompletedAt: String
+    /// Server returns a single `recomputed_at` ISO8601 timestamp. Earlier
+    /// versions of this struct expected separate started/completed fields,
+    /// but the deployed brain endpoint emits one timestamp.
+    public let recomputedAt: String
+    /// Mirrors `completed_at` from the brain response. In the current
+    /// pipeline `recomputed_at` and `completed_at` are the same instant,
+    /// but they're modeled separately so the contract can grow into an
+    /// async/streaming completion later.
+    public let completedAt: String
+
+    enum CodingKeys: String, CodingKey {
+        case status
+        case modelVersion   = "model_version"
+        case recomputedAt   = "recomputed_at"
+        case completedAt    = "completed_at"
+    }
 }
 
 /// Main view model for the 4-screen USM onboarding flow.

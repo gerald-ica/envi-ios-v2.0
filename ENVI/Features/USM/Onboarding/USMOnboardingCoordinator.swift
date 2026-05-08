@@ -103,7 +103,9 @@ struct USMOnboardingCoordinator: View {
                                 try await Task.sleep(nanoseconds: 500_000_000)
                                 onComplete()
                             } catch {
-                                // Error is set in viewModel
+                                // Error was set on viewModel.submitError by
+                                // `submit()`; the `.alert` modifier below
+                                // presents it + offers retry / skip.
                             }
                         }
                     } else {
@@ -115,6 +117,33 @@ struct USMOnboardingCoordinator: View {
             }
         }
         .background(ENVITheme.background(for: colorScheme))
+        // Silent-failure fix: `submit()` was writing `submitError` and
+        // then nothing in the UI surfaced it, so a failed recompute POST
+        // (expired debug JWT, staging down, bad userId mapping, etc.)
+        // looked exactly like "button does nothing". Bind an alert here
+        // so the user sees the error and can either retry or bypass —
+        // onboarding should never be brick-wallable by a flaky backend.
+        .alert(
+            "We couldn't finish setting up your profile",
+            isPresented: Binding(
+                get: { viewModel.submitError != nil },
+                set: { if !$0 { viewModel.submitError = nil } }
+            ),
+            presenting: viewModel.submitError
+        ) { _ in
+            Button("Try again") {
+                viewModel.submitError = nil
+            }
+            Button("Skip for now") {
+                // The recompute can be retried later from Profile; let
+                // the user into the app rather than trapping them on
+                // the last onboarding screen.
+                viewModel.submitError = nil
+                onComplete()
+            }
+        } message: { error in
+            Text(error)
+        }
     }
 
     // MARK: - Loading View

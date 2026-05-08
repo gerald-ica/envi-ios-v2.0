@@ -14,7 +14,7 @@ final class AccountManagementViewModel: ObservableObject {
     @Published var showDeleteConfirmation = false
     @Published var showReauthAlert = false
 
-    private let repository: AccountRepository
+    private nonisolated(unsafe) let repository: AccountRepository
 
     init(repository: AccountRepository = AccountRepositoryProvider.shared.repository) {
         self.repository = repository

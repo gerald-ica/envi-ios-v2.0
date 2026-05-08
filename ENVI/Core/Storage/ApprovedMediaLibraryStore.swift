@@ -5,7 +5,7 @@ import Combine
 /// Persists approved items to UserDefaults via Codable serialization so they
 /// survive app restarts. The @Published `approvedItems` property remains reactive.
 final class ApprovedMediaLibraryStore: ObservableObject {
-    static let shared = ApprovedMediaLibraryStore()
+    nonisolated(unsafe) static let shared = ApprovedMediaLibraryStore()
 
     private static let userDefaultsKey = "ApprovedMediaLibraryStore.approvedItems"
 

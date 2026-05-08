@@ -4,7 +4,7 @@ import FirebaseAnalytics
 import FirebaseCrashlytics
 
 final class TelemetryManager {
-    static let shared = TelemetryManager()
+    nonisolated(unsafe) static let shared = TelemetryManager()
 
     private init() {}
 

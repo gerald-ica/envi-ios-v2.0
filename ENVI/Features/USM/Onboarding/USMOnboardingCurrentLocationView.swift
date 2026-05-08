@@ -170,7 +170,7 @@ struct USMOnboardingCurrentLocationView: View {
 
         isLocating = true
 
-        let status = CLLocationManager.authorizationStatus()
+        let status = locationManager.authorizationStatus
 
         // Request permission if needed
         if status == .notDetermined {
@@ -179,7 +179,7 @@ struct USMOnboardingCurrentLocationView: View {
             try? await Task.sleep(nanoseconds: 1_000_000_000)
         }
 
-        let finalStatus = CLLocationManager.authorizationStatus()
+        let finalStatus = locationManager.authorizationStatus
         guard finalStatus == .authorizedWhenInUse || finalStatus == .authorizedAlways else {
             isLocating = false
             searchError = "Location permission denied"

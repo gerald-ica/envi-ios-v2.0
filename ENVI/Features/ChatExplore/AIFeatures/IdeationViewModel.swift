@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the AI Ideation and Research feature set.
+@MainActor
 final class IdeationViewModel: ObservableObject {
     // MARK: - Ideas
     @Published var generatedIdeas: [ContentIdea] = []
@@ -37,11 +38,11 @@ final class IdeationViewModel: ObservableObject {
     // MARK: - Navigation
     @Published var selectedTab: IdeationTab = .trends
 
-    private let repository: IdeationRepository
+    nonisolated(unsafe) private let repository: IdeationRepository
 
     init(repository: IdeationRepository = IdeationRepositoryProvider.shared.repository) {
         self.repository = repository
-        Task {
+        Task { @MainActor in
             await loadTrends()
             await loadBoards()
         }

@@ -267,8 +267,12 @@ final class MainTabBarController: UIViewController {
             }
         }
 
-        DispatchQueue.main.async(execute: attachHandlers)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2, execute: attachHandlers)
+        DispatchQueue.main.async {
+            attachHandlers()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            attachHandlers()
+        }
     }
 
     private func clearTrackedScrollViews() {

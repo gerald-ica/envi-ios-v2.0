@@ -45,20 +45,32 @@ extension MediaScanCoordinator {
     /// Registers the coordinator's BGProcessingTask handler. Call this
     /// from `AppDelegate.application(_:didFinishLaunchingWithOptions:)`
     /// (or the SwiftUI `init`) BEFORE the app finishes launching.
-    func registerBackgroundTaskHandler() {
+    nonisolated func registerBackgroundTaskHandler() {
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: Self.backgroundTaskIdentifier,
             using: nil
         ) { [weak self] task in
-            guard let self = self,
-                  let processingTask = task as? BGProcessingTask
-            else {
+            guard let self else {
                 task.setTaskCompleted(success: false)
                 return
             }
-            self.handleBackgroundTask(processingTask)
+            Self._processBackgroundTask(self, task)
         }
     }
+
+    private static func _processBackgroundTask(_ coordinator: MediaScanCoordinator, _ task: BGTask) {
+        guard let processingTask = task as? BGProcessingTask else {
+            task.setTaskCompleted(success: false)
+            return
+        }
+        _storedTask = processingTask
+        Task { @MainActor in
+            guard let task = _storedTask else { return }
+            coordinator.handleBackgroundTask(task)
+        }
+    }
+
+    private static nonisolated(unsafe) var _storedTask: BGProcessingTask?
 
     /// Submits a `BGProcessingTaskRequest` so iOS will run the full
     /// library sweep when the device is idle + on power. Safe to call
@@ -80,6 +92,7 @@ extension MediaScanCoordinator {
     // MARK: - Handler
 
     /// Exposed internally so tests can drive it with a stub task.
+    @MainActor
     func handleBackgroundTask(_ task: BGProcessingTask) {
         // Thermal bail-out — if the device is hot, don't even start.
         guard isThermallySafe() else {
@@ -106,16 +119,21 @@ extension MediaScanCoordinator {
             Task.detached { await budget.endTracking() }
         }
 
-        Task.detached(priority: .background) { [weak self] in
+        // Signal completion after work finishes
+        MainActor.assumeIsolated {
+            backgroundTaskHandle(task: task, budget: budget, work: work)
+        }
+    }
+
+    // MARK: - Background Task Helper
+
+    @MainActor
+    private func backgroundTaskHandle(task: BGProcessingTask, budget: BackgroundTaskBudget, work: Task<(), Never>) {
+        Task {
             _ = await work.value
-            guard let self = self else {
-                task.setTaskCompleted(success: false)
-                return
-            }
-            // Re-schedule if anything is left to do, then signal done.
-            self.scheduleBackgroundScan()
+            scheduleBackgroundScan()
             await budget.endTracking()
-            task.setTaskCompleted(success: !Task.isCancelled)
+            task.setTaskCompleted(success: true)
         }
     }
 
@@ -126,10 +144,12 @@ extension MediaScanCoordinator {
     /// (task expiration), the thermal guard between chunks, and the
     /// BackgroundTaskBudget's checkpoint threshold.
     func runBackgroundSweep() async {
-        let allAssets = library.fetchRecentMedia(
-            limit: .max,
-            mediaTypes: [.image, .video]
-        )
+        let allAssets = await MainActor.run {
+            library.fetchRecentMedia(
+                limit: .max,
+                mediaTypes: [.image, .video]
+            )
+        }
         guard !allAssets.isEmpty else { return }
 
         // Resume from the checkpoint, if any. Prefer the new budget

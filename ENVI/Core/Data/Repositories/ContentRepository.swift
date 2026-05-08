@@ -217,7 +217,7 @@ final class APIContentRepository: ContentRepository {
 }
 
 enum ContentRepositoryProvider {
-    static var shared = RepositoryProvider<ContentRepository>(
+    nonisolated(unsafe) static var shared = RepositoryProvider<ContentRepository>(
         dev: MockContentRepository(),
         api: APIContentRepository()
     )

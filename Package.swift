@@ -60,9 +60,11 @@ let package = Package(
             resources: [
                 .process("Resources/Fonts"),
                 .process("Resources/Images"),
+                .process("Resources/Metal"),         // v3.0 — Metal 3 kernels
+                .process("Features/Editing"),        // v3.0 — SwiftUI editing module
             ],
             swiftSettings: [
-                .swiftLanguageMode(.v5),
+                .swiftLanguageMode(.v6),             // v3.0 — Swift 6 strict concurrency
             ]
         ),
         .testTarget(

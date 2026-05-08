@@ -123,7 +123,7 @@ enum ExperimentError: LocalizedError {
 // MARK: - Provider
 
 enum ExperimentRepositoryProvider {
-    static var shared = RepositoryProvider<ExperimentRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<ExperimentRepository>(
         dev: MockExperimentRepository(),
         api: APIExperimentRepository()
     )

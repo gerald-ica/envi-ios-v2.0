@@ -192,7 +192,7 @@ struct BrandKitEditorView: View {
 
             // Existing hashtags
             FlowLayoutCompat(spacing: ENVISpacing.sm) {
-                ForEach(brandKit.hashtags, id: \.self) { tag in
+                ForEach(Array(brandKit.hashtags.enumerated()), id: \.offset) { _, tag in
                     HStack(spacing: ENVISpacing.xs) {
                         Text(tag)
                             .font(.spaceMono(12))

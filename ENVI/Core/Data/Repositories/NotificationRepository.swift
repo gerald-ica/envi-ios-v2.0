@@ -120,7 +120,7 @@ final class APINotificationRepository: NotificationRepository {
 // MARK: - Factory
 
 enum NotificationRepositoryProvider {
-    static var shared = RepositoryProvider<NotificationRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<NotificationRepository>(
         dev: MockNotificationRepository(),
         api: APINotificationRepository()
     )

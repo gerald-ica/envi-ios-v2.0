@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Metadata, Tagging, and Knowledge Graph domain (D07).
+@MainActor
 final class MetadataViewModel: ObservableObject {
     // MARK: - Tags
     @Published var tags: [Tag] = []
@@ -29,7 +30,7 @@ final class MetadataViewModel: ObservableObject {
     @Published var isShowingTagEditor = false
     @Published var editingTag: Tag?
 
-    private let repository: MetadataRepository
+    private nonisolated(unsafe) let repository: MetadataRepository
 
     init(repository: MetadataRepository = MetadataRepositoryProvider.shared.repository) {
         self.repository = repository

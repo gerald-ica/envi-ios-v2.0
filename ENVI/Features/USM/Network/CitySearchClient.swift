@@ -1,5 +1,6 @@
 import Foundation
-import CoreLocation
+import MapKit
+@preconcurrency import CoreLocation
 
 /// Error type for city search operations.
 public enum CitySearchError: Error, Equatable {
@@ -21,7 +22,7 @@ private struct OracleCity: Codable {
 ///
 /// Implements two methods:
 /// 1. `search` — fetches cities from Oracle `/api/v1/cities/search` endpoint
-/// 2. `reverseGeocode` — uses CoreLocation's CLGeocoder to reverse-geocode coordinates
+/// 2. `reverseGeocode` — uses MapKit to reverse-geocode coordinates
 public final class CitySearchClient: CitySearchClientProtocol {
     public let baseURL: URL
     public let session: URLSession
@@ -100,7 +101,7 @@ public final class CitySearchClient: CitySearchClientProtocol {
 
     /// Reverse-geocode coordinates to a city.
     ///
-    /// Uses CoreLocation's CLGeocoder to find a city name and timezone for the given
+    /// Uses MapKit to find a city name and timezone for the given
     /// latitude and longitude. Falls back gracefully to nil on network errors.
     ///
     /// - Parameters:
@@ -109,32 +110,28 @@ public final class CitySearchClient: CitySearchClientProtocol {
     /// - Returns: USMCity if geocoding succeeds, nil otherwise (network error or no result)
     public func reverseGeocode(lat: Double, lon: Double) async throws -> USMCity? {
         let location = CLLocation(latitude: lat, longitude: lon)
-        let geocoder = CLGeocoder()
-
-        let placemarks: [CLPlacemark] = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[CLPlacemark], Error>) in
-            geocoder.reverseGeocodeLocation(location) { placemarks, error in
-                if let error = error {
-                    // For network-level errors, return nil (best-effort UX)
-                    if (error as? CLError)?.code == CLError.network {
-                        continuation.resume(returning: [])
-                    } else {
-                        continuation.resume(throwing: error)
-                    }
-                } else {
-                    continuation.resume(returning: placemarks ?? [])
-                }
-            }
-        }
-
-        // If no placemarks found, return nil
-        guard let placemark = placemarks.first else {
+        guard let request = MKReverseGeocodingRequest(location: location) else {
             return nil
         }
 
-        // Extract city name and country
-        let name = placemark.locality ?? placemark.name ?? "Unknown"
-        let country = placemark.country ?? ""
-        let timezone = placemark.timeZone?.identifier ?? TimeZone.current.identifier
+        let mapItems: [MKMapItem]
+        do {
+            mapItems = try await request.mapItems
+        } catch {
+            if isRecoverableReverseGeocodeError(error) {
+                return nil
+            }
+            throw error
+        }
+
+        guard let mapItem = mapItems.first else {
+            return nil
+        }
+
+        let addressRepresentations = mapItem.addressRepresentations
+        let name = addressRepresentations?.cityName ?? mapItem.name ?? "Unknown"
+        let country = addressRepresentations?.regionName ?? ""
+        let timezone = mapItem.timeZone?.identifier ?? TimeZone.current.identifier
 
         return USMCity(
             name: name,
@@ -146,6 +143,23 @@ public final class CitySearchClient: CitySearchClientProtocol {
     }
 
     // MARK: - Private Helpers
+
+    private func isRecoverableReverseGeocodeError(_ error: Error) -> Bool {
+        if let error = error as? CLError, error.code == .network {
+            return true
+        }
+
+        guard let error = error as? MKError else {
+            return false
+        }
+
+        switch error.code {
+        case .serverFailure, .loadingThrottled, .placemarkNotFound:
+            return true
+        default:
+            return false
+        }
+    }
 
     /// Map an Oracle city response to a USMCity by splitting the name field.
     ///

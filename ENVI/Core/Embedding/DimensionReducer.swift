@@ -210,13 +210,14 @@ public struct DimensionReducer: Sendable {
 
     private func l2NormalizeRows(_ X: inout [Float], n: Int, d: Int) {
         X.withUnsafeMutableBufferPointer { buf in
+            guard let base = buf.baseAddress else { return }
             for i in 0..<n {
-                let base = buf.baseAddress!.advanced(by: i * d)
+                let ptr = base.advanced(by: i * d)
                 var norm: Float = 0
-                vDSP_svesq(base, 1, &norm, vDSP_Length(d))
+                vDSP_svesq(ptr, 1, &norm, vDSP_Length(d))
                 let inv: Float = norm > 0 ? 1.0 / sqrtf(norm) : 0
                 var m = inv
-                vDSP_vsmul(base, 1, &m, base, 1, vDSP_Length(d))
+                vDSP_vsmul(ptr, 1, &m, ptr, 1, vDSP_Length(d))
             }
         }
     }
@@ -238,12 +239,15 @@ public struct DimensionReducer: Sendable {
         // vDSP_mmul signature: C[M,N] = A[M,P] * B[P,N], so M=n, N=n, P=d.
         // (Previously swapped to M=n,N=d,P=n — corrupted heap when d != n.)
         X.withUnsafeBufferPointer { xb in
+            guard let xPtr = xb.baseAddress else { return }
             XT.withUnsafeBufferPointer { xtb in
+                guard let xtPtr = xtb.baseAddress else { return }
                 S.withUnsafeMutableBufferPointer { sb in
+                    guard let sPtr = sb.baseAddress else { return }
                     vDSP_mmul(
-                        xb.baseAddress!, 1,
-                        xtb.baseAddress!, 1,
-                        sb.baseAddress!, 1,
+                        xPtr, 1,
+                        xtPtr, 1,
+                        sPtr, 1,
                         vDSP_Length(n),
                         vDSP_Length(n),
                         vDSP_Length(d)

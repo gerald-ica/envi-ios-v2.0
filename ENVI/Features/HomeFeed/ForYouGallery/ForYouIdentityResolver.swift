@@ -2,8 +2,8 @@ import Foundation
 
 /// Resolves user-owned identity fields for Tab 1 cards.
 struct ForYouIdentityResolver {
-    typealias CurrentUserProvider = () -> User?
-    typealias FallbackNameProvider = () -> String?
+    typealias CurrentUserProvider = @MainActor () -> User?
+    typealias FallbackNameProvider = @MainActor () -> String?
 
     struct Identity {
         let displayName: String
@@ -14,13 +14,14 @@ struct ForYouIdentityResolver {
     private let fallbackNameProvider: FallbackNameProvider
 
     init(
-        currentUserProvider: @escaping CurrentUserProvider = { AuthManager.shared.currentUser() },
-        fallbackNameProvider: @escaping FallbackNameProvider = { UserDefaultsManager.shared.userName }
+        currentUserProvider: @escaping CurrentUserProvider = { @MainActor in AuthManager.shared.currentUser() },
+        fallbackNameProvider: @escaping FallbackNameProvider = { @MainActor in UserDefaultsManager.shared.userName }
     ) {
         self.currentUserProvider = currentUserProvider
         self.fallbackNameProvider = fallbackNameProvider
     }
 
+    @MainActor
     func resolve(preferredPlatform: SocialPlatform?) -> Identity {
         if let user = currentUserProvider() {
             let displayName = user.fullName.trimmingCharacters(in: .whitespacesAndNewlines)

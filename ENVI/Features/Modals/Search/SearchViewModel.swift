@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Search, Discovery, and Retrieval domain (D08).
+@MainActor
 final class SearchViewModel: ObservableObject {
 
     // MARK: - Published State
@@ -24,7 +25,7 @@ final class SearchViewModel: ObservableObject {
     @Published var isShowingFilterBuilder = false
     @Published var isShowingSavedSearches = false
 
-    private let repository: SearchRepository
+    private nonisolated(unsafe) let repository: SearchRepository
     private var searchTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
 

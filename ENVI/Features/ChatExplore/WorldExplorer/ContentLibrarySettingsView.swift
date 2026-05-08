@@ -349,10 +349,11 @@ struct ContentLibrarySettingsView: View {
         connectingPlatform = platform
         connectErrorMessage = nil
 
+        nonisolated(unsafe) let oauthManager = oauth
         Task { @MainActor in
             defer { connectingPlatform = nil }
             do {
-                let connection = try await oauth.connect(platform: platform)
+                let connection = try await oauthManager.connect(platform: platform)
                 if connection.isConnected {
                     connectedPlatforms.insert(platform)
                 }

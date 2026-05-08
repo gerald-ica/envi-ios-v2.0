@@ -19,6 +19,7 @@ final class ENVITests: XCTestCase {
         XCTAssertGreaterThan(items.count, 0)
     }
 
+    @MainActor
     func testOnboardingViewModel() {
         let vm = OnboardingViewModel()
         vm.firstName = "Test"

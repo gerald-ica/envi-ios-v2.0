@@ -19,7 +19,12 @@ import PhotosUI
 enum ContentLibrary {
 
     /// Reuse the same placeholder image pool shown on the For You feed.
-    static let imageNames: [String] = FeedViewModel.imageNames
+    static let imageNames: [String] = [
+        "Closer", "chopsticks", "culture-food", "cyclist", "desert-car",
+        "fashion-group", "card-graphic", "industrial-girl", "jacket",
+        "office-girl", "parking-garage", "red-silhouette", "runway",
+        "card-graphic", "subway", "suit-phone", "tennis"
+    ]
 
     /// Force helix content to use the For You placeholder set.
     static let pieces: [ContentPiece] = ContentPiece.sampleLibrary.enumerated().map { index, piece in
@@ -110,8 +115,10 @@ struct WorldExplorerView: View {
                     }
                 },
                 onSceneReady: {
-                    withAnimation(.easeIn(duration: 0.8)) {
-                        sceneReady = true
+                    DispatchQueue.main.async {
+                        withAnimation(.easeIn(duration: 0.8)) {
+                            sceneReady = true
+                        }
                     }
                 },
                 onControllerReady: { controller in
@@ -683,7 +690,9 @@ struct WorldExplorerView: View {
         voiceSeconds = 0
         plusMenuOpen = false
         voiceTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            voiceSeconds += 1
+            DispatchQueue.main.async {
+                self.voiceSeconds += 1
+            }
         }
     }
 

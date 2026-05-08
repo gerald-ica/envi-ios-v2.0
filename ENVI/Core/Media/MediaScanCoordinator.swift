@@ -36,19 +36,20 @@ import Combine
 protocol MediaClassifierProtocol: AnyObject {
     func classifyBatch(
         _ assets: [PHAsset],
-        progress: ((Int, Int) -> Void)?
-    ) async -> [ClassifiedAsset]
+        progress: (@Sendable (Int, Int) -> Void)?
+    ) async -> [ClassifiedAssetRecord]
 
     func classify(
         _ asset: PHAsset,
         priority: TaskPriority
-    ) async throws -> ClassifiedAsset
+    ) async throws -> ClassifiedAssetRecord
 }
 
 // MARK: - PHAsset provider (testability seam)
 
 /// Abstracts `PhotoLibraryManager.fetchRecentMedia` so tests can inject
 /// a mock library without touching the Photos framework.
+@MainActor
 protocol PHAssetProviding: AnyObject {
     func fetchRecentMedia(limit: Int, mediaTypes: [PHAssetMediaType]) -> [PHAsset]
     func totalMediaCount() -> Int
@@ -85,7 +86,7 @@ struct MediaScanProgress: Equatable {
 
 // MARK: - MediaScanCoordinator
 
-final class MediaScanCoordinator: ObservableObject {
+final class MediaScanCoordinator: ObservableObject, @unchecked Sendable {
 
     // MARK: Published state
 
@@ -119,7 +120,7 @@ final class MediaScanCoordinator: ObservableObject {
     init(
         classifier: MediaClassifierProtocol,
         cache: ClassificationCache,
-        library: PHAssetProviding = PhotoLibraryManager.shared,
+        library: PHAssetProviding,
         defaults: UserDefaults = .standard
     ) {
         self.classifier = classifier
@@ -132,15 +133,16 @@ final class MediaScanCoordinator: ObservableObject {
 
     /// Classifies the most recent `onboardingBatchSize` PHAssets.
     /// Progress is published on the main actor as each chunk completes.
-    @discardableResult
-    public func scanOnboardingBatch() async -> [ClassifiedAsset] {
-        let assets = library.fetchRecentMedia(
-            limit: Self.onboardingBatchSize,
-            mediaTypes: [.image, .video]
-        )
+    public func scanOnboardingBatch() async {
+        let assets = await MainActor.run {
+            library.fetchRecentMedia(
+                limit: Self.onboardingBatchSize,
+                mediaTypes: [.image, .video]
+            )
+        }
         guard !assets.isEmpty else {
             await updateProgress(.init(phase: .completed, completed: 0, total: 0))
-            return []
+            return
         }
 
         await updateProgress(.init(phase: .onboarding, completed: 0, total: assets.count))
@@ -151,22 +153,24 @@ final class MediaScanCoordinator: ObservableObject {
             }
         }
 
+        let resultCount = results.count
+        let lastIdentifier = results.last?.localIdentifier
         await persist(results)
-        if let last = results.last { recordCheckpoint(last.localIdentifier) }
-        await updateProgress(.init(phase: .completed, completed: results.count, total: assets.count))
-        return results
+        if let lastIdentifier { recordCheckpoint(lastIdentifier) }
+        await updateProgress(.init(phase: .completed, completed: resultCount, total: assets.count))
     }
 
     // MARK: - 3. Lazy rescan
 
     /// Called when the Template tab opens. Compares the photo library's
     /// live count against the cache and classifies only the new assets.
-    @discardableResult
-    public func lazyRescan() async -> [ClassifiedAsset] {
-        let libraryCount = library.fetchRecentMedia(limit: .max, mediaTypes: [.image, .video]).count
+    public func lazyRescan() async {
+        let libraryCount = await MainActor.run {
+            library.fetchRecentMedia(limit: .max, mediaTypes: [.image, .video]).count
+        }
         let cachedCount: Int
         do {
-            cachedCount = try await cache.fetchAll().count
+            cachedCount = try await cache.fetchAllLocalIdentifiers().count
         } catch {
             cachedCount = 0
         }
@@ -174,12 +178,13 @@ final class MediaScanCoordinator: ObservableObject {
         let delta = max(0, libraryCount - cachedCount)
         guard delta > 0 else {
             await updateProgress(.init(phase: .completed, completed: 0, total: 0))
-            return []
+            return
         }
 
-        let freshAssets = library
-            .fetchRecentMedia(limit: delta, mediaTypes: [.image, .video])
-        guard !freshAssets.isEmpty else { return [] }
+        let freshAssets = await MainActor.run {
+            library.fetchRecentMedia(limit: delta, mediaTypes: [.image, .video])
+        }
+        guard !freshAssets.isEmpty else { return }
 
         await updateProgress(.init(phase: .lazy, completed: 0, total: freshAssets.count))
         let results = await classifier.classifyBatch(freshAssets) { [weak self] done, total in
@@ -187,9 +192,9 @@ final class MediaScanCoordinator: ObservableObject {
                 await self?.updateProgress(.init(phase: .lazy, completed: done, total: total))
             }
         }
+        let resultCount = results.count
         await persist(results)
-        await updateProgress(.init(phase: .completed, completed: results.count, total: freshAssets.count))
-        return results
+        await updateProgress(.init(phase: .completed, completed: resultCount, total: freshAssets.count))
     }
 
     // MARK: - 4. Change observer hook
@@ -197,7 +202,7 @@ final class MediaScanCoordinator: ObservableObject {
     /// Wires this coordinator into `PhotoLibraryManager.changeDelegate`.
     /// When the library mutates, `photoLibraryDidChange` is called and
     /// we kick off an incremental classification of the new assets.
-    public func registerChangeObserver(on manager: PhotoLibraryManager = .shared) {
+    public func registerChangeObserver(on manager: PhotoLibraryManager) {
         manager.changeDelegate = self
     }
 
@@ -207,13 +212,15 @@ final class MediaScanCoordinator: ObservableObject {
         guard affected > 0 else { return }
         Task { [weak self] in
             guard let self = self else { return }
-            let fresh = self.library
-                .fetchRecentMedia(limit: affected, mediaTypes: [.image, .video])
+            let fresh = await MainActor.run {
+                self.library.fetchRecentMedia(limit: affected, mediaTypes: [.image, .video])
+            }
             guard !fresh.isEmpty else { return }
             await self.updateProgress(.init(phase: .incremental, completed: 0, total: fresh.count))
             let results = await self.classifier.classifyBatch(fresh, progress: nil)
+            let resultCount = results.count
             await self.persist(results)
-            await self.updateProgress(.init(phase: .completed, completed: results.count, total: fresh.count))
+            await self.updateProgress(.init(phase: .completed, completed: resultCount, total: fresh.count))
         }
     }
 
@@ -252,7 +259,7 @@ final class MediaScanCoordinator: ObservableObject {
 
     // MARK: - Persistence helper
 
-    func persist(_ results: [ClassifiedAsset]) async {
+    func persist(_ results: [ClassifiedAssetRecord]) async {
         guard !results.isEmpty else { return }
         do {
             try await cache.batchUpsert(results)

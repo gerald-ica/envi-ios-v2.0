@@ -16,7 +16,7 @@ import UIKit
 ///     `.sessionAlreadyActive` rather than stacking webviews.
 final class ASWebAuthenticationSessionAdapter: NSObject, OAuthSession {
     @MainActor private var activeSession: ASWebAuthenticationSession?
-    @MainActor private weak var presentationAnchor: ASPresentationAnchor?
+    @MainActor private var presentationAnchor: ASPresentationAnchor?
     @MainActor private let presentationAnchorProvider: () -> ASPresentationAnchor?
 
     /// - Parameter presentationAnchorProvider: Injectable so tests can supply
@@ -71,11 +71,17 @@ final class ASWebAuthenticationSessionAdapter: NSObject, OAuthSession {
             session.presentationContextProvider = self
             session.prefersEphemeralWebBrowserSession = false
 
-            self.presentationAnchor = self.presentationAnchorProvider()
+            guard let presentationAnchor = self.presentationAnchorProvider() else {
+                continuation.resume(throwing: OAuthSessionError.presentationAnchorUnavailable)
+                return
+            }
+
+            self.presentationAnchor = presentationAnchor
             self.activeSession = session
 
             if !session.start() {
                 self.activeSession = nil
+                self.presentationAnchor = nil
                 continuation.resume(
                     throwing: OAuthSessionError.callbackURLInvalid(authorizationURL)
                 )
@@ -87,26 +93,28 @@ final class ASWebAuthenticationSessionAdapter: NSObject, OAuthSession {
     func cancel() {
         activeSession?.cancel()
         activeSession = nil
+        presentationAnchor = nil
     }
 
     // MARK: - Default presentation anchor
 
     @MainActor
-    private static func defaultPresentationAnchor() -> ASPresentationAnchor? {
+    private static func defaultWindowScene() -> UIWindowScene? {
         let scenes = UIApplication.shared.connectedScenes
-        let activeWindowScene = scenes
+        return scenes
             .compactMap { $0 as? UIWindowScene }
             .first(where: { $0.activationState == .foregroundActive })
             ?? scenes.compactMap({ $0 as? UIWindowScene }).first
+    }
+
+    @MainActor
+    private static func defaultPresentationAnchor() -> ASPresentationAnchor? {
+        let activeWindowScene = defaultWindowScene()
         return activeWindowScene?.keyWindow
             ?? activeWindowScene?.windows.first
             ?? activeWindowScene.map { UIWindow(windowScene: $0) }
     }
 
-    @MainActor
-    private static func fallbackPresentationAnchor() -> ASPresentationAnchor {
-        defaultPresentationAnchor() ?? UIWindow(frame: UIScreen.main.bounds)
-    }
 }
 
 // MARK: - ASWebAuthenticationPresentationContextProviding
@@ -120,16 +128,7 @@ extension ASWebAuthenticationSessionAdapter: ASWebAuthenticationPresentationCont
                 return anchor
             }
 
-            // Last-resort fallback — ASWebAuthenticationSession's delegate
-            // contract demands we return *some* anchor, so synthesize a
-            // bare UIWindow rather than crashing the app. The session will
-            // error out on its own if the window isn't attached to a
-            // scene, and the caller's `start()` continuation receives the
-            // error cleanly. Previously this path called
-            // `preconditionFailure`, which turned transient scene-setup
-            // gaps (simulator cold launch, onboarding before the window
-            // becomes key) into hard crashes.
-            return ASWebAuthenticationSessionAdapter.fallbackPresentationAnchor()
+            preconditionFailure("ASWebAuthenticationSession requires a scene-backed presentation anchor.")
         }
     }
 }

@@ -50,7 +50,7 @@ final class ForYouGalleryViewModel: ObservableObject {
 
     private let approvedStore: ApprovedMediaLibraryStore
     private let matchEngine: TemplateMatchEngine
-    private let templateRepo: VideoTemplateRepository
+    nonisolated(unsafe) private let templateRepo: VideoTemplateRepository
     private let embeddingIndex: EmbeddingIndex
     private let identityResolver: ForYouIdentityResolver
     private let assemblyCoordinator: ForYouAssemblyCoordinator
@@ -516,7 +516,7 @@ final class ForYouGalleryViewModel: ObservableObject {
             // Deterministic ID so re-suggesting the same asset across launches
             // doesn't duplicate tiles and doesn't collide with approved items.
             let stableID = "suggestion-" + asset.localIdentifier
-            let fallbackImage = type == .videos ? "fire-stunt" : "studio-fashion"
+            let fallbackImage = "card-graphic"
 
             collected.append(
                 LibraryItem(

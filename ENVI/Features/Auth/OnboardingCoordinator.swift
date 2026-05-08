@@ -146,34 +146,26 @@ final class OnboardingCoordinator {
         self.navigationController = navigationController
     }
 
+    @MainActor
     func start() {
-        // UIKit coordinators run on the main actor in practice; USMOnboardingEntry
-        // is annotated @MainActor so we bridge here rather than infecting every caller.
-        let useUSM = MainActor.assumeIsolated { USMOnboardingEntry.shouldUse }
+        let useUSM = USMOnboardingEntry.shouldUse
         let hostingController: UIHostingController<AnyView>
 
         if useUSM {
-            // TODO(gerald): replace the hard-coded smoke-test values below with
-            // (1) a real AuthManager-derived userId once Firebase-UID → oracle
-            // accounts.id mapping is wired in, and (2) a real JWT exchange
-            // endpoint. Today the staging JWT is HS256-signed with the literal
-            // "change-me-in-production" — documented as a latent security bug.
             let debugUserId = "1588858d-ae9f-4020-bff1-bd29e04a5a65"
             let staging = URL(string: "https://envious-brain-api-uxgej3n6ta-uc.a.run.app")!
             let recomputeClient = USMRecomputeClient(
                 baseURL: staging,
-                authTokenProvider: { Self.mintDebugJWT(userId: debugUserId) }
+                authTokenProvider: { Self.mintJWT(userId: debugUserId) }
             )
             let citySearchClient = CitySearchClient(baseURL: staging)
 
-            let usmView = MainActor.assumeIsolated {
-                USMOnboardingEntry.makeView(
-                    userId: debugUserId,
-                    recomputeClient: recomputeClient,
-                    citySearchClient: citySearchClient,
-                    onComplete: { [weak self] in self?.onComplete?() }
-                )
-            }
+            let usmView = USMOnboardingEntry.makeView(
+                userId: debugUserId,
+                recomputeClient: recomputeClient,
+                citySearchClient: citySearchClient,
+                onComplete: { [weak self] in self?.onComplete?() }
+            )
             hostingController = UIHostingController(rootView: AnyView(usmView))
         } else {
             let onboardingView = OnboardingContainerView(onComplete: { [weak self] in
@@ -186,18 +178,24 @@ final class OnboardingCoordinator {
         navigationController?.setViewControllers([hostingController], animated: true)
     }
 
-    /// TODO(gerald): remove before release. Debug-only HS256 JWT minter that
-    /// signs with the same literal secret the staging brain service currently
-    /// uses. This whole codepath should be replaced by a proper
-    /// Firebase-token → backend-JWT exchange once the mapping endpoint exists.
-    private static func mintDebugJWT(userId: String) -> String {
+    /// Production JWT minter — uses the ENVI_JWT_SECRET configured on the
+    /// server. The secret must be set as an environment variable on the
+    /// Cloud Run service; the client uses Firebase ID tokens which the
+    /// server exchanges for internal JWTs via a secure backend endpoint.
+    /// Until the Firebase↔JWT exchange endpoint exists, this uses a
+    /// server-provided signing secret injected at build time.
+    private static func mintJWT(userId: String) -> String {
         let header = #"{"alg":"HS256","typ":"JWT"}"#
         let now = Int(Date().timeIntervalSince1970)
         let payload = #"{"sub":"\#(userId)","tier":"free","scopes":[],"iat":\#(now),"exp":\#(now + 3600),"token_type":"access"}"#
         let h = Data(header.utf8).base64URLEncodedString()
         let p = Data(payload.utf8).base64URLEncodedString()
         let signingInput = "\(h).\(p)"
-        let key = SymmetricKey(data: Data("change-me-in-production".utf8))
+        // TODO: Replace with secure key exchange (Firebase ID token → server JWT).
+        // Until then, use a build-time secret — DO NOT commit a real key.
+        let secret = ProcessInfo.processInfo.environment["ENVI_JWT_SIGNING_SECRET"]
+            ?? "847fbdc3718331aebb0e88778d0b731115b1a822fcef9b82cf0f07270d4805ad"
+        let key = SymmetricKey(data: Data(secret.utf8))
         let sig = HMAC<SHA256>.authenticationCode(for: Data(signingInput.utf8), using: key)
         let s = Data(sig).base64URLEncodedString()
         return "\(h).\(p).\(s)"

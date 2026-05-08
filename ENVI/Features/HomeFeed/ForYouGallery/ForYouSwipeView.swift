@@ -193,15 +193,17 @@ private enum ScreenWidthDefaults {
     static let fallbackWidth: CGFloat = 393
 
     static var currentWidth: CGFloat {
-        let screenWidth = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-            .first(where: \.isKeyWindow)?
-            .windowScene?
-            .screen
-            .bounds.width
+        MainActor.assumeIsolated {
+            let screenWidth = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap(\.windows)
+                .first(where: \.isKeyWindow)?
+                .windowScene?
+                .screen
+                .bounds.width
 
-        return screenWidth ?? fallbackWidth
+            return screenWidth ?? fallbackWidth
+        }
     }
 }
 

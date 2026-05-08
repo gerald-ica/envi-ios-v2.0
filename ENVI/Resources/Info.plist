@@ -2,174 +2,123 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <!-- ================================================================ -->
-    <!-- Core bundle metadata                                              -->
-    <!-- ================================================================ -->
-    <key>CFBundleDevelopmentRegion</key>
-    <string>$(DEVELOPMENT_LANGUAGE)</string>
-    <key>CFBundleDisplayName</key>
-    <string>ENVI</string>
-    <key>CFBundleExecutable</key>
-    <string>$(EXECUTABLE_NAME)</string>
-    <key>CFBundleIdentifier</key>
-    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-    <key>CFBundleInfoDictionaryVersion</key>
-    <string>6.0</string>
-    <key>CFBundleName</key>
-    <string>$(PRODUCT_NAME)</string>
-    <key>CFBundlePackageType</key>
-    <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
-    <key>CFBundleShortVersionString</key>
-    <string>$(MARKETING_VERSION)</string>
-    <key>CFBundleVersion</key>
-    <string>$(CURRENT_PROJECT_VERSION)</string>
-
-    <!-- ================================================================ -->
-    <!-- Platform / orientations                                           -->
-    <!-- ================================================================ -->
-    <key>LSRequiresIPhoneOS</key>
-    <true/>
-    <key>UILaunchStoryboardName</key>
-    <string></string>
-    <key>UIApplicationSceneManifest</key>
-    <dict>
-        <key>UIApplicationSupportsMultipleScenes</key>
-        <false/>
-        <key>UISceneConfigurations</key>
-        <dict>
-            <key>UIWindowSceneSessionRoleApplication</key>
-            <array>
-                <dict>
-                    <key>UISceneConfigurationName</key>
-                    <string>Default Configuration</string>
-                    <key>UISceneDelegateClassName</key>
-                    <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
-                </dict>
-            </array>
-        </dict>
-    </dict>
-    <key>UIRequiredDeviceCapabilities</key>
-    <array>
-        <string>arm64</string>
-    </array>
-    <key>UISupportedInterfaceOrientations</key>
-    <array>
-        <string>UIInterfaceOrientationPortrait</string>
-    </array>
-    <key>UIViewControllerBasedStatusBarAppearance</key>
-    <true/>
-
-    <!-- ================================================================ -->
-    <!-- Privacy usage descriptions                                        -->
-    <!-- Required to avoid App Store rejection; strings are customer-      -->
-    <!-- facing so they should read clearly in the permission prompt.     -->
-    <!-- ================================================================ -->
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>ENVI imports photos and videos from your library so it can turn them into posts for your connected channels.</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>ENVI saves edited media back to your photo library so you can keep a copy of every post you publish.</string>
-    <key>NSCameraUsageDescription</key>
-    <string>ENVI uses the camera to capture new content you can publish to your connected social channels.</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>ENVI records audio alongside video when you capture or edit content directly in the app.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>ENVI uses your location to personalize content and recommendations for where you are.</string>
-
-    <!-- ================================================================ -->
-    <!-- URL schemes — OAuth callback (Phase 06-04)                        -->
-    <!--                                                                   -->
-    <!-- `enviapp://oauth-callback/{provider}` is the ASWebAuthentication  -->
-    <!-- redirect target for every connector. Must be registered with all  -->
-    <!-- 6 provider consoles (see docs/ops/06-06-sandbox-redirect-         -->
-    <!-- checklist.md).                                                    -->
-    <!--                                                                   -->
-    <!-- Google Sign-In's reversed client id scheme is registered too so   -->
-    <!-- GIDSignIn.handle(_:) keeps working after we move off the auto-    -->
-    <!-- generated Info.plist.                                             -->
-    <!-- ================================================================ -->
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleURLName</key>
-            <string>com.weareinformal.envi.staging.oauth</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>enviapp</string>
-            </array>
-        </dict>
-        <dict>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleURLName</key>
-            <string>com.weareinformal.envi.staging.googlesignin</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>com.googleusercontent.apps.471220969990-a6as0oqueq6f69l391f94fa4n5f6k3g5</string>
-            </array>
-        </dict>
-    </array>
-
-    <!-- ================================================================ -->
-    <!-- Apple-specific entitlements surfaced via Info.plist              -->
-    <!-- ================================================================ -->
-    <key>ITSAppUsesNonExemptEncryption</key>
-    <false/>
-
-    <!-- ================================================================ -->
-    <!-- Build-time secrets (see Config/Secrets.xcconfig.template)         -->
-    <!--                                                                   -->
-    <!-- `$(REVENUECAT_API_KEY)` is substituted by Xcode at build time     -->
-    <!-- from the gitignored `Config/Secrets.xcconfig`. `PurchaseConstants`-->
-    <!-- reads it at runtime via `Bundle.main.infoDictionary`, so the      -->
-    <!-- key never appears in a committed source file.                     -->
-    <!-- ================================================================ -->
-    <key>REVENUECAT_API_KEY</key>
-    <string>$(REVENUECAT_API_KEY)</string>
-
-    <!-- ================================================================ -->
-    <!-- Custom fonts (restored Sprint-03 regression fix)                  -->
-    <!--                                                                   -->
-    <!-- UIAppFonts registers the bundled .ttf files with UIKit so         -->
-    <!-- `UIFont(name: …)` can resolve them at runtime. The .ttf assets    -->
-    <!-- ship via PBXResourcesBuildPhase; this key is what lets the OS     -->
-    <!-- actually load them. Without it, every custom-font lookup returns  -->
-    <!-- nil and the UI silently falls back to system fonts.               -->
-    <!--                                                                   -->
-    <!-- Keep this list in sync with the .ttf files under                  -->
-    <!-- ENVI/Resources/Fonts/.                                            -->
-    <!-- ================================================================ -->
-    <key>UIAppFonts</key>
-    <array>
-        <string>Inter-Regular.ttf</string>
-        <string>Inter-Medium.ttf</string>
-        <string>Inter-SemiBold.ttf</string>
-        <string>Inter-Bold.ttf</string>
-        <string>Inter-ExtraBold.ttf</string>
-        <string>Inter-Black.ttf</string>
-        <string>SpaceMono-Regular.ttf</string>
-        <string>SpaceMono-Bold.ttf</string>
-        <string>SpaceMono-Italic.ttf</string>
-        <string>SpaceMono-BoldItalic.ttf</string>
-    </array>
-
-    <!-- ================================================================ -->
-    <!-- Background execution (Phase Sprint-03)                            -->
-    <!-- ================================================================ -->
-    <key>UIBackgroundModes</key>
-    <array>
-        <string>processing</string>
-    </array>
-    <!-- Must match every identifier passed to `BGTaskScheduler.register(forTaskWithIdentifier:)`.
-         `com.envi.mediaclassifier.fullscan` is registered in
-         MediaScanCoordinator+BackgroundTasks.swift and submitted as a
-         BGProcessingTaskRequest to continue the camera-roll classification
-         in the background. Without this entry iOS returns
-         BGTaskSchedulerErrorDomain code 1 ("Not permitted") at registration. -->
-    <key>BGTaskSchedulerPermittedIdentifiers</key>
-    <array>
-        <string>com.envi.mediaclassifier.fullscan</string>
-    </array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.envi.mediaclassifier.fullscan</string>
+	</array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>ENVI</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.weareinformal.envi.oauth</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>enviapp</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.weareinformal.envi.googlesignin</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.471220969990-gb2gj7g34ce23r4j3l3tnr8i2inrpcm9</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>ENVI uses the camera to capture new content you can publish to your connected social channels.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ENVI uses your location to personalize content and recommendations for where you are.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>ENVI records audio alongside video when you capture or edit content directly in the app.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>ENVI saves edited media back to your photo library so you can keep a copy of every post you publish.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ENVI imports photos and videos from your library so it can turn them into posts for your connected channels.</string>
+	<key>REVENUECAT_API_KEY</key>
+	<string>$(REVENUECAT_API_KEY)</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Inter-Regular.ttf</string>
+		<string>Inter-Medium.ttf</string>
+		<string>Inter-SemiBold.ttf</string>
+		<string>Inter-Bold.ttf</string>
+		<string>Inter-ExtraBold.ttf</string>
+		<string>Inter-Black.ttf</string>
+		<string>SpaceMono-Regular.ttf</string>
+		<string>SpaceMono-Bold.ttf</string>
+		<string>SpaceMono-Italic.ttf</string>
+		<string>SpaceMono-BoldItalic.ttf</string>
+	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default Configuration</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+		<string>fetch</string>
+		<string>nearby-interaction</string>
+		<string>location</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string></string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<true/>
 </dict>
 </plist>

@@ -22,6 +22,7 @@ protocol PhotoLibraryChangeDelegate: AnyObject {
     func photoLibraryDidChange(insertedCount: Int, removedCount: Int, updatedCount: Int)
 }
 
+@MainActor
 final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChangeObserver {
 
     // MARK: - Authorization Status
@@ -70,7 +71,7 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
     @Published private(set) var availableMediaCount: Int = 0
 
     /// Delegate for receiving library change events.
-    weak var changeDelegate: PhotoLibraryChangeDelegate?
+    nonisolated(unsafe) weak var changeDelegate: PhotoLibraryChangeDelegate?
 
     /// Cached fetch result for change observer diffing.
     private var cachedFetchResult: PHFetchResult<PHAsset>?
@@ -102,7 +103,7 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
         return mapped
     }
 
-    func refreshAuthorizationStatus() {
+    @MainActor func refreshAuthorizationStatus() {
         let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
         authorizationStatus = AuthorizationStatus(phStatus: currentStatus)
     }
@@ -119,7 +120,7 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
     ///   - limit: Maximum number of assets to fetch. Defaults to 100.
     ///   - mediaTypes: Which media types to include. Defaults to images and videos.
     /// - Returns: An array of PHAsset references for further processing.
-    func fetchRecentMedia(
+    @MainActor func fetchRecentMedia(
         limit: Int = 100,
         mediaTypes: [PHAssetMediaType] = [.image, .video]
     ) -> [PHAsset] {
@@ -149,7 +150,7 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
 
     /// Fetches a count of all media in the user's library.
     /// Useful for displaying stats in the profile or onboarding flow.
-    func totalMediaCount() -> Int {
+    @MainActor func totalMediaCount() -> Int {
         guard authorizationStatus.isAuthorized else {
             return 0
         }
@@ -183,20 +184,17 @@ final class PhotoLibraryManager: NSObject, ObservableObject, PHPhotoLibraryChang
     }
 
     /// Called by the Photos framework when the library changes.
-    func photoLibraryDidChange(_ changeInstance: PHChange) {
-        guard let previousResult = cachedFetchResult else { return }
-        guard let changeDetails = changeInstance.changeDetails(for: previousResult) else { return }
+    nonisolated func photoLibraryDidChange(_ changeInstance: PHChange) {
+        Task { @MainActor [weak self] in
+            guard let self, let previousResult = self.cachedFetchResult else { return }
+            guard let changeDetails = changeInstance.changeDetails(for: previousResult) else { return }
 
-        let inserted = changeDetails.insertedObjects.count
-        let removed = changeDetails.removedObjects.count
-        let updated = changeDetails.changedObjects.count
+            let inserted = changeDetails.insertedObjects.count
+            let removed = changeDetails.removedObjects.count
+            let updated = changeDetails.changedObjects.count
 
-        // Update cached result on the main thread
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
             self.cachedFetchResult = changeDetails.fetchResultAfterChanges
             self.availableMediaCount = changeDetails.fetchResultAfterChanges.count
-
             self.changeDelegate?.photoLibraryDidChange(
                 insertedCount: inserted,
                 removedCount: removed,

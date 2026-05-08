@@ -1,9 +1,14 @@
 import SwiftUI
 
 /// Toggle-based privacy controls with explanations for each setting.
+@MainActor
 struct PrivacySettingsView: View {
-    @ObservedObject var viewModel: SecurityViewModel
+    @StateObject private var viewModel: SecurityViewModel
     @Environment(\.colorScheme) private var colorScheme
+
+    init(viewModel: SecurityViewModel) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         ScrollView {

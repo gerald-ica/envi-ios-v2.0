@@ -1,6 +1,9 @@
 import Foundation
 import RevenueCat
 import Combine
+import os
+
+private let purchaseLogger = Logger(subsystem: "com.weareinformal.ENVI", category: "Purchases")
 
 /// Singleton that owns the RevenueCat lifecycle.
 /// Publishes reactive state so SwiftUI views can observe subscription status.
@@ -16,8 +19,15 @@ final class PurchaseManager: NSObject, ObservableObject {
     /// Latest customer info from RevenueCat
     @Published private(set) var customerInfo: CustomerInfo?
 
-    /// Whether the user currently has the "Aura" entitlement active
+    /// Whether the user currently has the "Aura" entitlement active.
+    /// True for any paying tier (Aura, Aura Pro, or Power+Aura Pro).
     @Published private(set) var isAuraActive: Bool = false
+
+    /// Whether the user is on Aura Pro (true also when Power is stacked).
+    @Published private(set) var isAuraProActive: Bool = false
+
+    /// Whether the user has the Power add-on active.
+    @Published private(set) var isPowerActive: Bool = false
 
     /// Current offering (for building custom paywalls if needed)
     @Published private(set) var currentOffering: Offering?
@@ -45,12 +55,24 @@ final class PurchaseManager: NSObject, ObservableObject {
     /// non-Aura in that build.
     func configure() {
         guard PurchaseConstants.isConfigured else {
-            print("⚠️ [PurchaseManager] REVENUECAT_API_KEY is missing or still the template placeholder. " +
-                  "Copy Config/Secrets.xcconfig.template to Config/Secrets.xcconfig and fill in the real " +
-                  "public `appl_` key from the RevenueCat dashboard. Subscriptions are disabled for this build.")
+            purchaseLogger.warning("REVENUECAT_API_KEY is missing or still the template placeholder. Copy Config/Secrets.xcconfig.template to Config/Secrets.xcconfig and fill in the real public `appl_` key from the RevenueCat dashboard. Subscriptions are disabled for this build.")
             return
         }
+
+        // Reject secret keys — RevenueCat public app keys must start with "appl_"
+        guard PurchaseConstants.apiKey.hasPrefix("appl_") else {
+            purchaseLogger.error("⚠️ REVENUECAT_API_KEY appears to be a secret key (does not start with 'appl_'). Only public app-specific keys should be used in the client. Subscriptions are disabled for this build.")
+            return
+        }
+
+        // `.debug` leaks App User IDs, transactions, and full HTTP traffic
+        // to the system log — visible in Console.app and sysdiagnose. Keep
+        // verbose logging local; ship Release builds with `.warn`.
+        #if DEBUG
         Purchases.logLevel = .debug
+        #else
+        Purchases.logLevel = .warn
+        #endif
         Purchases.configure(withAPIKey: PurchaseConstants.apiKey)
         Purchases.shared.delegate = self
 
@@ -82,6 +104,34 @@ final class PurchaseManager: NSObject, ObservableObject {
         }
     }
 
+    /// Fetch a specific offering by lookup key. Returns nil if RevenueCat
+    /// has no offering with that identifier (e.g. dashboard misconfig) or
+    /// if the network call fails.
+    ///
+    /// Use to drive secondary paywalls — e.g.
+    /// `fetchOffering(id: PurchaseConstants.auraProOfferingID)` for the
+    /// Pro upgrade modal,  `..powerOfferingID` for the Power add-on modal.
+    func fetchOffering(id: String) async -> Offering? {
+        do {
+            let offerings = try await Purchases.shared.offerings()
+            return offerings.offering(identifier: id)
+        } catch {
+            purchaseError = error.localizedDescription
+            purchaseLogger.warning("Failed to fetch offering \(id, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            return nil
+        }
+    }
+
+    /// Fetch an offering and resolve a specific package within it.
+    ///
+    /// Convenience for paywall code that already knows the package
+    /// lookup key (e.g. `$rc_monthly`, `$rc_annual`). Returns nil when
+    /// the offering or package isn't found.
+    func fetchPackage(packageID: String, fromOffering offeringID: String) async -> Package? {
+        guard let offering = await fetchOffering(id: offeringID) else { return nil }
+        return offering.availablePackages.first { $0.identifier == packageID }
+    }
+
     // MARK: - Purchases
 
     /// Purchase a specific package.
@@ -105,6 +155,43 @@ final class PurchaseManager: NSObject, ObservableObject {
             isPurchasing = false
             return false
         }
+    }
+
+    /// Purchase a one-time consumable product by store identifier.
+    ///
+    /// Used for PAYG token packs (`payg_pack_200`). Consumables aren't part
+    /// of any RevenueCat offering — the StoreProduct is fetched directly.
+    /// Token-balance crediting happens server-side via the RC webhook
+    /// (see `revenuecat_webhook.py`); this method only confirms the
+    /// StoreKit transaction completed so the UI can show "purchase
+    /// successful, units will appear shortly."
+    func purchaseConsumable(productID: String) async -> Bool {
+        isPurchasing = true
+        purchaseError = nil
+        defer { isPurchasing = false }
+
+        let products = await Purchases.shared.products([productID])
+        guard let product = products.first else {
+            purchaseError = "Product \(productID) not available"
+            purchaseLogger.error("Consumable \(productID, privacy: .public) not found in StoreKit")
+            return false
+        }
+
+        do {
+            let result = try await Purchases.shared.purchase(product: product)
+            if result.userCancelled { return false }
+            applyCustomerInfo(result.customerInfo)
+            return true
+        } catch {
+            purchaseError = error.localizedDescription
+            return false
+        }
+    }
+
+    /// Convenience for the PAYG pack — the only consumable in the catalog
+    /// at present.
+    func purchasePAYGPack() async -> Bool {
+        await purchaseConsumable(productID: PurchaseConstants.paygPack200ID)
     }
 
     /// Restore previous purchases (App Store receipt refresh).
@@ -134,6 +221,21 @@ final class PurchaseManager: NSObject, ObservableObject {
     /// Convenience — checks the "Aura" entitlement.
     var hasAura: Bool { isAuraActive }
 
+    /// Convenience — checks the "AuraPro" entitlement.
+    var hasAuraPro: Bool { isAuraProActive }
+
+    /// Convenience — checks the "Power" entitlement.
+    var hasPower: Bool { isPowerActive }
+
+    /// Highest active tier — useful for paywall routing.
+    enum Tier { case none, aura, auraPro, power }
+    var currentTier: Tier {
+        if isPowerActive { return .power }
+        if isAuraProActive { return .auraPro }
+        if isAuraActive { return .aura }
+        return .none
+    }
+
     // MARK: - User Identity
 
     /// Log in a known user (e.g. after your own auth).
@@ -160,7 +262,9 @@ final class PurchaseManager: NSObject, ObservableObject {
 
     private func applyCustomerInfo(_ info: CustomerInfo) {
         customerInfo = info
-        isAuraActive = info.entitlements[PurchaseConstants.auraEntitlementID]?.isActive == true
+        isAuraActive    = info.entitlements[PurchaseConstants.auraEntitlementID]?.isActive    == true
+        isAuraProActive = info.entitlements[PurchaseConstants.auraProEntitlementID]?.isActive == true
+        isPowerActive   = info.entitlements[PurchaseConstants.powerEntitlementID]?.isActive   == true
     }
 }
 

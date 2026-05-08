@@ -313,7 +313,8 @@ struct TemplatePlayerView: View {
             opts.deliveryMode = .highQualityFormat
             opts.isNetworkAccessAllowed = true
             PHImageManager.default().requestAVAsset(forVideo: phAsset, options: opts) { asset, _, _ in
-                cont.resume(returning: asset)
+                let safe = _SendableAsset(asset)
+                cont.resume(returning: safe.value)
             }
         }
     }
@@ -397,7 +398,7 @@ struct AVPlayerLayerView: UIViewRepresentable {
 
     final class PlayerContainerView: UIView {
         override class var layerClass: AnyClass { AVPlayerLayer.self }
-        var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
+        var playerLayer: AVPlayerLayer { layer as? AVPlayerLayer ?? AVPlayerLayer() }
     }
 }
 
@@ -449,4 +450,10 @@ struct TemplateSlotImageView: View {
         }
         self.image = img
     }
+}
+
+// MARK: - Sendable wrapper for AVAsset (PHImageManager callback)
+private final class _SendableAsset: @unchecked Sendable {
+    let value: AVAsset?
+    init(_ v: AVAsset?) { self.value = v }
 }

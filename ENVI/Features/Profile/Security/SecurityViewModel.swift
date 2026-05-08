@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Security, Privacy, Compliance, and Governance feature set.
+@MainActor
 final class SecurityViewModel: ObservableObject {
     // MARK: - Policies
     @Published var policies: [SecurityPolicy] = []
@@ -31,7 +32,7 @@ final class SecurityViewModel: ObservableObject {
     // MARK: - General
     @Published var errorMessage: String?
 
-    private let repository: SecurityRepository
+    private nonisolated(unsafe) let repository: SecurityRepository
 
     init(repository: SecurityRepository = SecurityRepositoryProvider.shared.repository) {
         self.repository = repository

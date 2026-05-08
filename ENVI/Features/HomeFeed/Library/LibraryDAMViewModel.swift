@@ -10,6 +10,7 @@ import Combine
 /// plan), not a duplicate. A future consolidation could merge the two
 /// if the DAM surfaces are folded into the main Library view, but that's
 /// a v1.3+ refactor, not a hygiene fix.
+@MainActor
 final class LibraryDAMViewModel: ObservableObject {
 
     // MARK: - Published State
@@ -39,7 +40,7 @@ final class LibraryDAMViewModel: ObservableObject {
     @Published var selectedAssetIDs: Set<UUID> = []
     @Published var isBulkMode = false
 
-    private let repository: LibraryDAMRepository
+    private nonisolated(unsafe) let repository: LibraryDAMRepository
 
     // MARK: - Init
 

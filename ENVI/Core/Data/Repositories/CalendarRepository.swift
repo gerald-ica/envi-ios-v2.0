@@ -116,8 +116,9 @@ final class APICalendarRepository: CalendarRepository {
 
 // MARK: - Provider
 
+@MainActor
 enum CalendarRepositoryProvider {
-    static var shared = RepositoryProvider<CalendarRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<CalendarRepository>(
         dev: MockCalendarRepository(),
         api: APICalendarRepository()
     )

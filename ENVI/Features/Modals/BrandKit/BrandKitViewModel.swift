@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Brand Kit and Template system.
+@MainActor
 final class BrandKitViewModel: ObservableObject {
     // MARK: - Brand Kits
     @Published var brandKits: [BrandKit] = []
@@ -26,11 +27,11 @@ final class BrandKitViewModel: ObservableObject {
     @Published var isShowingBrandKitEditor = false
     @Published var isShowingTemplateEditor = false
 
-    private let repository: BrandKitRepository
+    private nonisolated(unsafe) let repository: BrandKitRepository
 
     init(repository: BrandKitRepository = BrandKitRepositoryProvider.shared.repository) {
         self.repository = repository
-        Task {
+        Task { @MainActor in
             await loadBrandKits()
             await loadTemplates()
         }

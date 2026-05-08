@@ -56,18 +56,19 @@ struct OnboardingPhotosAccessView: View {
 
         let cache: ClassificationCache = {
             if let onDisk = try? ClassificationCache() { return onDisk }
-            // swiftlint:disable:next force_try
-            return try! ClassificationCache(inMemory: true)
+            if let inMemory = try? ClassificationCache(inMemory: true) { return inMemory }
+            fatalError("Unable to create classification cache")
         }()
         let scanner = MediaScanCoordinator(
             classifier: MediaClassifier.shared,
-            cache: cache
+            cache: cache,
+            library: PhotoLibraryManager.shared
         )
 
         // Fire-and-forget: scan runs in background, user continues onboarding
-        Task.detached(priority: .utility) {
+        Task { [scanner] in
             await scanner.scanOnboardingBatch()
-            scanner.registerChangeObserver()
+            await MainActor.run { scanner.registerChangeObserver(on: PhotoLibraryManager.shared) }
         }
 
         // Advance to next onboarding step immediately

@@ -58,7 +58,7 @@ final class ENVIBrain: ObservableObject {
     ///
     /// Like autoresearch running on a single GPU with a single branch,
     /// there's one Brain per user, accumulating knowledge over time.
-    static let shared = ENVIBrain()
+    nonisolated(unsafe) static let shared = ENVIBrain()
 
     // MARK: - Published State
 

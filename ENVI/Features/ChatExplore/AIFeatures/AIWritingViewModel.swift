@@ -39,7 +39,7 @@ final class AIWritingViewModel: ObservableObject {
     @Published var savedScripts: [VideoScript] = []
     @Published var favoriteHooks: [HookTemplate] = []
 
-    private let repository: AIWritingRepository
+    private nonisolated(unsafe) let repository: AIWritingRepository
 
     init(repository: AIWritingRepository = AIWritingRepositoryProvider.shared.repository) {
         self.repository = repository

@@ -174,7 +174,7 @@ struct TemplateEditorView: View {
                     if !tags.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: ENVISpacing.xs) {
-                                ForEach(tags, id: \.self) { tag in
+                                ForEach(Array(tags.enumerated()), id: \.offset) { index, tag in
                                     HStack(spacing: ENVISpacing.xs) {
                                         Text(tag)
                                             .font(.spaceMono(11))

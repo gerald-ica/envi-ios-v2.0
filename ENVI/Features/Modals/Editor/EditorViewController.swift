@@ -11,7 +11,7 @@ final class EditorViewController: UIViewController {
     private let contentPiece: ContentPiece?
     private lazy var exportComposer = ExportComposerFactory.make(contentItem: contentItem, contentPiece: contentPiece)
     private var isPreviewPlaying = false
-    private let videoEditService = VideoEditService()
+    private nonisolated(unsafe) let videoEditService = VideoEditService()
     private var latestTrimmedVideoURL: URL?
 
     // MARK: - Editor Tool State
@@ -704,7 +704,7 @@ final class EditorViewController: UIViewController {
 
     private func previewImage() -> UIImage? {
         guard let imageName = contentItem?.imageName ?? contentPiece?.imageName else {
-            return loadImage(named: "runway") ?? loadImage(named: "studio-fashion")
+            return loadImage(named: "runway") ?? loadImage(named: "card-graphic")
         }
 
         return loadImage(named: imageName)

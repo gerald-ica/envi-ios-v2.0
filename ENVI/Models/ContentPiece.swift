@@ -151,7 +151,7 @@ struct ContentPiece: Identifiable {
             tags: ["campaign", "hero", "spring"],
             metrics: ContentMetrics(views: 8700, likes: 2100, shares: 312, comments: nil),
             aiSuggestion: "Crop to 4:5 for feed — this 1:1 ratio loses 18% engagement on Instagram grid.",
-            imageName: "studio-fashion",
+            imageName: "card-graphic",
             source: .photoLibrary
         ),
         ContentPiece(
@@ -179,7 +179,7 @@ struct ContentPiece: Identifiable {
             tags: ["bts", "studio", "authentic"],
             metrics: ContentMetrics(views: 34500, likes: 4200, shares: 890, comments: nil),
             aiSuggestion: "The first 2 seconds are static — start with the final shot as a hook, then rewind to the process.",
-            imageName: "fire-stunt",
+            imageName: "card-graphic",
             source: .photoLibrary
         ),
         ContentPiece(
@@ -404,7 +404,7 @@ struct ContentPiece: Identifiable {
             tags: ["content-gap", "video", "tiktok", "predicted"],
             metrics: nil,
             aiSuggestion: nil,
-            imageName: "fire-stunt",
+            imageName: "card-graphic",
             source: .predicted,
             predictedEngagement: "Gap risk — engagement may drop 20%",
             confidenceScore: 85,

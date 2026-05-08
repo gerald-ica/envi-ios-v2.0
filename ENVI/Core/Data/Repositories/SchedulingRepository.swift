@@ -94,7 +94,7 @@ final class MockSchedulingRepository: SchedulingRepository {
 
 final class APISchedulingRepository: SchedulingRepository {
     private let apiClient: APIClient
-    private static let iso = ISO8601DateFormatter()
+    private nonisolated(unsafe) static let iso = ISO8601DateFormatter()
 
     init(apiClient: APIClient = .shared) {
         self.apiClient = apiClient
@@ -208,8 +208,9 @@ final class APISchedulingRepository: SchedulingRepository {
 
 // MARK: - Provider
 
+@MainActor
 enum SchedulingRepositoryProvider {
-    static var shared = RepositoryProvider<SchedulingRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<SchedulingRepository>(
         dev: MockSchedulingRepository(),
         api: APISchedulingRepository()
     )

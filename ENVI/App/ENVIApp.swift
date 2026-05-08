@@ -2,6 +2,9 @@ import UIKit
 import RevenueCat
 import FirebaseCore
 import GoogleSignIn
+import os
+
+private let appLaunchLogger = Logger(subsystem: "com.weareinformal.ENVI", category: "AppLaunch")
 
 /// App entry point using UIKit app delegate.
 /// Uses SceneDelegate for scene lifecycle management.
@@ -10,8 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Register fonts at app launch
-        ENVITypography.registerFonts()
+        // Fonts are auto-registered via Info.plist UIAppFonts — no programmatic registration needed.
 
         // Phase 06-07 — MUST come before FirebaseApp.configure() so the
         // App Check provider factory is in place before any Firebase
@@ -21,6 +23,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Configure Firebase SDK before any auth interaction.
         if FirebaseApp.app() == nil {
             FirebaseApp.configure()
+        }
+
+        // FirebaseApp.configure() returns silently when the bundle ID
+        // doesn't match GoogleService-Info.plist — every Firebase call
+        // afterwards no-ops. Surface the failure loudly so a config drift
+        // can't masquerade as a "RevenueCat is broken" report.
+        if FirebaseApp.app() == nil {
+            let bundleID = Bundle.main.bundleIdentifier ?? "<unknown>"
+            appLaunchLogger.error("FirebaseApp.configure() did not register a default app. Likely a bundle-ID mismatch with GoogleService-Info.plist. Running bundle: \(bundleID, privacy: .public)")
+            #if DEBUG
+            assertionFailure("Firebase failed to configure — see log above. Fix the bundle ID / GoogleService-Info.plist mismatch.")
+            #endif
         }
 
         // Configure RevenueCat SDK
@@ -46,19 +60,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - URL Handling (OAuth callback + DeepLinkRouter + Google Sign-In)
     //
-    // Phase 06-04 — incoming `enviapp://oauth-callback/{provider}?...` URLs
-    // are dispatched to `OAuthCallbackHandler.handle(_:)` first.
-    //
-    // Phase 15-03 — non-OAuth `enviapp://destination/*` URLs are parsed by
-    // `DeepLinkRouter` and dispatched through `AppRouter.shared`. If the
-    // app isn't yet showing the main tab bar (still on Splash/SignIn),
-    // the destination is stashed as a pending deep link and replayed
-    // once the main tab bar appears.
-    //
-    // Anything that doesn't match either shape falls through to Google
-    // Sign-In's existing handler.
-    func application(_ app: UIApplication, open url: URL,
-                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+    // Scene-based URL delivery is handled in `SceneDelegate`. This shared
+    // helper keeps the routing logic in one place for both cold-launch
+    // `connectionOptions.urlContexts` and `scene(_:openURLContexts:)`.
+    static func handleIncomingURL(_ url: URL) -> Bool {
         switch OAuthCallbackHandler.handle(url) {
         case .handled, .invalid:
             // `.handled` — payload parsed + posted via NotificationCenter.

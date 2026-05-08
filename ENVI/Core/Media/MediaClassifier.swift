@@ -88,9 +88,10 @@ actor MediaClassifier {
         if let onDisk = try? ClassificationCache() {
             return MediaClassifier(cache: onDisk)
         }
-        // swiftlint:disable:next force_try
-        let fallback = try! ClassificationCache(inMemory: true)
-        return MediaClassifier(cache: fallback)
+        if let fallback = try? ClassificationCache(inMemory: true) {
+            return MediaClassifier(cache: fallback)
+        }
+        fatalError("Unable to create classification cache")
     }()
 
     // MARK: - Public API
@@ -99,31 +100,30 @@ actor MediaClassifier {
     /// `priority` is advisory — it's applied to the downstream Vision
     /// TaskGroup via `Task.detached(priority:)` when this is called inside
     /// a batch.
-    nonisolated func classify(_ asset: PHAsset, priority: TaskPriority = .medium) async throws -> ClassifiedAsset {
-        try await withCheckedThrowingContinuation { continuation in
-            Task { [self] in
-                await self.classifyAndResume(asset, priority: priority, continuation: continuation)
-            }
+    func classify(_ asset: PHAsset, priority: TaskPriority = .medium) async throws -> ClassifiedAssetRecord {
+        _ = priority // retained in signature for API stability / future use
+        if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
+            return fresh
         }
+        return try await classifyUncached(asset)
     }
 
     /// Re-classifies an asset if the cached entry is stale (version mismatch)
     /// or missing. Returns the fresh entry either way.
-    nonisolated func rescanIfStale(_ asset: PHAsset) async throws -> ClassifiedAsset {
-        try await withCheckedThrowingContinuation { continuation in
-            Task { [self] in
-                await self.rescanAndResume(asset, continuation: continuation)
-            }
+    func rescanIfStale(_ asset: PHAsset) async throws -> ClassifiedAssetRecord {
+        if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
+            return fresh
         }
+        return try await classifyUncached(asset)
     }
 
     /// Classifies a batch in parallel with a cap on concurrent tasks.
     /// Failures are stashed on `failures` and absent from the returned
     /// array — the batch never throws.
-    nonisolated func classifyBatch(
+    func classifyBatch(
         _ assets: [PHAsset],
-        progress: ((Int, Int) -> Void)? = nil
-    ) async -> [ClassifiedAsset] {
+        progress: (@Sendable (Int, Int) -> Void)? = nil
+    ) async -> [ClassifiedAssetRecord] {
         guard !assets.isEmpty else { return [] }
 
         let total = assets.count
@@ -202,41 +202,9 @@ actor MediaClassifier {
         failures[localIdentifier] = error
     }
 
-    private func classifyAndResume(
-        _ asset: PHAsset,
-        priority: TaskPriority,
-        continuation: CheckedContinuation<ClassifiedAsset, Error>
-    ) async {
-        do {
-            _ = priority // retained in signature for API stability / future use
-            if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
-                continuation.resume(returning: fresh)
-                return
-            }
-            continuation.resume(returning: try await classifyUncached(asset))
-        } catch {
-            continuation.resume(throwing: error)
-        }
-    }
-
-    private func rescanAndResume(
-        _ asset: PHAsset,
-        continuation: CheckedContinuation<ClassifiedAsset, Error>
-    ) async {
-        do {
-            if let fresh = try await fetchFreshIfAny(for: asset.localIdentifier) {
-                continuation.resume(returning: fresh)
-                return
-            }
-            continuation.resume(returning: try await classifyUncached(asset))
-        } catch {
-            continuation.resume(throwing: error)
-        }
-    }
-
     // MARK: - Core pipeline
 
-    private func fetchFreshIfAny(for localIdentifier: String) async throws -> ClassifiedAsset? {
+    private func fetchFreshIfAny(for localIdentifier: String) async throws -> ClassifiedAssetRecord? {
         do {
             guard let cached = try await cache.fetch(localIdentifier: localIdentifier) else {
                 return nil
@@ -247,7 +215,7 @@ actor MediaClassifier {
         }
     }
 
-    private func classifyUncached(_ asset: PHAsset) async throws -> ClassifiedAsset {
+    private func classifyUncached(_ asset: PHAsset) async throws -> ClassifiedAssetRecord {
         // 1. Metadata — always cheap.
         let metadata = await MediaMetadataExtractor.extract(asset)
 
@@ -351,7 +319,7 @@ actor MediaClassifier {
         asset: PHAsset,
         metadata: ExtractedMetadata,
         vision: VisionAnalysis
-    ) throws -> ClassifiedAsset {
+    ) throws -> ClassifiedAssetRecord {
         let encoder = JSONEncoder()
         let metadataData: Data
         let visionData: Data
@@ -365,7 +333,7 @@ actor MediaClassifier {
         let topLabels = vision.classifications.map { $0.identifier }
 
         let loc = metadata.surface.location
-        return ClassifiedAsset(
+        return ClassifiedAssetRecord(
             localIdentifier: asset.localIdentifier,
             classifiedAt: Date(),
             classifierVersion: classifierVersion,
@@ -388,20 +356,20 @@ actor MediaClassifier {
 
 private final class ClassifiedAssetAccumulator: @unchecked Sendable {
     private let lock = NSLock()
-    private var storage: [ClassifiedAsset]
+    private var storage: [ClassifiedAssetRecord]
 
     init(capacity: Int) {
         self.storage = []
         storage.reserveCapacity(capacity)
     }
 
-    func append(_ asset: ClassifiedAsset) {
+    func append(_ asset: ClassifiedAssetRecord) {
         lock.lock()
         storage.append(asset)
         lock.unlock()
     }
 
-    func snapshot() -> [ClassifiedAsset] {
+    func snapshot() -> [ClassifiedAssetRecord] {
         lock.lock()
         defer { lock.unlock() }
         return storage

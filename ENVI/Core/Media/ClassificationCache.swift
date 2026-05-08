@@ -119,6 +119,19 @@ public actor ClassificationCache {
         }
     }
 
+    /// Batch variant that accepts a sendable projection for safe
+    /// cross-actor persistence of classified assets.
+    public func upsert(_ record: ClassifiedAssetRecord) throws {
+        try upsert(record.makeClassifiedAsset())
+    }
+
+    /// Batch variant that accepts a sendable projection for safe
+    /// cross-actor persistence of classified assets.
+    public func batchUpsert(_ records: [ClassifiedAssetRecord]) throws {
+        guard !records.isEmpty else { return }
+        try batchUpsert(records.map { $0.makeClassifiedAsset() })
+    }
+
     /// Removes the record for a given PHAsset `localIdentifier`, if present.
     public func delete(localIdentifier: String) throws {
         do {
@@ -151,9 +164,9 @@ public actor ClassificationCache {
     // MARK: - Read
 
     /// Returns the record for a given PHAsset `localIdentifier`, or nil.
-    public func fetch(localIdentifier: String) throws -> ClassifiedAsset? {
+    public func fetch(localIdentifier: String) throws -> ClassifiedAssetRecord? {
         do {
-            return try fetchInternal(localIdentifier: localIdentifier)
+            return try fetchInternal(localIdentifier: localIdentifier).map(ClassifiedAssetRecord.init(asset:))
         } catch {
             throw ClassificationCacheError.fetchFailed(error)
         }
@@ -161,9 +174,20 @@ public actor ClassificationCache {
 
     /// Returns every record in the cache. Primarily for diagnostics —
     /// prefer `query(predicate:)` in production paths.
-    public func fetchAll() throws -> [ClassifiedAsset] {
+    public func fetchAll() throws -> [ClassifiedAssetRecord] {
         do {
-            return try context.fetch(FetchDescriptor<ClassifiedAsset>())
+            return try context.fetch(FetchDescriptor<ClassifiedAsset>()).map(ClassifiedAssetRecord.init(asset:))
+        } catch {
+            throw ClassificationCacheError.fetchFailed(error)
+        }
+    }
+
+    /// Returns every cached asset identifier in fetch order. Use this when
+    /// callers only need lightweight values that can safely cross actors.
+    public func fetchAllLocalIdentifiers() throws -> [String] {
+        do {
+            let assets = try context.fetch(FetchDescriptor<ClassifiedAsset>())
+            return assets.map(\.localIdentifier)
         } catch {
             throw ClassificationCacheError.fetchFailed(error)
         }
@@ -171,10 +195,10 @@ public actor ClassificationCache {
 
     /// Runs an arbitrary `Predicate<ClassifiedAsset>` against the store.
     /// This is the primary entry point for Phase 3 template matching.
-    public func query(predicate: Predicate<ClassifiedAsset>) throws -> [ClassifiedAsset] {
+    public func query(predicate: Predicate<ClassifiedAsset>) throws -> [ClassifiedAssetRecord] {
         do {
             let descriptor = FetchDescriptor<ClassifiedAsset>(predicate: predicate)
-            return try context.fetch(descriptor)
+            return try context.fetch(descriptor).map(ClassifiedAssetRecord.init(asset:))
         } catch {
             throw ClassificationCacheError.fetchFailed(error)
         }

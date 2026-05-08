@@ -151,5 +151,5 @@ final class MockVideoTemplateRepository: VideoTemplateRepository {
 /// Phase 3 ships only the mock. Phase 4 adds an `APIVideoTemplateRepository`
 /// and wires it into `RepositoryProvider` here.
 enum VideoTemplateRepositoryProvider {
-    static var shared: VideoTemplateRepository = MockVideoTemplateRepository()
+    static nonisolated(unsafe) var shared: VideoTemplateRepository = MockVideoTemplateRepository()
 }

@@ -155,7 +155,7 @@ enum AgencyError: LocalizedError {
 // MARK: - Provider
 
 enum AgencyRepositoryProvider {
-    static var shared = RepositoryProvider<AgencyRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<AgencyRepository>(
         dev: MockAgencyRepository(),
         api: APIAgencyRepository()
     )

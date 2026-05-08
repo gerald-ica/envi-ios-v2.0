@@ -28,7 +28,7 @@ class SocialOAuthManager {
 
     /// Process-wide singleton. Backed by the real web auth adapter; prefer
     /// `SocialOAuthManager(session:apiClient:)` from tests.
-    static let shared = SocialOAuthManager(
+    nonisolated(unsafe) static let shared = SocialOAuthManager(
         apiClient: SocialOAuthManager.sharedBrokerAPIClient
     )
 
@@ -40,7 +40,7 @@ class SocialOAuthManager {
     /// Prefer this over `APIClient.shared` for anything that talks to
     /// Cloud Functions — `APIClient.shared` targets the legacy app-API host
     /// and is not served by the broker.
-    static let sharedBrokerAPIClient: APIClient = SocialOAuthManager.makeDefaultAPIClient()
+    nonisolated(unsafe) static let sharedBrokerAPIClient: APIClient = SocialOAuthManager.makeDefaultAPIClient()
 
     private let apiClient: APIClient
     private let sessionFactory: @MainActor () -> OAuthSession

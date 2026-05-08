@@ -179,8 +179,9 @@ enum CampaignError: LocalizedError {
 
 // MARK: - Provider
 
+@MainActor
 enum CampaignRepositoryProvider {
-    static var shared = RepositoryProvider<CampaignRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<CampaignRepository>(
         dev: MockCampaignRepository(),
         api: APICampaignRepository()
     )

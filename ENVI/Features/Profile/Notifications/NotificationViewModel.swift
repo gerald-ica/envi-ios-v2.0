@@ -18,7 +18,7 @@ final class NotificationViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let repository: NotificationRepository
+    private nonisolated(unsafe) let repository: NotificationRepository
 
     // MARK: - Init
 

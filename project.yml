@@ -45,9 +45,11 @@ targets:
       - path: ENVI/Resources/banned_terms.json
       - path: ENVI/Resources/PrivacyInfo.xcprivacy
       - path: ENVI/Features/Templates/Resources
+      - path: ENVI/Resources/Metal           # v3.0 — Metal 3 kernels
+      - path: ENVI/Features/Editing           # v3.0 — SwiftUI editing module
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.weareinformal.envi.staging
+        PRODUCT_BUNDLE_IDENTIFIER: com.weareinformal.envi
         INFOPLIST_FILE: "ENVI/Resources/Info.plist"
         GENERATE_INFOPLIST_FILE: "NO"
         INFOPLIST_KEY_UILaunchStoryboardName: ""
@@ -61,15 +63,17 @@ targets:
         CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.entitlements"
         CODE_SIGN_STYLE: "Automatic"
         CODE_SIGNING_ALLOWED: "YES"
-        DEVELOPMENT_TEAM: "ZM82DY7PG2"
-        SWIFT_VERSION: "5.0"
+        DEVELOPMENT_TEAM: "7P76H55MAW"
+        SWIFT_VERSION: "6.0"
         MARKETING_VERSION: "2.0"
         CURRENT_PROJECT_VERSION: "1"
       configs:
         Debug:
+          # Debug shares bundle ID + Firebase project with staging so a
+          # single GoogleService-Info.plist works. If we ever want a true
+          # debug environment, register `com.weareinformal.envi.debug` in
+          # Firebase + RevenueCat and bifurcate via per-config plists.
           CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.Debug.entitlements"
-          DEVELOPMENT_TEAM: "W5687Z6R55"
-          PRODUCT_BUNDLE_IDENTIFIER: "com.geraldwelly.envi.debug"
         Release:
           CODE_SIGN_ENTITLEMENTS: "ENVI/ENVI.entitlements"
     dependencies:

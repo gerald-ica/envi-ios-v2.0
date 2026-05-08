@@ -37,6 +37,7 @@ private struct OracleChatRequest: Encodable {
 /// a richer ChatThread response. In dev mode, mock data serves as fallback
 /// for queries the Brain doesn't yet handle or when running in preview mode.
 /// In staging/prod, unmatched queries are routed to the Oracle API.
+@MainActor
 final class EnhancedChatViewModel: ObservableObject {
 
     // MARK: - Published State
@@ -252,7 +253,8 @@ final class EnhancedChatViewModel: ObservableObject {
         isHome = false
         isTyping = true
 
-        Task { @MainActor in
+        Task { [weak self] in
+            guard let self else { return }
             let resolved = await resolveThread(for: query)
             activeThread = resolved
             isTyping = false
@@ -330,7 +332,6 @@ final class EnhancedChatViewModel: ObservableObject {
         )
     }
 
-    @MainActor
     private func resolveThread(for query: String) async -> ChatThread {
         errorMessage = nil
 

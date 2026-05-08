@@ -104,8 +104,9 @@ final class APIBillingRepository: BillingRepository {
 
 // MARK: - Factory
 
+@MainActor
 enum BillingRepositoryProvider {
-    static var shared = RepositoryProvider<BillingRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<BillingRepository>(
         dev: MockBillingRepository(),
         api: APIBillingRepository()
     )

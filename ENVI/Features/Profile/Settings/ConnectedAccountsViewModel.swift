@@ -32,7 +32,7 @@ final class ConnectedAccountsViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let oauth: SocialOAuthManager
+    private nonisolated(unsafe) let oauth: SocialOAuthManager
 
     init(oauth: SocialOAuthManager = .shared) {
         self.oauth = oauth
@@ -56,9 +56,9 @@ final class ConnectedAccountsViewModel: ObservableObject {
 
         await withTaskGroup(of: PlatformConnection.self) { group in
             for platform in platforms {
-                group.addTask { [oauth] in
+                group.addTask {
                     do {
-                        return try await oauth.connectionStatus(platform: platform)
+                        return try await SocialOAuthManager.shared.connectionStatus(platform: platform)
                     } catch {
                         return PlatformConnection(platform: platform)
                     }

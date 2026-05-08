@@ -257,7 +257,7 @@ struct ExportComposer {
         )
     }
 
-    static let preview = ExportComposer(
+    nonisolated(unsafe) static let preview = ExportComposer(
         context: ExportContext(
             title: "Golden hour hits different in the desert",
             baseCaption: "Golden hour hits different in the desert #envi #creator",

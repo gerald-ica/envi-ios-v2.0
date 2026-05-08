@@ -139,8 +139,8 @@ public actor ThermalAwareScheduler {
 
     /// Opaque observer tokens we own; canceled in `deinit` through the
     /// actor's isolated helpers.
-    private var thermalObserver: NSObjectProtocol?
-    private var powerObserver: NSObjectProtocol?
+    private nonisolated(unsafe) var thermalObserver: NSObjectProtocol?
+    private nonisolated(unsafe) var powerObserver: NSObjectProtocol?
 
     // MARK: Init
 
@@ -161,6 +161,9 @@ public actor ThermalAwareScheduler {
         if let p = powerObserver {
             NotificationCenter.default.removeObserver(p)
         }
+        // Clear observers to satisfy Sendable requirements
+        thermalObserver = nil
+        powerObserver = nil
     }
 
     // MARK: Public API

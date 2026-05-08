@@ -124,7 +124,7 @@ enum LinkedInConnectorError: Error, LocalizedError, Equatable {
 /// admin-organization fetch).
 final class LinkedInConnector {
 
-    static let shared = LinkedInConnector()
+    nonisolated(unsafe) static let shared = LinkedInConnector()
 
     /// Self-serve scopes required for any personal-profile posting.
     static let memberScopes: [String] = ["r_liteprofile", "w_member_social"]

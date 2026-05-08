@@ -131,8 +131,9 @@ final class APISearchRepository: SearchRepository {
 
 // MARK: - Provider
 
+@MainActor
 enum SearchRepositoryProvider {
-    static var shared = RepositoryProvider<SearchRepository>(
+    static nonisolated(unsafe) var shared = RepositoryProvider<SearchRepository>(
         dev: MockSearchRepository(),
         api: APISearchRepository()
     )

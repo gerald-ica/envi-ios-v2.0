@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>471220969990-a6as0oqueq6f69l391f94fa4n5f6k3g5.apps.googleusercontent.com</string>
+	<string>471220969990-gb2gj7g34ce23r4j3l3tnr8i2inrpcm9.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.471220969990-a6as0oqueq6f69l391f94fa4n5f6k3g5</string>
+	<string>com.googleusercontent.apps.471220969990-gb2gj7g34ce23r4j3l3tnr8i2inrpcm9</string>
 	<key>API_KEY</key>
 	<string>AIzaSyDM2VWqpO-CZIglrVEd1PWk_8NdF-44XGQ</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.weareinformal.envi.staging</string>
+	<string>com.weareinformal.envi</string>
 	<key>PROJECT_ID</key>
 	<string>envi-by-informal-staging</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:471220969990:ios:f1f50a0867e33b141e9987</string>
+	<string>1:471220969990:ios:2593a4e76b049d181e9987</string>
+	<key>DATABASE_URL</key>
+	<string>https://envi-by-informal-staging-default-rtdb.firebaseio.com</string>
 </dict>
 </plist>

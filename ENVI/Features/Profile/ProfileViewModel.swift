@@ -73,6 +73,7 @@ final class ProfileViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     func signOut() {
         try? AuthManager.shared.signOut()
     }

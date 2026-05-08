@@ -25,7 +25,7 @@ final class BillingViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let repository: BillingRepository
+    private nonisolated(unsafe) let repository: BillingRepository
     private let purchaseManager: PurchaseManager
 
     // MARK: - Init
@@ -130,27 +130,53 @@ final class BillingViewModel: ObservableObject {
 
     // MARK: - Upgrade / Downgrade
 
-    /// Initiate an upgrade via RevenueCat by purchasing the corresponding package.
-    func upgrade(to plan: SubscriptionPlan) async -> Bool {
-        // Fetch offerings from RevenueCat to find the matching package
-        await purchaseManager.fetchOfferings()
+    /// Map a UI-side `PricingTier` + `BillingInterval` to a RevenueCat
+    /// offering ID + package lookup key.
+    ///
+    /// The audit pricing model has 3 paywalls (`default` for Aura,
+    /// `aura_pro` for the studio plan, `power` for the add-on). Each
+    /// offering exposes two packages: `$rc_monthly` and `$rc_annual`.
+    /// `enterprise` returns nil — that tier is contact-sales, not IAP.
+    private func offeringRoute(for tier: PricingTier, interval: BillingInterval)
+        -> (offeringID: String, packageID: String)?
+    {
+        let pkgID = interval == .monthly
+            ? PurchaseConstants.monthlyPackageID
+            : PurchaseConstants.annualPackageID
+        switch tier {
+        case .free:
+            return nil
+        case .creator:
+            return (PurchaseConstants.defaultOfferingID, pkgID)
+        case .pro:
+            return (PurchaseConstants.auraProOfferingID, pkgID)
+        case .team, .agency:
+            return (PurchaseConstants.powerOfferingID, pkgID)
+        case .enterprise:
+            return nil
+        }
+    }
 
-        guard let offering = purchaseManager.currentOffering else {
-            errorMessage = "No offerings available."
+    /// Initiate an upgrade via RevenueCat by purchasing the package
+    /// behind the plan's tier.
+    ///
+    /// Routes to the right offering automatically:
+    /// - `.creator` → `default` (Aura)
+    /// - `.pro`     → `aura_pro` (Aura Pro)
+    /// - `.team`/`.agency` → `power` (Power add-on, requires Aura Pro)
+    /// - `.enterprise` → returns false (contact sales)
+    func upgrade(to plan: SubscriptionPlan) async -> Bool {
+        guard let route = offeringRoute(for: plan.tier, interval: plan.interval) else {
+            errorMessage = plan.tier == .enterprise
+                ? "Enterprise plans are sold off-app — contact sales."
+                : "This plan can't be purchased through the app."
             return false
         }
 
-        // Match plan to RevenueCat package by product identifier
-        let packageID: String = {
-            switch plan.interval {
-            case .monthly: return PurchaseConstants.monthlyProductID
-            case .annual:  return PurchaseConstants.yearlyProductID
-            }
-        }()
-
-        guard let package = offering.availablePackages.first(where: {
-            $0.storeProduct.productIdentifier == packageID
-        }) else {
+        guard let package = await purchaseManager.fetchPackage(
+            packageID: route.packageID,
+            fromOffering: route.offeringID
+        ) else {
             errorMessage = "Package not found for \(plan.name)."
             return false
         }
@@ -160,6 +186,59 @@ final class BillingViewModel: ObservableObject {
             await loadCurrentSubscription()
         }
         return success
+    }
+
+    /// Direct entry to the Aura Pro upgrade flow. Use from the "Upgrade
+    /// to Pro" CTA on the Aura paywall or from in-app feature gates that
+    /// require AuraPro.
+    func upgradeToAuraPro(interval: BillingInterval) async -> Bool {
+        let pkgID = interval == .monthly
+            ? PurchaseConstants.monthlyPackageID
+            : PurchaseConstants.annualPackageID
+        return await purchaseUsingOffering(
+            offeringID: PurchaseConstants.auraProOfferingID,
+            packageID: pkgID,
+            failureLabel: "Aura Pro \(interval == .monthly ? "Monthly" : "Annual")"
+        )
+    }
+
+    /// Direct entry to the Power add-on flow. App-side, this should only
+    /// be reachable when the user already has AuraPro active — Power
+    /// stacks on Aura Pro per the audit pricing model. Apple's
+    /// subscription groups guarantee the stack works (Power lives in a
+    /// separate group from Aura/AuraPro).
+    func addPower(interval: BillingInterval) async -> Bool {
+        let pkgID = interval == .monthly
+            ? PurchaseConstants.monthlyPackageID
+            : PurchaseConstants.annualPackageID
+        return await purchaseUsingOffering(
+            offeringID: PurchaseConstants.powerOfferingID,
+            packageID: pkgID,
+            failureLabel: "Power \(interval == .monthly ? "Monthly" : "Annual")"
+        )
+    }
+
+    /// Trigger a PAYG token-pack purchase. Tokens are credited
+    /// server-side via the RevenueCat webhook
+    /// (`/api/v1/webhooks/revenuecat`); this only completes the
+    /// StoreKit transaction.
+    func purchasePAYGPack() async -> Bool {
+        await purchaseManager.purchasePAYGPack()
+    }
+
+    /// Shared purchase plumbing — fetches the package, runs the
+    /// purchase, refreshes the user's current plan on success.
+    private func purchaseUsingOffering(offeringID: String, packageID: String, failureLabel: String) async -> Bool {
+        guard let package = await purchaseManager.fetchPackage(
+            packageID: packageID,
+            fromOffering: offeringID
+        ) else {
+            errorMessage = "Couldn't find \(failureLabel)."
+            return false
+        }
+        let ok = await purchaseManager.purchase(package)
+        if ok { await loadCurrentSubscription() }
+        return ok
     }
 
     /// Restore purchases through RevenueCat.

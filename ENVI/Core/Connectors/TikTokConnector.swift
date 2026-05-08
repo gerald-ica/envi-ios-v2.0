@@ -43,13 +43,13 @@ actor TikTokConnector {
 
     // MARK: - Dependencies
 
-    private let apiClient: APIClient
+    private nonisolated(unsafe) let apiClient: APIClient
     private let urlSession: URLSession
 
     /// Hook into the pre-existing OAuth machinery so we don't duplicate the
     /// `ASWebAuthenticationSession` plumbing. The `connect()` path calls
     /// `SocialOAuthManager.connect(platform: .tiktok)` internally.
-    private let oauthManager: SocialOAuthManager
+    private nonisolated(unsafe) let oauthManager: SocialOAuthManager
 
     init(
         apiClient: APIClient = SocialOAuthManager.sharedBrokerAPIClient,

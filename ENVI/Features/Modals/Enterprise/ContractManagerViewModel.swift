@@ -17,7 +17,7 @@ final class ContractManagerViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let repository: EnterpriseRepository
+    private nonisolated(unsafe) let repository: EnterpriseRepository
 
     // MARK: - Init
 

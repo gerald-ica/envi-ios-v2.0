@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for the Library screen.
+@MainActor
 final class LibraryViewModel: ObservableObject {
     enum FilterType: String, CaseIterable {
         case all = "All"
@@ -27,7 +28,7 @@ final class LibraryViewModel: ObservableObject {
     @Published var planOperationErrorMessage: String?
     @Published var templateToApply: TemplateItem? = nil
     private var cancellables = Set<AnyCancellable>()
-    private let repository: ContentRepository
+    private nonisolated(unsafe) let repository: ContentRepository
 
     init(repository: ContentRepository = ContentRepositoryProvider.shared.repository) {
         self.repository = repository
@@ -283,13 +284,13 @@ struct LibraryItem: Identifiable, Codable {
 
     private static func fallbackImageName(for platform: SocialPlatform) -> String {
         switch platform {
-        case .instagram: return "studio-fashion"
+        case .instagram: return "card-graphic"
         case .facebook: return "fashion-group"
         case .tiktok: return "industrial-girl"
         case .x: return "red-silhouette"
         case .threads: return "fashion-group"
         case .linkedin: return "office-girl"
-        case .youtube: return "fire-stunt"
+        case .youtube: return "card-graphic"
         }
     }
 
@@ -297,8 +298,8 @@ struct LibraryItem: Identifiable, Codable {
         LibraryItem(title: "Desert Road", imageName: "desert-car", type: .photos, height: 200),
         LibraryItem(title: "Street Style", imageName: "fashion-group", type: .photos, height: 260),
         LibraryItem(title: "Urban Ride", imageName: "cyclist", type: .photos, height: 180),
-        LibraryItem(title: "Studio Session", imageName: "studio-fashion", type: .photos, height: 240),
-        LibraryItem(title: "Fire BTS", imageName: "fire-stunt", type: .videos, height: 220),
+        LibraryItem(title: "Studio Session", imageName: "card-graphic", type: .photos, height: 240),
+        LibraryItem(title: "Fire BTS", imageName: "card-graphic", type: .videos, height: 220),
         LibraryItem(title: "Subway", imageName: "subway", type: .photos, height: 200),
         LibraryItem(title: "Runway", imageName: "runway", type: .photos, height: 260),
         LibraryItem(title: "Red Light", imageName: "red-silhouette", type: .photos, height: 230),

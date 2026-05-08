@@ -20,11 +20,11 @@ extension Animation {
 
 extension AnyTransition {
     /// Slide from trailing on insertion, slide to leading on removal — with opacity.
-    static let enviSlide = AnyTransition.asymmetric(
+    nonisolated(unsafe) static let enviSlide = AnyTransition.asymmetric(
         insertion: .move(edge: .trailing).combined(with: .opacity),
         removal: .move(edge: .leading).combined(with: .opacity)
     )
 
     /// Simple opacity fade using the ENVI fade-in curve.
-    static let enviFade = AnyTransition.opacity.animation(.enviFadeIn)
+    nonisolated(unsafe) static let enviFade = AnyTransition.opacity.animation(.enviFadeIn)
 }

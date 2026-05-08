@@ -28,7 +28,7 @@ final class CommerceViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let repository: CommerceRepository
+    private nonisolated(unsafe) let repository: CommerceRepository
 
     // MARK: - Init
 

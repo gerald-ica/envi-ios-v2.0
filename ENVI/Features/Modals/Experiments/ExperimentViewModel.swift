@@ -2,6 +2,7 @@ import SwiftUI
 import Combine
 
 /// ViewModel for Experiments and A/B Testing.
+@MainActor
 final class ExperimentViewModel: ObservableObject {
     // MARK: - Published State
     @Published var experiments: [Experiment] = []
@@ -21,11 +22,14 @@ final class ExperimentViewModel: ObservableObject {
     @Published var isShowingEditor = false
     @Published var isShowingResults = false
 
-    private let repository: ExperimentRepository
+    private nonisolated(unsafe) let repository: ExperimentRepository
 
     init(repository: ExperimentRepository = ExperimentRepositoryProvider.shared.repository) {
         self.repository = repository
-        Task { await loadExperiments() }
+        Task { [weak self] in
+            guard let self else { return }
+            await loadExperiments()
+        }
     }
 
     // MARK: - Filtered Experiments
@@ -37,7 +41,6 @@ final class ExperimentViewModel: ObservableObject {
 
     // MARK: - Load
 
-    @MainActor
     func loadExperiments() async {
         isLoading = true
         errorMessage = nil
@@ -57,7 +60,6 @@ final class ExperimentViewModel: ObservableObject {
 
     // MARK: - Create
 
-    @MainActor
     func createExperiment(_ experiment: Experiment) async {
         errorMessage = nil
         experiments.insert(experiment, at: 0)
@@ -72,7 +74,6 @@ final class ExperimentViewModel: ObservableObject {
 
     // MARK: - Start / Stop
 
-    @MainActor
     func startExperiment(_ experiment: Experiment) async {
         errorMessage = nil
         guard let index = experiments.firstIndex(where: { $0.id == experiment.id }) else { return }
@@ -87,7 +88,6 @@ final class ExperimentViewModel: ObservableObject {
         }
     }
 
-    @MainActor
     func stopExperiment(_ experiment: Experiment) async {
         errorMessage = nil
         guard let index = experiments.firstIndex(where: { $0.id == experiment.id }) else { return }
@@ -104,7 +104,6 @@ final class ExperimentViewModel: ObservableObject {
 
     // MARK: - Results
 
-    @MainActor
     func loadResults(for experiment: Experiment) async {
         isLoadingResults = true
         currentResult = nil
@@ -124,7 +123,6 @@ final class ExperimentViewModel: ObservableObject {
 
     // MARK: - Save
 
-    @MainActor
     func saveExperiment(_ experiment: Experiment) async {
         if experiments.contains(where: { $0.id == experiment.id }) {
             // Update in-memory (no dedicated update endpoint needed for draft edits)
@@ -159,6 +157,9 @@ final class ExperimentViewModel: ObservableObject {
     func showResults(for experiment: Experiment) {
         selectedExperiment = experiment
         isShowingResults = true
-        Task { await loadResults(for: experiment) }
+        Task { [weak self] in
+            guard let self else { return }
+            await loadResults(for: experiment)
+        }
     }
 }

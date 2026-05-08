@@ -20,7 +20,7 @@ struct FeedDetailView: View {
 
     /// Repository driving the bookmark mutation. Defaulted so call-sites
     /// (ForYouSwipeView etc.) stay unchanged; tests inject a spy.
-    var repository: ContentRepository = ContentRepositoryProvider.shared.repository
+    nonisolated(unsafe) var repository: ContentRepository = ContentRepositoryProvider.shared.repository
 
     @Environment(\.dismiss) private var dismiss
 
@@ -185,7 +185,7 @@ struct FeedDetailView: View {
         isBookmarked = next
         bookmarkInFlight = true
 
-        Task { @MainActor in
+        Task {
             defer { bookmarkInFlight = false }
             do {
                 try await repository.setBookmarked(contentID: item.id, bookmarked: next)

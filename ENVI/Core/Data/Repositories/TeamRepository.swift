@@ -195,7 +195,7 @@ enum TeamError: LocalizedError {
 // MARK: - Provider
 
 enum TeamRepositoryProvider {
-    static var shared = RepositoryProvider<TeamRepository>(
+    nonisolated(unsafe) static var shared = RepositoryProvider<TeamRepository>(
         dev: MockTeamRepository(),
         api: APITeamRepository()
     )
