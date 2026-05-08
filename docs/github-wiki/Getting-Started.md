@@ -1,6 +1,6 @@
 # Getting Started
 
-**Last updated:** 2026-04-23 UTC
+**Last updated:** 2026-05-08 UTC
 
 This guide walks through setting up the ENVI iOS development environment from scratch.
 
@@ -33,17 +33,17 @@ This fetches the following SPM dependencies:
 
 ## 3. Firebase setup
 
-The checked-in app target is currently wired for the staging bundle identifier:
+The checked-in app target is currently wired for Informal Content Agency:
 
-- **Release / staging bundle ID:** `com.weareinformal.envi.staging`
-- **Debug bundle ID override:** `com.geraldwelly.envi.debug`
+- **Apple Developer Team:** `7P76H55MAW`
+- **Bundle ID:** `com.weareinformal.envi`
 - **Checked-in plist path:** `ENVI/Resources/GoogleService-Info.plist`
 
 If you want to point the app at a different Firebase project:
 
 1. Add the matching iOS app in Firebase for your intended bundle ID.
 2. Replace `ENVI/Resources/GoogleService-Info.plist` with the matching plist.
-3. Update `project.yml` bundle identifiers if you are changing away from the current staging/debug IDs.
+3. Update `project.yml` bundle identifier and signing team if you are changing away from the current Informal Content Agency configuration.
 4. Regenerate the project if needed (`xcodegen generate`).
 
 Auth uses Firebase directly, and DEBUG builds install the App Check debug provider before `FirebaseApp.configure()`. Release builds use DeviceCheck-backed App Check.

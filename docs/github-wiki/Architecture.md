@@ -1,6 +1,6 @@
 # Architecture
 
-**Last updated:** 2026-04-16 UTC
+**Last updated:** 2026-05-08 UTC
 
 ## System architecture overview
 
@@ -291,7 +291,9 @@ All dependencies are declared in `Package.swift`. See [Firebase Data Connect](Fi
 
 ## Bundle identifier
 
-`com.weareinformal.envi.staging`
+`com.weareinformal.envi`
+
+Signing is configured for Informal Content Agency, Apple Developer Team `7P76H55MAW`.
 
 ## Further reading
 

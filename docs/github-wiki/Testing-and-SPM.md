@@ -1,6 +1,6 @@
 # Testing & Swift Package
 
-**Last updated:** 2026-04-23 UTC
+**Last updated:** 2026-05-08 UTC
 
 ## Swift Package (`Package.swift`)
 
@@ -51,6 +51,8 @@ xcodebuild test \
 
 - **`iOS CI`** — full simulator build + test for pull requests to `main`
 - **`USM iOS CI`** — feature-branch simulator validation used during the USM rollout
+
+Last local debugger pass on 2026-05-08 ran 256 Xcode tests with 10 skips and 0 failures, plus Functions build/tests and simulator install/launch for `com.weareinformal.envi`.
 
 ---
 

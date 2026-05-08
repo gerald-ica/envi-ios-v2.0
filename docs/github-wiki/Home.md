@@ -8,7 +8,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Wiki last updated** | 2026-04-23 UTC |
+| **Wiki last updated** | 2026-05-08 UTC |
 | **Source of truth** | Main repo `README.md`, `ENVI/` Swift sources, `dataconnect/` |
 | **Changelog** | Main repo `docs/WIKI_CHANGELOG.md` |
 
@@ -28,8 +28,9 @@ ENVI is an AI-native content operating system for creators, teams, and agencies.
 
 ## Current repo state
 
+- **Signing aligned:** `main` is configured for Informal Content Agency, Apple Developer Team `7P76H55MAW`, with bundle identifier `com.weareinformal.envi`.
 - **USM merged:** PRs `#36` and `#37` are merged into `main`, bringing `UserSelfModel`, `USMCache`, `USMSyncActor`, and the 4-step USM onboarding flow into the app.
-- **CI green:** `Build and test (iOS simulator)` and `USM iOS CI / xctest` both passed on 2026-04-23 UTC after the workflow cleanup.
+- **Local verification current:** on 2026-05-08, Swift package resolve, Functions build/tests, Xcode Debug build, Xcode simulator tests, and simulator install/launch all passed for `com.weareinformal.envi`.
 - **Not production-ready yet:** the USM onboarding route is still staging-only because `OnboardingCoordinator.swift` uses a hardcoded debug user and local `mintDebugJWT()` signer.
 
 ## Quick links

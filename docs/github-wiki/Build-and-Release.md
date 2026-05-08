@@ -1,6 +1,6 @@
 # Build & release
 
-**Last updated:** 2026-04-23 UTC
+**Last updated:** 2026-05-08 UTC
 
 ## Requirements
 
@@ -20,10 +20,10 @@ Select the **ENVI** app scheme, choose an iOS simulator or device, then press **
 
 Do not run the package workspace on a physical device. The Swift package is for module/test management; the installable product is the app target in `ENVI.xcodeproj`.
 
-## Bundle IDs
+## Signing and bundle ID
 
-- **Release / staging:** `com.weareinformal.envi.staging`
-- **Debug override:** `com.geraldwelly.envi.debug`
+- **Apple Developer Team:** Informal Content Agency (`7P76H55MAW`)
+- **Bundle ID:** `com.weareinformal.envi`
 
 ## Fonts
 
@@ -54,7 +54,14 @@ Current GitHub Actions checks:
 - **Build and test (iOS simulator)** — full simulator build + test on pull requests to `main`
 - **xctest** (workflow `USM iOS CI`) — targeted simulator validation used during the USM rollout
 
-Both checks passed on the merged USM Sprint 2 branch on 2026-04-23 UTC.
+Local release-readiness verification passed on 2026-05-08 UTC:
+
+- `swift package resolve`
+- `npm --prefix functions run build`
+- `npm --prefix functions test -- --runInBand`
+- `xcodebuild ... build CODE_SIGNING_ALLOWED=NO`
+- `xcodebuild ... test CODE_SIGNING_ALLOWED=NO`
+- simulator install/launch for `com.weareinformal.envi`
 
 ## USM release note
 

@@ -8,9 +8,11 @@ ENVI is a personalized ai content editor on iOS 26+ app that assembles and edits
 
 ## Repo Status
 
+- `main` is configured for Informal Content Agency signing: Apple Developer Team `7P76H55MAW`, bundle identifier `com.weareinformal.envi`.
 - `main` includes the merged USM foundation and onboarding work from PRs [#36](https://github.com/gerald-ica/envi-ios-v2.0/pull/36) and [#37](https://github.com/gerald-ica/envi-ios-v2.0/pull/37).
 - The new User Self-Model path is gated by `FeatureFlags.shared.usmEnabled` and `FeatureFlags.shared.usmOnboardingEnabled`, with DEBUG defaults on and release defaults off.
 - The USM onboarding flow is still staging-scaffolded: [`OnboardingCoordinator.swift`](ENVI/Features/Auth/OnboardingCoordinator.swift) currently hardcodes a debug user UUID and local `mintDebugJWT()` helper. Do not treat that path as production-ready until the Firebase UID -> backend account exchange is wired.
+- Last local release-readiness pass on 2026-05-08: Swift package resolve, Functions build/tests, Xcode Debug build, Xcode simulator tests, and simulator install/launch all passed.
 
 ## Features
 
@@ -166,7 +168,7 @@ open ENVI.xcodeproj
 ```xml
 <key>BGTaskSchedulerPermittedIdentifiers</key>
 <array>
-    <string>com.weareinformal.envi.staging.usm-recompute</string>
+    <string>com.envi.mediaclassifier.fullscan</string>
 </array>
 ```
 
@@ -175,7 +177,7 @@ Add additional identifiers (e.g. for the media-classifier full-scan task) here b
 ### Bundle ID
 
 ```
-com.weareinformal.envi.staging
+com.weareinformal.envi
 ```
 
 ## Fonts
