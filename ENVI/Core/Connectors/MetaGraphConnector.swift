@@ -43,12 +43,15 @@ import Combine
 /// set of public identifiers needed by the broker + iOS surface. Secrets are
 /// pulled server-side from Secret Manager in `MetaProvider`.
 internal enum MetaPlatform {
-    /// Facebook Pages. App ID `1233228574968466`.
+    /// Facebook Pages. Production parent app ID `1422291482707790`
+    /// (migrated 2026-05-10 from test child `1233228574968466`).
     case facebook(appID: String)
 
-    /// Instagram Business/Creator. App ID `1811522229543951`. The client
-    /// token (`3bb10460a0360e4adcdfc98609ae0cb0`) is an app-level public
-    /// token safe to ship in the iOS binary — NOT a user secret.
+    /// Instagram Business/Creator. App ID `1811522229543951` is the
+    /// Instagram-specific Meta app. NOTE: the previous client-token
+    /// reference here (`3bb10460a0360e4adcdfc98609ae0cb0`) was the FB
+    /// test child's token, not Instagram's — verify Instagram has its
+    /// own client token before relying on this case at runtime.
     case instagram(appID: String, clientToken: String)
 
     /// Threads standalone. App ID `1604969460421980`. Parent app group

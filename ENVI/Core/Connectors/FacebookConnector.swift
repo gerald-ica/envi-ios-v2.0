@@ -66,7 +66,11 @@ final class FacebookConnector: MetaGraphConnector {
     /// Meta dev-app id for ENVI's Facebook Pages integration. Public
     /// identifier — safe to ship in binary. Secret lives server-side in
     /// Secret Manager as `staging-meta-app-secret`.
-    static let facebookAppID = "1233228574968466"
+    ///
+    /// Migrated from test child `1233228574968466` to production parent
+    /// `1422291482707790` on 2026-05-10. Server-side `staging-meta-app-secret`
+    /// must rotate to the parent app's secret before broker exchange works.
+    static let facebookAppID = "1422291482707790"
 
     // MARK: - Singleton
 
