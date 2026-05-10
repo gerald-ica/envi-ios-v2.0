@@ -253,26 +253,22 @@ extension LynxWebViewController: WKNavigationDelegate {
     }
 
     @MainActor
-    func webView(
-        _ webView: WKWebView,
-        decidePolicyFor navigationAction: WKNavigationAction,
-        decisionHandler: @escaping @MainActor @Sendable (WKNavigationActionPolicy) -> Void
-    ) {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
         guard let url = navigationAction.request.url else {
-            decisionHandler(.cancel); return
+            return .cancel
         }
         // Only permit the local shell file, the envi-asset scheme, and
         // the explicit lynxBundlePath (if any).
         if url.isFileURL {
-            decisionHandler(.allow); return
+            return .allow
         }
         if url.scheme == "envi-asset" {
-            decisionHandler(.allow); return
+            return .allow
         }
         if let bundle = bridgeConfig.lynxBundlePath, url == bundle {
-            decisionHandler(.allow); return
+            return .allow
         }
-        decisionHandler(.cancel)
+        return .cancel
     }
 }
 
