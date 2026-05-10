@@ -447,7 +447,7 @@ class SocialOAuthManager {
         case .tiktok: return ["user.info.basic", "video.list", "video.publish"]
         case .x: return ["tweet.read", "tweet.write", "users.read"]
         case .threads: return ["threads_basic", "threads_publish"]
-        case .linkedin: return ["r_liteprofile", "w_member_social"]
+        case .linkedin: return ["openid", "profile", "email", "w_member_social"]
         case .youtube: return ["youtube.readonly", "youtube.upload"]
         }
     }

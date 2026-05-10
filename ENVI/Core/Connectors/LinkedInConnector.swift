@@ -7,7 +7,7 @@
 //  Two-phase OAuth
 //  ---------------
 //  LinkedIn scopes split cleanly across two access tiers:
-//    - Member tier (self-serve):  `r_liteprofile`, `w_member_social`
+//    - Member tier (self-serve):  `openid` + `profile` + `email` + `w_member_social`
 //    - Organization tier (MDP):   `r_organization_social`, `w_organization_social`
 //
 //  The connector asks for the member tier on the first `connect()` call so
@@ -127,7 +127,12 @@ final class LinkedInConnector {
     nonisolated(unsafe) static let shared = LinkedInConnector()
 
     /// Self-serve scopes required for any personal-profile posting.
-    static let memberScopes: [String] = ["r_liteprofile", "w_member_social"]
+    ///
+    /// `r_liteprofile` and `r_emailaddress` were deprecated by LinkedIn in
+    /// favor of OpenID Connect's `profile` + `email` (paired with `openid`).
+    /// LinkedIn returns 400 on new apps still requesting the old scopes —
+    /// migrated 2026-05-10.
+    static let memberScopes: [String] = ["openid", "profile", "email", "w_member_social"]
 
     /// Additional scopes needed for company-page posting. Gated behind
     /// LinkedIn's Marketing Developer Platform approval (email-form, 1–5
