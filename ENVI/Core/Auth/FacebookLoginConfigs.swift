@@ -22,6 +22,12 @@ import Foundation
 ///
 /// If we ever need to differentiate sign-in vs posting on iOS we'd have
 /// to build that web-based path; the SDK doesn't expose a hook.
+// TODO(parent-migration): These IDs are from the test child app 1233228574968466.
+// New parent app 1422291482707790 will issue new config IDs after Step C of the
+// FB-PARENT-MIGRATION-2026-05-10 workstream completes. Update this file once new
+// IDs land. The constants are referenced only by SocialOAuthManager's future
+// ASWebAuthenticationSession-based flow (per the file's doc comment), so they
+// don't currently break sign-in.
 enum FacebookLoginConfigs {
 
     /// User authentication / sign-in. Asks for `email` + `public_profile`

@@ -51,16 +51,16 @@
 			<string>com.weareinformal.envi.facebook</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fb1233228574968466</string>
+				<string>fb1422291482707790</string>
 			</array>
 		</dict>
 	</array>
 	<key>FacebookAppID</key>
-	<string>1233228574968466</string>
+	<string>1422291482707790</string>
 	<key>FacebookClientToken</key>
-	<string>3bb10460a0360e4adcdfc98609ae0cb0</string>
+	<string>6c96ef4d1e55b58c155c118fc5ba40fd</string>
 	<key>FacebookDisplayName</key>
-	<string>ENVI - Test1</string>
+	<string>ENVI</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
