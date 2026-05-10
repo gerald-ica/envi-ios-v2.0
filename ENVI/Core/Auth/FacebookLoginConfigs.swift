@@ -1,7 +1,8 @@
 import Foundation
 
 /// Facebook Login for Business configuration IDs registered against the
-/// ENVI Meta app (App ID `1233228574968466`).
+/// ENVI Meta app (App ID `1422291482707790` — the production parent;
+/// test child `1233228574968466` is no longer used by iOS).
 ///
 /// These IDs come from the **Use cases** tab on the Meta App dashboard.
 /// Each Login for Business "use case" gets its own config ID that binds a
@@ -22,32 +23,30 @@ import Foundation
 ///
 /// If we ever need to differentiate sign-in vs posting on iOS we'd have
 /// to build that web-based path; the SDK doesn't expose a hook.
-// TODO(parent-migration): These IDs are from the test child app 1233228574968466.
-// New parent app 1422291482707790 will issue new config IDs after Step C of the
-// FB-PARENT-MIGRATION-2026-05-10 workstream completes. Update this file once new
-// IDs land. The constants are referenced only by SocialOAuthManager's future
-// ASWebAuthenticationSession-based flow (per the file's doc comment), so they
-// don't currently break sign-in.
 enum FacebookLoginConfigs {
 
-    /// User authentication / sign-in. Asks for `email` + `public_profile`
-    /// only. Used at the SignInView "Continue with Facebook" entry
-    /// point — but right now the iOS SDK ignores this and uses the
-    /// dashboard's default config instead. Kept here so a future web
-    /// flow can target the right config explicitly.
-    static let signIn = "1340471514631612"
+    /// User authentication / sign-in (parent-app config "Envi").
+    /// Currently scoped to `email` + `instagram_basic` — `public_profile`
+    /// requires Advanced Access on the parent app, which is gated on
+    /// app review submission. Once Advanced Access is approved, edit
+    /// the dashboard config to add `public_profile` and (optionally)
+    /// drop the `instagram_basic` companion that was added to satisfy
+    /// Meta's "email needs a partner scope" wizard rule.
+    static let signIn = "1600816680981138"
 
-    /// Page management — content publishing, post creation, page
-    /// insights. This is what `SocialOAuthManager` will pass to the
-    /// connector OAuth flow when a user taps "Connect Facebook Page" in
-    /// the Profile/Connectors UI. Scope set on the dashboard side
-    /// includes `pages_manage_posts`, `pages_read_engagement`,
-    /// `pages_show_list`.
-    static let pageManagement = "4386185514970426"
+    /// Page management (parent-app config "Instagram Onboarding").
+    /// Scopes: `pages_show_list`, `pages_manage_posts`,
+    /// `pages_read_engagement`, `instagram_basic`,
+    /// `instagram_content_publish`. Used by `SocialOAuthManager` when
+    /// the user taps "Connect Facebook Page" in the Profile/Connectors
+    /// UI.
+    static let pageManagement = "954328457361944"
 
-    /// Third Login for Business configuration. Likely tied to a separate
-    /// connector (Instagram Graph, Threads, or ad-account access) — to be
-    /// confirmed on the Meta dashboard when we wire the corresponding
-    /// connector flow.
-    static let thirdConfig = "2189661441829437"
+    /// Instagram Creator Marketplace (parent-app config). Scopes:
+    /// `instagram_basic`, `instagram_content_publish`,
+    /// `pages_show_list`, `instagram_branded_content_brand`,
+    /// `instagram_branded_content_creator`,
+    /// `instagram_manage_insights`. Used for the branded-content
+    /// onboarding flow.
+    static let thirdConfig = "966476716301984"
 }
