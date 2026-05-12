@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENVI — Data Deletion</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; max-width: 720px; margin: 2em auto; padding: 0 1.2em; color: #1d1d1f; line-height: 1.55; }
+  h1 { font-size: 1.8em; margin-bottom: 0; }
+  h2 { font-size: 1.15em; margin-top: 2em; }
+  .meta { color: #666; font-size: 0.9em; margin-bottom: 2em; }
+  a { color: #0a84ff; }
+  ul { padding-left: 1.4em; }
+  ol { padding-left: 1.4em; }
+  ol li { margin-bottom: 0.4em; }
+  hr { border: 0; border-top: 1px solid #ddd; margin: 2.5em 0 1.5em; }
+  .footer { color: #888; font-size: 0.85em; }
+  code { background: #f5f5f7; padding: 0.1em 0.4em; border-radius: 4px; font-size: 0.95em; }
+  .callout { background: #f5f5f7; padding: 1em 1.2em; border-radius: 8px; margin: 1.4em 0; }
+</style>
+</head>
+<body>
+
+<h1>Data Deletion</h1>
+<p class="meta">ENVI by Informal Content Agency · Last updated 2026-05-10</p>
+
+<p>You can delete your ENVI account and all associated personal data at any time. This page describes the three available paths and what gets deleted.</p>
+
+<h2>Option 1 — Delete from inside the ENVI app (Recommended)</h2>
+<ol>
+  <li>Open ENVI on your iPhone</li>
+  <li>Tap the <strong>Profile</strong> tab</li>
+  <li>Tap <strong>Settings → Privacy &amp; Security</strong></li>
+  <li>Tap <strong>Delete Account</strong></li>
+  <li>Confirm the action — your account and data are queued for deletion within 24 hours, with backups purged within 30 days</li>
+</ol>
+<p>This is the fastest path. It signs you out of all connected platforms (Facebook, Instagram, TikTok, LinkedIn, Apple) and purges your data from our backend in a single flow.</p>
+
+<h2>Option 2 — Email request</h2>
+<p>If you can't access the app — for example, you've already uninstalled it or lost access to your sign-in provider — email us at <a href="mailto:privacy@weareinformal.com">privacy@weareinformal.com</a> with:</p>
+<ul>
+  <li>The email address or phone number you signed up with</li>
+  <li>(Optional) The platform you signed in with (Apple / Google / Facebook)</li>
+  <li>A statement requesting deletion of your account and personal data</li>
+</ul>
+<p>We respond within 5 business days and complete deletion within 30 days of confirmation. You may be asked one verification question (e.g., approximate sign-up date or last-used connector) to prevent fraudulent deletion requests.</p>
+
+<h2>Option 3 — Disconnect Facebook only</h2>
+<p>If you only want to revoke ENVI's access to your Facebook account (without deleting your full ENVI account), you can do so directly from Facebook:</p>
+<ol>
+  <li>Visit <a href="https://www.facebook.com/settings?tab=business_tools">facebook.com/settings?tab=business_tools</a></li>
+  <li>Find <strong>ENVI</strong> in the list of connected apps</li>
+  <li>Click <strong>Remove</strong></li>
+</ol>
+<p>This revokes our OAuth tokens at Facebook. Your Facebook-derived data is purged from our systems within 24 hours via a deauthorize-callback webhook. Other ENVI data (USM, drafts, subscriptions) is retained — use Option 1 or 2 above to delete those.</p>
+
+<h2>What gets deleted</h2>
+<ul>
+  <li><strong>Account profile</strong> — display name, email, phone, OAuth identities, sign-in provider linkages</li>
+  <li><strong>User Self-Model (USM)</strong> — birth details, archetype selections, persona preferences, on-device-derived archetype fingerprints</li>
+  <li><strong>Content drafts</strong> — captions, video edits, template selections, scheduled posts not yet published</li>
+  <li><strong>Connector tokens</strong> — Facebook / Instagram / TikTok / LinkedIn / Apple OAuth refresh tokens (purged from Secret Manager + Firestore)</li>
+  <li><strong>Push notification tokens</strong> — APNs identifiers</li>
+  <li><strong>Analytics</strong> — your event history is anonymized within 30 days; raw events are deleted from BigQuery within 90 days as part of the standard retention cycle</li>
+  <li><strong>Backups</strong> — purged from encrypted backups within 30 days of the deletion request</li>
+</ul>
+
+<div class="callout">
+<p><strong>Already-published content stays where you put it.</strong> If you've published a post to Facebook, Instagram, TikTok, or LinkedIn through ENVI, deleting your ENVI account does <em>not</em> delete those posts from the destination platforms — you'll need to delete them on each platform directly.</p>
+</div>
+
+<h2>Confirmation</h2>
+<p>Once deletion is complete, we send a final confirmation email to the address on file (Options 1 and 2). After that, the address is removed from our systems. We do not retain any record of your deletion request beyond the standard transactional email retention applied to all customer support correspondence (90 days).</p>
+
+<h2>Contact</h2>
+<p>Email <a href="mailto:privacy@weareinformal.com">privacy@weareinformal.com</a> for any data-deletion question.</p>
+
+<hr>
+<p class="footer">See also: <a href="../">Privacy Policy</a> · <a href="../terms/">Terms of Service</a></p>
+
+</body>
+</html>

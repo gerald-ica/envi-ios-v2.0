@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENVI — Privacy Policy</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; max-width: 760px; margin: 2em auto; padding: 0 1.2em; color: #1d1d1f; line-height: 1.55; }
+  h1 { font-size: 1.8em; margin-bottom: 0; }
+  h2 { font-size: 1.18em; margin-top: 2.2em; }
+  h3 { font-size: 1em; margin-top: 1.5em; margin-bottom: 0.4em; }
+  .meta { color: #666; font-size: 0.9em; margin-bottom: 2em; }
+  a { color: #0a84ff; }
+  ul, ol { padding-left: 1.4em; }
+  li { margin-bottom: 0.3em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.95em; }
+  th, td { border: 1px solid #ddd; padding: 0.6em 0.8em; text-align: left; vertical-align: top; }
+  th { background: #f5f5f7; font-weight: 600; }
+  hr { border: 0; border-top: 1px solid #ddd; margin: 2.5em 0 1.5em; }
+  .footer { color: #888; font-size: 0.85em; }
+  .callout { background: #f5f5f7; padding: 1em 1.2em; border-radius: 8px; margin: 1.4em 0; }
+  code { background: #f5f5f7; padding: 0.1em 0.4em; border-radius: 4px; font-size: 0.95em; }
+</style>
+</head>
+<body>
+
+<h1>Privacy Policy</h1>
+<p class="meta">ENVI by Informal Content Agency · Effective 2026-05-10</p>
+
+<p>This policy describes how Informal Content Agency ("Informal", "we", "us") collects, uses, and shares personal data when you use the ENVI mobile app and related services (the "Service"). By using ENVI, you accept this policy. If you don't agree, please don't use the Service.</p>
+
+<h2>1. Who we are</h2>
+<p>Informal Content Agency, 3945 W Reno Ave. STE C, Las Vegas, NV 89118, USA. Contact: <a href="mailto:privacy@weareinformal.com">privacy@weareinformal.com</a>.</p>
+
+<h2>2. Data we collect</h2>
+
+<h3>2.1 Account information</h3>
+<p>When you create an account, we collect your name, email address, and the OAuth identity from your sign-in provider (Apple, Google, or Facebook). Sign in with Apple may pass a private relay address — we use whatever address Apple provides.</p>
+
+<h3>2.2 User Self-Model (USM)</h3>
+<p>The USM personalizes ENVI's content recommendations and predictions. It includes:</p>
+<ul>
+  <li><strong>Birth details</strong> you provide during onboarding: date, time, and city of birth (used to compute astrological and chronobiological signals)</li>
+  <li><strong>Archetype selections</strong> and persona preferences you choose</li>
+  <li><strong>Voice translator preferences</strong></li>
+  <li><strong>Predicted engagement scores</strong> derived from your past activity</li>
+</ul>
+<p>The USM is encrypted at rest using GCP KMS envelope encryption (AES-256-GCM, keys rotate every 90 days).</p>
+
+<h3>2.3 Photo archetype fingerprint (on-device + differential privacy)</h3>
+<p>ENVI runs an on-device Core ML classifier over photos you select to identify visual archetypes. <strong>Raw photos and raw embeddings never leave your device.</strong> Only a low-dimensional fingerprint is uploaded, with Laplace noise (ε=1.0) added for differential privacy. The server uses this fingerprint only after k-anonymity bucketing (k≥50) for clustering.</p>
+
+<h3>2.4 Content drafts and templates</h3>
+<p>Captions, video edits, template selections, and scheduled posts you create in ENVI are stored on our servers so they sync across your devices. Drafts are deleted when you delete them, when you publish them, or when you delete your account.</p>
+
+<h3>2.5 Connector tokens (Facebook, Instagram, TikTok, LinkedIn, Apple)</h3>
+<p>When you connect a third-party platform, we store the OAuth refresh token issued by that platform. Tokens are encrypted at rest in GCP Secret Manager and used only to perform actions you initiate (read your pages list, publish a post you've drafted). You can revoke access at any time from <em>Settings → Connectors</em> in the app or from the third-party platform's own dashboard.</p>
+
+<h3>2.6 Push notifications</h3>
+<p>If you grant notification permission, we store your APNs (Apple Push Notification service) device token to deliver scheduled-post reminders, prediction alerts, and account notices. You can disable notifications anytime in iOS Settings.</p>
+
+<h3>2.7 Subscriptions and payments</h3>
+<p>Subscriptions and pay-as-you-go token purchases are processed by Apple. We receive only the transaction status (active / expired / refunded), the product ID, and an opaque RevenueCat customer ID — never your payment-card details.</p>
+
+<h3>2.8 Analytics and diagnostics</h3>
+<p>We collect anonymized event data (screen views, feature usage, crash reports) via Firebase Analytics and Crashlytics to improve the Service. Events are pseudonymized at collection and anonymized within 30 days. Raw events are retained in BigQuery for at most 90 days. You can opt out of analytics in <em>Settings → Privacy</em>.</p>
+
+<h3>2.9 Voice translator inputs</h3>
+<p>If you enable the voice translator, your captions and prompts are sent to our server to be rewritten in your selected persona. Inputs and outputs are scrubbed against a banned-terms list and discarded after rewriting — they are never used to train models.</p>
+
+<h2>3. How we use data</h2>
+<p>We use your personal data to:</p>
+<ul>
+  <li>Provide, maintain, and improve the Service</li>
+  <li>Personalize content recommendations and predictions via the USM</li>
+  <li>Authenticate you and link your sign-in provider identity</li>
+  <li>Deliver content to your connected platforms when you ask us to</li>
+  <li>Send transactional emails and push notifications</li>
+  <li>Detect, investigate, and prevent fraud, abuse, and security incidents</li>
+  <li>Comply with legal obligations</li>
+</ul>
+<p>We do <strong>not</strong> use your personal data for advertising, sell it to data brokers, or share it for cross-context behavioral advertising.</p>
+
+<h2>4. Third parties we share with</h2>
+<table>
+  <tr><th>Third party</th><th>Purpose</th><th>Data shared</th></tr>
+  <tr><td>Apple</td><td>App distribution, Sign in with Apple, in-app purchases, push notifications</td><td>Account email/name (if you opted in), purchase status, APNs token</td></tr>
+  <tr><td>Google Firebase (Auth, Firestore, Analytics, Crashlytics, App Check, Remote Config)</td><td>Authentication, content sync, analytics, crash reporting, anti-abuse, feature-flag distribution</td><td>Account ID, OAuth tokens for Firebase Auth, anonymized event data, crash diagnostics</td></tr>
+  <tr><td>Google Cloud Platform (Cloud Run, Cloud SQL, KMS, Secret Manager, BigQuery)</td><td>Server hosting, encrypted USM storage, analytics warehouse</td><td>USM payload (encrypted), connector tokens (encrypted), event data</td></tr>
+  <tr><td>RevenueCat</td><td>Subscription management</td><td>Anonymous customer ID, product ID, subscription status</td></tr>
+  <tr><td>Meta (Facebook, Instagram), TikTok, LinkedIn</td><td>Publishing to connected platforms at your direction</td><td>OAuth tokens you authorize, plus the specific content you choose to publish</td></tr>
+</table>
+
+<h2>5. Retention</h2>
+<table>
+  <tr><th>Category</th><th>Retention</th></tr>
+  <tr><td>Account profile, USM</td><td>Until you delete your account; then ≤30 days in encrypted backups</td></tr>
+  <tr><td>Connector tokens</td><td>Until you disconnect or delete the account; immediate purge after deauthorize webhook</td></tr>
+  <tr><td>Content drafts</td><td>Until you delete them, publish them, or close your account</td></tr>
+  <tr><td>Raw analytics events</td><td>≤90 days in BigQuery; then aggregated only</td></tr>
+  <tr><td>APNs push tokens</td><td>Until your device unregisters or you sign out</td></tr>
+  <tr><td>Customer support email</td><td>≤90 days after the conversation closes</td></tr>
+</table>
+
+<h2>6. Your rights</h2>
+<p>Depending on where you live, you have the right to access, correct, delete, restrict, or port your personal data, and to withdraw consent. To exercise any of these rights:</p>
+<ul>
+  <li>Use <em>Settings → Privacy &amp; Security</em> in the app to download a copy of your data, edit your USM, or delete your account</li>
+  <li>Email <a href="mailto:privacy@weareinformal.com">privacy@weareinformal.com</a> with your request</li>
+  <li>For California residents: see the CCPA section below</li>
+  <li>For European Economic Area / UK / Swiss residents: you may also lodge a complaint with your local data-protection authority</li>
+</ul>
+<p>We respond within 30 days (or sooner where required by law). We do not discriminate against users who exercise privacy rights.</p>
+
+<h3>6.1 California (CCPA / CPRA)</h3>
+<p>California residents have the right to know what personal information we have collected, the right to delete it, the right to correct it, the right to limit the use of sensitive personal information, and the right to opt out of "sale" or "sharing" (we don't do either). Submit requests to <a href="mailto:privacy@weareinformal.com">privacy@weareinformal.com</a> with subject line "CCPA request."</p>
+
+<h2>7. Security</h2>
+<p>We encrypt data in transit (TLS 1.3) and at rest. Sensitive fields (USM payload, connector tokens) are encrypted with AES-256-GCM using GCP KMS-wrapped data encryption keys. Access to production systems is restricted to a small number of staff under audit logging. We use Firebase App Check to attest device integrity before honoring API requests.</p>
+<p>No method of transmission or storage is perfectly secure. If we detect a breach affecting your data, we will notify you in line with applicable laws.</p>
+
+<h2>8. Children</h2>
+<p>ENVI is not directed at children under 13. We do not knowingly collect personal data from children under 13 (or under the local minimum digital-consent age, whichever is greater). If we learn we have collected data from a child without verified parental consent, we will delete it.</p>
+
+<h2>9. International transfers</h2>
+<p>We are based in the United States. If you access ENVI from outside the US, your data will be transferred to and processed in the US. We rely on Standard Contractual Clauses or equivalent mechanisms for transfers from the EEA, UK, and Switzerland.</p>
+
+<h2>10. Changes to this policy</h2>
+<p>We may update this policy from time to time. Material changes will be communicated through the app or by email at least 7 days before they take effect. The "Effective" date at the top reflects the latest revision.</p>
+
+<h2>11. Contact</h2>
+<p>Questions, concerns, or requests:</p>
+<p>Email: <a href="mailto:privacy@weareinformal.com">privacy@weareinformal.com</a><br>
+Postal: Informal Content Agency, 3945 W Reno Ave. STE C, Las Vegas, NV 89118, USA</p>
+
+<hr>
+<p class="footer">See also: <a href="terms/">Terms of Service</a> · <a href="data-deletion/">Data Deletion</a></p>
+
+</body>
+</html>
